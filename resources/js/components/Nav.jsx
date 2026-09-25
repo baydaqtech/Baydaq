@@ -4,7 +4,7 @@ export default function Nav() {
       <div className="wrap">
         <a className="brand" href="#top" aria-label="بيدق تكنولوجي، الصفحة الرئيسية">
           <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#logo-mark" /></svg>
-          <b>بيدق</b><span>تكنولوجي</span>
+          <b>بيدق</b><span><em>تك</em><i className="dot" aria-hidden="true" />&zwnj;نولوجي</span>
         </a>
         <ul>
           <li><a href="#services">خدماتنا</a></li>

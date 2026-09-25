@@ -85,7 +85,14 @@
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
   .brand svg { width: 34px; height: 34px; flex: none; }
   .brand b { font-weight: 800; font-size: 24px; line-height: 1; }
-  .brand span { font-weight: 300; font-size: 15px; color: var(--muted); line-height: 1; }
+  .brand span { font-weight: 300; font-size: 24px; color: var(--faint); line-height: 1; }
+  /* The &zwnj; in Nav.jsx keeps "تك" and "نولوجي" unjoined in every browser. */
+  .brand span em { font-style: normal; font-weight: 800; color: var(--ink); }
+  .brand span .dot {
+    display: inline-block; width: 6px; height: 6px; margin-inline: 5px;
+    border-radius: 50%; background: var(--brass-hi);
+    vertical-align: middle; transform: translateY(-2px);
+  }
   .nav ul { display: flex; gap: 28px; margin-inline-start: auto; font-size: 15px; font-weight: 400; }
   .nav ul a { text-decoration: none; color: var(--muted); transition: color .2s; }
   .nav ul a:hover { color: var(--ink); }
