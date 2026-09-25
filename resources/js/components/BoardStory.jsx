@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SERVICES } from './Services';
 import { STEPS } from './Process';
 
-// Services + process told on one 3D board that follows the scroll (board above the cards on phones).
+// Services + process told on one 3D board that follows the scroll (desktop only).
 // Stages 0–3: one service piece at a time rises and shows its moves.
 // Stages 4–7: the logo pawn walks e2 → e5.
 const STAGES = SERVICES.length + STEPS.length;

@@ -566,33 +566,6 @@
   .p3.pawn .p3-body svg { stroke: none; }
   .p3.pawn .p3-fig { left: -55%; width: 210%; }
 
-  /* Phones and narrow tablets: board on top, the current card under it. */
-  @media (max-width: 900px) {
-    section.block.story { --step: 45svh; }
-    .story-grid { grid-template-columns: 1fr; gap: 4px; }
-    .story-scene {
-      order: -1;
-      /* The turned board is ~1.4× its width across, so it stays under 62vw to fit the screen. */
-      --bw: min(62vw, 34svh);
-      height: calc(var(--bw) * 1.2);
-      perspective-origin: 50% 30%;
-    }
-    .b3 { width: var(--bw); --edge: 8px; }
-    .b3-edge.n, .b3-edge.s { height: 10px; }
-    .b3-edge.e, .b3-edge.w { width: 10px; }
-    .trail3 b { font-size: 15px; }
-    .story-text { gap: 14px; }
-    .story-head { gap: 6px; }
-    .story-head h2 { font-size: clamp(26px, 7vw, 34px); }
-    .story-head p { display: none; }
-    .story-card { gap: 8px; padding: 16px 18px; }
-    .story-card h3 { font-size: 20px; }
-    .story-card p { font-size: 14.5px; line-height: 1.75; }
-    .step-num { font-size: 36px; }
-    .story-progress { gap: 10px 20px; }
-    .story-progress button { width: 22px; height: 22px; }
-  }
-
   /* ---------- Heritage ---------- */
   .about-grid {
     display: grid;
