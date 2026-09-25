@@ -1,0 +1,1054 @@
+<title>بيدق تكنولوجي</title>
+<script>document.documentElement.setAttribute('dir', 'rtl'); document.documentElement.setAttribute('lang', 'ar');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;700;800;900&family=Aref+Ruqaa:wght@700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Deliberately single-theme: light maple board, walnut ink. */
+  :root {
+    color-scheme: light;
+    --ground: #F9F2E6;
+    --panel: #FFFBF4;
+    --panel-2: #FBF3E5;
+    --glass: rgba(255, 250, 241, .82);
+    --line: rgba(59, 36, 20, .12);
+    --line-2: rgba(59, 36, 20, .24);
+    --ink: #2A1A0E;
+    --muted: #6B5238;
+    --faint: #8E7458;
+    --ivory: #F0D9B5;
+    --walnut: #B58863;
+    --frame: #3B2414;
+    --ebony: #1A110A;
+    --brass: #9A6414;
+    --brass-hi: #D9A441;
+    --brass-lo: #6E450C;
+    --shadow: 0 30px 60px -36px rgba(59, 36, 20, .45);
+
+    --f-sans: "Alexandria", "Segoe UI", Tahoma, sans-serif;
+    --f-ruqaa: "Aref Ruqaa", "Alexandria", serif;
+    --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { direction: rtl; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--f-sans);
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--ink);
+    background-color: var(--ground);
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+  }
+
+  .wrap { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: 20px; }
+  h1, h2, h3 { margin: 0; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: inherit; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
+
+  .gold {
+    background: linear-gradient(175deg, var(--brass-hi) 10%, var(--brass) 55%, var(--brass-lo) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .mono {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 500; color: var(--brass);
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 32px; padding-block: 14px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand svg { width: 34px; height: 34px; flex: none; }
+  .brand b { font-weight: 800; font-size: 24px; line-height: 1; }
+  .brand span { font-weight: 300; font-size: 15px; color: var(--muted); line-height: 1; }
+  .nav ul { display: flex; gap: 28px; margin-inline-start: auto; font-size: 15px; font-weight: 400; }
+  .nav ul a { text-decoration: none; color: var(--muted); transition: color .2s; }
+  .nav ul a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font: 500 15px/1 var(--f-sans);
+    padding: 14px 24px;
+    border-radius: 2px;
+    text-decoration: none; cursor: pointer; border: 0;
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s;
+    white-space: nowrap;
+  }
+  .btn-gold {
+    color: #1A0F06;
+    background: linear-gradient(180deg, #F2CD7E, #D6A24E 60%, #B98231);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 10px 30px -12px rgba(214, 162, 78, .7);
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 16px 36px -12px rgba(214, 162, 78, .85); }
+  .btn-line { color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); }
+  .btn-line:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+  .btn .arr { font-family: var(--f-mono); transition: transform .2s; }
+  .btn:hover .arr { transform: translateX(-4px); }
+  .nav .btn { padding: 11px 18px; font-size: 14px; }
+  @media (max-width: 900px) { .nav ul { display: none; } .nav .btn { margin-inline-start: auto; } }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-block: clamp(40px, 7vw, 88px) clamp(48px, 7vw, 96px); }
+  .hero .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+  }
+  .hero-copy { display: grid; gap: 28px; justify-items: start; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 7px 14px 7px 16px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 13px; color: var(--muted);
+    background: var(--panel);
+  }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(214,162,78,.18); }
+  .hero h1 {
+    font-size: clamp(52px, 8.4vw, 112px);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 .gold { display: inline-block; padding-bottom: .08em; }
+  .hero .lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 44ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero-foot {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    padding-top: 24px; border-top: 1px solid var(--line);
+    width: 100%;
+    font-size: 14px; color: var(--faint);
+  }
+  .hero-foot b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- Playable board ---------- */
+  .game { display: grid; gap: 14px; justify-items: center; width: 100%; }
+  .board-frame {
+    width: 100%;
+    max-width: 520px;
+    padding: 14px;
+    background: var(--frame);
+    border-radius: 4px;
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, .06);
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    aspect-ratio: 1;
+    max-width: 100%;
+    direction: ltr;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .sq8 {
+    position: relative;
+    display: grid; place-items: center;
+    margin: 0; padding: 0; border: 0; border-radius: 0;
+    background: var(--ivory);
+    font: inherit;
+    cursor: default;
+    aspect-ratio: 1;
+  }
+  .sq8.d { background: var(--walnut); }
+  .sq8.can { cursor: pointer; }
+  .sq8.last::before, .sq8.sel::before, .sq8.check::before { content: ""; position: absolute; inset: 0; }
+  .sq8.last::before { background: rgba(205, 210, 106, .5); }
+  .sq8.sel::before { background: rgba(170, 182, 60, .6); }
+  .sq8.check::before { background: radial-gradient(circle, rgba(214, 40, 20, .9) 0%, rgba(214, 40, 20, .45) 40%, transparent 72%); }
+  .sq8.hint::after {
+    content: ""; position: absolute; z-index: 2;
+    width: 30%; height: 30%; border-radius: 50%;
+    background: rgba(26, 17, 10, .24);
+    pointer-events: none;
+  }
+  .sq8.hint.cap::after {
+    width: 92%; height: 92%;
+    background: transparent;
+    box-shadow: inset 0 0 0 5px rgba(26, 17, 10, .24);
+  }
+  .sq8:focus-visible { outline: 3px solid var(--brass-hi); outline-offset: -3px; z-index: 3; }
+  .sq8:disabled { cursor: default; }
+  .pc {
+    position: relative; z-index: 1;
+    width: 90%; height: 90%;
+    stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round;
+    filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .22));
+    transition: transform .22s cubic-bezier(.3, .7, .3, 1);
+    pointer-events: none;
+  }
+  .pc.w { fill: #FBF6EC; stroke: #1A110A; --pd: #1A110A; }
+  .pc.b { fill: #1A110A; stroke: #1A110A; --pd: #FBF6EC; }
+  .pc.moving { z-index: 4; }
+  .coord { position: absolute; z-index: 1; font: 500 10px/1 var(--f-mono); pointer-events: none; color: var(--walnut); }
+  .sq8.d .coord { color: var(--ivory); }
+  .coord.r { top: 3px; left: 4px; }
+  .coord.f { bottom: 3px; right: 4px; }
+
+  .game-bar {
+    width: 100%; max-width: 520px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px 16px;
+  }
+  .status { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; min-height: 1.6em; }
+  .status i { width: 14px; height: 14px; flex: none; border-radius: 50%; border: 1.5px solid var(--ebony); background: #FBF6EC; }
+  .status i.b { background: var(--ebony); }
+  .status.think i { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .game-btns { display: flex; gap: 8px; }
+  .btn-sm { padding: 9px 14px; font-size: 13.5px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .moves-log {
+    width: 100%; max-width: 520px;
+    display: flex; flex-wrap: wrap; align-content: flex-start; gap: 2px 14px;
+    min-height: 2.9em; max-height: 6em; overflow-y: auto;
+    padding: 8px 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    direction: ltr;
+    font: 500 13px/1.8 var(--f-mono);
+    color: var(--muted);
+  }
+  .moves-log .n { color: var(--faint); margin-right: 5px; }
+  .moves-log:empty::before { content: attr(data-empty); width: 100%; direction: rtl; text-align: right; font-family: var(--f-sans); font-weight: 300; color: var(--faint); }
+  @media (max-width: 900px) {
+    .hero .wrap { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .board-frame { padding: 8px; }
+    .coord { font-size: 8px; }
+  }
+
+  /* ---------- Stack strip ---------- */
+  .stack { border-block: 1px solid var(--line); background: var(--glass); }
+  .stack .wrap { display: flex; align-items: center; gap: 16px 32px; flex-wrap: wrap; padding-block: 22px; }
+  .stack p { font-size: 14px; color: var(--faint); flex: none; }
+  .stack ul { display: flex; flex-wrap: wrap; gap: 10px 26px; color: var(--muted); }
+  .stack li { font-family: var(--f-mono); font-size: 13.5px; direction: ltr; }
+
+  /* ---------- Sections ---------- */
+  section.block { padding-block: clamp(72px, 10vw, 136px); }
+  .sec-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 16px 48px;
+    align-items: end;
+    margin-bottom: clamp(36px, 5vw, 64px);
+  }
+  .sec-head .eyebrow { grid-column: 1 / -1; }
+  .sec-head h2 { font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; }
+  .sec-head p { color: var(--muted); max-width: 48ch; }
+  @media (max-width: 800px) { .sec-head { grid-template-columns: 1fr; } }
+
+  /* ---------- Services ---------- */
+  .services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .svc {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 28px;
+    padding: clamp(22px, 3vw, 36px);
+    background: linear-gradient(180deg, var(--panel), var(--panel-2)); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 14px 30px -24px rgba(59,36,20,.35);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    transition: border-color .3s, background-color .3s;
+  }
+  .svc:hover { border-color: rgba(214, 162, 78, .45); }
+  .mini {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    width: 160px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    align-self: start;
+    border: 6px solid var(--frame);
+    box-shadow: 0 18px 30px -18px rgba(59, 36, 20, .45);
+    direction: ltr;
+  }
+  .mini span { position: relative; display: grid; place-items: center; }
+  .mini .l { background: var(--ivory); }
+  .mini .d { background: var(--walnut); }
+  .mini .dot::after {
+    content: ""; width: 30%; aspect-ratio: 1; border-radius: 50%;
+    background: rgba(26, 17, 10, .5);
+    transform: scale(.4); opacity: .55;
+    transition: transform .35s cubic-bezier(.3,1.6,.5,1), opacity .35s;
+    transition-delay: var(--dl, 0s);
+  }
+  .svc:hover .mini .dot::after { transform: scale(1); opacity: 1; }
+  .mini svg { width: 88%; height: 88%; fill: var(--ebony); stroke: var(--ebony); stroke-width: 1.5; stroke-linejoin: round; --pd: var(--ivory); filter: drop-shadow(0 2px 1px rgba(0,0,0,.25)); }
+  .svc-body { display: grid; gap: 10px; align-content: start; }
+  .svc .who { color: var(--brass); }
+  .svc h3 { font-size: clamp(21px, 2vw, 25px); font-weight: 700; }
+  .svc p { color: var(--muted); font-size: 15.5px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tags li {
+    font-size: 12.5px; font-weight: 400;
+    padding: 3px 10px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+  @media (max-width: 980px) { .services { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) {
+    .svc { grid-template-columns: 1fr; gap: 20px; }
+    .mini { width: 140px; }
+  }
+
+  /* ---------- Process: one rank of the board ---------- */
+  .rank {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 14px solid var(--frame);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(0,0,0,.25);
+  }
+  .sq {
+    position: relative;
+    display: grid; align-content: space-between; gap: 40px;
+    min-height: 340px;
+    padding: clamp(20px, 2.4vw, 32px);
+    color: #24160B;
+  }
+  .sq:nth-child(odd) { background: var(--ivory); }
+  .sq:nth-child(even) { background: var(--walnut); color: #1A0F06; }
+  .sq .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .sq .num { font-size: clamp(44px, 5vw, 64px); font-weight: 900; line-height: 1; opacity: .9; }
+  .sq .phase { font-size: 14px; font-weight: 500; opacity: .7; }
+  .sq h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .sq p { font-size: 15px; font-weight: 400; line-height: 1.75; opacity: .85; }
+  .sq .get { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(26, 15, 6, .2); font-size: 13.5px; font-weight: 500; }
+  .sq .coord { position: absolute; bottom: 8px; left: 10px; font-size: 11px; opacity: .55; }
+  @media (max-width: 980px) {
+    .rank { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sq:nth-child(3) { background: var(--walnut); color: #1A0F06; }
+    .sq:nth-child(4) { background: var(--ivory); color: #24160B; }
+  }
+  @media (max-width: 560px) {
+    .rank { grid-template-columns: 1fr; border-width: 10px; }
+    .sq { min-height: 0; gap: 24px; }
+    .sq:nth-child(odd) { background: var(--ivory); color: #24160B; }
+    .sq:nth-child(even) { background: var(--walnut); color: #1A0F06; }
+  }
+
+  /* ---------- Heritage ---------- */
+  .heritage .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: center;
+  }
+  .heritage-copy { display: grid; gap: 28px; }
+  .ruqaa {
+    font-family: var(--f-ruqaa);
+    font-weight: 700;
+    font-size: clamp(40px, 5.6vw, 76px);
+    line-height: 1.45;
+  }
+  .heritage-copy > p { color: var(--muted); max-width: 54ch; font-size: 17.5px; }
+  .promo {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 12px;
+    padding: 40px 28px 28px;
+    border: 1px solid var(--line);
+    background: radial-gradient(ellipse at 50% 100%, rgba(214,162,78,.14), transparent 70%);
+    direction: ltr;
+  }
+  .promo figure { margin: 0; display: grid; justify-items: center; gap: 14px; }
+  .promo svg { width: 100%; max-width: 150px; height: auto; fill: currentColor; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; --pd: var(--ground); }
+  .promo .pawn-s { color: var(--muted); max-width: 110px; }
+  .promo .queen-s { color: var(--brass); filter: drop-shadow(0 12px 24px rgba(214,162,78,.35)); }
+  .promo figcaption { color: var(--faint); }
+  .promo .step { align-self: center; color: var(--brass); font-size: 20px; padding-bottom: 36px; }
+  .principles {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-top: clamp(56px, 7vw, 96px);
+    border-top: 1px solid var(--line);
+  }
+  .principles li { display: grid; gap: 10px; align-content: start; padding: 28px 0 0; padding-inline-end: 32px; }
+  .principles li + li { padding-inline-start: 32px; border-inline-start: 1px solid var(--line); }
+  .principles .mono { color: var(--brass); }
+  .principles h3 { font-size: 20px; font-weight: 700; }
+  .principles p { color: var(--muted); font-size: 15.5px; }
+  @media (max-width: 900px) {
+    .heritage .wrap { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr; }
+    .principles li, .principles li + li { padding: 24px 0; border-inline-start: 0; border-bottom: 1px solid var(--line); }
+  }
+
+  /* ---------- Contact ---------- */
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    border: 1px solid var(--line-2);
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+  .contact-side {
+    display: grid; align-content: space-between; gap: 40px;
+    padding: clamp(28px, 4vw, 56px);
+    background:
+      linear-gradient(180deg, rgba(255,250,241,.9), rgba(255,250,241,.97)),
+      conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) 0 0 / 96px 96px;
+    border-inline-end: 1px solid var(--line);
+  }
+  .contact-side h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 800; margin-block: 14px 16px; }
+  .contact-side p { color: var(--muted); }
+  .contact-side dl { display: grid; gap: 18px; margin: 0; }
+  .contact-side dt { font-size: 13px; color: var(--faint); }
+  .contact-side dd { margin: 0; font-weight: 400; }
+  .contact-side dd.ltr { direction: ltr; text-align: right; font-family: var(--f-mono); font-size: 15px; }
+  form {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 24px;
+    padding: clamp(28px, 4vw, 56px);
+    align-content: start;
+  }
+  .field { display: grid; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 13px; color: var(--faint); font-weight: 400; }
+  input, select, textarea {
+    font: 400 16px/1.6 var(--f-sans);
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-2);
+    border-radius: 0;
+    padding: 8px 0 10px;
+    width: 100%;
+    transition: border-color .2s;
+  }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: 6px 55%, 12px 55%; background-size: 6px 6px; background-repeat: no-repeat; }
+  select option { background: var(--panel-2); color: var(--ink); }
+  input:focus, select:focus, textarea:focus { outline: 0; border-bottom-color: var(--brass); }
+  input[type="email"] { direction: ltr; text-align: right; }
+  textarea { min-height: 110px; resize: vertical; }
+  .form-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+  .form-status { font-size: 14.5px; color: var(--brass); }
+  @media (max-width: 900px) {
+    .contact { grid-template-columns: 1fr; }
+    .contact-side { border-inline-end: 0; border-bottom: 1px solid var(--line); }
+  }
+  @media (max-width: 520px) { form { grid-template-columns: 1fr; } }
+
+  /* ---------- Footer ---------- */
+  footer { background: var(--frame); color: #EFE3CF; overflow: hidden; }
+  .wordmark {
+    font-weight: 900;
+    font-size: clamp(110px, 26vw, 360px);
+    line-height: .95;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(214, 162, 78, .35);
+    padding-top: 32px;
+    user-select: none;
+  }
+  footer .row {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 12px 24px;
+    padding-block: 24px 32px;
+    border-top: 1px solid rgba(239, 227, 207, .16);
+    font-size: 14px; color: rgba(239, 227, 207, .65);
+  }
+  footer .row ul { display: flex; gap: 22px; flex-wrap: wrap; }
+  footer .row a { text-decoration: none; }
+  footer .row a:hover { color: #FFF8EC; }
+</style>
+
+<!-- Piece silhouettes (Staunton, after Colin M.L. Burnett's set) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4D58D"/><stop offset=".6" stop-color="#D6A24E"/><stop offset="1" stop-color="#9C6721"/>
+    </linearGradient>
+  </defs>
+  <symbol id="p-pawn" viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/></symbol>
+  <symbol id="p-queen" viewBox="0 0 45 45"><circle cx="6" cy="12" r="2.75"/><circle cx="14" cy="9" r="2.75"/><circle cx="22.5" cy="8" r="2.75"/><circle cx="31" cy="9" r="2.75"/><circle cx="39" cy="12" r="2.75"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z"/><path style="fill:none;stroke:var(--pd, currentColor)" d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0"/></symbol>
+  <symbol id="p-king" viewBox="0 0 45 45"><path style="fill:none" d="M22.5 11.63V6M20 8h5"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5"/><path d="M12.5 37c5.5 3.5 14.5 3.5 20 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-2.5-7.5-12-10.5-16-4-3 6 6 10.5 6 10.5v7z"/><path style="fill:none;stroke:var(--pd, currentColor)" d="M12.5 30c5.5-3 14.5-3 20 0M12.5 33.5c5.5-3 14.5-3 20 0M12.5 37c5.5-3 14.5-3 20 0"/></symbol>
+  <symbol id="p-knight" viewBox="0 0 45 45"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.99-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.99 2.5-3c1 0 1 3 1 3"/><circle style="fill:var(--pd, currentColor);stroke:none" cx="9" cy="25.5" r="1"/><ellipse style="fill:var(--pd, currentColor);stroke:none" cx="14.5" cy="15.5" rx=".6" ry="1.6" transform="rotate(30 14.5 15.5)"/></symbol>
+  <symbol id="p-rook" viewBox="0 0 45 45"><path d="M9 39h27v-3H9v3zM12.5 32l1.5-2.5h17l1.5 2.5h-20zM12 36v-4h21v4H12zM14 29.5v-13h17v13H14zM14 16.5L11 14h23l-3 2.5H14zM11 14V9h4v2h5V9h5v2h5V9h4v5H11z"/><path style="fill:none;stroke:var(--pd, currentColor);stroke-width:1" d="M12 35.5h21M13 31.5h19M14 29.5h17M14 16.5h17M11 14h23"/></symbol>
+  <symbol id="p-bishop" viewBox="0 0 45 45"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.46 3-2 3-2z"/><path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/><circle cx="22.5" cy="8" r="2.5"/><path style="fill:none;stroke:var(--pd, currentColor)" d="M17.5 26h10M15 30h15M22.5 15.5v5M20 18h5"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="بيدق تكنولوجي، الصفحة الرئيسية">
+      <svg viewBox="0 0 45 45" aria-hidden="true"><use href="#p-pawn" fill="url(#brass) #C8923A" stroke="none"/></svg>
+      <b>بيدق</b><span>تكنولوجي</span>
+    </a>
+    <ul>
+      <li><a href="#services">خدماتنا</a></li>
+      <li><a href="#process">منهجيتنا</a></li>
+      <li><a href="#about">لماذا بيدق</a></li>
+      <li><a href="#contact">تواصل معنا</a></li>
+    </ul>
+    <a class="btn btn-gold" href="#contact">ابدأ مشروعك</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="chip"><i></i>برمجيات · ذكاء اصطناعي · سحابة · استشارات</span>
+        <h1 id="hero-title">كل حركة<br><span class="gold">محسوبة.</span></h1>
+        <p class="lede">شريكك التقني من الفكرة الأولى إلى المنتج الذي ينمو. نبني البرمجيات وحلول الذكاء الاصطناعي والبنية السحابية بعقلية لاعب يفكّر خطوات للأمام.</p>
+        <div class="actions">
+          <a class="btn btn-gold" href="#contact">ابدأ مشروعك <span class="arr" aria-hidden="true">←</span></a>
+          <a class="btn btn-line" href="#services">استكشف خدماتنا</a>
+        </div>
+        <div class="hero-foot">
+          <span><b>٦٤</b> خانة</span>
+          <span><b>١٦</b> بيدقاً</span>
+          <span>واتجاه واحد: <b>إلى الأمام</b></span>
+        </div>
+      </div>
+
+      <div class="game">
+        <div class="board-frame">
+          <div class="board" id="board" role="group" aria-label="رقعة شطرنج: أنت تلعب بالأبيض ضد بيدق"></div>
+        </div>
+        <div class="game-bar">
+          <p class="status" id="status" role="status" aria-live="polite"><i class="w"></i><span>أنت تلعب بالأبيض.</span></p>
+          <div class="game-btns">
+            <button class="btn btn-line btn-sm" id="undo" type="button">تراجع</button>
+            <button class="btn btn-line btn-sm" id="reset" type="button">لعبة جديدة</button>
+          </div>
+        </div>
+        <ol class="moves-log" id="moves" aria-label="سجل الحركات" data-empty="سجل الحركات يظهر هنا."></ol>
+      </div>
+    </div>
+  </section>
+
+  <div class="stack">
+    <div class="wrap">
+      <p>نعمل يومياً بـ</p>
+      <ul>
+        <li>Laravel</li><li>React</li><li>Next.js</li><li>Python</li><li>Flutter</li><li>Node.js</li><li>PostgreSQL</li><li>AWS</li><li>Azure</li><li>Docker</li><li>Kubernetes</li><li>LLMs</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <section class="block" id="services" aria-labelledby="services-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">خدماتنا</span>
+        <h2 id="services-title">أربع قطع،<br>أربع طرق للحركة.</h2>
+        <p>لكل قطعة على الرقعة طريقتها في الحركة، ولكل تحدٍّ تقني الأداة التي تناسبه. مرّر المؤشر على البطاقة لترى كيف تتحرّك القطعة.</p>
+      </div>
+
+      <div class="services">
+        <article class="svc">
+          <div class="mini" data-piece="queen" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Queen · الملكة</span>
+            <h3>تطوير البرمجيات والتطبيقات</h3>
+            <p>أكثر القطع مرونة، تتحرّك في كل اتجاه. نصمّم ونبني تطبيقات الويب والجوال والأنظمة المخصّصة من الفكرة حتى الإطلاق.</p>
+            <ul class="tags"><li>تطبيقات ويب</li><li>iOS و Android</li><li>أنظمة مؤسسية</li><li>واجهات API</li></ul>
+          </div>
+        </article>
+        <article class="svc">
+          <div class="mini" data-piece="knight" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Knight · الحصان</span>
+            <h3>حلول الذكاء الاصطناعي</h3>
+            <p>القطعة الوحيدة التي تقفز فوق العوائق. نوظّف النماذج اللغوية والتعلّم الآلي لأتمتة العمل واستخراج القيمة من بياناتك.</p>
+            <ul class="tags"><li>مساعدات ذكية</li><li>أتمتة العمليات</li><li>تحليل البيانات</li><li>معالجة اللغة العربية</li></ul>
+          </div>
+        </article>
+        <article class="svc">
+          <div class="mini" data-piece="rook" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Rook · القلعة</span>
+            <h3>البنية التحتية والسحابة</h3>
+            <p>خطوط مستقيمة وصلابة لا تتزحزح. نبني بنية سحابية آمنة وقابلة للتوسّع، ونؤتمت النشر والمراقبة.</p>
+            <ul class="tags"><li>AWS و Azure</li><li>DevOps و CI/CD</li><li>أمن المعلومات</li><li>المراقبة والأداء</li></ul>
+          </div>
+        </article>
+        <article class="svc">
+          <div class="mini" data-piece="bishop" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Bishop · الفيل</span>
+            <h3>الاستشارات والتحوّل الرقمي</h3>
+            <p>يرى الرقعة على امتداد القُطر. نرسم معك خارطة الطريق التقنية، ونصمّم التجربة، وندير التحوّل بثقة.</p>
+            <ul class="tags"><li>خارطة طريق تقنية</li><li>تصميم UI/UX</li><li>إدارة المشاريع</li><li>تدقيق تقني</li></ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="block" id="process" aria-labelledby="process-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">منهجيتنا</span>
+        <h2 id="process-title">من الافتتاح<br>إلى كش ملك.</h2>
+        <p>كل مشروع مباراة لها مراحل واضحة. في نهاية كل مرحلة تستلم شيئاً ملموساً، فلا تبقى أي حركة غامضة.</p>
+      </div>
+
+      <ol class="rank">
+        <li class="sq">
+          <div class="top"><span class="num">١</span><span class="phase">الافتتاح</span></div>
+          <div>
+            <h3>الاكتشاف</h3>
+            <p>نفهم أهدافك ومستخدميك وقيودك، ونحدّد نطاق العمل بدقّة.</p>
+            <p class="get">تستلم: وثيقة متطلبات وتقديراً للوقت والتكلفة</p>
+          </div>
+          <span class="coord mono">e1</span>
+        </li>
+        <li class="sq">
+          <div class="top"><span class="num">٢</span><span class="phase">وسط اللعب</span></div>
+          <div>
+            <h3>التصميم والهندسة</h3>
+            <p>نرسم الواجهات ونصمّم المعمارية التقنية قبل كتابة أي سطر إنتاجي.</p>
+            <p class="get">تستلم: نماذج تفاعلية وخطة تقنية</p>
+          </div>
+          <span class="coord mono">f1</span>
+        </li>
+        <li class="sq">
+          <div class="top"><span class="num">٣</span><span class="phase">النهاية</span></div>
+          <div>
+            <h3>التنفيذ</h3>
+            <p>نبني على دفعات كل أسبوعين، مع عرض مباشر للتقدّم واختبارات مستمرة.</p>
+            <p class="get">تستلم: نسخة تعمل في نهاية كل دفعة</p>
+          </div>
+          <span class="coord mono">g1</span>
+        </li>
+        <li class="sq">
+          <div class="top"><span class="num">٤</span><span class="phase">كش ملك</span></div>
+          <div>
+            <h3>الإطلاق والدعم</h3>
+            <p>ننشر المنتج ونراقب أداءه، ونبقى معك بعد الإطلاق للتحسين والصيانة.</p>
+            <p class="get">تستلم: منتجاً حيّاً وخطة دعم</p>
+          </div>
+          <span class="coord mono">h1</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Heritage / Why -->
+  <section class="block heritage" id="about" aria-labelledby="about-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="heritage-copy">
+        <span class="eyebrow" id="about-title">لماذا «بيدق»؟</span>
+        <p class="ruqaa gold">البيدق إذا بلغ آخر الرقعة ترقّى.</p>
+        <p>في الشطرنج العربي القديم كان البيدق أصغر القطع وأضعفها، لكنه إذا بلغ الصف الأخير ترقّى إلى «فِرزان»، أي الوزير. اخترنا الاسم لأننا نؤمن بالطريق نفسه: تقدّم ثابت، خطوة بعد خطوة، حتى تصل الفكرة الصغيرة إلى أقوى صورها.</p>
+      </div>
+
+      <div class="promo" aria-hidden="true">
+        <figure>
+          <svg class="pawn-s" viewBox="0 0 45 45"><use href="#p-pawn"/></svg>
+          <figcaption class="mono">e7</figcaption>
+        </figure>
+        <span class="step mono">→</span>
+        <figure>
+          <svg class="queen-s" viewBox="0 0 45 45"><use href="#p-queen" fill="url(#brass)" stroke="url(#brass)"/></svg>
+          <figcaption class="mono">e8=Q</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <ul class="principles">
+        <li>
+          <span class="mono">Principle 01</span>
+          <h3>نبدأ من حيث أنت</h3>
+          <p>شركة ناشئة بفكرة أولى أو مؤسسة تحدّث أنظمتها: نصمّم الحل على مقاس مرحلتك الحالية.</p>
+        </li>
+        <li>
+          <span class="mono">Principle 02</span>
+          <h3>نفكّر خطوات للأمام</h3>
+          <p>كل قرار تقني اليوم يحسب حساب النمو غداً: معمارية تتوسّع، وكود يسهل صيانته، وتوثيق واضح.</p>
+        </li>
+        <li>
+          <span class="mono">Principle 03</span>
+          <h3>نلتزم حتى آخر الرقعة</h3>
+          <p>لا نسلّم المشروع ونختفي. نبقى شريكك التقني بعد الإطلاق، لأن الترقية تحدث في آخر الرقعة.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="block" id="contact" aria-labelledby="contact-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="contact">
+        <div class="contact-side">
+          <div>
+            <span class="eyebrow">تواصل معنا</span>
+            <h2 id="contact-title">حرّك قطعتك<br><span class="gold">الأولى.</span></h2>
+            <p>أخبرنا عن مشروعك، وسنعود إليك خلال يوم عمل واحد باقتراح للخطوة التالية.</p>
+          </div>
+          <dl>
+            <div><dt>البريد الإلكتروني</dt><dd class="ltr">hello@baydaq.tech</dd></div>
+            <div><dt>الهاتف</dt><dd class="ltr">+000 00 000 0000</dd></div>
+            <div><dt>ساعات العمل</dt><dd>الأحد إلى الخميس، ٩ صباحاً إلى ٥ مساءً</dd></div>
+          </dl>
+        </div>
+
+        <form id="contact-form" novalidate>
+          <div class="field">
+            <label for="c-name">الاسم</label>
+            <input id="c-name" name="name" type="text" autocomplete="name" required value="سارة العتيبي">
+          </div>
+          <div class="field">
+            <label for="c-email">البريد الإلكتروني</label>
+            <input id="c-email" name="email" type="email" autocomplete="email" required value="sara@example.com">
+          </div>
+          <div class="field">
+            <label for="c-company">الشركة (اختياري)</label>
+            <input id="c-company" name="company" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="c-service">الخدمة المطلوبة</label>
+            <select id="c-service" name="service">
+              <option>تطوير البرمجيات والتطبيقات</option>
+              <option selected>حلول الذكاء الاصطناعي</option>
+              <option>البنية التحتية والسحابة</option>
+              <option>الاستشارات والتحوّل الرقمي</option>
+              <option>لست متأكداً بعد</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="c-msg">نبذة عن المشروع</label>
+            <textarea id="c-msg" name="message" required>نحتاج مساعداً ذكياً يجيب عن استفسارات العملاء باللغة العربية ويتكامل مع نظامنا الحالي.</textarea>
+          </div>
+          <div class="form-foot">
+            <button class="btn btn-gold" type="submit">أرسل الرسالة <span class="arr" aria-hidden="true">←</span></button>
+            <span class="form-status" id="form-status" role="status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="wordmark" aria-hidden="true">بيدق</div>
+    <div class="row">
+      <span>© ٢٠٢٦ بيدق تكنولوجي. جميع الحقوق محفوظة.</span>
+      <ul>
+        <li><a href="#services">خدماتنا</a></li>
+        <li><a href="#process">منهجيتنا</a></li>
+        <li><a href="#contact">تواصل معنا</a></li>
+      </ul>
+      <span class="mono">1. e4 e5 2. Nf3</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Mini boards: how each piece moves ---------- */
+  var rules = {
+    queen:  function (dr, dc) { return dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc); },
+    rook:   function (dr, dc) { return dr === 0 || dc === 0; },
+    bishop: function (dr, dc) { return Math.abs(dr) === Math.abs(dc); },
+    knight: function (dr, dc) { return Math.abs(dr * dc) === 2; }
+  };
+  document.querySelectorAll('.mini').forEach(function (el) {
+    var piece = el.getAttribute('data-piece');
+    var html = '';
+    for (var r = 0; r < 5; r++) {
+      for (var c = 0; c < 5; c++) {
+        var dr = r - 2, dc = c - 2;
+        var cls = (r + c) % 2 === 0 ? 'l' : 'd';
+        if (dr === 0 && dc === 0) {
+          html += '<span class="' + cls + '"><svg viewBox="0 0 45 45"><use href="#p-' + piece + '"/></svg></span>';
+        } else if (rules[piece](dr, dc)) {
+          var dist = Math.max(Math.abs(dr), Math.abs(dc));
+          html += '<span class="' + cls + ' dot" style="--dl:' + (dist * 0.07) + 's"></span>';
+        } else {
+          html += '<span class="' + cls + '"></span>';
+        }
+      }
+    }
+    el.innerHTML = html;
+  });
+
+  /* ---------- Prototype form (no backend yet) ---------- */
+  document.getElementById('contact-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var status = document.getElementById('form-status');
+    var name = document.getElementById('c-name').value.trim();
+    var email = document.getElementById('c-email').value.trim();
+    if (!name || !/^\S+@\S+\.\S+$/.test(email)) {
+      status.textContent = 'أدخل اسمك وبريداً إلكترونياً صحيحاً حتى نتمكّن من الرد عليك.';
+      return;
+    }
+    status.textContent = 'وصلت رسالتك. هذا نموذج تجريبي، والإرسال الفعلي سيعمل في نسخة Laravel.';
+  });
+
+  /* ---------- Playable board: you are White, Baydaq plays Black ---------- */
+  var boardEl = document.getElementById('board');
+  var statusEl = document.getElementById('status');
+  var movesEl = document.getElementById('moves');
+  var FILES = 'abcdefgh';
+  var NAMES = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
+  var ARABIC = { p: 'بيدق', n: 'حصان', b: 'فيل', r: 'قلعة', q: 'ملكة', k: 'ملك' };
+  var START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+
+  var cells = {};
+  for (var rk = 8; rk >= 1; rk--) {
+    for (var fi = 0; fi < 8; fi++) {
+      var id = FILES[fi] + rk;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sq8' + ((fi + rk) % 2 === 1 ? ' d' : '');
+      btn.setAttribute('data-sq', id);
+      btn.setAttribute('aria-label', id);
+      boardEl.appendChild(btn);
+      cells[id] = btn;
+    }
+  }
+
+  function coordsHtml(sq) {
+    var h = '';
+    if (sq[0] === 'a') h += '<span class="coord r">' + sq[1] + '</span>';
+    if (sq[1] === '1') h += '<span class="coord f">' + sq[0] + '</span>';
+    return h;
+  }
+  function pieceHtml(p) {
+    return '<svg class="pc ' + p.color + '" viewBox="0 0 45 45" aria-hidden="true"><use href="#p-' + NAMES[p.type] + '"/></svg>';
+  }
+  function boardFromFen(fen) {
+    return fen.split(' ')[0].split('/').map(function (row) {
+      var out = [];
+      row.split('').forEach(function (ch) {
+        if (/\d/.test(ch)) { for (var i = 0; i < +ch; i++) out.push(null); }
+        else out.push({ type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' });
+      });
+      return out;
+    });
+  }
+  function setStatus(text, side, thinking) {
+    statusEl.className = 'status' + (thinking ? ' think' : '');
+    statusEl.innerHTML = '<i class="' + (side || 'w') + '"></i><span></span>';
+    statusEl.lastChild.textContent = text;
+  }
+
+  if (!window.Chess) {
+    var fb = boardFromFen(START);
+    Object.keys(cells).forEach(function (sq) {
+      var p = fb[8 - +sq[1]][FILES.indexOf(sq[0])];
+      cells[sq].innerHTML = coordsHtml(sq) + (p ? pieceHtml(p) : '');
+      cells[sq].disabled = true;
+    });
+    setStatus('تعذّر تحميل اللعبة. أعد تحميل الصفحة للمحاولة مرة أخرى.');
+    document.getElementById('undo').disabled = true;
+    document.getElementById('reset').disabled = true;
+    return;
+  }
+
+  var game = new Chess();
+  var selected = null, targets = [], lastMove = null, busy = false, note = '';
+
+  function render(anim) {
+    var b = game.board();
+    var checkSq = null;
+    if (game.in_check()) {
+      var turn = game.turn();
+      for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+        var q = b[r][c];
+        if (q && q.type === 'k' && q.color === turn) checkSq = FILES[c] + (8 - r);
+      }
+    }
+    var mine = !busy && !game.game_over() && game.turn() === 'w';
+    Object.keys(cells).forEach(function (sq) {
+      var p = b[8 - +sq[1]][FILES.indexOf(sq[0])];
+      var el = cells[sq];
+      el.innerHTML = coordsHtml(sq) + (p ? pieceHtml(p) : '');
+      var t = targets.filter(function (m) { return m.to === sq; })[0];
+      el.classList.toggle('last', !!lastMove && (lastMove.from === sq || lastMove.to === sq));
+      el.classList.toggle('sel', selected === sq);
+      el.classList.toggle('hint', !!t);
+      el.classList.toggle('cap', !!t && !!p);
+      el.classList.toggle('check', checkSq === sq);
+      el.classList.toggle('can', mine && (!!t || (!!p && p.color === 'w')));
+      el.setAttribute('aria-label', sq + (p ? '، ' + (p.color === 'w' ? 'أبيض ' : 'أسود ') + ARABIC[p.type] : ''));
+    });
+    if (anim && !reduce) {
+      var piece = cells[anim.to].querySelector('.pc');
+      if (piece) {
+        var s = boardEl.clientWidth / 8;
+        var dx = (FILES.indexOf(anim.from[0]) - FILES.indexOf(anim.to[0])) * s;
+        var dy = (+anim.to[1] - +anim.from[1]) * s;
+        piece.style.transition = 'none';
+        piece.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+        piece.classList.add('moving');
+        void piece.getBoundingClientRect();
+        piece.style.transition = '';
+        piece.style.transform = '';
+      }
+    }
+  }
+
+  function renderLog() {
+    var h = game.history();
+    var html = '';
+    for (var i = 0; i < h.length; i += 2) {
+      html += '<li><span class="n">' + (i / 2 + 1) + '.</span>' + h[i] + (h[i + 1] ? ' ' + h[i + 1] : '') + '</li>';
+    }
+    movesEl.innerHTML = html;
+    movesEl.scrollTop = movesEl.scrollHeight;
+  }
+
+  function updateStatus() {
+    if (game.in_checkmate()) {
+      if (game.turn() === 'b') setStatus('كش مات! فزت بالمباراة. هل نبني مشروعك بنفس الدقّة؟', 'w');
+      else setStatus('كش مات. فاز بيدق هذه المرة، جرّب لعبة جديدة.', 'b');
+    } else if (game.in_draw() || game.in_stalemate() || game.in_threefold_repetition()) {
+      setStatus('تعادل. لا غالب ولا مغلوب.', 'w');
+    } else if (busy) {
+      setStatus('بيدق يفكّر في حركته…', 'b', true);
+    } else if (game.in_check()) {
+      setStatus('كش! احمِ ملكك.', 'w');
+    } else {
+      setStatus(note || (game.history().length ? 'دورك.' : 'أنت تلعب بالأبيض. انقر قطعة ثم الخانة التي تريدها.'), 'w');
+    }
+    note = '';
+  }
+
+  // Easy opponent: two-ply search on material plus a little positional sense, with noise.
+  var VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+  function evaluate() {
+    var b = game.board(), s = 0;
+    for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+      var p = b[r][c];
+      if (!p) continue;
+      var v = VAL[p.type];
+      var centre = 3.5 - Math.max(Math.abs(3.5 - r), Math.abs(3.5 - c));
+      if (p.type === 'n' || p.type === 'b') v += centre * 8;
+      if (p.type === 'p') v += (p.color === 'w' ? 6 - r : r - 1) * 6 + centre * 4;
+      s += p.color === 'w' ? v : -v;
+    }
+    return s;
+  }
+  function pickMove() {
+    var best = null, bestScore = Infinity;
+    game.moves().forEach(function (m) {
+      game.move(m);
+      var replies = game.moves(), score;
+      if (!replies.length) {
+        score = game.in_checkmate() ? -100000 : 0;
+      } else {
+        score = -Infinity;
+        for (var i = 0; i < replies.length; i++) {
+          game.move(replies[i]);
+          var e = evaluate();
+          game.undo();
+          if (e > score) score = e;
+        }
+      }
+      game.undo();
+      score += Math.random() * 40;
+      if (score < bestScore) { bestScore = score; best = m; }
+    });
+    return best;
+  }
+
+  function play(move) {
+    var m = game.move(move);
+    if (!m) return null;
+    lastMove = m;
+    selected = null;
+    targets = [];
+    render(m);
+    renderLog();
+    return m;
+  }
+
+  function aiTurn() {
+    var m = pickMove();
+    busy = false;
+    if (m) play(m); else render();
+    updateStatus();
+  }
+
+  boardEl.addEventListener('click', function (e) {
+    var el = e.target.closest('.sq8');
+    if (!el || busy || game.game_over() || game.turn() !== 'w') return;
+    var sq = el.getAttribute('data-sq');
+    var hit = targets.filter(function (m) { return m.to === sq; })[0];
+    if (selected && hit) {
+      var m = play({ from: selected, to: sq, promotion: 'q' });
+      if (m && m.flags.indexOf('p') !== -1) note = 'ترقّى بيدقك إلى ملكة! هكذا نعمل: خطوة بعد خطوة حتى القمة.';
+      if (!game.game_over()) {
+        busy = true;
+        var n = note;
+        updateStatus();
+        note = n;
+        setTimeout(aiTurn, 450);
+      } else {
+        updateStatus();
+      }
+      return;
+    }
+    var p = game.get(sq);
+    if (p && p.color === 'w' && selected !== sq) {
+      selected = sq;
+      targets = game.moves({ square: sq, verbose: true });
+    } else {
+      selected = null;
+      targets = [];
+    }
+    render();
+  });
+
+  document.getElementById('undo').addEventListener('click', function () {
+    if (busy || !game.history().length) return;
+    game.undo();
+    if (game.turn() === 'b') game.undo();
+    var h = game.history({ verbose: true });
+    lastMove = h.length ? h[h.length - 1] : null;
+    selected = null; targets = [];
+    render(); renderLog(); updateStatus();
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    if (busy) return;
+    game.reset();
+    lastMove = null; selected = null; targets = [];
+    render(); renderLog(); updateStatus();
+  });
+
+  render();
+  renderLog();
+  updateStatus();
+})();
+</script>

@@ -1,0 +1,1948 @@
+<title>بيدق تكنولوجي</title>
+<script>
+  (function (d) {
+    d.setAttribute('dir', 'rtl');
+    d.setAttribute('lang', 'ar');
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('loading');
+  })(document.documentElement);
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;700;800;900&family=Aref+Ruqaa:wght@700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Deliberately single-theme: light maple board, walnut ink. */
+  :root {
+    color-scheme: light;
+    --ground: #F9F2E6;
+    --panel: #FFFBF4;
+    --panel-2: #FBF3E5;
+    --glass: rgba(255, 250, 241, .82);
+    --line: rgba(59, 36, 20, .12);
+    --line-2: rgba(59, 36, 20, .24);
+    --ink: #2A1A0E;
+    --muted: #6B5238;
+    --faint: #8E7458;
+    --ivory: #F0D9B5;
+    --walnut: #B58863;
+    --frame: #3B2414;
+    --ebony: #1A110A;
+    --brass: #9A6414;
+    --brass-hi: #D9A441;
+    --brass-lo: #6E450C;
+    --shadow: 0 30px 60px -36px rgba(59, 36, 20, .45);
+    --veil-a: rgba(255, 250, 241, .9);
+    --veil-b: rgba(255, 250, 241, .97);
+    --piece: #1A110A;
+    --piece-d: #FBF6EC;
+
+    --f-sans: "Alexandria", "Segoe UI", Tahoma, sans-serif;
+    --f-ruqaa: "Aref Ruqaa", "Alexandria", serif;
+    --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { direction: rtl; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--f-sans);
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--ink);
+    background-color: var(--ground);
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .4s ease, color .4s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+  }
+
+  .wrap { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: 20px; }
+  h1, h2, h3 { margin: 0; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: inherit; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
+
+  .gold {
+    background: linear-gradient(175deg, var(--brass-hi) 10%, var(--brass) 55%, var(--brass-lo) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .mono {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 500; color: var(--brass);
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 32px; padding-block: 14px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand svg { width: 34px; height: 34px; flex: none; }
+  .brand b { font-weight: 800; font-size: 24px; line-height: 1; }
+  .brand span { font-weight: 300; font-size: 15px; color: var(--muted); line-height: 1; }
+  .nav ul { display: flex; gap: 28px; margin-inline-start: auto; font-size: 15px; font-weight: 400; }
+  .nav ul a { text-decoration: none; color: var(--muted); transition: color .2s; }
+  .nav ul a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font: 500 15px/1 var(--f-sans);
+    padding: 14px 24px;
+    border-radius: 2px;
+    text-decoration: none; cursor: pointer; border: 0;
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s;
+    white-space: nowrap;
+  }
+  .btn-gold {
+    color: #1A0F06;
+    background: linear-gradient(180deg, #F2CD7E, #D6A24E 60%, #B98231);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 10px 30px -12px rgba(214, 162, 78, .7);
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 16px 36px -12px rgba(214, 162, 78, .85); }
+  .btn-line { color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); }
+  .btn-line:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+  .btn .arr { font-family: var(--f-mono); transition: transform .2s; }
+  .btn:hover .arr { transform: translateX(-4px); }
+  .nav .btn { padding: 11px 18px; font-size: 14px; }
+  @media (max-width: 900px) { .nav ul { display: none; } .nav .btn { margin-inline-start: auto; } }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-block: clamp(24px, 3vw, 40px) clamp(40px, 5vw, 64px); }
+  .hero .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+  }
+  .hero-copy { display: grid; gap: 28px; justify-items: start; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 7px 14px 7px 16px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 13px; color: var(--muted);
+    background: var(--panel);
+  }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(214,162,78,.18); }
+  .hero h1 {
+    font-size: clamp(34px, 4.1vw, 60px);
+    white-space: nowrap;
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 .gold { display: inline-block; padding-bottom: .08em; }
+  .hero .lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 44ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero-foot {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    padding-top: 24px; border-top: 1px solid var(--line);
+    width: 100%;
+    font-size: 14px; color: var(--faint);
+  }
+  .hero-foot li { color: var(--muted); }
+  .hero-foot b { color: var(--brass); font-weight: 700; margin-inline-end: 4px; }
+
+  /* ---------- Playable board ---------- */
+  .game { display: grid; gap: 14px; justify-items: center; width: 100%; --gw: 548px; }
+  .board-row { display: flex; gap: 10px; width: 100%; max-width: var(--gw); direction: ltr; align-items: stretch; }
+
+  /* Evaluation bar: white's share of the position, like an engine's */
+  .eval { position: relative; flex: none; width: 16px; border-radius: 3px; overflow: hidden; background: #1A110A; box-shadow: var(--shadow); }
+  .eval-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: #FBF6EC; transition: height .9s cubic-bezier(.3, .7, .3, 1); }
+  .eval-num {
+    position: absolute; left: 0; right: 0; bottom: 6px;
+    font: 600 9px/1 var(--f-mono); text-align: center; color: #fff; mix-blend-mode: difference;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+  }
+
+  .board-frame {
+    position: relative;
+    flex: 1; min-width: 0;
+    width: 100%;
+    padding: 14px 14px 34px;
+    background: var(--frame);
+    border-radius: 4px;
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, .06);
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    aspect-ratio: 1;
+    max-width: 100%;
+    direction: ltr;
+    user-select: none;
+    touch-action: manipulation;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 45 45'%3E%3Cpath d='M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z' fill='%23FBF6EC' stroke='%231A110A' stroke-width='2.2'/%3E%3C/svg%3E") 16 28, default;
+  }
+  .sq8 {
+    position: relative;
+    display: grid; place-items: center;
+    margin: 0; padding: 0; border: 0; border-radius: 0;
+    background: var(--ivory);
+    font: inherit;
+    cursor: inherit;
+    aspect-ratio: 1;
+  }
+  .sq8.d { background: var(--walnut); }
+  .sq8.can { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 45 45'%3E%3Cpath d='M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z' fill='%23D6A24E' stroke='%231A110A' stroke-width='2.2'/%3E%3C/svg%3E") 16 28, pointer; }
+  .sq8.last::before, .sq8.sel::before, .sq8.check::before { content: ""; position: absolute; inset: 0; }
+  .sq8.last::before { background: rgba(205, 210, 106, .5); }
+  .sq8.sel::before { background: rgba(170, 182, 60, .6); }
+  .sq8.check::before { background: radial-gradient(circle, rgba(214, 40, 20, .9) 0%, rgba(214, 40, 20, .45) 40%, transparent 72%); }
+  .sq8.hint::after {
+    content: ""; position: absolute; z-index: 2;
+    width: 30%; height: 30%; border-radius: 50%;
+    background: rgba(26, 17, 10, .24);
+    pointer-events: none;
+  }
+  .sq8.hint.cap::after {
+    width: 92%; height: 92%;
+    background: transparent;
+    box-shadow: inset 0 0 0 5px rgba(26, 17, 10, .24);
+  }
+  .sq8:focus-visible { outline: 3px solid var(--brass-hi); outline-offset: -3px; z-index: 3; }
+  .sq8:disabled { cursor: default; }
+  .pc {
+    position: relative; z-index: 1;
+    width: 90%; height: 90%;
+    stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round;
+    filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .22));
+    transition: transform .22s cubic-bezier(.3, .7, .3, 1);
+    pointer-events: none;
+  }
+  .pc.w { fill: #FBF6EC; stroke: #1A110A; --pd: #1A110A; }
+  .pc.b { fill: #1A110A; stroke: #1A110A; --pd: #FBF6EC; }
+  .pc.moving { z-index: 4; }
+  .coord { position: absolute; z-index: 1; font: 500 10px/1 var(--f-mono); pointer-events: none; color: var(--walnut); }
+  .sq8.d .coord { color: var(--ivory); }
+  .coord.r { top: 3px; left: 4px; }
+  .coord.f { bottom: 3px; right: 4px; }
+
+  /* Circuit traces etched into the wooden frame; a light pulse runs round them on every move */
+  .circuit { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .circuit .traces { fill: none; stroke: rgba(214, 162, 78, .38); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .circuit .traces * { vector-effect: non-scaling-stroke; }
+  .circuit .nodes { fill: rgba(214, 162, 78, .7); }
+  .circuit .pulse-line { fill: none; stroke: #F4D58D; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 9 91; stroke-dashoffset: 100; opacity: 0; filter: drop-shadow(0 0 3px rgba(244, 213, 141, .9)); }
+  .board-wrap { position: relative; z-index: 1; }
+
+  /* The engine's candidate moves, drawn as arrows while it thinks */
+  .arrows { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; overflow: visible; }
+  .arrows line { stroke: #D6A24E; stroke-width: .16; stroke-linecap: round; }
+  .sq8.scan::before { content: ""; position: absolute; inset: 0; background: rgba(214, 162, 78, .6); }
+
+  /* Live numbers from the engine's actual search, set into the bottom rail of the wooden frame */
+  .stats {
+    position: absolute; left: 14px; right: 14px; bottom: 9px; z-index: 1;
+    display: flex; justify-content: space-between; gap: 8px;
+    direction: rtl;
+    font-size: 11.5px; line-height: 1; color: rgba(246, 235, 214, .62); white-space: nowrap;
+  }
+  .stats b { font: 600 12px/1 var(--f-mono); color: #F4D58D; font-variant-numeric: tabular-nums; unicode-bidi: isolate; }
+
+  /* Baydaq's speech bubble: turn status on top, the comment below */
+  .quip {
+    flex: 1; min-width: 0;
+    display: flex; align-items: center; gap: 10px;
+    margin: 0; padding: 9px 14px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px 16px 4px 16px;
+  }
+  .quip svg { width: 28px; height: 28px; flex: none; }
+  .q-text { display: grid; gap: 1px; min-width: 0; }
+  .q-say { margin: 0; font-size: 14px; font-weight: 400; line-height: 1.55; color: var(--ink); }
+
+  /* Terminal-style engine log: one line by default, the full log on demand */
+  .term { width: 100%; max-width: var(--gw); border-radius: 6px; overflow: hidden; background: #1A120B; box-shadow: var(--shadow); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 7px 10px 7px 12px; background: #24180E; direction: ltr; }
+  .term-bar i { width: 9px; height: 9px; border-radius: 50%; background: #4A3322; }
+  .term-bar i:first-child { background: #C8902F; }
+  .term-bar span { margin-left: 8px; font: 500 11px var(--f-mono); color: #8E7458; }
+  .term-toggle { margin-left: auto; font: 500 12px var(--f-sans); color: #D6A24E; background: transparent; border: 1px solid rgba(214, 162, 78, .35); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+  .term-toggle:hover { background: rgba(214, 162, 78, .12); }
+  .term-body { height: 34px; overflow-y: auto; padding: 6px 14px; font: 400 12.5px/1.75 var(--f-mono); color: #E9DCC4; scrollbar-width: thin; scrollbar-color: #4A3322 transparent; transition: height .35s ease; }
+  .term.open .term-body { height: 150px; }
+  .term-body .ln { white-space: pre-wrap; word-break: break-word; }
+  .term-body .p { color: #D6A24E; }
+  .term-body .dim { color: #8E7458; }
+  .term-body .ar { font-family: var(--f-sans); font-size: 12.5px; color: #BBA68A; margin-left: 10px; opacity: 0; transition: opacity .4s ease; }
+  .term-body .ar.show { opacity: 1; }
+  .term-body .caret { display: inline-block; width: 7px; height: 13px; margin-left: 2px; vertical-align: -2px; background: #D6A24E; }
+
+  .game-bar {
+    width: 100%; max-width: var(--gw);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .status { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 12px; font-weight: 500; color: var(--faint); }
+  .status i { width: 9px; height: 9px; flex: none; border-radius: 50%; border: 1.5px solid var(--ebony); background: #FBF6EC; }
+  .status i.b { background: var(--ebony); }
+  .status.think i { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .game-btns { display: grid; gap: 6px; flex: none; }
+  .btn-sm { padding: 8px 12px; font-size: 13px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+
+  /* "Discover our services" cue at the foot of the first screen */
+  .scroll-cue {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--faint); text-decoration: none;
+  }
+  .scroll-cue span { color: var(--brass); font-size: 16px; }
+  .scroll-cue:hover { color: var(--ink); }
+
+  @media (min-width: 901px) {
+    /* Size the board from the screen height so the whole first screen fits without scrolling */
+    .game { --gw: clamp(320px, calc(100vh - 330px), 548px); }
+  }
+  @media (max-width: 900px) {
+    .hero .wrap { grid-template-columns: 1fr; }
+    .scroll-cue { display: none; }
+  }
+  @media (max-width: 480px) {
+    .board-frame { padding: 8px 8px 30px; }
+    .stats { left: 8px; right: 8px; bottom: 8px; font-size: 10px; }
+    .stats b { font-size: 11px; }
+    .coord { font-size: 8px; }
+    .eval { width: 10px; }
+    .eval-num { display: none; }
+    .game-bar { flex-wrap: wrap; }
+    .game-btns { grid-auto-flow: column; }
+  }
+
+  /* ---------- Stack strip ---------- */
+  .stack { border-block: 1px solid var(--line); background: var(--glass); }
+  .stack .wrap { display: flex; align-items: center; gap: 16px 32px; flex-wrap: wrap; padding-block: 22px; }
+  .stack p { font-size: 14px; color: var(--faint); flex: none; }
+  .stack ul { display: flex; flex-wrap: wrap; border-block: 6px solid var(--frame); box-shadow: var(--shadow); }
+  /* Each logo sits on its own square, alternating like a rank of the board */
+  .stack li { display: grid; place-items: center; width: 68px; aspect-ratio: 1; background: var(--ivory); transition: background-color .3s; }
+  .stack li:nth-child(even) { background: var(--walnut); }
+  .stack li svg { width: 32px; height: 32px; fill: #3B2414; opacity: .8; transition: fill .3s, opacity .3s, transform .3s; }
+  .stack li:nth-child(even) svg { fill: #FBF6EC; opacity: .92; }
+  .stack li:hover { background: #FFF8EC; }
+  .stack li:hover svg { fill: var(--c); opacity: 1; transform: scale(1.12); }
+
+  /* ---------- Sections ---------- */
+  section.block { padding-block: clamp(72px, 10vw, 136px); }
+  .sec-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 16px 48px;
+    align-items: end;
+    margin-bottom: clamp(36px, 5vw, 64px);
+  }
+  .sec-head .eyebrow { grid-column: 1 / -1; }
+  .sec-head h2 { font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; }
+  .sec-head p { color: var(--muted); max-width: 48ch; }
+  @media (max-width: 800px) { .sec-head { grid-template-columns: 1fr; } }
+
+  /* ---------- Services ---------- */
+  .services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .svc {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 28px;
+    padding: clamp(22px, 3vw, 36px);
+    background: linear-gradient(180deg, var(--panel), var(--panel-2)); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 14px 30px -24px rgba(59,36,20,.35);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    transition: border-color .3s, background-color .3s;
+  }
+  .svc:hover { border-color: rgba(214, 162, 78, .45); }
+  .mini {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    width: 160px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    align-self: start;
+    border: 6px solid var(--frame);
+    box-shadow: 0 18px 30px -18px rgba(59, 36, 20, .45);
+    direction: ltr;
+  }
+  .mini span { position: relative; display: grid; place-items: center; }
+  .mini .l { background: var(--ivory); }
+  .mini .d { background: var(--walnut); }
+  .mini .dot::after {
+    content: ""; width: 30%; aspect-ratio: 1; border-radius: 50%;
+    background: rgba(26, 17, 10, .5);
+    transform: scale(.4); opacity: .55;
+    transition: transform .35s cubic-bezier(.3,1.6,.5,1), opacity .35s;
+    transition-delay: var(--dl, 0s);
+  }
+  .svc:hover .mini .dot::after { transform: scale(1); opacity: 1; }
+  .mini svg { width: 88%; height: 88%; fill: var(--ebony); stroke: var(--ebony); stroke-width: 1.5; stroke-linejoin: round; --pd: var(--ivory); filter: drop-shadow(0 2px 1px rgba(0,0,0,.25)); }
+  .svc-body { display: grid; gap: 10px; align-content: start; }
+  .svc .who { color: var(--brass); }
+  .svc h3 { font-size: clamp(21px, 2vw, 25px); font-weight: 700; }
+  .svc p { color: var(--muted); font-size: 15.5px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tags li {
+    font-size: 12.5px; font-weight: 400;
+    padding: 3px 10px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+  @media (max-width: 980px) { .services { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) {
+    .svc { grid-template-columns: 1fr; gap: 20px; }
+    .mini { width: 140px; }
+  }
+
+  /* ---------- Process: one rank of the board ---------- */
+  .rank {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 14px solid var(--frame);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(0,0,0,.25);
+  }
+  .sq {
+    position: relative;
+    display: grid; align-content: space-between; gap: 40px;
+    min-height: 340px;
+    padding: clamp(20px, 2.4vw, 32px);
+    color: #24160B;
+  }
+  .sq:nth-child(odd) { background: var(--ivory); }
+  .sq:nth-child(even) { background: var(--walnut); color: #1A0F06; }
+  .sq .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .sq .num { font-size: clamp(44px, 5vw, 64px); font-weight: 900; line-height: 1; opacity: .9; }
+  .sq .phase { font-size: 14px; font-weight: 500; opacity: .7; }
+  .sq h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .sq p { font-size: 15px; font-weight: 400; line-height: 1.75; opacity: .85; }
+  .sq .get { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(26, 15, 6, .2); font-size: 13.5px; font-weight: 500; }
+  .sq .coord { position: absolute; bottom: 8px; left: 10px; font-size: 11px; opacity: .55; }
+  @media (max-width: 980px) {
+    .rank { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sq:nth-child(3) { background: var(--walnut); color: #1A0F06; }
+    .sq:nth-child(4) { background: var(--ivory); color: #24160B; }
+  }
+  @media (max-width: 560px) {
+    .rank { grid-template-columns: 1fr; border-width: 10px; }
+    .sq { min-height: 0; gap: 24px; }
+    .sq:nth-child(odd) { background: var(--ivory); color: #24160B; }
+    .sq:nth-child(even) { background: var(--walnut); color: #1A0F06; }
+  }
+
+  /* ---------- Heritage ---------- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: center;
+  }
+  .heritage { overflow-x: clip; }
+  .heritage-copy { position: relative; isolation: isolate; display: grid; gap: 28px; }
+  /* A faded patch of the board behind the "about" copy */
+  .heritage-copy::before {
+    content: ""; position: absolute; inset: -56px -32px; z-index: -1;
+    background: conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) 0 0 / 96px 96px;
+    opacity: .24;
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 55% 45%, #000 15%, transparent 72%);
+    mask-image: radial-gradient(ellipse 60% 60% at 55% 45%, #000 15%, transparent 72%);
+    pointer-events: none;
+  }
+
+  /* Checkerboard rule between sections */
+  .checker-rule {
+    height: 16px;
+    margin-bottom: clamp(56px, 8vw, 104px);
+    background: conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) 0 0 / 16px 16px;
+    opacity: .85;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  }
+  .ruqaa {
+    font-family: var(--f-ruqaa);
+    font-weight: 700;
+    font-size: clamp(40px, 5.6vw, 76px);
+    line-height: 1.45;
+  }
+  .heritage-copy > p { color: var(--muted); max-width: 54ch; font-size: 17.5px; }
+  /* Pawn's path e2 → e8, drawn as the section comes into view */
+  .promo {
+    margin: 0;
+    display: grid; gap: 14px;
+    padding: 32px 24px 26px;
+    border: 1px solid var(--line);
+    background: radial-gradient(ellipse at 85% 50%, rgba(214, 162, 78, .16), transparent 65%), var(--panel);
+    direction: ltr;
+  }
+  .trail-row {
+    position: relative;
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border: 6px solid var(--frame);
+    box-shadow: var(--shadow);
+  }
+  .trail-row .t { aspect-ratio: 1; background: var(--ivory); }
+  .trail-row .t:nth-child(even) { background: var(--walnut); }
+  .trail {
+    position: absolute; top: 50%; left: calc(100% / 14); right: calc(100% / 14);
+    border-top: 3px dotted var(--brass-lo);
+    transform: translateY(-50%);
+    clip-path: inset(0 0 0 0);
+  }
+  .trail-row .p {
+    position: absolute; top: 0; bottom: 0;
+    width: calc(100% / 7);
+    display: grid; place-items: center;
+  }
+  .trail-row .p svg { width: 84%; height: 84%; stroke-width: 1.5; stroke-linejoin: round; filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .25)); }
+  .trail-row .ghost { left: 0; }
+  .trail-row .ghost svg { fill: none; stroke: rgba(26, 17, 10, .35); stroke-dasharray: 2 2; }
+  .trail-row .walker { left: 0; transform: translateX(600%); opacity: 0; }
+  .trail-row .walker svg { fill: #FBF6EC; stroke: #1A110A; }
+  .trail-row .queen { right: 0; }
+  .trail-row .queen svg { fill: url(#brass) #D6A24E; stroke: #6E450C; --pd: #FBF6EC; filter: drop-shadow(0 6px 10px rgba(214, 162, 78, .55)); }
+  .trail-labels { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; color: var(--faint); }
+  .trail-labels span:last-child { color: var(--brass); }
+  .trail-cap { text-align: center; direction: rtl; color: var(--muted); font-size: 15px; }
+  /* Three promises, each carried by a piece standing on its own square */
+  .principles {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 40px);
+    margin-top: clamp(64px, 8vw, 112px);
+  }
+  .principles li { display: grid; gap: 12px; align-content: start; text-align: center; justify-items: center; }
+  .pr-stage {
+    position: relative;
+    width: 100%; height: 210px;
+    display: grid; place-items: end center;
+    margin-bottom: 8px;
+  }
+  .pr-num {
+    position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    font-weight: 900; font-size: 190px; line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(184, 134, 47, .38);
+    transition: color .5s ease, -webkit-text-stroke-color .5s ease;
+    user-select: none;
+  }
+  .pr-piece {
+    position: relative; z-index: 1;
+    width: 108px; height: 108px;
+    margin-bottom: 14px;
+    fill: var(--piece); stroke: var(--piece); stroke-width: 1.5; stroke-linejoin: round;
+    --pd: var(--piece-d);
+    filter: drop-shadow(0 10px 8px rgba(26, 17, 10, .22));
+    transition: transform .5s cubic-bezier(.3, 1.45, .5, 1), filter .5s ease;
+  }
+  .pr-base {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 128px; height: 26px;
+    background: conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) 0 0 / 32px 26px;
+    border-bottom: 5px solid var(--frame);
+    box-shadow: var(--shadow);
+  }
+  .pr-base::before {
+    content: ""; position: absolute; left: 50%; top: 2px; transform: translateX(-50%);
+    width: 76px; height: 12px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(26, 17, 10, .35), transparent);
+    transition: transform .5s ease, opacity .5s ease;
+  }
+  .principles li:hover .pr-piece { transform: translateY(-14px); filter: drop-shadow(0 22px 12px rgba(26, 17, 10, .18)); }
+  .principles li:hover .pr-base::before { transform: translateX(-50%) scale(.7); opacity: .6; }
+  .principles li:hover .pr-num { color: rgba(214, 162, 78, .14); -webkit-text-stroke-color: rgba(214, 162, 78, .7); }
+  .pr-tag { font-size: 13px; font-weight: 500; color: var(--brass); }
+  .principles h3 { font-size: 22px; font-weight: 800; }
+  .principles p { color: var(--muted); font-size: 15.5px; max-width: 32ch; }
+  @media (max-width: 900px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr; gap: 56px; }
+    .pr-stage { height: 180px; }
+    .pr-num { font-size: 160px; }
+  }
+
+  /* ---------- Contact ---------- */
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    border: 1px solid var(--line-2);
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+  .contact-side {
+    display: grid; align-content: space-between; gap: 40px;
+    padding: clamp(28px, 4vw, 56px);
+    background:
+      linear-gradient(180deg, var(--veil-a), var(--veil-b)),
+      conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) 0 0 / 96px 96px;
+    border-inline-end: 1px solid var(--line);
+  }
+  .contact-side h2 { font-size: clamp(32px, 4vw, 52px); font-weight: 800; margin-block: 14px 16px; }
+  .contact-side p { color: var(--muted); }
+  .contact-side dl { display: grid; gap: 18px; margin: 0; }
+  .contact-side dt { font-size: 13px; color: var(--faint); }
+  .contact-side dd { margin: 0; font-weight: 400; }
+  .contact-side dd.ltr { direction: ltr; text-align: right; font-family: var(--f-mono); font-size: 15px; }
+  form {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 24px;
+    padding: clamp(28px, 4vw, 56px);
+    align-content: start;
+  }
+  .field { display: grid; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 13px; color: var(--faint); font-weight: 400; }
+  input, select, textarea {
+    font: 400 16px/1.6 var(--f-sans);
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-2);
+    border-radius: 0;
+    padding: 8px 0 10px;
+    width: 100%;
+    transition: border-color .2s;
+  }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: 6px 55%, 12px 55%; background-size: 6px 6px; background-repeat: no-repeat; }
+  select option { background: var(--panel-2); color: var(--ink); }
+  input:focus, select:focus, textarea:focus { outline: 0; border-bottom-color: var(--brass); }
+  input[type="email"] { direction: ltr; text-align: right; }
+  textarea { min-height: 110px; resize: vertical; }
+  .form-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+  .form-status { font-size: 14.5px; color: var(--brass); }
+  @media (max-width: 900px) {
+    .contact { grid-template-columns: 1fr; }
+    .contact-side { border-inline-end: 0; border-bottom: 1px solid var(--line); }
+  }
+  @media (max-width: 520px) { form { grid-template-columns: 1fr; } }
+
+  /* ---------- Footer ---------- */
+  footer { background: var(--frame); color: #EFE3CF; overflow-x: clip; }
+  .wordmark {
+    font-weight: 900;
+    font-size: clamp(110px, 26vw, 360px);
+    line-height: 1.35;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(214, 162, 78, .35);
+    padding-block: 8px 4px;
+    user-select: none;
+  }
+  footer .row {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 12px 24px;
+    padding-block: 24px 32px;
+    border-top: 1px solid rgba(239, 227, 207, .16);
+    font-size: 14px; color: rgba(239, 227, 207, .65);
+  }
+  footer .row ul { display: flex; gap: 22px; flex-wrap: wrap; }
+  footer .row a { text-decoration: none; }
+  footer .row a:hover { color: #FFF8EC; }
+
+  /* ---------- Atmosphere ---------- */
+  /* Aged-paper grain on the page ground: fine fibres plus slow mottling */
+  body {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .23 0 0 0 0 .1 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .16 0 0 0 .16 -.04'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+    background-size: 220px 220px, 900px 900px;
+  }
+
+  .hero { position: relative; isolation: isolate; overflow-x: clip; }
+  /* Warm light that follows the pointer across the hero */
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(460px circle at var(--mx, 70%) var(--my, 40%), rgba(214, 162, 78, .18), transparent 70%);
+    opacity: 0; transition: opacity .6s ease;
+  }
+  .hero.lit::before { opacity: 1; }
+  .hero h1 .type1, .hero h1 .gold { display: inline-block; }
+
+  /* Floating pieces around the services */
+  .block { position: relative; isolation: isolate; overflow-x: clip; }
+  .floaty { position: absolute; z-index: -1; pointer-events: none; will-change: transform; }
+  .floaty svg { display: block; width: 100%; height: auto; fill: var(--walnut); stroke: none; opacity: .22; --pd: transparent; }
+  .floaty.o svg { fill: none; stroke: var(--walnut); stroke-width: 1.1; stroke-linejoin: round; opacity: .45; }
+  /* Board-patch alternative (shown when html.bg-squares): a mirrored pair of faded checkerboards per section, like the "about" backdrop */
+  .bpatch {
+    position: absolute; z-index: -1; pointer-events: none; display: none;
+    background: conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) var(--ox, 0px) 0 / var(--tile, 96px) var(--tile, 96px);
+    opacity: .24;
+    -webkit-mask-image: var(--mask); mask-image: var(--mask);
+  }
+  .bpatch.right { right: 0; }
+  .bpatch.left { left: 0; }
+  .bg-squares .floaty { display: none !important; }
+  .bg-squares .bpatch { display: block; }
+
+  /* Temporary comparison switch (remove once a background is chosen) */
+  .bg-switch { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; z-index: 50; display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; background: var(--frame); color: #F6EBD6; border-radius: 999px; box-shadow: 0 14px 30px -14px rgba(26, 17, 10, .6); font-size: 13px; }
+  .bg-switch span { padding-inline: 6px; opacity: .75; }
+  .bg-switch button { font: 500 13px var(--f-sans); padding: 7px 14px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+  .bg-switch button[aria-pressed="true"] { background: #D6A24E; color: #1A0F06; }
+  /* ---------- Loading screen (motion only; hides itself even without JS) ---------- */
+  .loader { display: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .loader {
+      position: fixed; inset: 0; z-index: 100;
+      display: grid; place-content: center; justify-items: center; gap: 18px;
+      background: var(--ground);
+      animation: loader-out .45s ease 1.3s forwards;
+    }
+    /* The logo builds itself: blocks stack from the base up, then the gold head drops in */
+    .ld-mark { width: 84px; height: 84px; overflow: visible; }
+    .ld-mark > * { transform-box: fill-box; transform-origin: center bottom; animation: ld-drop .42s cubic-bezier(.3, 1.4, .5, 1) both; }
+    .ld-mark .k4 { animation-delay: .08s; }
+    .ld-mark .k3 { animation-delay: .2s; }
+    .ld-mark .k2 { animation-delay: .32s; }
+    .ld-mark .k1 { animation-delay: .44s; }
+    .ld-mark .hd { animation: ld-head .55s cubic-bezier(.3, 1.6, .5, 1) .6s both; }
+    .loader b { font-weight: 800; font-size: 20px; letter-spacing: 0; animation: fade .5s ease .75s both; }
+    @keyframes ld-drop { from { opacity: 0; transform: translateY(-28px) scaleY(.6); } }
+    @keyframes ld-head { from { opacity: 0; transform: translateY(-46px) scale(.5); } }
+    @keyframes loader-out { to { opacity: 0; visibility: hidden; } }
+    html.loading .hero, html.loading .hero * { animation-play-state: paused !important; }
+  }
+
+  /* ---------- Motion ---------- */
+  .progress { display: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    :root { --ease-out: cubic-bezier(.2, .7, .2, 1); --ease-spring: cubic-bezier(.3, 1.45, .5, 1); }
+    @keyframes rise { from { opacity: 0; transform: translateY(26px); } }
+    @keyframes fade { from { opacity: 0; } }
+    @keyframes board-in { from { opacity: 0; transform: translateY(36px) rotate(-1.2deg) scale(.97); } }
+    @keyframes drop { from { opacity: 0; transform: translateY(-45%) scale(.85); } }
+    @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+    @keyframes float { 50% { transform: translateY(-10px); } }
+    @keyframes pop { from { opacity: 0; transform: scale(.3); } }
+    @keyframes lift { to { transform: translateY(-5%) scale(1.08); } }
+    @keyframes crown { 0% { transform: scale(.4) rotate(-25deg); } 60% { transform: scale(1.2) rotate(6deg); } 100% { transform: none; } }
+    @keyframes won { 0%, 100% { box-shadow: var(--shadow), 0 0 0 0 rgba(217, 164, 65, 0); } 50% { box-shadow: var(--shadow), 0 0 0 10px rgba(217, 164, 65, .35); } }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    /* Hero: one orchestrated entrance */
+    .hero-copy > * { animation: rise .9s var(--ease-out) both; }
+    .hero-copy > :nth-child(1) { animation-delay: .05s; }
+    .hero-copy > :nth-child(2) { animation-delay: .15s; }
+    .hero-copy > :nth-child(3) { animation-delay: .3s; }
+    .hero-copy > :nth-child(4) { animation-delay: .42s; }
+    .hero-copy > :nth-child(5) { animation-delay: .55s; }
+    .hero h1 .gold {
+      background-image: linear-gradient(100deg, var(--brass-lo) 0%, var(--brass) 30%, var(--brass-hi) 44%, #F4D995 50%, var(--brass-hi) 56%, var(--brass) 70%, var(--brass-lo) 100%);
+      background-size: 250% 100%;
+      animation: shimmer 2.6s ease-in-out 1s both;
+    }
+    .board-frame { animation: board-in 1s var(--ease-out) .2s both; }
+    .game-bar, .stats, .quip, .term, .eval { animation: rise .8s var(--ease-out) .85s both; }
+    .quip.say .q-say { animation: fade .45s ease both; }
+    .sq8.scan::before { animation: scan-fade .4s ease-out forwards; }
+    @keyframes scan-fade { from { opacity: 1; } to { opacity: 0; } }
+    .arrows line { stroke-dasharray: 10; stroke-dashoffset: 10; animation: arrow-draw .35s ease-out forwards; }
+    @keyframes arrow-draw { to { stroke-dashoffset: 0; } }
+    .board-frame.pulse .pulse-line { animation: circuit-run 1.3s cubic-bezier(.4, 0, .2, 1); }
+    @keyframes circuit-run { 0% { opacity: 0; stroke-dashoffset: 100; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: 0; } }
+    .term-body .caret { animation: caret 1s steps(1) infinite; }
+    .board.intro .pc { animation: drop .6s var(--ease-spring) both; animation-delay: calc(.55s + var(--i, 0) * 45ms); }
+
+    /* Game micro-interactions */
+    .sq8.hint::after { animation: pop .2s var(--ease-out) both; }
+    .sq8.sel .pc { animation: lift .18s var(--ease-out) both; }
+    .pc.crown { animation: crown .7s var(--ease-spring) both; }
+    .board-frame.won { animation: won 1.6s ease-in-out 3; }
+    .status span { animation: fade .35s ease both; }
+
+    /* Hover polish */
+    .btn-gold { position: relative; overflow: hidden; isolation: isolate; }
+    .btn-gold::after {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%);
+      transform: translateX(120%);
+    }
+    .btn-gold:hover::after { transform: translateX(-120%); transition: transform .75s ease; }
+    .nav ul a {
+      padding-bottom: 3px;
+      background: linear-gradient(currentColor, currentColor) no-repeat right bottom / 0 1px;
+      transition: color .2s, background-size .3s var(--ease-out);
+    }
+    .nav ul a:hover { background-size: 100% 1px; }
+    .svc { transition: transform .4s var(--ease-out), box-shadow .4s, border-color .3s; }
+    .svc:hover { transform: translateY(-5px); box-shadow: 0 30px 50px -34px rgba(59, 36, 20, .55); }
+    .mini svg { transition: transform .4s var(--ease-spring); }
+    .svc:hover .mini svg { transform: translateY(-6%) scale(1.08); }
+    .sq { transition: transform .4s var(--ease-out); }
+    .sq:hover { transform: translateY(-6px); z-index: 1; }
+    .promo .queen-s { animation: float 4.5s ease-in-out infinite; }
+
+    /* Reading progress under the nav (scroll-linked where supported) */
+    @supports (animation-timeline: scroll()) {
+      .progress {
+        display: block;
+        position: absolute; inset: auto 0 -1px 0; height: 2px;
+        background: linear-gradient(90deg, var(--brass-lo), var(--brass-hi));
+        transform-origin: right center;
+        animation: grow linear both;
+        animation-timeline: scroll(root);
+      }
+    }
+
+    /* Nav settles into a shadow once the page scrolls */
+    .nav { transition: box-shadow .3s ease; }
+    .nav.scrolled { box-shadow: 0 12px 30px -22px rgba(59, 36, 20, .45); }
+
+    /* Live dot on the hero chip */
+    .chip i { position: relative; }
+    .chip i::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--brass); animation: ping 2.2s ease-out infinite; }
+    @keyframes ping { to { transform: scale(3.2); opacity: 0; } }
+
+    /* Reveal on scroll. Only elements below the fold at load start hidden (set by JS), so the first frame is always complete. */
+    .js-reveal [data-reveal] {
+      transition: opacity .8s var(--ease-out) var(--d, 0s), transform .9s var(--ease-out) var(--d, 0s), clip-path 1.1s var(--ease-out) var(--d, 0s), border-color .3s, box-shadow .4s;
+    }
+    .js-reveal [data-reveal].pending { opacity: 0; transform: translateY(34px); }
+    .js-reveal [data-reveal="wipe"].pending { opacity: 1; transform: none; clip-path: inset(0 0 0 100%); }
+    .js-reveal [data-reveal="scale"].pending { transform: translateY(24px) scale(.96); }
+    .js-reveal [data-reveal="wipe"] { clip-path: inset(0 0 0 0); }
+    .sec-head .eyebrow::before, .heritage-copy .eyebrow::before { transition: width .7s var(--ease-out) .25s; }
+    .js-reveal .pending .eyebrow::before, .js-reveal .eyebrow.pending::before { width: 0; }
+    .wordmark { transition: color 1.4s ease .2s, opacity .8s var(--ease-out), transform .9s var(--ease-out); }
+    .wordmark:not(.pending) { color: rgba(214, 162, 78, .07); }
+
+    /* Pawn's path: while .pending the trail is undrawn, the walker waits on e2 and the queen is hidden.
+       Removing .pending plays the walk; without JS or motion the finished state simply shows. */
+    .trail { transition: clip-path 1.7s cubic-bezier(.5, 0, .3, 1) .45s, opacity .35s ease; }
+    .trail-row .walker { transition: transform 1.7s cubic-bezier(.5, 0, .3, 1) .45s, opacity .35s ease 2.1s; }
+    .trail-row .queen svg { transition: opacity .4s ease 2.1s, transform .7s var(--ease-spring) 2.1s; }
+    .promo.pending .trail, .promo.walk-reset .trail { clip-path: inset(0 100% 0 0); }
+    .promo.pending .walker, .promo.walk-reset .walker { transform: none; opacity: 1; }
+    .promo.pending .queen svg, .promo.walk-reset .queen svg { opacity: 0; transform: scale(.4) rotate(-20deg); }
+    /* Loop: fade the finished state, then snap back to e2 without transitions */
+    .promo.walk-fade .trail, .promo.walk-fade .queen svg { opacity: 0; transition: opacity .35s ease; }
+    .promo.no-anim .trail, .promo.no-anim .walker, .promo.no-anim .queen svg { transition: none !important; }
+
+    /* Headline types itself line by line (a stepped right-to-left reveal keeps Arabic letters joined) */
+    @keyframes type-in {
+      from { clip-path: inset(-.3em -.3em -.3em 100%); }
+      to { clip-path: inset(-.3em -.3em -.3em -.3em); }
+    }
+    @keyframes caret { 0% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    .hero-copy > h1 { animation: none; }
+    .hero h1 .type1 { animation: type-in .65s steps(7, end) .3s both; }
+    .hero h1 .gold { animation: type-in .8s steps(7, end) 1.05s both, shimmer 2.6s ease-in-out 2.2s both; }
+    .hero h1 .gold::after {
+      content: ""; display: inline-block;
+      width: .06em; height: .72em; margin-inline-start: .1em; vertical-align: -.02em;
+      background: var(--brass);
+      opacity: 0;
+      animation: caret 1s steps(1) 1.9s 4 forwards;
+    }
+    html.loading .hero h1 .gold::after { animation-play-state: paused !important; }
+
+    /* Floating pieces bob gently (parallax offset is applied to the wrapper by JS) */
+    @keyframes bob { 50% { transform: translateY(-14px) rotate(5deg); } }
+    .floaty svg { animation: bob 7s ease-in-out infinite; }
+    /* Both sides drift together, mirrored: the left patch moves right, the right patch moves left */
+    .bpatch.left { animation: drift-l 60s linear infinite; }
+    .bpatch.right { animation: drift-r 60s linear infinite; }
+    @keyframes drift-l { from { background-position: var(--ox, 0px) 0; } to { background-position: calc(var(--ox, 0px) + var(--tile, 96px)) var(--tile, 96px); } }
+    @keyframes drift-r { from { background-position: var(--ox, 0px) 0; } to { background-position: calc(var(--ox, 0px) - var(--tile, 96px)) var(--tile, 96px); } }
+
+    /* The board patch drifts very slowly */
+    .heritage-copy::before { animation: drift 60s linear infinite; }
+    @keyframes drift { to { background-position: 96px 96px; } }
+
+    /* Tech strip becomes a slow marquee (JS duplicates the list for a seamless loop) */
+    .marquee {
+      flex: 1; min-width: 0; overflow: hidden;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+    .marquee ul { flex-wrap: nowrap; gap: 0; width: max-content; animation: marquee 38s linear infinite; }
+    .marquee li { margin: 0; }
+    .stack .wrap { padding-block: 20px; }
+    .marquee:hover ul { animation-play-state: paused; }
+    @keyframes marquee { to { transform: translateX(50%); } }
+  }
+</style>
+
+<!-- Piece silhouettes (Staunton, after Colin M.L. Burnett's set) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4D58D"/><stop offset=".6" stop-color="#D6A24E"/><stop offset="1" stop-color="#9C6721"/>
+    </linearGradient>
+  </defs>
+  <symbol id="p-pawn" viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/></symbol>
+  <symbol id="logo-mark" viewBox="0 0 100 100"><circle cx="50" cy="23" r="13" fill="#C8902F"/><g fill="#3B2414"><rect x="41" y="40" width="18" height="6" rx="3"/><rect x="34" y="50" width="32" height="10" rx="2.5"/><rect x="27" y="64" width="46" height="10" rx="2.5"/><rect x="20" y="78" width="60" height="12" rx="2.5"/></g></symbol>
+  <symbol id="p-queen" viewBox="0 0 45 45"><circle cx="6" cy="12" r="2.75"/><circle cx="14" cy="9" r="2.75"/><circle cx="22.5" cy="8" r="2.75"/><circle cx="31" cy="9" r="2.75"/><circle cx="39" cy="12" r="2.75"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z"/><path style="fill:none;stroke:var(--pd, currentColor)" d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0"/></symbol>
+  <symbol id="p-king" viewBox="0 0 45 45"><circle cx="22.5" cy="9.2" r="2.6"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5"/><path d="M12.5 37c5.5 3.5 14.5 3.5 20 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-2.5-7.5-12-10.5-16-4-3 6 6 10.5 6 10.5v7z"/><path style="fill:none;stroke:var(--pd, currentColor)" d="M12.5 30c5.5-3 14.5-3 20 0M12.5 33.5c5.5-3 14.5-3 20 0M12.5 37c5.5-3 14.5-3 20 0"/></symbol>
+  <symbol id="p-knight" viewBox="0 0 45 45"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.99-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.99 2.5-3c1 0 1 3 1 3"/><circle style="fill:var(--pd, currentColor);stroke:none" cx="9" cy="25.5" r="1"/><ellipse style="fill:var(--pd, currentColor);stroke:none" cx="14.5" cy="15.5" rx=".6" ry="1.6" transform="rotate(30 14.5 15.5)"/></symbol>
+  <symbol id="p-rook" viewBox="0 0 45 45"><path d="M9 39h27v-3H9v3zM12.5 32l1.5-2.5h17l1.5 2.5h-20zM12 36v-4h21v4H12zM14 29.5v-13h17v13H14zM14 16.5L11 14h23l-3 2.5H14zM11 14V9h4v2h5V9h5v2h5V9h4v5H11z"/><path style="fill:none;stroke:var(--pd, currentColor);stroke-width:1" d="M12 35.5h21M13 31.5h19M14 29.5h17M14 16.5h17M11 14h23"/></symbol>
+  <symbol id="p-bishop" viewBox="0 0 45 45"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.46 3-2 3-2z"/><path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/><circle cx="22.5" cy="8" r="2.5"/><path style="fill:none;stroke:var(--pd, currentColor)" d="M17.5 26h10M15 30h15"/></symbol>
+</svg>
+
+<div class="loader" aria-hidden="true">
+  <svg class="ld-mark" viewBox="0 0 100 100">
+    <rect class="k4" x="20" y="78" width="60" height="12" rx="2.5" fill="#3B2414"/>
+    <rect class="k3" x="27" y="64" width="46" height="10" rx="2.5" fill="#3B2414"/>
+    <rect class="k2" x="34" y="50" width="32" height="10" rx="2.5" fill="#3B2414"/>
+    <rect class="k1" x="41" y="40" width="18" height="6" rx="3" fill="#3B2414"/>
+    <circle class="hd" cx="50" cy="23" r="13" fill="#C8902F"/>
+  </svg>
+  <b>بيدق</b>
+</div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="بيدق تكنولوجي، الصفحة الرئيسية">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#logo-mark"/></svg>
+      <b>بيدق</b><span>تكنولوجي</span>
+    </a>
+    <ul>
+      <li><a href="#services">خدماتنا</a></li>
+      <li><a href="#process">كيف نعمل</a></li>
+      <li><a href="#about">من نحن</a></li>
+      <li><a href="#contact">تواصل معنا</a></li>
+    </ul>
+    <a class="btn btn-gold" href="#contact">تواصل معنا</a>
+  </div>
+  <span class="progress" aria-hidden="true"></span>
+</header>
+
+<main id="top">
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="chip"><i></i>مواقع · تطبيقات · ذكاء اصطناعي · استضافة</span>
+        <h1 id="hero-title"><span class="type1">كل حركة</span> <span class="gold">محسوبة.</span></h1>
+        <p class="lede">نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات، ونبقى معك بعد الإطلاق. خطة واضحة، وتنفيذ دقيق، ونتائج تراها في عملك.</p>
+        <div class="actions">
+          <a class="btn btn-gold" href="#contact">حدّثنا عن مشروعك <span class="arr" aria-hidden="true">←</span></a>
+          <a class="btn btn-line" href="#services">ماذا نقدّم؟</a>
+        </div>
+        <ul class="hero-foot">
+          <li><b>✓</b> سعر ومدة واضحان قبل البدء</li>
+          <li><b>✓</b> تسليم على مراحل</li>
+          <li><b>✓</b> دعم بعد الإطلاق</li>
+        </ul>
+      </div>
+
+      <div class="game">
+        <div class="board-row">
+          <div class="eval" aria-hidden="true" title="شريط التقييم: من يتقدّم في المباراة">
+            <div class="eval-fill" id="eval-fill"></div>
+            <span class="eval-num" id="eval-num">0.0</span>
+          </div>
+          <div class="board-frame">
+            <svg class="circuit" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <g class="traces">
+                <rect x="1.3" y="1.3" width="97.4" height="97.4" rx="1.4"/>
+                <path d="M1.3 20h1.2M1.3 45h1.2M1.3 70h1.2M98.7 30h-1.2M98.7 55h-1.2M98.7 80h-1.2M25 1.3v1.2M60 1.3v1.2M85 1.3v1.2M15 98.7v-1.2M40 98.7v-1.2M75 98.7v-1.2"/>
+              </g>
+              <g class="nodes">
+                <circle cx="1.3" cy="1.3" r=".7"/><circle cx="98.7" cy="1.3" r=".7"/><circle cx="1.3" cy="98.7" r=".7"/><circle cx="98.7" cy="98.7" r=".7"/>
+              </g>
+              <rect class="pulse-line" x="1.3" y="1.3" width="97.4" height="97.4" rx="1.4" pathLength="100"/>
+            </svg>
+            <div class="board-wrap">
+              <div class="board" id="board" role="group" aria-label="رقعة شطرنج: أنت تلعب بالأبيض ضد بيدق"></div>
+              <svg class="arrows" id="arrows" viewBox="0 0 8 8" aria-hidden="true">
+                <defs><marker id="arrow-head" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.2" markerHeight="3.2" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#D6A24E"/></marker></defs>
+              </svg>
+            </div>
+            <div class="stats" aria-live="polite">
+              <span><b id="st-nodes">0</b> وضعاً فُحص</span>
+              <span><b id="st-time">0.00 ث</b> زمن التفكير</span>
+              <span>احتمال فوزك <b id="st-win">50%</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="game-bar">
+          <div class="quip" id="quip">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#logo-mark"/></svg>
+            <div class="q-text">
+              <p class="status" id="status" role="status" aria-live="polite"><i class="w"></i><span>أنت تلعب بالأبيض.</span></p>
+              <p class="q-say" id="q-say" aria-live="polite">مرحباً! أنا بيدق. أرني أفضل حركاتك.</p>
+            </div>
+          </div>
+          <div class="game-btns">
+            <button class="btn btn-line btn-sm" id="undo" type="button">تراجع</button>
+            <button class="btn btn-line btn-sm" id="reset" type="button">لعبة جديدة</button>
+          </div>
+        </div>
+        <div class="term" role="log" aria-label="سجل تفكير بيدق">
+          <div class="term-bar"><i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i><span aria-hidden="true">baydaq-engine</span><button class="term-toggle" id="term-toggle" type="button" aria-expanded="false" aria-controls="term-body">عرض التفكير</button></div>
+          <div class="term-body" id="term-body" dir="ltr"></div>
+        </div>
+      </div>
+    </div>
+    <a class="scroll-cue" href="#services">اكتشف خدماتنا <span aria-hidden="true">↓</span></a>
+  </section>
+
+  <div class="stack">
+    <div class="wrap">
+      <p>التقنيات التي نستخدمها</p>
+      <ul aria-label="التقنيات التي نعمل بها">
+        <li style="--c:#FF2D20" title="Laravel"><svg viewBox="0 0 24 24" role="img" aria-label="Laravel"><path d="M23.642 5.43a.364.364 0 01.014.1v5.149c0 .135-.073.26-.189.326l-4.323 2.49v4.934a.378.378 0 01-.188.326L9.93 23.949a.316.316 0 01-.066.027c-.008.002-.016.008-.024.01a.348.348 0 01-.192 0c-.011-.002-.02-.008-.03-.012-.02-.008-.042-.014-.062-.025L.533 18.755a.376.376 0 01-.189-.326V2.974c0-.033.005-.066.014-.098.003-.012.01-.02.014-.032a.369.369 0 01.023-.058c.004-.013.015-.022.023-.033l.033-.045c.012-.01.025-.018.037-.027.014-.012.027-.024.041-.034H.53L5.043.05a.375.375 0 01.375 0L9.93 2.647h.002c.015.01.027.021.04.033l.038.027c.013.014.02.03.033.045.008.011.02.021.025.033.01.02.017.038.024.058.003.011.01.021.013.032.01.031.014.064.014.098v9.652l3.76-2.164V5.527c0-.033.004-.066.013-.098.003-.01.01-.02.013-.032a.487.487 0 01.024-.059c.007-.012.018-.02.025-.033.012-.015.021-.03.033-.043.012-.012.025-.02.037-.028.014-.01.026-.023.041-.032h.001l4.513-2.598a.375.375 0 01.375 0l4.513 2.598c.016.01.027.021.042.031.012.01.025.018.036.028.013.014.022.03.034.044.008.012.019.021.024.033.011.02.018.04.024.06.006.01.012.021.015.032zm-.74 5.032V6.179l-1.578.908-2.182 1.256v4.283zm-4.51 7.75v-4.287l-2.147 1.225-6.126 3.498v4.325zM1.093 3.624v14.588l8.273 4.761v-4.325l-4.322-2.445-.002-.003H5.04c-.014-.01-.025-.021-.04-.031-.011-.01-.024-.018-.035-.027l-.001-.002c-.013-.012-.021-.025-.031-.04-.01-.011-.021-.022-.028-.036h-.002c-.008-.014-.013-.031-.02-.047-.006-.016-.014-.027-.018-.043a.49.49 0 01-.008-.057c-.002-.014-.006-.027-.006-.041V5.789l-2.18-1.257zM5.23.81L1.47 2.974l3.76 2.164 3.758-2.164zm1.956 13.505l2.182-1.256V3.624l-1.58.91-2.182 1.255v9.435zm11.581-10.95l-3.76 2.163 3.76 2.163 3.759-2.164zm-.376 4.978L16.21 7.087 14.63 6.18v4.283l2.182 1.256 1.58.908zm-8.65 9.654l5.514-3.148 2.756-1.572-3.757-2.163-4.323 2.489-3.941 2.27z"/></svg></li>
+        <li style="--c:#149ECA" title="React"><svg viewBox="0 0 24 24" role="img" aria-label="React"><path d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg></li>
+        <li style="--c:#3178C6" title="TypeScript"><svg viewBox="0 0 24 24" role="img" aria-label="TypeScript"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/></svg></li>
+        <li style="--c:#000000" title="Next.js"><svg viewBox="0 0 24 24" role="img" aria-label="Next.js"><path d="M18.665 21.978C16.758 23.255 14.465 24 12 24 5.377 24 0 18.623 0 12S5.377 0 12 0s12 5.377 12 12c0 3.583-1.574 6.801-4.067 9.001L9.219 7.2H7.2v9.596h1.615V9.251l9.85 12.727Zm-3.332-8.533 1.6 2.061V7.2h-1.6v6.245Z"/></svg></li>
+        <li style="--c:#3776AB" title="Python"><svg viewBox="0 0 24 24" role="img" aria-label="Python"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></li>
+        <li style="--c:#02569B" title="Flutter"><svg viewBox="0 0 24 24" role="img" aria-label="Flutter"><path d="M14.314 0L2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072L7.857 17.53l6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"/></svg></li>
+        <li style="--c:#5FA04E" title="Node.js"><svg viewBox="0 0 24 24" role="img" aria-label="Node.js"><path d="M11.998,24c-0.321,0-0.641-0.084-0.922-0.247l-2.936-1.737c-0.438-0.245-0.224-0.332-0.08-0.383 c0.585-0.203,0.703-0.25,1.328-0.604c0.065-0.037,0.151-0.023,0.218,0.017l2.256,1.339c0.082,0.045,0.197,0.045,0.272,0l8.795-5.076 c0.082-0.047,0.134-0.141,0.134-0.238V6.921c0-0.099-0.053-0.192-0.137-0.242l-8.791-5.072c-0.081-0.047-0.189-0.047-0.271,0 L3.075,6.68C2.99,6.729,2.936,6.825,2.936,6.921v10.15c0,0.097,0.054,0.189,0.139,0.235l2.409,1.392 c1.307,0.654,2.108-0.116,2.108-0.89V7.787c0-0.142,0.114-0.253,0.256-0.253h1.115c0.139,0,0.255,0.112,0.255,0.253v10.021 c0,1.745-0.95,2.745-2.604,2.745c-0.508,0-0.909,0-2.026-0.551L2.28,18.675c-0.57-0.329-0.922-0.945-0.922-1.604V6.921 c0-0.659,0.353-1.275,0.922-1.603l8.795-5.082c0.557-0.315,1.296-0.315,1.848,0l8.794,5.082c0.57,0.329,0.924,0.944,0.924,1.603 v10.15c0,0.659-0.354,1.273-0.924,1.604l-8.794,5.078C12.643,23.916,12.324,24,11.998,24z M19.099,13.993 c0-1.9-1.284-2.406-3.987-2.763c-2.731-0.361-3.009-0.548-3.009-1.187c0-0.528,0.235-1.233,2.258-1.233 c1.807,0,2.473,0.389,2.747,1.607c0.024,0.115,0.129,0.199,0.247,0.199h1.141c0.071,0,0.138-0.031,0.186-0.081 c0.048-0.054,0.074-0.123,0.067-0.196c-0.177-2.098-1.571-3.076-4.388-3.076c-2.508,0-4.004,1.058-4.004,2.833 c0,1.925,1.488,2.457,3.895,2.695c2.88,0.282,3.103,0.703,3.103,1.269c0,0.983-0.789,1.402-2.642,1.402 c-2.327,0-2.839-0.584-3.011-1.742c-0.02-0.124-0.126-0.215-0.253-0.215h-1.137c-0.141,0-0.254,0.112-0.254,0.253 c0,1.482,0.806,3.248,4.655,3.248C17.501,17.007,19.099,15.91,19.099,13.993z"/></svg></li>
+        <li style="--c:#4169E1" title="PostgreSQL"><svg viewBox="0 0 24 24" role="img" aria-label="PostgreSQL"><path d="M23.5594 14.7228a.5269.5269 0 0 0-.0563-.1191c-.139-.2632-.4768-.3418-1.0074-.2321-1.6533.3411-2.2935.1312-2.5256-.0191 1.342-2.0482 2.445-4.522 3.0411-6.8297.2714-1.0507.7982-3.5237.1222-4.7316a1.5641 1.5641 0 0 0-.1509-.235C21.6931.9086 19.8007.0248 17.5099.0005c-1.4947-.0158-2.7705.3461-3.1161.4794a9.449 9.449 0 0 0-.5159-.0816 8.044 8.044 0 0 0-1.3114-.1278c-1.1822-.0184-2.2038.2642-3.0498.8406-.8573-.3211-4.7888-1.645-7.2219.0788C.9359 2.1526.3086 3.8733.4302 6.3043c.0409.818.5069 3.334 1.2423 5.7436.4598 1.5065.9387 2.7019 1.4334 3.582.553.9942 1.1259 1.5933 1.7143 1.7895.4474.1491 1.1327.1441 1.8581-.7279.8012-.9635 1.5903-1.8258 1.9446-2.2069.4351.2355.9064.3625 1.39.3772a.0569.0569 0 0 0 .0004.0041 11.0312 11.0312 0 0 0-.2472.3054c-.3389.4302-.4094.5197-1.5002.7443-.3102.064-1.1344.2339-1.1464.8115-.0025.1224.0329.2309.0919.3268.2269.4231.9216.6097 1.015.6331 1.3345.3335 2.5044.092 3.3714-.6787-.017 2.231.0775 4.4174.3454 5.0874.2212.5529.7618 1.9045 2.4692 1.9043.2505 0 .5263-.0291.8296-.0941 1.7819-.3821 2.5557-1.1696 2.855-2.9059.1503-.8707.4016-2.8753.5388-4.1012.0169-.0703.0357-.1207.057-.1362.0007-.0005.0697-.0471.4272.0307a.3673.3673 0 0 0 .0443.0068l.2539.0223.0149.001c.8468.0384 1.9114-.1426 2.5312-.4308.6438-.2988 1.8057-1.0323 1.5951-1.6698zM2.371 11.8765c-.7435-2.4358-1.1779-4.8851-1.2123-5.5719-.1086-2.1714.4171-3.6829 1.5623-4.4927 1.8367-1.2986 4.8398-.5408 6.108-.13-.0032.0032-.0066.0061-.0098.0094-2.0238 2.044-1.9758 5.536-1.9708 5.7495-.0002.0823.0066.1989.0162.3593.0348.5873.0996 1.6804-.0735 2.9184-.1609 1.1504.1937 2.2764.9728 3.0892.0806.0841.1648.1631.2518.2374-.3468.3714-1.1004 1.1926-1.9025 2.1576-.5677.6825-.9597.5517-1.0886.5087-.3919-.1307-.813-.5871-1.2381-1.3223-.4796-.839-.9635-2.0317-1.4155-3.5126zm6.0072 5.0871c-.1711-.0428-.3271-.1132-.4322-.1772.0889-.0394.2374-.0902.4833-.1409 1.2833-.2641 1.4815-.4506 1.9143-1.0002.0992-.126.2116-.2687.3673-.4426a.3549.3549 0 0 0 .0737-.1298c.1708-.1513.2724-.1099.4369-.0417.156.0646.3078.26.3695.4752.0291.1016.0619.2945-.0452.4444-.9043 1.2658-2.2216 1.2494-3.1676 1.0128zm2.094-3.988-.0525.141c-.133.3566-.2567.6881-.3334 1.003-.6674-.0021-1.3168-.2872-1.8105-.8024-.6279-.6551-.9131-1.5664-.7825-2.5004.1828-1.3079.1153-2.4468.079-3.0586-.005-.0857-.0095-.1607-.0122-.2199.2957-.2621 1.6659-.9962 2.6429-.7724.4459.1022.7176.4057.8305.928.5846 2.7038.0774 3.8307-.3302 4.7363-.084.1866-.1633.3629-.2311.5454zm7.3637 4.5725c-.0169.1768-.0358.376-.0618.5959l-.146.4383a.3547.3547 0 0 0-.0182.1077c-.0059.4747-.054.6489-.115.8693-.0634.2292-.1353.4891-.1794 1.0575-.11 1.4143-.8782 2.2267-2.4172 2.5565-1.5155.3251-1.7843-.4968-2.0212-1.2217a6.5824 6.5824 0 0 0-.0769-.2266c-.2154-.5858-.1911-1.4119-.1574-2.5551.0165-.5612-.0249-1.9013-.3302-2.6462.0044-.2932.0106-.5909.019-.8918a.3529.3529 0 0 0-.0153-.1126 1.4927 1.4927 0 0 0-.0439-.208c-.1226-.4283-.4213-.7866-.7797-.9351-.1424-.059-.4038-.1672-.7178-.0869.067-.276.1831-.5875.309-.9249l.0529-.142c.0595-.16.134-.3257.213-.5012.4265-.9476 1.0106-2.2453.3766-5.1772-.2374-1.0981-1.0304-1.6343-2.2324-1.5098-.7207.0746-1.3799.3654-1.7088.5321a5.6716 5.6716 0 0 0-.1958.1041c.0918-1.1064.4386-3.1741 1.7357-4.4823a4.0306 4.0306 0 0 1 .3033-.276.3532.3532 0 0 0 .1447-.0644c.7524-.5706 1.6945-.8506 2.802-.8325.4091.0067.8017.0339 1.1742.081 1.939.3544 3.2439 1.4468 4.0359 2.3827.8143.9623 1.2552 1.9315 1.4312 2.4543-1.3232-.1346-2.2234.1268-2.6797.779-.9926 1.4189.543 4.1729 1.2811 5.4964.1353.2426.2522.4522.2889.5413.2403.5825.5515.9713.7787 1.2552.0696.087.1372.1714.1885.245-.4008.1155-1.1208.3825-1.0552 1.717-.0123.1563-.0423.4469-.0834.8148-.0461.2077-.0702.4603-.0994.7662zm.8905-1.6211c-.0405-.8316.2691-.9185.5967-1.0105a2.8566 2.8566 0 0 0 .135-.0406 1.202 1.202 0 0 0 .1342.103c.5703.3765 1.5823.4213 3.0068.1344-.2016.1769-.5189.3994-.9533.6011-.4098.1903-1.0957.333-1.7473.3636-.7197.0336-1.0859-.0807-1.1721-.151zm.5695-9.2712c-.0059.3508-.0542.6692-.1054 1.0017-.055.3576-.112.7274-.1264 1.1762-.0142.4368.0404.8909.0932 1.3301.1066.887.216 1.8003-.2075 2.7014a3.5272 3.5272 0 0 1-.1876-.3856c-.0527-.1276-.1669-.3326-.3251-.6162-.6156-1.1041-2.0574-3.6896-1.3193-4.7446.3795-.5427 1.3408-.5661 2.1781-.463zm.2284 7.0137a12.3762 12.3762 0 0 0-.0853-.1074l-.0355-.0444c.7262-1.1995.5842-2.3862.4578-3.4385-.0519-.4318-.1009-.8396-.0885-1.2226.0129-.4061.0666-.7543.1185-1.0911.0639-.415.1288-.8443.1109-1.3505.0134-.0531.0188-.1158.0118-.1902-.0457-.4855-.5999-1.938-1.7294-3.253-.6076-.7073-1.4896-1.4972-2.6889-2.0395.5251-.1066 1.2328-.2035 2.0244-.1859 2.0515.0456 3.6746.8135 4.8242 2.2824a.908.908 0 0 1 .0667.1002c.7231 1.3556-.2762 6.2751-2.9867 10.5405zm-8.8166-6.1162c-.025.1794-.3089.4225-.6211.4225a.5821.5821 0 0 1-.0809-.0056c-.1873-.026-.3765-.144-.5059-.3156-.0458-.0605-.1203-.178-.1055-.2844.0055-.0401.0261-.0985.0925-.1488.1182-.0894.3518-.1226.6096-.0867.3163.0441.6426.1938.6113.4186zm7.9305-.4114c.0111.0792-.049.201-.1531.3102-.0683.0717-.212.1961-.4079.2232a.5456.5456 0 0 1-.075.0052c-.2935 0-.5414-.2344-.5607-.3717-.024-.1765.2641-.3106.5611-.352.297-.0414.6111.0088.6356.1851z"/></svg></li>
+        <li style="--c:#FF9900" title="AWS"><svg viewBox="0 0 24 24" role="img" aria-label="AWS"><path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 0 1-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 0 1-.287-.375 6.18 6.18 0 0 1-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 0 1-.28.104.488.488 0 0 1-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 0 1 .224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 0 1 1.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 0 0-.735-.136 6.02 6.02 0 0 0-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 0 1-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 0 1 .32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 0 1 .311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 0 1-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 0 1-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 0 1-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 0 0 .415-.758.777.777 0 0 0-.215-.559c-.144-.151-.416-.287-.807-.415l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 0 1-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.175 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 0 1 .24.2.43.43 0 0 1 .071.263v.375c0 .168-.064.256-.184.256a.83.83 0 0 1-.303-.096 3.652 3.652 0 0 0-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167zM21.698 16.207c-2.626 1.94-6.442 2.969-9.722 2.969-4.598 0-8.74-1.7-11.87-4.526-.247-.223-.024-.527.272-.351 3.384 1.963 7.559 3.153 11.877 3.153 2.914 0 6.114-.607 9.06-1.852.439-.2.814.287.383.607zM22.792 14.961c-.336-.43-2.22-.207-3.074-.103-.255.032-.295-.192-.063-.36 1.5-1.053 3.967-.75 4.254-.399.287.36-.08 2.826-1.485 4.007-.215.184-.423.088-.327-.151.32-.79 1.03-2.57.695-2.994z"/></svg></li>
+        <li style="--c:#0078D4" title="Microsoft Azure"><svg viewBox="0 0 24 24" role="img" aria-label="Microsoft Azure"><path d="M22.379 23.343a1.62 1.62 0 0 0 1.536-2.14v.002L17.35 1.76A1.62 1.62 0 0 0 15.816.657H8.184A1.62 1.62 0 0 0 6.65 1.76L.086 21.204a1.62 1.62 0 0 0 1.536 2.139h4.741a1.62 1.62 0 0 0 1.535-1.103l.977-2.892 4.947 3.675c.28.208.618.32.966.32m-3.084-12.531 3.624 10.739a.54.54 0 0 1-.51.713v-.001h-.03a.54.54 0 0 1-.322-.106l-9.287-6.9h4.853m6.313 7.006c.116-.326.13-.694.007-1.058L9.79 1.76a1.722 1.722 0 0 0-.007-.02h6.034a.54.54 0 0 1 .512.366l6.562 19.445a.54.54 0 0 1-.338.684"/></svg></li>
+        <li style="--c:#2496ED" title="Docker"><svg viewBox="0 0 24 24" role="img" aria-label="Docker"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg></li>
+        <li style="--c:#326CE5" title="Kubernetes"><svg viewBox="0 0 24 24" role="img" aria-label="Kubernetes"><path d="M10.204 14.35l.007.01-.999 2.413a5.171 5.171 0 0 1-2.075-2.597l2.578-.437.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.143 5.143 0 0 0-.73 3.255l2.514-.725.002-.009zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005.15-2.62a5.144 5.144 0 0 0-3.01 1.442l2.147 1.523.004-.002zm.76 2.75l.723.349.722-.347.18-.78-.5-.623h-.804l-.5.623.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003 2.134-1.513a5.188 5.188 0 0 0-2.992-1.442l.148 2.615.002.001zm10.876 5.97l-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.583 1.583 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.606 1.606 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34zm-3.289-2.057c-.042-.01-.103-.026-.145-.034-.174-.033-.315-.025-.479-.038-.35-.037-.638-.067-.895-.148-.105-.04-.18-.165-.216-.216l-.201-.059a6.45 6.45 0 0 0-.105-2.332 6.465 6.465 0 0 0-.936-2.163c.052-.047.15-.133.177-.159.008-.09.001-.183.094-.282.197-.185.444-.338.743-.522.142-.084.273-.137.415-.242.032-.024.076-.062.11-.089.24-.191.295-.52.123-.736-.172-.216-.506-.236-.745-.045-.034.027-.08.062-.111.088-.134.116-.217.23-.33.35-.246.25-.45.458-.673.609-.097.056-.239.037-.303.033l-.19.135a6.545 6.545 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25-.022-.268.015-.557.057-.905.023-.163.061-.298.068-.475.001-.04-.001-.099-.001-.142 0-.306-.224-.555-.5-.555-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128.006.177.044.312.067.475.042.348.078.637.056.906a.545.545 0 0 1-.162.258l-.012.211a6.424 6.424 0 0 0-4.166 2.003 8.373 8.373 0 0 1-.18-.128c-.09.012-.18.04-.297-.029-.223-.15-.427-.358-.673-.608-.113-.12-.195-.234-.329-.349-.03-.026-.077-.062-.111-.088a.594.594 0 0 0-.348-.132.481.481 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005.104.083c.142.105.272.159.414.242.299.185.546.338.743.522.076.082.09.226.1.288l.16.143a6.462 6.462 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217-.257.081-.546.11-.895.147-.164.014-.305.006-.48.039-.037.007-.09.02-.133.03l-.004.002-.007.002c-.295.071-.484.342-.423.608.061.267.349.429.645.365l.007-.001.01-.003.129-.029c.17-.046.294-.113.448-.172.33-.118.604-.217.87-.256.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282-.097.252-.263.517-.452.813-.091.136-.185.242-.268.399-.02.037-.045.095-.064.134-.128.275-.034.591.213.71.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127.07-.162.094-.301.144-.458.132-.332.205-.68.387-.897.05-.06.13-.082.215-.105l.113-.205a6.453 6.453 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155.136.232.229.507.342.84.05.156.074.295.145.457.016.037.043.09.062.129.133.276.442.402.69.282.247-.118.341-.435.213-.71-.02-.039-.045-.096-.065-.134-.083-.156-.177-.261-.268-.398-.19-.296-.346-.541-.443-.793-.04-.13.007-.21.038-.294-.018-.022-.059-.144-.083-.202a6.499 6.499 0 0 0 2.88-3.622c.064.01.176.03.213.038.075-.05.144-.114.28-.104.266.039.54.138.87.256.154.06.277.128.448.173.036.01.088.019.13.028l.009.003.007.001c.297.064.584-.098.645-.365.06-.266-.128-.537-.423-.608zM16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01 2.526.728a5.199 5.199 0 0 0-.108-1.674A5.208 5.208 0 0 0 16.4 9.7zm-4.013 5.325a.437.437 0 0 0-.404-.232.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.164 5.164 0 0 0 3.326.003l-1.27-2.296h-.01zm1.888-1.293a.44.44 0 0 0-.27.036.44.44 0 0 0-.214.572l-.003.004 1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44-.004.005z"/></svg></li>
+        <li style="--c:#D97757" title="Claude"><svg viewBox="0 0 24 24" role="img" aria-label="Claude"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg></li>
+        <li style="--c:#412991" title="OpenAI"><svg viewBox="0 0 24 24" role="img" aria-label="OpenAI"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/></svg></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <section class="block" id="services" aria-labelledby="services-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">خدماتنا</span>
+        <h2 id="services-title">ماذا نقدّم لك؟</h2>
+        <p>أربع خدمات تغطّي ما تحتاجه شركتك تقنياً، من الفكرة إلى التشغيل.</p>
+      </div>
+
+      <div class="services">
+        <article class="svc">
+          <div class="mini" data-piece="queen" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Queen · الوزير</span>
+            <h3>مواقع وتطبيقات</h3>
+            <p>نبني موقع شركتك، أو تطبيق جوال، أو نظاماً خاصاً لإدارة عملك، من التصميم حتى النشر.</p>
+            <ul class="tags"><li>مواقع إلكترونية</li><li>تطبيقات جوال</li><li>متاجر إلكترونية</li><li>أنظمة إدارة</li></ul>
+          </div>
+        </article>
+        <article class="svc">
+          <div class="mini" data-piece="knight" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Knight · الحصان</span>
+            <h3>الذكاء الاصطناعي</h3>
+            <p>نوفّر وقتك ووقت فريقك: مساعد ذكي يردّ على عملائك، وأتمتة للمهام المتكرّرة، وتقارير تفهم منها بياناتك.</p>
+            <ul class="tags"><li>مساعد لخدمة العملاء</li><li>أتمتة المهام</li><li>تحليل البيانات</li><li>يدعم العربية</li></ul>
+          </div>
+        </article>
+        <article class="svc">
+          <div class="mini" data-piece="rook" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Rook · القلعة</span>
+            <h3>الاستضافة والحماية</h3>
+            <p>نجهّز لك خوادم سحابية سريعة وآمنة ونراقبها باستمرار، حتى يبقى موقعك وتطبيقك يعملان دون انقطاع.</p>
+            <ul class="tags"><li>استضافة سحابية</li><li>حماية البيانات</li><li>نسخ احتياطي</li><li>مراقبة مستمرة</li></ul>
+          </div>
+        </article>
+        <article class="svc">
+          <div class="mini" data-piece="bishop" aria-hidden="true"></div>
+          <div class="svc-body">
+            <span class="who mono">Bishop · الفيل</span>
+            <h3>استشارات تقنية</h3>
+            <p>لا تعرف من أين تبدأ؟ نراجع وضعك الحالي، ونقترح عليك خطة واضحة بالأولويات والتكلفة.</p>
+            <ul class="tags"><li>خطة تقنية</li><li>تصميم تجربة المستخدم</li><li>إدارة المشاريع</li><li>مراجعة الأنظمة الحالية</li></ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <div class="wrap"><div class="checker-rule" aria-hidden="true"></div></div>
+  <section class="block" id="process" aria-labelledby="process-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">كيف نعمل</span>
+        <h2 id="process-title">أربع خطوات<br>واضحة.</h2>
+        <p>تعرف في كل خطوة ماذا نفعل، وتستلم في نهايتها شيئاً تراه بعينك.</p>
+      </div>
+
+      <ol class="rank">
+        <li class="sq">
+          <div class="top"><span class="num">١</span><span class="phase">الخطوة الأولى</span></div>
+          <div>
+            <h3>نفهم احتياجك</h3>
+            <p>نجلس معك لنفهم فكرتك وأهدافك وميزانيتك.</p>
+            <p class="get">تستلم: عرضاً واضحاً بالسعر والمدة</p>
+          </div>
+          <span class="coord mono">e1</span>
+        </li>
+        <li class="sq">
+          <div class="top"><span class="num">٢</span><span class="phase">الخطوة الثانية</span></div>
+          <div>
+            <h3>نصمّم الحل</h3>
+            <p>نرسم شكل الموقع أو التطبيق، وتوافق عليه قبل أن نبدأ البرمجة.</p>
+            <p class="get">تستلم: تصميماً تجرّبه بنفسك</p>
+          </div>
+          <span class="coord mono">f1</span>
+        </li>
+        <li class="sq">
+          <div class="top"><span class="num">٣</span><span class="phase">الخطوة الثالثة</span></div>
+          <div>
+            <h3>نبني ونطلعك أولاً بأول</h3>
+            <p>نعمل على مراحل قصيرة، وتشاهد ما أنجزناه كل أسبوعين.</p>
+            <p class="get">تستلم: نسخة تعمل بعد كل مرحلة</p>
+          </div>
+          <span class="coord mono">g1</span>
+        </li>
+        <li class="sq">
+          <div class="top"><span class="num">٤</span><span class="phase">الخطوة الرابعة</span></div>
+          <div>
+            <h3>نطلق ونبقى معك</h3>
+            <p>ننشر المشروع ونتابع عمله، ونقدّم الدعم والتحديثات بعد الإطلاق.</p>
+            <p class="get">تستلم: مشروعاً يعمل ودعماً مستمراً</p>
+          </div>
+          <span class="coord mono">h1</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Heritage / Why -->
+  <div class="wrap"><div class="checker-rule" aria-hidden="true"></div></div>
+  <section class="block heritage" id="about" aria-labelledby="about-title" style="padding-top:0">
+    <div class="wrap about-grid">
+      <div class="heritage-copy">
+        <span class="eyebrow" id="about-title">من نحن</span>
+        <p class="ruqaa gold">البيدق إذا بلغ آخر الرقعة ترقّى.</p>
+        <p>بيدق تكنولوجي شركة تقنية تساعد الشركات على بناء مواقعها وتطبيقاتها وتطويرها. اخترنا اسم «بيدق» لأن البيدق أصغر قطعة في الشطرنج، لكنه إذا وصل إلى آخر الرقعة يصبح وزيراً. وهذا ما نفعله مع عملائنا: نبدأ معك من فكرة صغيرة، ونكبر بها خطوة بعد خطوة.</p>
+      </div>
+
+      <figure class="promo" aria-label="بيدق يتقدّم من الخانة e2 إلى e8 فيصبح وزيراً">
+        <div class="trail-row" aria-hidden="true">
+          <span class="t"></span><span class="t"></span><span class="t"></span><span class="t"></span><span class="t"></span><span class="t"></span><span class="t"></span>
+          <span class="trail"></span>
+          <span class="p ghost"><svg viewBox="0 0 45 45"><use href="#p-pawn"/></svg></span>
+          <span class="p walker"><svg viewBox="0 0 45 45"><use href="#p-pawn"/></svg></span>
+          <span class="p queen"><svg viewBox="0 0 45 45"><use href="#p-queen"/></svg></span>
+        </div>
+        <div class="trail-labels mono" aria-hidden="true"><span>e2</span><span>e3</span><span>e4</span><span>e5</span><span>e6</span><span>e7</span><span>e8=Q</span></div>
+        <figcaption class="trail-cap">ست خطوات إلى الأمام… والبيدق يصبح وزيراً.</figcaption>
+      </figure>
+    </div>
+
+    <div class="wrap">
+      <ul class="principles">
+        <li>
+          <div class="pr-stage" aria-hidden="true">
+            <span class="pr-num">١</span>
+            <span class="pr-base"></span>
+            <svg class="pr-piece" viewBox="0 0 45 45"><use href="#p-knight"/></svg>
+          </div>
+          <span class="pr-tag">الحصان: يجد طريقه حيث لا يصل غيره</span>
+          <h3>حلول على مقاسك</h3>
+          <p>سواء كنت تبدأ مشروعاً جديداً أو تطوّر نظاماً قائماً، نصمّم ما يناسب حجم عملك وميزانيتك.</p>
+        </li>
+        <li>
+          <div class="pr-stage" aria-hidden="true">
+            <span class="pr-num">٢</span>
+            <span class="pr-base"></span>
+            <svg class="pr-piece" viewBox="0 0 45 45"><use href="#p-pawn"/></svg>
+          </div>
+          <span class="pr-tag">البيدق: يتقدّم حتى يصبح وزيراً</span>
+          <h3>جاهز للنمو</h3>
+          <p>نبني بطريقة تسمح لك بإضافة مزايا جديدة لاحقاً، دون أن تبدأ من الصفر.</p>
+        </li>
+        <li>
+          <div class="pr-stage" aria-hidden="true">
+            <span class="pr-num">٣</span>
+            <span class="pr-base"></span>
+            <svg class="pr-piece" viewBox="0 0 45 45"><use href="#p-rook"/></svg>
+          </div>
+          <span class="pr-tag">القلعة: تحمي وتبقى ثابتة</span>
+          <h3>معك بعد الإطلاق</h3>
+          <p>لا نسلّم المشروع ونختفي. نتابع ونصلح ونطوّر معك متى احتجت.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <div class="wrap"><div class="checker-rule" aria-hidden="true"></div></div>
+  <section class="block" id="contact" aria-labelledby="contact-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="contact">
+        <div class="contact-side">
+          <div>
+            <span class="eyebrow">تواصل معنا</span>
+            <h2 id="contact-title">حدّثنا عن<br><span class="gold">مشروعك.</span></h2>
+            <p>اكتب لنا باختصار ما تحتاجه، وسنتواصل معك خلال يوم عمل واحد لنتفق على الخطوة التالية.</p>
+          </div>
+          <dl>
+            <div><dt>البريد الإلكتروني</dt><dd class="ltr">hello@baydaq.tech</dd></div>
+            <div><dt>الهاتف</dt><dd class="ltr">+000 00 000 0000</dd></div>
+            <div><dt>ساعات العمل</dt><dd>الأحد إلى الخميس، ٩ صباحاً إلى ٥ مساءً</dd></div>
+          </dl>
+        </div>
+
+        <form id="contact-form" novalidate>
+          <div class="field">
+            <label for="c-name">الاسم</label>
+            <input id="c-name" name="name" type="text" autocomplete="name" required value="سارة العتيبي">
+          </div>
+          <div class="field">
+            <label for="c-email">البريد الإلكتروني</label>
+            <input id="c-email" name="email" type="email" autocomplete="email" required value="sara@example.com">
+          </div>
+          <div class="field">
+            <label for="c-company">الشركة (اختياري)</label>
+            <input id="c-company" name="company" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="c-service">الخدمة المطلوبة</label>
+            <select id="c-service" name="service">
+              <option>مواقع وتطبيقات</option>
+              <option selected>الذكاء الاصطناعي</option>
+              <option>الاستضافة والحماية</option>
+              <option>استشارات تقنية</option>
+              <option>لست متأكداً بعد</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="c-msg">ماذا تحتاج؟</label>
+            <textarea id="c-msg" name="message" required>نحتاج مساعداً ذكياً يجيب عن استفسارات العملاء باللغة العربية ويتكامل مع نظامنا الحالي.</textarea>
+          </div>
+          <div class="form-foot">
+            <button class="btn btn-gold" type="submit">أرسل الرسالة <span class="arr" aria-hidden="true">←</span></button>
+            <span class="form-status" id="form-status" role="status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="wordmark" aria-hidden="true">بيدق</div>
+    <div class="row">
+      <span>© ٢٠٢٦ بيدق تكنولوجي. جميع الحقوق محفوظة.</span>
+      <ul>
+        <li><a href="#services">خدماتنا</a></li>
+        <li><a href="#process">كيف نعمل</a></li>
+        <li><a href="#contact">تواصل معنا</a></li>
+      </ul>
+      <span class="mono">1. e4 e5 2. Nf3</span>
+    </div>
+  </div>
+</footer>
+
+<div class="bg-switch" role="group" aria-label="مقارنة خلفية الصفحة">
+  <span>الخلفية:</span>
+  <button type="button" id="bg-pieces" aria-pressed="false">قطع</button>
+  <button type="button" id="bg-squares" aria-pressed="true">مربعات</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Mini boards: how each piece moves ---------- */
+  var rules = {
+    queen:  function (dr, dc) { return dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc); },
+    rook:   function (dr, dc) { return dr === 0 || dc === 0; },
+    bishop: function (dr, dc) { return Math.abs(dr) === Math.abs(dc); },
+    knight: function (dr, dc) { return Math.abs(dr * dc) === 2; }
+  };
+  document.querySelectorAll('.mini').forEach(function (el) {
+    var piece = el.getAttribute('data-piece');
+    var html = '';
+    for (var r = 0; r < 5; r++) {
+      for (var c = 0; c < 5; c++) {
+        var dr = r - 2, dc = c - 2;
+        var cls = (r + c) % 2 === 0 ? 'l' : 'd';
+        if (dr === 0 && dc === 0) {
+          html += '<span class="' + cls + '"><svg viewBox="0 0 45 45"><use href="#p-' + piece + '"/></svg></span>';
+        } else if (rules[piece](dr, dc)) {
+          var dist = Math.max(Math.abs(dr), Math.abs(dc));
+          html += '<span class="' + cls + ' dot" style="--dl:' + (dist * 0.07) + 's"></span>';
+        } else {
+          html += '<span class="' + cls + '"></span>';
+        }
+      }
+    }
+    el.innerHTML = html;
+  });
+
+  /* ---------- Prototype form (no backend yet) ---------- */
+  document.getElementById('contact-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var status = document.getElementById('form-status');
+    var name = document.getElementById('c-name').value.trim();
+    var email = document.getElementById('c-email').value.trim();
+    if (!name || !/^\S+@\S+\.\S+$/.test(email)) {
+      status.textContent = 'أدخل اسمك وبريداً إلكترونياً صحيحاً حتى نتمكّن من الرد عليك.';
+      return;
+    }
+    status.textContent = 'وصلت رسالتك. هذا نموذج تجريبي، والإرسال الفعلي سيعمل في نسخة Laravel.';
+  });
+
+  /* ---------- Loading screen hand-off ---------- */
+  var root = document.documentElement;
+  var LOADER_MS = root.classList.contains('loading') ? 1400 : 0;
+  setTimeout(function () { root.classList.remove('loading'); }, LOADER_MS);
+
+  /* ---------- Floating pieces across the page ---------- */
+  // Seeded random so the scatter is identical on every visit.
+  var seed = 64;
+  function rand() {
+    seed = (seed + 0x6D2B79F5) | 0;
+    var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  var PIECES = ['pawn', 'pawn', 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
+  function addFloater(sec, o) {
+    var el = document.createElement('span');
+    el.className = 'floaty' + (o.outline ? ' o' : '');
+    el.setAttribute('aria-hidden', 'true');
+    el.setAttribute('data-speed', o.speed.toFixed(2));
+    el.setAttribute('data-size', Math.round(o.size));
+    el.setAttribute('data-frac', o.frac.toFixed(3));
+    el.setAttribute('data-side', o.side);
+    el.style.top = o.top.toFixed(1) + '%';
+    el.innerHTML = '<svg viewBox="0 0 45 45"><use href="#p-' + o.piece + '"/></svg>';
+    el.firstChild.style.animationDuration = (6 + rand() * 5).toFixed(1) + 's';
+    el.firstChild.style.animationDelay = '-' + (rand() * 8).toFixed(1) + 's';
+    sec.insertBefore(el, sec.firstChild);
+  }
+  ['.hero', '#services', '#process', '#about', '#contact'].forEach(function (sel) {
+    var sec = document.querySelector(sel);
+    if (!sec) return;
+    // Roughly one piece per 120px of section height, alternating sides, spread top to bottom.
+    var count = Math.max(6, Math.round(sec.offsetHeight / 120));
+    for (var i = 0; i < count; i++) {
+      addFloater(sec, {
+        piece: PIECES[Math.floor(rand() * PIECES.length)],
+        outline: rand() < .45,
+        size: 38 + rand() * 82,
+        top: ((i + .15 + rand() * .7) / count) * 96,
+        side: i % 2 ? 'end' : 'start',
+        frac: rand(),
+        speed: rand() * .34 - .14
+      });
+    }
+  });
+
+  // Board patches: a planned rhythm down the page. Every section has a pair, but each pair takes a
+  // different shape (tall, diagonal, small, reversed diagonal…) and square size, so nothing repeats.
+  // [side, top %, height %, anchor (where the patch is strongest), square size px]
+  var PATCH_PLAN = {
+    '.hero':     [['right', 4, 92, 'center', 48], ['left', 4, 92, 'center', 48]],
+    '#services': [['right', 0, 58, 'top', 48],    ['left', 42, 58, 'bottom', 48]],
+    '#process':  [['right', 22, 56, 'center', 64], ['left', 22, 56, 'center', 64]],
+    '#about':    [['left', 0, 58, 'top', 48],     ['right', 42, 58, 'bottom', 48]],
+    '#contact':  [['right', 8, 84, 'center', 36], ['left', 8, 84, 'center', 36]]
+  };
+  var ANCHOR_Y = { top: '0%', center: '50%', bottom: '100%' };
+  var allPatches = [];
+  Object.keys(PATCH_PLAN).forEach(function (sel) {
+    var sec = document.querySelector(sel);
+    if (!sec) return;
+    PATCH_PLAN[sel].forEach(function (d) {
+      var p = document.createElement('span');
+      p.className = 'bpatch ' + d[0];
+      p.setAttribute('aria-hidden', 'true');
+      p.style.top = d[1] + '%';
+      p.style.height = d[2] + '%';
+      p.setAttribute('data-cell', d[4]);
+      p.style.setProperty('--tile', (d[4] * 2) + 'px');
+      // Corner-anchored patches fade from their corner; centred ones from the middle of the edge.
+      var ry = d[3] === 'center' ? '50%' : '80%';
+      p.style.setProperty('--mask', 'radial-gradient(ellipse 100% ' + ry + ' at ' + (d[0] === 'right' ? '100%' : '0') + ' ' + ANCHOR_Y[d[3]] + ', #000 20%, transparent 72%)');
+      sec.insertBefore(p, sec.firstChild);
+      allPatches.push(p);
+    });
+  });
+
+  // Keep every piece inside the empty side margins, never behind the content column.
+  var CONTENT_MAX = 1200, allFloaters = Array.prototype.slice.call(document.querySelectorAll('.floaty'));
+  function gutterWidth() {
+    var W = document.documentElement.clientWidth;
+    return (W - Math.min(W, CONTENT_MAX)) / 2 + 20 - 14;
+  }
+  function layoutFloaters() {
+    var gutter = gutterWidth();
+    var show = gutter >= 44;
+    // Patches reach a little past the margin and fade to nothing just inside the content edge.
+    var pw = Math.round(gutter + 140);
+    allPatches.forEach(function (p) {
+      p.hidden = !show;
+      p.style.width = pw + 'px';
+      // Anchor the squares to the page edge so right patches mirror left ones
+      // (+1 cell so the square touching the right edge is light, like the left edge's first square).
+      var cell = +p.getAttribute('data-cell');
+      p.style.setProperty('--ox', (p.classList.contains('right') ? (pw + cell) % (cell * 2) : 0) + 'px');
+    });
+    allFloaters.forEach(function (el) {
+      el.hidden = !show;
+      if (!show) return;
+      var size = Math.min(+el.getAttribute('data-size'), gutter - 8);
+      var inset = +el.getAttribute('data-frac') * Math.max(0, gutter - size - 4);
+      el.style.width = size + 'px';
+      el.style[el.getAttribute('data-side') === 'start' ? 'insetInlineStart' : 'insetInlineEnd'] = inset.toFixed(0) + 'px';
+    });
+  }
+  layoutFloaters();
+  window.addEventListener('resize', layoutFloaters);
+
+  // Temporary: switch the floating background between chess pieces and board squares.
+  var bgPieces = document.getElementById('bg-pieces'), bgSquares = document.getElementById('bg-squares');
+  function setBg(mode) {
+    root.classList.toggle('bg-squares', mode === 'squares');
+    bgPieces.setAttribute('aria-pressed', String(mode === 'pieces'));
+    bgSquares.setAttribute('aria-pressed', String(mode === 'squares'));
+    try { localStorage.setItem('baydaq-bg', mode); } catch (e) {}
+  }
+  bgPieces.addEventListener('click', function () { setBg('pieces'); });
+  bgSquares.addEventListener('click', function () { setBg('squares'); });
+  var savedBg = 'squares';
+  try { savedBg = localStorage.getItem('baydaq-bg') || 'squares'; } catch (e) {}
+  setBg(savedBg);
+
+  /* ---------- Page motion ---------- */
+  var nav = document.querySelector('.nav');
+  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  if (!reduce) {
+    // Warm light follows the pointer across the hero (mouse/trackpad only).
+    var hero = document.querySelector('.hero');
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      var lightFrame = 0, lx = 0, ly = 0;
+      hero.addEventListener('pointermove', function (e) {
+        var b = hero.getBoundingClientRect();
+        lx = e.clientX - b.left; ly = e.clientY - b.top;
+        if (lightFrame) return;
+        lightFrame = requestAnimationFrame(function () {
+          lightFrame = 0;
+          hero.style.setProperty('--mx', lx + 'px');
+          hero.style.setProperty('--my', ly + 'px');
+          hero.classList.add('lit');
+        });
+      });
+      hero.addEventListener('pointerleave', function () { hero.classList.remove('lit'); });
+    }
+
+    // Floating pieces drift at different speeds as the page scrolls.
+    var floaters = Array.prototype.slice.call(document.querySelectorAll('.floaty'));
+    var parallaxFrame = 0;
+    function parallax() {
+      parallaxFrame = 0;
+      var mid = window.innerHeight / 2;
+      floaters.forEach(function (el) {
+        var r = el.parentNode.getBoundingClientRect();
+        var offset = (r.top + r.height / 2 - mid) * parseFloat(el.getAttribute('data-speed'));
+        el.style.transform = 'translate3d(0,' + offset.toFixed(1) + 'px,0)';
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (!parallaxFrame) parallaxFrame = requestAnimationFrame(parallax);
+    }, { passive: true });
+    parallax();
+
+    // Tech strip: wrap the list and duplicate it so the marquee loops seamlessly.
+    var list = document.querySelector('.stack ul');
+    if (list) {
+      var box = document.createElement('div');
+      box.className = 'marquee';
+      list.parentNode.insertBefore(box, list);
+      box.appendChild(list);
+      Array.prototype.slice.call(list.children).forEach(function (li) {
+        var copy = li.cloneNode(true);
+        copy.setAttribute('aria-hidden', 'true');
+        list.appendChild(copy);
+      });
+    }
+  }
+
+  if (!reduce && 'IntersectionObserver' in window) {
+    var groups = [
+      ['.sec-head', 'up', 0],
+      ['.svc', 'scale', 0.1],
+      ['.rank .sq', 'up', 0.12],
+      ['.heritage-copy .eyebrow', 'up', 0],
+      ['.heritage-copy .ruqaa', 'wipe', 0],
+      ['.heritage-copy > p:last-child', 'up', 0],
+      ['.promo', 'scale', 0],
+      ['.checker-rule', 'wipe', 0],
+      ['.principles li', 'up', 0.12],
+      ['.contact', 'up', 0],
+      ['.wordmark', 'up', 0]
+    ];
+    document.documentElement.classList.add('js-reveal');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.remove('pending');
+        io.unobserve(en.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+    groups.forEach(function (g) {
+      document.querySelectorAll(g[0]).forEach(function (el, i) {
+        el.setAttribute('data-reveal', g[1]);
+        if (g[2]) el.style.setProperty('--d', (i % 4) * g[2] + 's');
+        if (g[0] === '.heritage-copy > p:last-child') el.style.setProperty('--d', '.35s');
+        // Anything already on screen stays visible; only content below the fold waits.
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+        el.classList.add('pending');
+        io.observe(el);
+      });
+    });
+  }
+
+  /* ---------- Pawn → vizier loop in "about" (runs only while on screen) ---------- */
+  var promo = document.querySelector('.promo');
+  if (promo && !reduce && 'IntersectionObserver' in window) {
+    var WALK_MS = 2900, HOLD_MS = 2500, FADE_MS = 400;
+    var loopTimer = null, onScreen = false;
+    function replay() {
+      promo.classList.add('no-anim', 'walk-reset');
+      promo.classList.remove('walk-fade');
+      void promo.offsetWidth;
+      promo.classList.remove('no-anim');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { promo.classList.remove('walk-reset'); });
+      });
+      schedule();
+    }
+    function schedule() {
+      clearTimeout(loopTimer);
+      loopTimer = setTimeout(function () {
+        if (!onScreen) { loopTimer = null; return; }
+        promo.classList.add('walk-fade');
+        loopTimer = setTimeout(replay, FADE_MS);
+      }, WALK_MS + HOLD_MS);
+    }
+    new IntersectionObserver(function (entries) {
+      onScreen = entries[0].isIntersecting;
+      if (onScreen && !loopTimer) schedule();
+    }, { threshold: 0.3 }).observe(promo);
+  }
+
+  /* ---------- Playable board: you are White, Baydaq plays Black ---------- */
+  var boardEl = document.getElementById('board');
+  var statusEl = document.getElementById('status');
+  var termEl = document.getElementById('term-body');
+  var quipEl = document.getElementById('quip');
+  var arrowsEl = document.getElementById('arrows');
+  var FILES = 'abcdefgh';
+  var NAMES = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
+  var ARABIC = { p: 'بيدق', n: 'حصان', b: 'فيل', r: 'قلعة', q: 'وزير', k: 'ملك' };
+  var START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+
+  var cells = {};
+  for (var rk = 8; rk >= 1; rk--) {
+    for (var fi = 0; fi < 8; fi++) {
+      var id = FILES[fi] + rk;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sq8' + ((fi + rk) % 2 === 1 ? ' d' : '');
+      btn.setAttribute('data-sq', id);
+      btn.setAttribute('aria-label', id);
+      boardEl.appendChild(btn);
+      cells[id] = btn;
+    }
+  }
+
+  function coordsHtml(sq) {
+    var h = '';
+    if (sq[0] === 'a') h += '<span class="coord r">' + sq[1] + '</span>';
+    if (sq[1] === '1') h += '<span class="coord f">' + sq[0] + '</span>';
+    return h;
+  }
+  function pieceHtml(p, sq) {
+    // --i staggers the opening drop-in as a diagonal wave from the far corner.
+    var i = (8 - +sq[1]) + FILES.indexOf(sq[0]);
+    return '<svg class="pc ' + p.color + '" style="--i:' + i + '" viewBox="0 0 45 45" aria-hidden="true"><use href="#p-' + NAMES[p.type] + '"/></svg>';
+  }
+  function boardFromFen(fen) {
+    return fen.split(' ')[0].split('/').map(function (row) {
+      var out = [];
+      row.split('').forEach(function (ch) {
+        if (/\d/.test(ch)) { for (var i = 0; i < +ch; i++) out.push(null); }
+        else out.push({ type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' });
+      });
+      return out;
+    });
+  }
+  function setStatus(text, side, thinking) {
+    statusEl.className = 'status' + (thinking ? ' think' : '');
+    statusEl.innerHTML = '<i class="' + (side || 'w') + '"></i><span></span>';
+    statusEl.lastChild.textContent = text;
+  }
+
+  if (!window.Chess) {
+    var fb = boardFromFen(START);
+    Object.keys(cells).forEach(function (sq) {
+      var p = fb[8 - +sq[1]][FILES.indexOf(sq[0])];
+      cells[sq].innerHTML = coordsHtml(sq) + (p ? pieceHtml(p, sq) : '');
+      cells[sq].disabled = true;
+    });
+    setStatus('تعذّر تحميل اللعبة. أعد تحميل الصفحة للمحاولة مرة أخرى.');
+    document.getElementById('undo').disabled = true;
+    document.getElementById('reset').disabled = true;
+    return;
+  }
+
+  var game = new Chess();
+  var frameEl = document.querySelector('.board-frame');
+  var selected = null, targets = [], lastMove = null, busy = false, note = '';
+
+  function render(anim) {
+    var b = game.board();
+    var checkSq = null;
+    if (game.in_check()) {
+      var turn = game.turn();
+      for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+        var q = b[r][c];
+        if (q && q.type === 'k' && q.color === turn) checkSq = FILES[c] + (8 - r);
+      }
+    }
+    var mine = !busy && !game.game_over() && game.turn() === 'w';
+    Object.keys(cells).forEach(function (sq) {
+      var p = b[8 - +sq[1]][FILES.indexOf(sq[0])];
+      var el = cells[sq];
+      el.innerHTML = coordsHtml(sq) + (p ? pieceHtml(p, sq) : '');
+      var t = targets.filter(function (m) { return m.to === sq; })[0];
+      el.classList.toggle('last', !!lastMove && (lastMove.from === sq || lastMove.to === sq));
+      el.classList.toggle('sel', selected === sq);
+      el.classList.toggle('hint', !!t);
+      el.classList.toggle('cap', !!t && !!p);
+      el.classList.toggle('check', checkSq === sq);
+      el.classList.toggle('can', mine && (!!t || (!!p && p.color === 'w')));
+      el.setAttribute('aria-label', sq + (p ? '، ' + (p.color === 'w' ? 'أبيض ' : 'أسود ') + ARABIC[p.type] : ''));
+    });
+    if (anim && !reduce) {
+      var piece = cells[anim.to].querySelector('.pc');
+      if (piece) {
+        var s = boardEl.clientWidth / 8;
+        var dx = (FILES.indexOf(anim.from[0]) - FILES.indexOf(anim.to[0])) * s;
+        var dy = (+anim.to[1] - +anim.from[1]) * s;
+        piece.style.transition = 'none';
+        piece.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+        piece.classList.add('moving');
+        if (anim.flags && anim.flags.indexOf('p') !== -1) piece.classList.add('crown');
+        void piece.getBoundingClientRect();
+        piece.style.transition = '';
+        piece.style.transform = '';
+      }
+    }
+  }
+
+  /* ---- Terminal log: lines type out one after another, with an Arabic gloss after each ---- */
+  var termQueue = Promise.resolve();
+  var caretEl = document.createElement('span');
+  caretEl.className = 'caret';
+  function term(code, gloss, cls) {
+    termQueue = termQueue.then(function () {
+      return new Promise(function (done) {
+        var ln = document.createElement('div');
+        ln.className = 'ln';
+        var pre = document.createElement('span');
+        pre.className = cls === 'out' ? 'dim' : 'p';
+        pre.textContent = cls === 'out' ? '  ↳ ' : '> ';
+        var codeEl = document.createElement('span');
+        if (cls === 'out') codeEl.className = 'dim';
+        ln.appendChild(pre); ln.appendChild(codeEl); ln.appendChild(caretEl);
+        termEl.appendChild(ln);
+        while (termEl.children.length > 60) termEl.removeChild(termEl.firstChild);
+        function finish() {
+          if (gloss) {
+            var ar = document.createElement('span');
+            ar.className = 'ar'; ar.dir = 'rtl'; ar.textContent = gloss;
+            ln.insertBefore(ar, caretEl);
+            requestAnimationFrame(function () { ar.classList.add('show'); });
+          }
+          termEl.scrollTop = termEl.scrollHeight;
+          done();
+        }
+        if (reduce) { codeEl.textContent = code; finish(); return; }
+        var i = 0;
+        (function step() {
+          codeEl.textContent = code.slice(0, ++i);
+          termEl.scrollTop = termEl.scrollHeight;
+          if (i < code.length) setTimeout(step, 16); else finish();
+        })();
+      });
+    });
+  }
+
+  // The log shows only its latest line until the visitor asks to see the full thinking.
+  var termBox = termEl.parentNode, termToggle = document.getElementById('term-toggle');
+  termToggle.addEventListener('click', function () {
+    var open = termBox.classList.toggle('open');
+    termToggle.setAttribute('aria-expanded', String(open));
+    termToggle.textContent = open ? 'إخفاء' : 'عرض التفكير';
+    setTimeout(function () { termEl.scrollTop = termEl.scrollHeight; }, 360);
+  });
+
+  /* ---- Evaluation bar and live stats (fed by the engine's real numbers) ---- */
+  var evalFill = document.getElementById('eval-fill'), evalNum = document.getElementById('eval-num');
+  var stNodes = document.getElementById('st-nodes'), stTime = document.getElementById('st-time'), stWin = document.getElementById('st-win');
+  function winChance() {
+    if (game.in_checkmate()) return game.turn() === 'b' ? 1 : 0;
+    if (game.in_draw() || game.in_stalemate()) return 0.5;
+    return 1 / (1 + Math.pow(10, -evaluate() / 400));
+  }
+  function updateEval() {
+    var p = winChance();
+    evalFill.style.height = (p * 100).toFixed(1) + '%';
+    if (game.in_checkmate()) evalNum.textContent = game.turn() === 'b' ? '1-0' : '0-1';
+    else { var e = evaluate() / 100; evalNum.textContent = (e > 0 ? '+' : '') + e.toFixed(1); }
+    stWin.textContent = Math.round(p * 100) + '%';
+    return p;
+  }
+  function countUp(el, to, fmt) {
+    if (reduce) { el.textContent = fmt(to); return; }
+    var from = parseFloat(el.getAttribute('data-v') || '0'), t0 = performance.now();
+    el.setAttribute('data-v', to);
+    (function frame() {
+      // Clamp: a frame timestamp can predate t0, which would push the tween below its start.
+      var k = Math.max(0, Math.min(1, (performance.now() - t0) / 700));
+      el.textContent = fmt(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(frame);
+    })();
+  }
+  var fmtInt = function (v) { return Math.round(v).toLocaleString('en-US'); };
+  var fmtSec = function (v) { return (v > 0 && v < 0.01 ? '<0.01' : v.toFixed(2)) + ' ث'; };
+
+  /* ---- Circuit pulse around the frame ---- */
+  function pulse() {
+    frameEl.classList.remove('pulse');
+    void frameEl.offsetWidth;
+    frameEl.classList.add('pulse');
+  }
+
+  /* ---- Candidate-move arrows ---- */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function sqXY(sq) { return [FILES.indexOf(sq[0]) + 0.5, 8 - +sq[1] + 0.5]; }
+  function drawArrows(list) {
+    clearArrows();
+    list.forEach(function (m, i) {
+      var a = sqXY(m.from), b = sqXY(m.to);
+      var dx = b[0] - a[0], dy = b[1] - a[1], len = Math.sqrt(dx * dx + dy * dy);
+      var ln = document.createElementNS(SVGNS, 'line');
+      ln.setAttribute('x1', a[0]); ln.setAttribute('y1', a[1]);
+      ln.setAttribute('x2', b[0] - dx / len * 0.28); ln.setAttribute('y2', b[1] - dy / len * 0.28);
+      ln.setAttribute('pathLength', '10');
+      ln.setAttribute('marker-end', 'url(#arrow-head)');
+      ln.setAttribute('opacity', [0.95, 0.5, 0.3][i]);
+      ln.style.animationDelay = (i * 0.12) + 's';
+      arrowsEl.appendChild(ln);
+    });
+  }
+  function clearArrows() { Array.prototype.slice.call(arrowsEl.querySelectorAll('line')).forEach(function (l) { l.remove(); }); }
+
+  /* ---- Baydaq's commentary ---- */
+  var DEF = { p: 'البيدق', n: 'الحصان', b: 'الفيل', r: 'القلعة', q: 'الوزير', k: 'الملك' };
+  function pickOne(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  var qSayEl = document.getElementById('q-say');
+  function say(text) {
+    quipEl.classList.remove('say');
+    qSayEl.textContent = text;
+    void quipEl.offsetWidth;
+    quipEl.classList.add('say');
+  }
+  function commentary(you, me, p, considered) {
+    if (game.in_checkmate()) return game.turn() === 'b' ? 'مذهل! هزمتني. أنت تفكّر كمهندس حقيقي.' : 'كش مات! كل حركة كانت محسوبة.';
+    if (game.in_draw() || game.in_stalemate()) return 'تعادل. مباراة متكافئة، استمتعت بها.';
+    if (me && me.san.indexOf('+') !== -1) return 'كش! فكّر جيداً في حركتك القادمة.';
+    if (you && you.flags.indexOf('p') !== -1) return 'ترقية رائعة! هكذا يصبح البيدق وزيراً.';
+    if (you && you.captured) return pickOne(['ضربة موفّقة! أخذت ' + DEF[you.captured] + ' مني.', 'أحسنت، لم أحمِ ' + DEF[you.captured] + ' جيداً.']);
+    if (me && me.captured) return 'أخذت ' + DEF[me.captured] + '. في الشطرنج كما في المشاريع: احمِ كل قطعة.';
+    if (you && you.san.indexOf('+') !== -1) return 'كش؟ لم أتوقّع هذا!';
+    if (game.history().length <= 4) return pickOne(['لنبدأ! السيطرة على المركز أهم شيء في الافتتاح.', 'افتتاح كلاسيكي، أحبّه.']);
+    if (p > 0.66) return 'أنت تتقدّم… سأحتاج خطة أفضل.';
+    if (p < 0.34) return 'الأفضلية لي الآن، لكن المباراة لم تنتهِ.';
+    return pickOne(['فكّرت في ' + considered + ' حركة واخترت أفضلها.', 'حركة مثيرة للاهتمام.', 'أرى ما تخطّط له…', 'كل حركة محسوبة.', 'خطوة ثابتة إلى الأمام.']);
+  }
+
+  function updateStatus() {
+    if (game.in_checkmate()) {
+      if (game.turn() === 'b') { frameEl.classList.add('won'); setStatus('كش مات! فزت بالمباراة. هل نبني مشروعك بنفس الدقّة؟', 'w'); }
+      else setStatus('كش مات. فاز بيدق هذه المرة، جرّب لعبة جديدة.', 'b');
+    } else if (game.in_draw() || game.in_stalemate() || game.in_threefold_repetition()) {
+      setStatus('تعادل. لا غالب ولا مغلوب.', 'w');
+    } else if (busy) {
+      setStatus('بيدق يفكّر في حركته…', 'b', true);
+    } else if (game.in_check()) {
+      setStatus('كش! احمِ ملكك.', 'w');
+    } else {
+      setStatus(note || (game.history().length ? 'دورك.' : 'جرّب! أنت تلعب بالأبيض: انقر قطعة ثم الخانة التي تريدها.'), 'w');
+    }
+    note = '';
+  }
+
+  // Easy opponent: two-ply search on material plus a little positional sense, with noise.
+  var VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+  function evaluate() {
+    var b = game.board(), s = 0;
+    for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+      var p = b[r][c];
+      if (!p) continue;
+      var v = VAL[p.type];
+      var centre = 3.5 - Math.max(Math.abs(3.5 - r), Math.abs(3.5 - c));
+      if (p.type === 'n' || p.type === 'b') v += centre * 8;
+      if (p.type === 'p') v += (p.color === 'w' ? 6 - r : r - 1) * 6 + centre * 4;
+      s += p.color === 'w' ? v : -v;
+    }
+    return s;
+  }
+  // Ranks every legal move (best for Black first) and counts the positions it actually looked at.
+  function rankMoves() {
+    var nodes = 0, list = [];
+    game.moves({ verbose: true }).forEach(function (m) {
+      game.move(m.san);
+      var replies = game.moves(), score;
+      if (!replies.length) {
+        nodes++;
+        score = game.in_checkmate() ? -100000 : 0;
+      } else {
+        score = -Infinity;
+        for (var i = 0; i < replies.length; i++) {
+          game.move(replies[i]);
+          nodes++;
+          var e = evaluate();
+          game.undo();
+          if (e > score) score = e;
+        }
+      }
+      game.undo();
+      list.push({ san: m.san, from: m.from, to: m.to, score: score + Math.random() * 40 });
+    });
+    list.sort(function (a, b) { return a.score - b.score; });
+    return { list: list, nodes: nodes };
+  }
+
+  function play(move) {
+    var m = game.move(move);
+    if (!m) return null;
+    lastMove = m;
+    selected = null;
+    targets = [];
+    render(m);
+    pulse();
+    return m;
+  }
+
+  var lastYou = null;
+  function aiTurn() {
+    var t0 = performance.now();
+    var res = rankMoves();
+    var secs = (performance.now() - t0) / 1000;
+    if (!res.list.length) { busy = false; render(); updateStatus(); return; }
+    term('baydaq.think(depth=2)');
+
+    function finish() {
+      clearArrows();
+      busy = false;   // before play() so its render marks White's pieces as movable again
+      var m = play(res.list[0].san);
+      updateStatus();
+      var p = updateEval();
+      countUp(stNodes, res.nodes, fmtInt);
+      countUp(stTime, secs, fmtSec);
+      term('nodes=' + res.nodes + '  time=' + secs.toFixed(2) + 's  candidates=' + res.list.length, 'فحص ' + res.nodes.toLocaleString('en-US') + ' وضعاً', 'out');
+      term('baydaq.play("' + m.san + '")', 'احتمال فوزك ' + Math.round(p * 100) + '%');
+      say(commentary(lastYou, m, p, res.list.length));
+    }
+    if (reduce) { setTimeout(finish, 300); return; }
+
+    // Visible "thinking": sweep the squares it considered, then show its top three candidates.
+    var sweep = res.list.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 12);
+    sweep.forEach(function (c, i) {
+      setTimeout(function () {
+        var el = cells[c.to];
+        el.classList.remove('scan'); void el.offsetWidth; el.classList.add('scan');
+      }, i * 65);
+    });
+    setTimeout(function () { drawArrows(res.list.slice(0, 3)); }, sweep.length * 65 + 120);
+    setTimeout(finish, sweep.length * 65 + 1000);
+  }
+
+  boardEl.addEventListener('click', function (e) {
+    var el = e.target.closest('.sq8');
+    if (!el || busy || game.game_over() || game.turn() !== 'w') return;
+    var sq = el.getAttribute('data-sq');
+    var hit = targets.filter(function (m) { return m.to === sq; })[0];
+    if (selected && hit) {
+      var m = play({ from: selected, to: sq, promotion: 'q' });
+      if (!m) return;
+      lastYou = m;
+      if (m.flags.indexOf('p') !== -1) note = 'ترقّى بيدقك إلى وزير! هكذا نعمل: خطوة بعد خطوة حتى القمة.';
+      term('you.play("' + m.san + '")');
+      var p = updateEval();
+      if (!game.game_over()) {
+        busy = true;
+        var n = note;
+        updateStatus();
+        note = n;
+        setTimeout(aiTurn, 350);
+      } else {
+        updateStatus();
+        say(commentary(m, null, p, 0));
+      }
+      return;
+    }
+    var p = game.get(sq);
+    if (p && p.color === 'w' && selected !== sq) {
+      selected = sq;
+      targets = game.moves({ square: sq, verbose: true });
+    } else {
+      selected = null;
+      targets = [];
+    }
+    render();
+  });
+
+  document.getElementById('undo').addEventListener('click', function () {
+    if (busy || !game.history().length) return;
+    game.undo();
+    if (game.turn() === 'b') game.undo();
+    frameEl.classList.remove('won');
+    var h = game.history({ verbose: true });
+    lastMove = h.length ? h[h.length - 1] : null;
+    selected = null; targets = [];
+    render(); updateStatus(); updateEval();
+    term('game.undo()', 'تراجعت حركة');
+    say('لا بأس، حتى أفضل اللاعبين يراجعون حركاتهم.');
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    if (busy) return;
+    game.reset();
+    frameEl.classList.remove('won');
+    lastMove = null; selected = null; targets = []; lastYou = null;
+    render(); updateStatus(); updateEval();
+    countUp(stNodes, 0, fmtInt); countUp(stTime, 0, fmtSec);
+    term('game.reset()', 'مباراة جديدة');
+    say('مباراة جديدة! أرني ما لديك.');
+  });
+
+  if (!reduce) {
+    boardEl.classList.add('intro');
+    setTimeout(function () { boardEl.classList.remove('intro'); }, 2200 + LOADER_MS);
+  }
+  render();
+  updateStatus();
+  updateEval();
+  term('baydaq.init()', 'جاهز للّعب');
+})();
+</script>
