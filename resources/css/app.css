@@ -559,6 +559,7 @@
   .p3.pawn .p3-body svg { stroke: none; }
   .p3.pawn .p3-fig { left: -55%; width: 210%; }
 
+
   /* ---------- Heritage ---------- */
   .about-grid {
     display: grid;
@@ -784,28 +785,16 @@
   .hero.lit::before { opacity: 1; }
   .hero h1 .type1, .hero h1 .gold { display: inline-block; }
 
-  /* Floating pieces around the services */
   .block { position: relative; isolation: isolate; overflow-x: clip; }
-  .floaty { position: absolute; z-index: -1; pointer-events: none; will-change: transform; }
-  .floaty svg { display: block; width: 100%; height: auto; fill: var(--walnut); stroke: none; opacity: .22; --pd: transparent; }
-  .floaty.o svg { fill: none; stroke: var(--walnut); stroke-width: 1.1; stroke-linejoin: round; opacity: .45; }
-  /* Board-patch alternative (shown when html.bg-squares): faded checkerboards per section, like the "about" backdrop */
+  /* Board patches in the side margins: faded checkerboards per section, like the "about" backdrop */
   .bpatch {
-    position: absolute; z-index: -1; pointer-events: none; display: none;
+    position: absolute; z-index: -1; pointer-events: none;
     background: conic-gradient(var(--walnut) 0 25%, var(--ivory) 0 50%, var(--walnut) 0 75%, var(--ivory) 0) var(--ox, 0px) 0 / var(--tile, 96px) var(--tile, 96px);
     opacity: .24;
     -webkit-mask-image: var(--mask); mask-image: var(--mask);
   }
   .bpatch.right { right: 0; }
   .bpatch.left { left: 0; }
-  .bg-squares .floaty { display: none !important; }
-  .bg-squares .bpatch { display: block; }
-
-  /* Temporary comparison switch (remove once a background is chosen) */
-  .bg-switch { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; z-index: 50; display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; background: var(--frame); color: #F6EBD6; border-radius: 999px; box-shadow: 0 14px 30px -14px rgba(26, 17, 10, .6); font-size: 13px; }
-  .bg-switch span { padding-inline: 6px; opacity: .75; }
-  .bg-switch button { font: 500 13px var(--f-sans); padding: 7px 14px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
-  .bg-switch button[aria-pressed="true"] { background: #D6A24E; color: #1A0F06; }
 
   /* ---------- Loading screen (motion only; hides itself even without JS) ---------- */
   .loader { display: none; }
@@ -957,9 +946,6 @@
     }
     html.loading .hero h1 .gold::after { animation-play-state: paused !important; }
 
-    /* Floating pieces bob gently (parallax offset is applied to the wrapper by JS) */
-    @keyframes bob { 50% { transform: translateY(-14px) rotate(5deg); } }
-    .floaty svg { animation: bob 7s ease-in-out infinite; }
     /* Both sides drift together, mirrored: the left patch moves right, the right patch moves left */
     .bpatch.left { animation: drift-l 60s linear infinite; }
     .bpatch.right { animation: drift-r 60s linear infinite; }

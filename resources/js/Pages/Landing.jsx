@@ -9,7 +9,6 @@ import BoardStory from '../components/BoardStory';
 import About from '../components/About';
 import ContactSection from '../components/ContactSection';
 import Footer from '../components/Footer';
-import BgSwitch from '../components/BgSwitch';
 import { initPageMotion } from '../lib/pageMotion';
 import { initChessGame } from '../lib/chessGame';
 
@@ -46,7 +45,6 @@ export default function Landing() {
         <ContactSection />
       </main>
       <Footer />
-      <BgSwitch />
     </>
   );
 }

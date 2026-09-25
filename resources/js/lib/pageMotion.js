@@ -1,4 +1,4 @@
-// Ported from the approved prototype (baydaq-2d.html): mini boards, floating pieces,
+// Ported from the approved prototype (baydaq-2d.html): mini boards, board patches,
 // scroll reveals, marquee, pointer light, loader hand-off and the pawn-to-vizier loop.
 export function initPageMotion() {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -34,50 +34,8 @@ export function initPageMotion() {
   var LOADER_MS = root.classList.contains('loading') ? 1400 : 0;
   setTimeout(function () { root.classList.remove('loading'); }, LOADER_MS);
 
-  /* ---------- Floating pieces across the page ---------- */
-  // Seeded random so the scatter is identical on every visit.
-  var seed = 64;
-  function rand() {
-    seed = (seed + 0x6D2B79F5) | 0;
-    var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
-  var PIECES = ['pawn', 'pawn', 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
-  function addFloater(sec, o) {
-    var el = document.createElement('span');
-    el.className = 'floaty' + (o.outline ? ' o' : '');
-    el.setAttribute('aria-hidden', 'true');
-    el.setAttribute('data-speed', o.speed.toFixed(2));
-    el.setAttribute('data-size', Math.round(o.size));
-    el.setAttribute('data-frac', o.frac.toFixed(3));
-    el.setAttribute('data-side', o.side);
-    el.style.top = o.top.toFixed(1) + '%';
-    el.innerHTML = '<svg viewBox="0 0 45 45"><use href="#p-' + o.piece + '"/></svg>';
-    el.firstChild.style.animationDuration = (6 + rand() * 5).toFixed(1) + 's';
-    el.firstChild.style.animationDelay = '-' + (rand() * 8).toFixed(1) + 's';
-    sec.insertBefore(el, sec.firstChild);
-  }
-  ['.hero', '#services', '#process', '#about', '#contact'].forEach(function (sel) {
-    var sec = document.querySelector(sel);
-    // Skip missing sections and bare anchors (the 3D story keeps #process as a 1px anchor).
-    if (!sec || sec.offsetHeight < 100) return;
-    // Roughly one piece per 120px of section height, alternating sides, spread top to bottom.
-    var count = Math.max(6, Math.round(sec.offsetHeight / 120));
-    for (var i = 0; i < count; i++) {
-      addFloater(sec, {
-        piece: PIECES[Math.floor(rand() * PIECES.length)],
-        outline: rand() < .45,
-        size: 38 + rand() * 82,
-        top: ((i + .15 + rand() * .7) / count) * 96,
-        side: i % 2 ? 'end' : 'start',
-        frac: rand(),
-        speed: rand() * .34 - .14
-      });
-    }
-  });
-
-  // Board patches: a planned rhythm down the page. Every section has a pair, but each pair takes a
+  /* ---------- Board patches in the side margins ---------- */
+  // A planned rhythm down the page. Every section has a pair, but each pair takes a
   // different shape (tall, diagonal, small, reversed diagonal…) and square size, so nothing repeats.
   // [side, top %, height %, anchor (where the patch is strongest), square size px]
   var PATCH_PLAN = {
@@ -91,6 +49,7 @@ export function initPageMotion() {
   var allPatches = [];
   Object.keys(PATCH_PLAN).forEach(function (sel) {
     var sec = document.querySelector(sel);
+    // Skip missing sections and bare anchors (the 3D story keeps #process as a 1px anchor).
     if (!sec || sec.offsetHeight < 100) return;
     PATCH_PLAN[sel].forEach(function (d) {
       var p = document.createElement('span');
@@ -108,9 +67,9 @@ export function initPageMotion() {
     });
   });
 
-  // Keep every piece inside the empty side margins, never behind the content column.
-  var CONTENT_MAX = 1200, allFloaters = Array.prototype.slice.call(document.querySelectorAll('.floaty'));
-  function layoutFloaters() {
+  // Keep the patches in the empty side margins, never behind the content column.
+  var CONTENT_MAX = 1200;
+  function layoutPatches() {
     var W = document.documentElement.clientWidth;
     var gutter = (W - Math.min(W, CONTENT_MAX)) / 2 + 20 - 14;
     var show = gutter >= 44;
@@ -124,31 +83,9 @@ export function initPageMotion() {
       var cell = +p.getAttribute('data-cell');
       p.style.setProperty('--ox', (p.classList.contains('right') ? (pw + cell) % (cell * 2) : 0) + 'px');
     });
-    allFloaters.forEach(function (el) {
-      el.hidden = !show;
-      if (!show) return;
-      var size = Math.min(+el.getAttribute('data-size'), gutter - 8);
-      var inset = +el.getAttribute('data-frac') * Math.max(0, gutter - size - 4);
-      el.style.width = size + 'px';
-      el.style[el.getAttribute('data-side') === 'start' ? 'insetInlineStart' : 'insetInlineEnd'] = inset.toFixed(0) + 'px';
-    });
   }
-  layoutFloaters();
-  window.addEventListener('resize', layoutFloaters);
-
-  // Temporary: switch the floating background between chess pieces and board squares.
-  var bgPieces = document.getElementById('bg-pieces'), bgSquares = document.getElementById('bg-squares');
-  function setBg(mode) {
-    root.classList.toggle('bg-squares', mode === 'squares');
-    bgPieces.setAttribute('aria-pressed', String(mode === 'pieces'));
-    bgSquares.setAttribute('aria-pressed', String(mode === 'squares'));
-    try { localStorage.setItem('baydaq-bg', mode); } catch (e) {}
-  }
-  bgPieces.addEventListener('click', function () { setBg('pieces'); });
-  bgSquares.addEventListener('click', function () { setBg('squares'); });
-  var savedBg = 'squares';
-  try { savedBg = localStorage.getItem('baydaq-bg') || 'squares'; } catch (e) {}
-  setBg(savedBg);
+  layoutPatches();
+  window.addEventListener('resize', layoutPatches);
 
   /* ---------- Page motion ---------- */
   var nav = document.querySelector('.nav');
@@ -174,23 +111,6 @@ export function initPageMotion() {
       });
       hero.addEventListener('pointerleave', function () { hero.classList.remove('lit'); });
     }
-
-    // Floating pieces drift at different speeds as the page scrolls.
-    var floaters = Array.prototype.slice.call(document.querySelectorAll('.floaty'));
-    var parallaxFrame = 0;
-    function parallax() {
-      parallaxFrame = 0;
-      var mid = window.innerHeight / 2;
-      floaters.forEach(function (el) {
-        var r = el.parentNode.getBoundingClientRect();
-        var offset = (r.top + r.height / 2 - mid) * parseFloat(el.getAttribute('data-speed'));
-        el.style.transform = 'translate3d(0,' + offset.toFixed(1) + 'px,0)';
-      });
-    }
-    window.addEventListener('scroll', function () {
-      if (!parallaxFrame) parallaxFrame = requestAnimationFrame(parallax);
-    }, { passive: true });
-    parallax();
 
     // Tech strip: wrap the list and duplicate it so the marquee loops seamlessly.
     var list = document.querySelector('.stack ul');
