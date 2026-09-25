@@ -13,7 +13,8 @@ const SPOTS = { queen: [3, 3], knight: [5, 5], rook: [1, 6], bishop: [6, 1] };
 const PAWN_PATH = [[4, 1], [4, 2], [4, 3], [4, 4]];
 
 // Camera per stage: [tilt, turn] in degrees; the scroll blends between neighbours.
-const CAMERA = [[58, -38], [58, -30], [58, -22], [58, -14], [62, -6], [62, -3], [62, 0], [62, 3]];
+// The last step squares the board with the page: no turn, tilt kept.
+const CAMERA = [[58, -38], [58, -30], [58, -22], [58, -14], [62, -6], [62, -3], [62, 0], [62, 0]];
 
 const LINES = { rook: [[1, 0], [-1, 0], [0, 1], [0, -1]], bishop: [[1, 1], [1, -1], [-1, 1], [-1, -1]] };
 LINES.queen = LINES.rook.concat(LINES.bishop);
@@ -58,8 +59,10 @@ export default function BoardStory() {
 
       const t = Math.min(STAGES - 1, Math.max(0, p * STAGES - 0.5));
       const i = Math.floor(t), f = smooth(t - i), j = Math.min(STAGES - 1, i + 1);
+      // The pointer's sideways turn fades out over the last step, so the board ends square with the page.
+      const turnLean = 1 - Math.min(1, Math.max(0, t - (STAGES - 2)));
       const rx = CAMERA[i][0] + (CAMERA[j][0] - CAMERA[i][0]) * f + tiltY;
-      const rz = CAMERA[i][1] + (CAMERA[j][1] - CAMERA[i][1]) * f + tiltX;
+      const rz = CAMERA[i][1] + (CAMERA[j][1] - CAMERA[i][1]) * f + tiltX * turnLean;
       scene.style.setProperty('--rx', rx.toFixed(2) + 'deg');
       scene.style.setProperty('--rz', rz.toFixed(2) + 'deg');
     }
