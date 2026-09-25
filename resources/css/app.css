@@ -934,15 +934,17 @@
     .promo.walk-fade .trail, .promo.walk-fade .queen svg { opacity: 0; transition: opacity .35s ease; }
     .promo.no-anim .trail, .promo.no-anim .walker, .promo.no-anim .queen svg { transition: none !important; }
 
-    /* Headline types itself line by line (a stepped right-to-left reveal keeps Arabic letters joined) */
+    /* Headline types itself line by line (a stepped right-to-left reveal keeps Arabic letters joined).
+       Fill is "backwards", not "both": once typed, the clip is dropped entirely. Safari measures the
+       heavy Alexandria line a little short, and a clip left in place cut the final "ة" off "حركة". */
     @keyframes type-in {
       from { clip-path: inset(-.3em -.3em -.3em 100%); }
-      to { clip-path: inset(-.3em -.3em -.3em -.3em); }
+      to { clip-path: inset(-.3em -.3em -.3em -1em); }
     }
     @keyframes caret { 0% { opacity: 1; } 50%, 100% { opacity: 0; } }
     .hero-copy > h1 { animation: none; }
-    .hero h1 .type1 { animation: type-in .65s steps(7, end) .3s both; }
-    .hero h1 .gold { animation: type-in .8s steps(7, end) 1.05s both, shimmer 2.6s ease-in-out 2.2s both; }
+    .hero h1 .type1 { animation: type-in .65s steps(7, end) .3s backwards; }
+    .hero h1 .gold { animation: type-in .8s steps(7, end) 1.05s backwards, shimmer 2.6s ease-in-out 2.2s both; }
     .hero h1 .gold::after {
       content: ""; display: inline-block;
       width: .06em; height: .72em; margin-inline-start: .1em; vertical-align: -.02em;
