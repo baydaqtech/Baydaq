@@ -85,7 +85,7 @@
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
   .brand svg { width: 34px; height: 34px; flex: none; }
   .brand b { font-weight: 800; font-size: 24px; line-height: 1; }
-  .brand span { font-weight: 300; font-size: 24px; color: var(--faint); line-height: 1; margin-inline-start: -5px; }
+  .brand span { font-weight: 300; font-size: 24px; color: var(--faint); line-height: 1; margin-inline-start: -5px; white-space: nowrap; }
   /* The &zwnj; in Nav.jsx keeps "تك" and "نولوجي" unjoined in every browser. */
   .brand span em { font-style: normal; font-weight: 800; color: var(--ink); }
   .brand span .dot {
@@ -117,6 +117,13 @@
   .btn:hover .arr { transform: translateX(-4px); }
   .nav .btn { padding: 11px 18px; font-size: 14px; }
   @media (max-width: 900px) { .nav ul { display: none; } .nav .btn { margin-inline-start: auto; } }
+  /* Keep the full wordmark on one line beside the button on phones. */
+  @media (max-width: 480px) {
+    .nav .wrap { gap: 12px; }
+    .brand { gap: 9px; }
+    .brand svg { width: 28px; height: 28px; }
+    .brand b, .brand span { font-size: 20px; }
+  }
 
   /* ---------- Hero ---------- */
   .hero { padding-block: clamp(40px, 7vw, 88px) clamp(48px, 7vw, 96px); }
@@ -559,6 +566,32 @@
   .p3.pawn .p3-body svg { stroke: none; }
   .p3.pawn .p3-fig { left: -55%; width: 210%; }
 
+  /* Phones and narrow tablets: board on top, the current card under it. */
+  @media (max-width: 900px) {
+    section.block.story { --step: 45svh; }
+    .story-grid { grid-template-columns: 1fr; gap: 4px; }
+    .story-scene {
+      order: -1;
+      /* The turned board is ~1.4× its width across, so it stays under 62vw to fit the screen. */
+      --bw: min(62vw, 34svh);
+      height: calc(var(--bw) * 1.2);
+      perspective-origin: 50% 30%;
+    }
+    .b3 { width: var(--bw); --edge: 8px; }
+    .b3-edge.n, .b3-edge.s { height: 10px; }
+    .b3-edge.e, .b3-edge.w { width: 10px; }
+    .trail3 b { font-size: 15px; }
+    .story-text { gap: 14px; }
+    .story-head { gap: 6px; }
+    .story-head h2 { font-size: clamp(26px, 7vw, 34px); }
+    .story-head p { display: none; }
+    .story-card { gap: 8px; padding: 16px 18px; }
+    .story-card h3 { font-size: 20px; }
+    .story-card p { font-size: 14.5px; line-height: 1.75; }
+    .step-num { font-size: 36px; }
+    .story-progress { gap: 10px 20px; }
+    .story-progress button { width: 22px; height: 22px; }
+  }
 
   /* ---------- Heritage ---------- */
   .about-grid {

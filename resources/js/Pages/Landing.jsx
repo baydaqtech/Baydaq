@@ -12,9 +12,9 @@ import Footer from '../components/Footer';
 import { initPageMotion } from '../lib/pageMotion';
 import { initChessGame } from '../lib/chessGame';
 
-// The 3D board story is for wide screens with motion allowed; phones and
-// reduced-motion visitors keep the flat services and process sections.
-const STORY_3D = '(min-width: 901px) and (prefers-reduced-motion: no-preference)';
+// The 3D board story runs whenever motion is allowed; reduced-motion
+// visitors keep the flat services and process sections.
+const STORY_3D = '(prefers-reduced-motion: no-preference)';
 
 export default function Landing() {
   // Decided once, before the page scripts place floaters around these sections.
