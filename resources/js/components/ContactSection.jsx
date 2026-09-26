@@ -12,9 +12,9 @@ const SERVICE_OPTIONS = [
 
 const EMPTY = { name: '', email: '', company: '', service: 'الذكاء الاصطناعي', message: '' };
 
-// The contact form is hidden for now (kept, and still wired to /contact); WhatsApp takes its place.
-// Set to true to bring the form back.
-const SHOW_CONTACT_FORM = false;
+// Form or WhatsApp in the contact card. The form stays on until the real WhatsApp number
+// below is in; then set this to false and the WhatsApp panel takes the form's place.
+const SHOW_CONTACT_FORM = true;
 
 // TODO: real WhatsApp number. `digits` is the international number without "+" or spaces.
 const WHATSAPP = { digits: '000000000000', display: '+000 00 000 0000' };
