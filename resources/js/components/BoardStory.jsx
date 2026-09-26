@@ -13,8 +13,10 @@ const SPOTS = { queen: [3, 3], knight: [5, 5], rook: [1, 6], bishop: [6, 1] };
 const PAWN_PATH = [[4, 1], [4, 2], [4, 3], [4, 4]];
 
 // Camera per stage: [tilt, turn] in degrees; the scroll blends between neighbours.
-// The last step squares the board with the page: no turn, tilt kept.
-const CAMERA = [[58, -38], [58, -30], [58, -22], [58, -14], [62, -6], [62, -3], [62, 0], [62, 0]];
+// The tilt stays put and the turn only ever goes one way. Steps 1–3 keep a clearly visible
+// turn (a few degrees reads as square under this tilt); only the last step squares the board
+// with the page, still in 3D.
+const CAMERA = [[58, -46], [58, -38], [58, -30], [58, -22], [58, -19], [58, -16], [58, -13], [58, 0]];
 
 const LINES = { rook: [[1, 0], [-1, 0], [0, 1], [0, -1]], bishop: [[1, 1], [1, -1], [-1, 1], [-1, -1]] };
 LINES.queen = LINES.rook.concat(LINES.bishop);

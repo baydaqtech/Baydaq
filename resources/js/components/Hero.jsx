@@ -1,3 +1,6 @@
+// The moves log under the board is hidden for now; set to true to show it again.
+const SHOW_MOVES_LOG = false;
+
 export default function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-title">
@@ -34,7 +37,7 @@ export default function Hero() {
               <button className="btn btn-line btn-sm" id="reset" type="button">لعبة جديدة</button>
             </div>
           </div>
-          <ol className="moves-log" id="moves" aria-label="سجل الحركات" data-empty="سجل الحركات يظهر هنا." />
+          {SHOW_MOVES_LOG && <ol className="moves-log" id="moves" aria-label="سجل الحركات" data-empty="سجل الحركات يظهر هنا." />}
         </div>
       </div>
     </section>

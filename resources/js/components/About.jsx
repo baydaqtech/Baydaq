@@ -6,6 +6,13 @@ const SHOW_CHESS_LINES = false;
 const SHOW_PAWN_FIGURE = false;
 const SHOW_PRINCIPLES = false;
 
+// "About" is folded into the top of the contact section for now, to shorten the page.
+// Set to false to bring back the separate "about" section.
+export const ABOUT_IN_CONTACT = true;
+
+// Shared by this section and the contact section's intro.
+export const ABOUT_TEXT = 'بيدق تكنولوجي شركة تقنية تساعد الشركات على بناء مواقعها وتطبيقاتها وتطويرها. نبدأ معك من فكرتك مهما كانت صغيرة، ونحوّلها خطوة بعد خطوة إلى منتج يعمل ويخدم عملك.';
+
 const PRINCIPLES = [
   { n: '١', piece: 'knight', tag: 'الحصان: يجد طريقه حيث لا يصل غيره', title: 'حلول على مقاسك', desc: 'سواء كنت تبدأ مشروعاً جديداً أو تطوّر نظاماً قائماً، نصمّم ما يناسب حجم عملك وميزانيتك.' },
   { n: '٢', piece: 'pawn', tag: 'البيدق: يتقدّم حتى يصبح وزيراً', title: 'جاهز للنمو', desc: 'نبني بطريقة تسمح لك بإضافة مزايا جديدة لاحقاً، دون أن تبدأ من الصفر.' },
@@ -19,9 +26,7 @@ export default function About() {
         <div className="heritage-copy">
           <span className="eyebrow" id="about-title">من نحن</span>
           {SHOW_CHESS_LINES && <p className="ruqaa gold">البيدق إذا بلغ آخر الرقعة ترقّى.</p>}
-          <p>
-            بيدق تكنولوجي شركة تقنية تساعد الشركات على بناء مواقعها وتطبيقاتها وتطويرها. نبدأ معك من فكرتك مهما كانت صغيرة، ونحوّلها خطوة بعد خطوة إلى منتج يعمل ويخدم عملك.
-          </p>
+          <p>{ABOUT_TEXT}</p>
         </div>
 
         {SHOW_PAWN_FIGURE && (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
+import { ABOUT_IN_CONTACT, ABOUT_TEXT } from './About';
 
 const SERVICE_OPTIONS = [
   'مواقع وتطبيقات',
@@ -45,6 +46,15 @@ export default function ContactSection() {
   return (
     <section className="block" id="contact" aria-labelledby="contact-title" style={{ paddingTop: 0 }}>
       <div className="wrap">
+        {ABOUT_IN_CONTACT && (
+          <div className="contact-about">
+            {/* The nav's "about" link lands here. A bare anchor, so the page's board-patch
+                script (which decorates anything with id="about" taller than 100px) skips it. */}
+            <span className="about-anchor" id="about" aria-hidden="true" />
+            <span className="eyebrow">من نحن</span>
+            <p>{ABOUT_TEXT}</p>
+          </div>
+        )}
         <div className="contact">
           <div className="contact-side">
             <div>

@@ -91,6 +91,8 @@ export function initChessGame() {
   }
 
   function renderLog() {
+    // The log can be switched off in Hero.jsx.
+    if (!movesEl) return;
     var h = game.history();
     var html = '';
     for (var i = 0; i < h.length; i += 2) {
