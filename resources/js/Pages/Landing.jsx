@@ -16,8 +16,11 @@ import { initChessGame } from '../lib/chessGame';
 // reduced-motion visitors keep the flat services and process sections.
 const STORY_3D = '(min-width: 901px) and (prefers-reduced-motion: no-preference)';
 
+// The "technologies we use" logo strip under the hero is hidden for now; set to true to show it.
+const SHOW_TECH_STRIP = false;
+
 export default function Landing() {
-  // Decided once, before the page scripts place floaters around these sections.
+  // Decided once, before the page scripts place board patches around these sections.
   const [story3d] = useState(() => window.matchMedia(STORY_3D).matches);
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export default function Landing() {
       <Nav />
       <main id="top">
         <Hero />
-        <TechStrip />
+        {SHOW_TECH_STRIP && <TechStrip />}
         {story3d ? <BoardStory /> : (
           <>
             <Services />
