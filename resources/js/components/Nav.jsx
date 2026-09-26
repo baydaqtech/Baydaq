@@ -10,7 +10,6 @@ export default function Nav() {
           <li><a href="#services">خدماتنا</a></li>
           <li><a href="#process">كيف نعمل</a></li>
           <li><a href="#about">من نحن</a></li>
-          <li><a href="#contact">تواصل معنا</a></li>
         </ul>
         <a className="btn btn-gold" href="#contact">تواصل معنا</a>
       </div>
