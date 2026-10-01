@@ -11,7 +11,7 @@ export default function Hero() {
             <span className="type1">كل حركة</span><br /><span className="gold">محسوبة.</span>
           </h1>
           <p className="lede">
-            نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات، ونبقى معك بعد الإطلاق. خطة واضحة، وتنفيذ دقيق، ونتائج تراها في عملك.
+            نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات والأفراد، ونبقى معك بعد الإطلاق. خطة واضحة، وتنفيذ دقيق، ونتائج تراها في عملك.
           </p>
           <div className="actions">
             <a className="btn btn-gold" href="#contact">حدّثنا عن مشروعك <span className="arr" aria-hidden="true">←</span></a>

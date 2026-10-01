@@ -122,7 +122,7 @@ export default function BoardStory() {
               <header className={'story-head' + (inServices ? ' on' : '')}>
                 <span className="eyebrow">خدماتنا</span>
                 <h2 id="services-title">ماذا نقدّم لك؟</h2>
-                <p>أربع خدمات تغطّي ما تحتاجه شركتك تقنياً، من الفكرة إلى التشغيل.</p>
+                <p>أربع خدمات تغطّي ما تحتاجه تقنياً، من الفكرة إلى التشغيل.</p>
               </header>
               <header className={'story-head' + (inServices ? '' : ' on')}>
                 <span className="eyebrow">كيف نعمل</span>

@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title inertia>بيدق تك —مواقع وتطبيقات وحلول ذكاء اصطناعي</title>
-    <meta name="description" content="بيدق تكنولوجي: نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات، ونبقى معك بعد الإطلاق.">
+    <meta name="description" content="بيدق تكنولوجي: نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات والأفراد، ونبقى معك بعد الإطلاق.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="بيدق تكنولوجي">
     <meta property="og:title" content="بيدق تكنولوجي — كل حركة محسوبة">
-    <meta property="og:description" content="نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات، ونبقى معك بعد الإطلاق.">
+    <meta property="og:description" content="نصمّم ونبني المواقع والتطبيقات وحلول الذكاء الاصطناعي للشركات والأفراد، ونبقى معك بعد الإطلاق.">
     <meta property="og:image" content="{{ asset('brand/logo-horizontal.png') }}">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="{{ asset('brand/favicon.svg') }}" type="image/svg+xml">
