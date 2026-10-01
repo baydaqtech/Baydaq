@@ -111,6 +111,14 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 10px 30px -12px rgba(214, 162, 78, .7);
   }
   .btn-gold:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 16px 36px -12px rgba(214, 162, 78, .85); }
+  /* WhatsApp: the brand's green, deepened so white text stays readable (about 5:1). */
+  .btn-wa {
+    color: #fff;
+    background: linear-gradient(180deg, #188A43, #126E35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 10px 30px -12px rgba(37, 211, 102, .65);
+  }
+  .btn-wa svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
+  .btn-wa:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 16px 36px -12px rgba(37, 211, 102, .8); }
   .btn-line { color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); }
   .btn-line:hover { box-shadow: inset 0 0 0 1px var(--ink); }
   .btn .arr { font-family: var(--f-mono); transition: transform .2s; }
