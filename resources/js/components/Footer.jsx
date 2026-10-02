@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="wrap">
         <div className="wordmark" aria-hidden="true">بيدق</div>
         <div className="row">
-          <span>© ٢٠٢٦ بيدق تكنولوجي. جميع الحقوق محفوظة.</span>
+          <span>© ٢٠٢٦ بيدق تك. جميع الحقوق محفوظة.</span>
           <ul>
             <li><a href="#services">خدماتنا</a></li>
             <li><a href="#process">كيف نعمل</a></li>

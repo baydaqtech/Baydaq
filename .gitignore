@@ -25,3 +25,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local design drafts (contain the private phone number); not part of the site
+/brand/social/
+/brand/claude-design-kit/

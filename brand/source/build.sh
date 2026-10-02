@@ -18,21 +18,22 @@ fonts() {
 }
 
 svg_mark() { # file, body, head
-  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512"><title>بيدق تكنولوجي</title>%s</svg>\n' "$(mark "$2" "$3")" > "$OUT/$1"
+  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512"><title>بيدق تك</title>%s</svg>\n' "$(mark "$2" "$3")" > "$OUT/$1"
 }
 
 svg_app() { # file
-  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512"><title>بيدق تكنولوجي</title><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A2E1A"/><stop offset="1" stop-color="#2A190D"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#g)"/><g transform="translate(50 50) scale(.66) translate(-50 -50)">%s</g></svg>\n' "$(mark "$IVORY" "$BRASS_BRIGHT")" > "$OUT/$1"
+  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512"><title>بيدق تك</title><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A2E1A"/><stop offset="1" stop-color="#2A190D"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#g)"/><g transform="translate(50 50) scale(.66) translate(-50 -50)">%s</g></svg>\n' "$(mark "$IVORY" "$BRASS_BRIGHT")" > "$OUT/$1"
 }
 
-svg_horizontal() { # file, word colour, head colour, sub colour, rule colour
-  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 120" width="1024" height="480"><title>بيدق تكنولوجي</title>%s<g transform="translate(164 7) scale(1.05)">%s</g><text x="166.2" y="58.2" text-anchor="end" font-family="Baydaq Black, Alexandria, sans-serif" font-weight="900" font-size="62" fill="%s">بيدق</text><rect x="147" y="94.8" width="16" height="2.4" rx="1.2" fill="%s"/><text x="139" y="101.3" text-anchor="end" font-family="Baydaq Light, Alexandria, sans-serif" font-weight="300" font-size="18" fill="%s">تكنولوجي</text></svg>\n' \
-    "$(fonts)" "$(mark "$2" "$3")" "$2" "$5" "$4" > "$OUT/$1"
+# The wordmark is «بيدق تك» in one weight, as in the site header.
+svg_horizontal() { # file, word colour, head colour
+  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %s 120" width="%s" height="480"><title>بيدق تك</title>%s<g transform="translate(%s 7) scale(1.05)">%s</g><text x="%s" y="%s" text-anchor="end" font-family="Baydaq Black, Alexandria, sans-serif" font-weight="900" font-size="62" fill="%s">بيدق تك</text></svg>\n' \
+    "$H_W" "$((H_W * 4))" "$(fonts)" "$H_MARK_X" "$(mark "$2" "$3")" "$H_TEXT_X" "$H_TEXT_Y" "$2" > "$OUT/$1"
 }
 
-svg_stacked() { # file, word colour, head colour, sub colour, rule colour
-  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 218" width="720" height="872"><title>بيدق تكنولوجي</title>%s<g transform="translate(37.5 -2.5) scale(1.05)">%s</g><text x="90" y="156.2" text-anchor="middle" font-family="Baydaq Black, Alexandria, sans-serif" font-weight="900" font-size="62" fill="%s">بيدق</text><rect x="29.4" y="192.8" width="16" height="2.4" rx="1.2" fill="%s"/><rect x="134.6" y="192.8" width="16" height="2.4" rx="1.2" fill="%s"/><text x="90" y="199.3" text-anchor="middle" font-family="Baydaq Light, Alexandria, sans-serif" font-weight="300" font-size="18" fill="%s">تكنولوجي</text></svg>\n' \
-    "$(fonts)" "$(mark "$2" "$3")" "$2" "$5" "$5" "$4" > "$OUT/$1"
+svg_stacked() { # file, word colour, head colour
+  printf '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %s %s" width="%s" height="%s"><title>بيدق تك</title>%s<g transform="translate(%s -2.5) scale(1.05)">%s</g><text x="%s" y="%s" text-anchor="middle" font-family="Baydaq Black, Alexandria, sans-serif" font-weight="900" font-size="%s" fill="%s">بيدق تك</text></svg>\n' \
+    "$S_W" "$S_H" "$((S_W * 4))" "$((S_H * 4))" "$(fonts)" "$(echo "$S_W" | awk '{print $1/2 - 52.5}')" "$(mark "$2" "$3")" "$((S_W / 2))" "$S_TEXT_Y" "$S_SIZE" "$2" > "$OUT/$1"
 }
 
 svg_mark        baydaq-mark.svg        "$WALNUT" "$BRASS"
@@ -40,8 +41,14 @@ svg_mark        baydaq-mark-light.svg  "$IVORY"  "$BRASS_BRIGHT"
 svg_mark        baydaq-mark-mono.svg   "$WALNUT" "$WALNUT"
 svg_app         baydaq-app-icon.svg
 cp "$OUT/baydaq-app-icon.svg" "$OUT/favicon.svg"
-svg_horizontal  baydaq-logo-horizontal.svg        "$WALNUT" "$BRASS"        "$MUTED"                     "$BRASS"
-svg_horizontal  baydaq-logo-horizontal-light.svg  "$IVORY"  "$BRASS_BRIGHT" "rgba(246,235,214,.72)"      "$BRASS_BRIGHT"
-svg_stacked     baydaq-logo-stacked.svg           "$WALNUT" "$BRASS"        "$MUTED"                     "$BRASS"
-svg_stacked     baydaq-logo-stacked-light.svg     "$IVORY"  "$BRASS_BRIGHT" "rgba(246,235,214,.72)"      "$BRASS_BRIGHT"
+# Wordmark layout (viewBox units; the mark is drawn at 1.05×, so its ink is 63 wide).
+# Horizontal: mark on the right, text ending just left of it, centred on the mark.
+H_W=358; H_MARK_X=266; H_TEXT_X=276; H_TEXT_Y=74
+# Stacked: mark on top, the name centred under it.
+S_W=246; S_H=184; S_TEXT_Y=156; S_SIZE=52
+
+svg_horizontal  baydaq-logo-horizontal.svg        "$WALNUT" "$BRASS"
+svg_horizontal  baydaq-logo-horizontal-light.svg  "$IVORY"  "$BRASS_BRIGHT"
+svg_stacked     baydaq-logo-stacked.svg           "$WALNUT" "$BRASS"
+svg_stacked     baydaq-logo-stacked-light.svg     "$IVORY"  "$BRASS_BRIGHT"
 echo "built:"; ls -la "$OUT"
