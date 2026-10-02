@@ -18,6 +18,9 @@ const SHOW_CONTACT_FORM = false;
 
 // `digits` is the international number without "+" or spaces (Saudi mobile 054 932 9916).
 const WHATSAPP = { digits: '966549329916', display: '+966 54 932 9916' };
+// The number is not printed on the page (strangers were calling it); only the WhatsApp button uses it.
+// Set to true to show it again.
+const SHOW_PHONE_NUMBER = false;
 const WHATSAPP_GREETING = 'مرحباً، أريد التحدث عن مشروع.';
 const whatsappLink = `https://wa.me/${WHATSAPP.digits}?text=${encodeURIComponent(WHATSAPP_GREETING)}`;
 
@@ -65,7 +68,7 @@ export default function ContactSection() {
                 : <p>راسلنا على واتساب بما تحتاجه في أي وقت، وسنرد عليك سريعاً لنتفق على الخطوة التالية.</p>}
             </div>
             <dl>
-              {SHOW_CONTACT_FORM && <div><dt>الهاتف</dt><dd className="ltr">{WHATSAPP.display}</dd></div>}
+              {SHOW_CONTACT_FORM && SHOW_PHONE_NUMBER && <div><dt>الهاتف</dt><dd className="ltr">{WHATSAPP.display}</dd></div>}
               <div><dt>أوقات التواصل</dt><dd>متاحون في أي وقت، طوال أيام الأسبوع</dd></div>
             </dl>
           </div>
@@ -76,8 +79,9 @@ export default function ContactSection() {
                 <svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H10l-5.5 4v-15A1.5 1.5 0 0 1 5 4.5z" /><path d="M8.5 9.5h7M8.5 12.5h4.5" /></svg>
               </span>
               <h3>أسرع طريقة للوصول إلينا</h3>
-              <p>اضغط الزر فيفتح واتساب برسالة جاهزة، أو احفظ الرقم وراسلنا متى شئت.</p>
-              <p className="wa-number">{WHATSAPP.display}</p>
+              <p>اضغط الزر فيفتح واتساب برسالة جاهزة، وراسلنا متى شئت.</p>
+              {/* The number itself stays off the page to cut down on cold calls; the button carries it. */}
+              {SHOW_PHONE_NUMBER && <p className="wa-number">{WHATSAPP.display}</p>}
               <a className="btn btn-wa" href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 ابدأ المحادثة على واتساب
                 {/* WhatsApp glyph from Simple Icons (CC0) */}
