@@ -65,7 +65,7 @@ export default function ContactSection() {
               <h2 id="contact-title">حدّثنا عن<br /><span className="gold">مشروعك.</span></h2>
               {SHOW_CONTACT_FORM
                 ? <p>اكتب لنا باختصار ما تحتاجه، وسنتواصل معك خلال يوم عمل واحد لنتفق على الخطوة التالية.</p>
-                : <p>راسلنا على واتساب بما تحتاجه في أي وقت، وسنرد عليك سريعاً لنتفق على الخطوة التالية.</p>}
+                : <p>راسلنا على واتساب بما تحتاجه، وسنرد عليك لنتفق على الخطوة التالية.</p>}
             </div>
             <dl>
               {SHOW_CONTACT_FORM && SHOW_PHONE_NUMBER && <div><dt>الهاتف</dt><dd className="ltr">{WHATSAPP.display}</dd></div>}
