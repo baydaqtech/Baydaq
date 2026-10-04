@@ -30,5 +30,9 @@
 @include('partials.symbols')
 @include('partials.loader')
 @inertia
+@production
+{{-- Cloudflare Web Analytics: visits only, no cookies. Production only, so local testing isn't counted. --}}
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1c173adda3ff455d946e18b84e9b963a"}'></script>
+@endproduction
 </body>
 </html>
