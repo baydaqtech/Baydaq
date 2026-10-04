@@ -69,7 +69,7 @@ export default function ContactSection() {
             </div>
             <dl>
               {SHOW_CONTACT_FORM && SHOW_PHONE_NUMBER && <div><dt>الهاتف</dt><dd className="ltr">{WHATSAPP.display}</dd></div>}
-              <div><dt>أوقات التواصل</dt><dd>متاحون في أي وقت، طوال أيام الأسبوع</dd></div>
+              <div><dt>أوقات التواصل</dt><dd>متاحون للتواصل طوال أيام الأسبوع</dd></div>
             </dl>
           </div>
 
@@ -78,8 +78,8 @@ export default function ContactSection() {
               <span className="wa-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H10l-5.5 4v-15A1.5 1.5 0 0 1 5 4.5z" /><path d="M8.5 9.5h7M8.5 12.5h4.5" /></svg>
               </span>
-              <h3>أسرع طريقة للوصول إلينا</h3>
-              <p>اضغط الزر فيفتح واتساب برسالة جاهزة، وراسلنا متى شئت.</p>
+              <h3>ابدأ مشروعك معنا</h3>
+              <p>شاركنا فكرتك أو احتياجك عبر واتساب، وسنتحدث معك لفهم المشروع وتحديد الخطوة التالية.</p>
               {/* The number itself stays off the page to cut down on cold calls; the button carries it. */}
               {SHOW_PHONE_NUMBER && <p className="wa-number">{WHATSAPP.display}</p>}
               <a className="btn btn-wa" href={whatsappLink} target="_blank" rel="noopener noreferrer">
