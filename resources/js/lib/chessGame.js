@@ -164,11 +164,38 @@ export function initChessGame() {
     return m;
   }
 
+  /* ---------- Invite: after a few moves (or at game over) point the visitor back to the services ---------- */
+  var INVITE_AFTER_MOVES = 4;
+  var inviteEl = document.getElementById('invite');
+  var inviteGo = document.getElementById('invite-go');
+  var invited = false;
+  function showInvite() {
+    if (invited) return;
+    invited = true;
+    inviteEl.hidden = false;
+    // Next frame, so the fade-in transition runs from the hidden state.
+    requestAnimationFrame(function () { inviteEl.classList.add('on'); });
+    inviteGo.focus({ preventScroll: true });
+  }
+  function hideInvite() {
+    inviteEl.classList.remove('on');
+    setTimeout(function () { inviteEl.hidden = true; }, reduce ? 0 : 300);
+  }
+  // Called once Baydaq has answered (or the game ended), so the card never covers a move in flight.
+  function maybeInvite() {
+    var mine = Math.ceil(game.history().length / 2);
+    if (game.isGameOver() || mine >= INVITE_AFTER_MOVES) setTimeout(showInvite, game.isGameOver() ? 900 : 600);
+  }
+  document.getElementById('invite-close').addEventListener('click', hideInvite);
+  inviteGo.addEventListener('click', hideInvite);
+  inviteEl.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideInvite(); });
+
   function aiTurn() {
     var m = pickMove();
     busy = false;
     if (m) play(m); else render();
     updateStatus();
+    maybeInvite();
   }
 
   boardEl.addEventListener('click', function (e) {
@@ -187,6 +214,7 @@ export function initChessGame() {
         setTimeout(aiTurn, 450);
       } else {
         updateStatus();
+        maybeInvite();
       }
       return;
     }

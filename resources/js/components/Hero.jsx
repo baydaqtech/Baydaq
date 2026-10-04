@@ -27,6 +27,17 @@ export default function Hero() {
         <div className="game">
           <div className="board-frame">
             <div className="board" id="board" role="group" aria-label="رقعة شطرنج: أنت تلعب بالأبيض ضد بيدق" />
+            {/* After a few moves (or when the game ends) this points the visitor back to what we do. Shown by chessGame.js. */}
+            <div className="invite" id="invite" role="dialog" aria-modal="false" aria-labelledby="invite-title" hidden>
+              <div className="invite-card">
+                <p className="invite-title" id="invite-title">أعجبتك الحركة؟</p>
+                <p className="invite-text">بنفس الدقة نبني موقعك أو تطبيقك.</p>
+                <div className="invite-btns">
+                  <a className="btn btn-gold" href="#services" id="invite-go">تعرّف على خدماتنا <span aria-hidden="true">↓</span></a>
+                  <button className="btn btn-line" type="button" id="invite-close">أكمل اللعب</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="game-bar">
             <p className="status" id="status" role="status" aria-live="polite">
@@ -40,6 +51,13 @@ export default function Hero() {
           {SHOW_MOVES_LOG && <ol className="moves-log" id="moves" aria-label="سجل الحركات" data-empty="سجل الحركات يظهر هنا." />}
         </div>
       </div>
+      {/* Nudges visitors (and players) on to the services; fades once the page is scrolled. */}
+      <a className="scroll-cue" href="#services">
+        <span className="cue-text">اكتشف خدماتنا</span>
+        <span className="cue-dot" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path className="c1" d="M7 7l5 5 5-5" /><path className="c2" d="M7 13l5 5 5-5" /></svg>
+        </span>
+      </a>
     </section>
   );
 }

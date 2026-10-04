@@ -89,7 +89,11 @@ export function initPageMotion() {
 
   /* ---------- Page motion ---------- */
   var nav = document.querySelector('.nav');
-  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+  function onScroll() {
+    nav.classList.toggle('scrolled', window.scrollY > 8);
+    // The hero's "discover our services" cue steps aside once the visitor starts scrolling.
+    root.classList.toggle('scrolled-on', window.scrollY > 60);
+  }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
