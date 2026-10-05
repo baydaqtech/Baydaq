@@ -834,6 +834,8 @@
     border-top: 1px solid rgba(239, 227, 207, .16);
     font-size: 14px; color: rgba(239, 227, 207, .65);
   }
+  footer .legal { display: flex; flex-direction: column; gap: 4px; }
+  footer .legal .reg { font-size: 12.5px; color: rgba(239, 227, 207, .5); }
   footer .row ul { display: flex; gap: 22px; flex-wrap: wrap; }
   footer .row a { text-decoration: none; }
   footer .row a:hover { color: #FFF8EC; }
