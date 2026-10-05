@@ -4,10 +4,7 @@ export default function Footer() {
       <div className="wrap">
         <div className="wordmark" aria-hidden="true">بيدق</div>
         <div className="row">
-          <div className="legal">
-            <span>© ٢٠٢٦ بيدق تكنولوجي. جميع الحقوق محفوظة.</span>
-            <span className="reg">الرقم الوطني الموحد للمنشأة: <bdi>7055282987</bdi></span>
-          </div>
+          <span>© ٢٠٢٦ بيدق تكنولوجي. جميع الحقوق محفوظة.</span>
           <ul>
             <li><a href="#services">خدماتنا</a></li>
             <li><a href="#process">كيف نعمل</a></li>
