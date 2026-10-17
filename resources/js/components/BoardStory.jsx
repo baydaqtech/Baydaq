@@ -44,12 +44,16 @@ export default function BoardStory() {
   const secRef = useRef(null);
   const stageRef = useRef(null);
   const sceneRef = useRef(null);
+  const boardRef = useRef(null);
   const [stage, setStage] = useState(0);
   // Pieces stay down until the board is on screen, so the first one rises in view (and again on return).
   const [entered, setEntered] = useState(false);
 
   useEffect(() => {
-    const sec = secRef.current, box = stageRef.current, scene = sceneRef.current;
+    const sec = secRef.current, box = stageRef.current, scene = sceneRef.current, board = boardRef.current;
+    // The angles go straight onto the board and the five standing pieces. Inherited CSS variables
+    // would restyle every square and dot on each scroll frame, which tablets can't keep up with.
+    const figs = board.querySelectorAll('.p3-fig');
     let raf = 0, tiltX = 0, tiltY = 0;
 
     function update() {
@@ -65,8 +69,9 @@ export default function BoardStory() {
       const turnLean = 1 - Math.min(1, Math.max(0, t - (STAGES - 2)));
       const rx = CAMERA[i][0] + (CAMERA[j][0] - CAMERA[i][0]) * f + tiltY;
       const rz = CAMERA[i][1] + (CAMERA[j][1] - CAMERA[i][1]) * f + tiltX * turnLean;
-      scene.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-      scene.style.setProperty('--rz', rz.toFixed(2) + 'deg');
+      board.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+      const stand = `rotateZ(${(-rz).toFixed(2)}deg) rotateX(${(-rx).toFixed(2)}deg)`;
+      figs.forEach((fig) => { fig.style.transform = stand; });
     }
     function queue() { if (!raf) raf = requestAnimationFrame(update); }
 
@@ -172,27 +177,29 @@ export default function BoardStory() {
 
           <div className="story-scene" ref={sceneRef} aria-hidden="true">
             <span className="b3-floor" />
-            <div className="b3">
+            <div className="b3" ref={boardRef}>
               <span className="b3-frame" />
               <span className="b3-edge n" /><span className="b3-edge s" /><span className="b3-edge e" /><span className="b3-edge w" />
-              <div className="b3-grid">
-                {Array.from({ length: 64 }, (_, k) => {
-                  const c = k % 8, r = 7 - Math.floor(k / 8);
-                  return <span key={k} className={'c3' + ((c + r) % 2 === 0 ? ' d' : '')} />;
-                })}
-              </div>
+              <span className="b3-grid" />
 
-              {SERVICES.map((s, i) => (
-                <span key={s.piece} className={'hl3 at' + (onBoard(i) ? ' on' : '')} style={at(SPOTS[s.piece])} />
-              ))}
-              {SERVICES.map((s, i) => MOVES[s.piece].map(([x, y, d]) => (
-                <span key={s.piece + x + y} className={'dot3 at' + (onBoard(i) ? ' on' : '')} style={at([x, y], { '--dl': d * 0.06 + 's' })} />
-              )))}
-              {PAWN_PATH.map((sq, i) => (
-                <span key={i} className={'trail3 at' + (step >= i ? ' on' : '') + (step === i ? ' now' : '')} style={at(sq)}>
-                  <b>{STEPS[i].n}</b>
-                </span>
-              ))}
+              {/* All square marks share one flat layer just above the squares, and the step
+                  numbers one more above the pawn's shadow: three layers instead of one per mark. */}
+              <div className="b3-marks">
+                {SERVICES.map((s, i) => (
+                  <span key={s.piece} className={'hl3 at' + (onBoard(i) ? ' on' : '')} style={at(SPOTS[s.piece])} />
+                ))}
+                {SERVICES.map((s, i) => MOVES[s.piece].map(([x, y, d]) => (
+                  <span key={s.piece + x + y} className={'dot3 at' + (onBoard(i) ? ' on' : '')} style={at([x, y], { '--dl': d * 0.06 + 's' })} />
+                )))}
+                {PAWN_PATH.map((sq, i) => (
+                  <span key={i} className={'trail3 at' + (step >= i ? ' on' : '') + (step === i ? ' now' : '')} style={at(sq)} />
+                ))}
+              </div>
+              <div className="b3-nums">
+                {PAWN_PATH.map((sq, i) => (
+                  <b key={i} className={'at' + (step >= i ? ' on' : '') + (step === i ? ' now' : '')} style={at(sq)}>{STEPS[i].n}</b>
+                ))}
+              </div>
 
               {SERVICES.map((s, i) => (
                 <span key={s.piece} className={'p3 at' + (onBoard(i) ? ' up act' : '')} style={at(SPOTS[s.piece])}>
