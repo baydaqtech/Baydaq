@@ -8,6 +8,7 @@ export default function Footer() {
           <ul>
             <li><a href="#services">خدماتنا</a></li>
             <li><a href="#process">كيف نعمل</a></li>
+            <li><a href="#work">أعمالنا</a></li>
             <li><a href="#contact">تواصل معنا</a></li>
           </ul>
           <span className="mono">1. e4 e5 2. Nf3</span>

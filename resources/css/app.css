@@ -326,7 +326,8 @@
     margin-bottom: clamp(36px, 5vw, 64px);
   }
   .sec-head .eyebrow { grid-column: 1 / -1; }
-  .sec-head h2 { font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; }
+  /* Taller lines than other headings: a two-line Arabic heading otherwise collides (ج over a shadda). */
+  .sec-head h2 { font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; line-height: 1.4; }
   .sec-head p { color: var(--muted); max-width: 48ch; }
   @media (max-width: 800px) { .sec-head { grid-template-columns: 1fr; } }
 
@@ -597,6 +598,94 @@
   /* The walking pawn is the logo mark, which carries its own colours. */
   .p3.pawn .p3-body svg { stroke: none; }
   .p3.pawn .p3-fig { left: -55%; width: 210%; }
+
+  /* ---------- Our work: OpsMaster ---------- */
+  /* One ivory card holds the story and the screen, like the service and step cards. */
+  .work-case {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+    padding: clamp(24px, 3.4vw, 48px);
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-inline-start: 3px solid var(--brass-hi);
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset, 0 24px 44px -32px rgba(59, 36, 20, .5);
+  }
+  .work-story { display: grid; gap: 24px; justify-items: start; }
+  .work-story h3 img { display: block; width: min(230px, 70vw); height: auto; }
+  /* Problem → built → changed: three numbered squares down a thin rank line. */
+  .work-story ol { display: grid; gap: 20px; position: relative; }
+  .work-story ol::before {
+    content: ""; position: absolute; inset-inline-start: 17px; top: 18px; bottom: 18px;
+    border-inline-start: 1px dashed var(--line-2);
+  }
+  .work-story li { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .ws-n {
+    display: grid; place-items: center; width: 36px; aspect-ratio: 1;
+    font-weight: 800; font-size: 17px; color: var(--frame);
+    background: var(--ivory); box-shadow: inset 0 0 0 1px rgba(59, 36, 20, .18);
+  }
+  .work-story li:nth-child(2) .ws-n { background: var(--walnut); color: #1A0F06; }
+  .work-story li:last-child .ws-n { background: linear-gradient(180deg, #F2CD7E, #D6A24E 60%, #B98231); color: #1A0F06; box-shadow: none; }
+  .work-story b { display: block; font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .work-story p { color: var(--muted); font-size: 15.5px; max-width: 44ch; }
+  .work-btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+
+  /* The screen sits in the same wooden frame as the hero's board, with the phone leaning on its corner. */
+  .work-show { display: grid; gap: 16px; padding-bottom: 6%; }
+  .work-frame {
+    position: relative;
+    padding: 14px;
+    background: var(--frame);
+    border-radius: 4px;
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, .06);
+  }
+  .work-screen { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 2px; background: var(--ivory); }
+  .work-screen img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity .6s var(--ease-out, ease);
+  }
+  .work-screen img.on { opacity: 1; }
+  .work-phone {
+    position: absolute; left: -5%; bottom: -14%;
+    width: 22%; height: auto;
+    border: 5px solid var(--frame); border-radius: 18px;
+    box-shadow: 0 24px 40px -18px rgba(26, 17, 10, .55);
+  }
+  /* Squares under the screen: the current one fills with gold, and that fill is the turn's timer. */
+  .work-dots { display: flex; align-items: center; gap: 6px; margin-top: 4%; }
+  .work-dots > button:not(.work-pause) {
+    position: relative; overflow: hidden;
+    width: 22px; height: 22px; padding: 0; border: 0; border-radius: 1px; cursor: pointer;
+    background: var(--ivory); box-shadow: inset 0 0 0 1px rgba(59, 36, 20, .18);
+  }
+  .work-dots > button:nth-of-type(even):not(.work-pause) { background: var(--walnut); }
+  .work-dots > button.done { box-shadow: inset 0 0 0 1px rgba(59, 36, 20, .18), inset 0 0 0 6px rgba(214, 162, 78, .55); }
+  .work-dots > button.on { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--brass-hi); }
+  .work-dots i { position: absolute; inset: 0; background: rgba(214, 162, 78, .85); transform-origin: right; animation: work-fill 6s linear both; }
+  .work-show.paused .work-dots i { animation-play-state: paused; }
+  @keyframes work-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  /* Name and pause stay beside the squares, clear of the phone leaning on the other corner. */
+  .work-name { margin-inline: 8px 4px; font-size: 14px; font-weight: 500; color: var(--ink); }
+  .work-pause {
+    padding: 6px 12px; border: 0; border-radius: 2px; cursor: pointer;
+    font: 500 13px/1 var(--f-sans); color: var(--muted); background: transparent;
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+  .work-pause:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  @media (max-width: 900px) {
+    .work-case { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+    .work-frame { padding: 8px; }
+    .work-phone { left: 2%; width: 26%; border-width: 4px; border-radius: 12px; }
+  }
+  /* Without motion the screens stay put; the squares still switch them. */
+  @media (prefers-reduced-motion: reduce) {
+    .work-screen img { transition: none; }
+    .work-dots i { animation: none; transform: none; }
+    .work-pause { display: none; }
+  }
 
   /* ---------- Heritage ---------- */
   .about-grid {

@@ -6,6 +6,7 @@ import Services from '../components/Services';
 import CheckerRule from '../components/CheckerRule';
 import Process from '../components/Process';
 import BoardStory from '../components/BoardStory';
+import Work from '../components/Work';
 import About, { ABOUT_IN_CONTACT } from '../components/About';
 import ContactSection from '../components/ContactSection';
 import Footer from '../components/Footer';
@@ -42,6 +43,8 @@ export default function Landing() {
             <Process />
           </>
         )}
+        <CheckerRule />
+        <Work />
         {!ABOUT_IN_CONTACT && (
           <>
             <CheckerRule />

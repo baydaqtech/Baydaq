@@ -140,6 +140,7 @@ export function initPageMotion() {
       ['.heritage-copy .ruqaa', 'wipe', 0],
       ['.heritage-copy > p:last-child', 'up', 0],
       ['.promo', 'scale', 0],
+      ['.work-case', 'up', 0],
       ['.checker-rule', 'wipe', 0],
       ['.principles li', 'up', 0.12],
       ['.contact', 'up', 0],
