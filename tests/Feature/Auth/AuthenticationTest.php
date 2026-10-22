@@ -111,6 +111,16 @@ class AuthenticationTest extends TestCase
             ->assertHeader('X-Inertia-Location');
     }
 
+    public function test_an_inertia_visit_that_lands_in_another_language_reloads_the_page(): void
+    {
+        $user = User::factory()->client()->create(['locale' => 'en']);
+        $arabicVersion = app(HandleInertiaRequests::class)->version(Request::create('/app'));
+
+        $this->actingAs($user)
+            ->get('/app', ['X-Inertia' => 'true', 'X-Inertia-Version' => $arabicVersion])
+            ->assertStatus(409);
+    }
+
     public function test_the_signed_in_user_is_shared_with_the_page(): void
     {
         $owner = User::factory()->systemAdmin()->create();

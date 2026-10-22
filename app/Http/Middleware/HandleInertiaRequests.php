@@ -41,14 +41,16 @@ class HandleInertiaRequests extends Middleware
     /**
      * Determines the current asset version.
      *
-     * The root view is part of the version so an Inertia visit that crosses from the
-     * landing shell to the platform shell (or back) becomes a full page load.
+     * The root view and the language are part of the version, so an Inertia visit that
+     * crosses from the landing shell to the platform shell (or back), or that lands in
+     * another language (e.g. a user's saved language after signing in), becomes a full
+     * page load with the right <html lang/dir>.
      *
      * @see https://inertiajs.com/asset-versioning
      */
     public function version(Request $request): ?string
     {
-        return parent::version($request).':'.$this->rootView($request);
+        return parent::version($request).':'.$this->rootView($request).':'.app()->getLocale();
     }
 
     /**

@@ -120,6 +120,23 @@ class RequestFormTest extends TestCase
         $this->assertDatabaseCount('requests', 5);
     }
 
+    public function test_the_team_email_lists_the_request_in_the_recipients_language(): void
+    {
+        $owner = User::factory()->systemAdmin()->create(['locale' => 'en']);
+        Service::factory()->create(['key' => 'sms', 'name_en' => 'SMS']);
+
+        $this->post('/request/service', $this->form(['services' => ['sms']]));
+
+        Notification::assertSentTo($owner, NewRequestReceived::class, function (NewRequestReceived $notification) use ($owner): bool {
+            app()->setLocale($owner->preferredLocale());
+            $mail = $notification->toMail($owner);
+
+            return $mail->subject === 'New Service request from سارة العتيبي'
+                && in_array('Services: SMS', $mail->introLines, true)
+                && str_ends_with($mail->actionUrl, "/admin/requests/{$notification->request->id}");
+        });
+    }
+
     /**
      * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
