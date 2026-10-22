@@ -74,6 +74,33 @@ class HandleInertiaRequests extends Middleware
                 'common' => trans('common'),
                 'enums' => trans('enums'),
             ])->as("i18n.{$locale}"),
+            'auth' => [
+                'user' => fn (): ?array => $this->currentUser($request),
+            ],
+            'status' => fn (): ?string => $request->session()->get('status'),
+        ];
+    }
+
+    /**
+     * The signed-in user as the UI needs it: who they are and what they may do.
+     *
+     * @return array{id: int, name: string, email: string, locale: string, roles: list<string>, permissions: list<string>}|null
+     */
+    private function currentUser(Request $request): ?array
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'locale' => $user->locale,
+            'roles' => $user->getRoleNames()->values()->all(),
+            'permissions' => $user->permissionNames(),
         ];
     }
 }

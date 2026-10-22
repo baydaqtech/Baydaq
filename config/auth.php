@@ -99,6 +99,14 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        // "Your account is ready" links: new users set their first password with these.
+        'invites' => [
+            'provider' => 'users',
+            'table' => 'invite_tokens',
+            'expire' => 4320,
+            'throttle' => 0,
+        ],
     ],
 
     /*

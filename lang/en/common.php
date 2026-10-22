@@ -15,4 +15,13 @@ return [
         'ar' => 'العربية',
         'en' => 'English',
     ],
+
+    'nav' => [
+        'admin' => 'Admin',
+        'portal' => 'My projects',
+        'logout' => 'Sign out',
+        'login' => 'Sign in',
+        'menu' => 'Menu',
+        'back_to_site' => 'Back to site',
+    ],
 ];

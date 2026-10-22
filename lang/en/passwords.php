@@ -14,9 +14,9 @@ return [
     */
 
     'reset' => 'Your password has been reset.',
-    'sent' => 'We have emailed your password reset link.',
+    'sent' => 'If that email is registered with us, a password reset link is on its way.',
     'throttled' => 'Please wait before retrying.',
-    'token' => 'This password reset token is invalid.',
+    'token' => 'This password reset link is invalid or has expired.',
     'user' => "We can't find a user with that email address.",
 
 ];
