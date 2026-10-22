@@ -24,4 +24,12 @@ return [
         'menu' => 'Menu',
         'back_to_site' => 'Back to site',
     ],
+
+    'units' => [
+        'email' => 'email',
+        'otp' => 'code',
+        'message' => 'message',
+        'request' => 'request',
+        'device' => 'device',
+    ],
 ];

@@ -35,3 +35,12 @@ export function useLocale() {
 
   return { locale, dir, localeUrls };
 }
+
+/**
+ * Structured page copy (arrays and objects, e.g. "landing.services"), as the controller passed it.
+ */
+export function useCopy(path) {
+  const { i18n = {}, copy = {} } = usePage().props;
+
+  return lookup({ ...i18n, ...copy }, path);
+}

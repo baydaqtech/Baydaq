@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { SERVICES } from './Services';
-import { STEPS } from './Process';
+import { useT } from '../lib/i18n';
+import { PIECES, useServiceCards } from './Services';
+import { useSteps } from './Process';
 
 // Services + process told on one 3D board that follows the scroll (desktop only).
 // Stages 0–3: one service piece at a time rises and shows its moves.
 // Stages 4–7: the logo pawn walks e2 → e5.
-const STAGES = SERVICES.length + STEPS.length;
-const SERVICE_STAGES = SERVICES.length;
 
 // [file, rank] from a1 = [0, 0].
 const SPOTS = { queen: [3, 3], knight: [5, 5], rook: [1, 6], bishop: [6, 1] };
 const PAWN_PATH = [[4, 1], [4, 2], [4, 3], [4, 4]];
+
+// One stage per service piece, then one per pawn step (one per process step).
+const SERVICE_STAGES = PIECES.length;
+const STAGES = SERVICE_STAGES + PAWN_PATH.length;
 
 // Camera per stage: [tilt, turn] in degrees; the scroll blends between neighbours.
 // The tilt stays put and the turn only ever goes one way. Steps 1–3 keep a clearly visible
@@ -35,12 +38,15 @@ function movesFor(piece) {
   });
   return out;
 }
-const MOVES = Object.fromEntries(SERVICES.map((s) => [s.piece, movesFor(s.piece)]));
+const MOVES = Object.fromEntries(PIECES.map((piece) => [piece, movesFor(piece)]));
 
 const at = ([c, r], extra) => ({ '--c': c, '--r': r, ...extra });
 const smooth = (t) => t * t * (3 - 2 * t);
 
 export default function BoardStory() {
+  const t = useT();
+  const services = useServiceCards();
+  const steps = useSteps();
   const secRef = useRef(null);
   const stageRef = useRef(null);
   const sceneRef = useRef(null);
@@ -125,29 +131,29 @@ export default function BoardStory() {
           <div className="story-text">
             <div className="story-stack">
               <header className={'story-head' + (inServices ? ' on' : '')}>
-                <span className="eyebrow">خدماتنا</span>
-                <h2 id="services-title">ماذا نقدّم لك؟</h2>
-                <p>أربع خدمات تغطّي ما تحتاجه تقنياً، من الفكرة إلى التشغيل.</p>
+                <span className="eyebrow">{t('landing.services_head.eyebrow')}</span>
+                <h2 id="services-title">{t('landing.services_head.title')}</h2>
+                <p>{t('landing.services_head.lede')}</p>
               </header>
               <header className={'story-head' + (inServices ? '' : ' on')}>
-                <span className="eyebrow">كيف نعمل</span>
-                <h2 id="process-title">أربع خطوات واضحة.</h2>
-                <p>تعرف في كل خطوة ماذا نفعل، وتستلم في نهايتها شيئاً تراه بعينك.</p>
+                <span className="eyebrow">{t('landing.process_head.eyebrow')}</span>
+                <h2 id="process-title">{t('landing.process_head.title')}</h2>
+                <p>{t('landing.process_head.lede')}</p>
               </header>
             </div>
 
             <div className="story-stack">
-              {SERVICES.map((s, i) => (
+              {services.map((s, i) => (
                 <article className={'story-card' + (stage === i ? ' on' : '')} key={s.piece}>
                   <span className="who mono">{s.tag}</span>
                   <h3>{s.title}</h3>
                   <p>{s.desc}</p>
                   <ul className="tags">
-                    {s.tags.map((t) => <li key={t}>{t}</li>)}
+                    {s.tags.map((tag) => <li key={tag}>{tag}</li>)}
                   </ul>
                 </article>
               ))}
-              {STEPS.map((s, i) => (
+              {steps.map((s, i) => (
                 <article className={'story-card step' + (step === i ? ' on' : '')} key={s.coord}>
                   <div className="step-top"><span className="step-num">{s.n}</span><span className="step-phase">{s.phase}</span></div>
                   <h3>{s.title}</h3>
@@ -159,15 +165,15 @@ export default function BoardStory() {
 
             <div className="story-progress">
               <div>
-                <span className="lbl">الخدمات</span>
-                {SERVICES.map((s, i) => (
+                <span className="lbl">{t('landing.story.services')}</span>
+                {services.map((s, i) => (
                   <button type="button" key={s.piece} aria-label={s.title} aria-current={stage === i ? 'step' : undefined}
                     className={stage === i ? 'on' : stage > i ? 'done' : ''} onClick={() => go(i)} />
                 ))}
               </div>
               <div>
-                <span className="lbl">الخطوات</span>
-                {STEPS.map((s, i) => (
+                <span className="lbl">{t('landing.story.steps')}</span>
+                {steps.map((s, i) => (
                   <button type="button" key={s.coord} aria-label={s.title} aria-current={step === i ? 'step' : undefined}
                     className={step === i ? 'on' : step > i ? 'done' : ''} onClick={() => go(SERVICE_STAGES + i)} />
                 ))}
@@ -185,10 +191,10 @@ export default function BoardStory() {
               {/* All square marks share one flat layer just above the squares, and the step
                   numbers one more above the pawn's shadow: three layers instead of one per mark. */}
               <div className="b3-marks">
-                {SERVICES.map((s, i) => (
+                {services.map((s, i) => (
                   <span key={s.piece} className={'hl3 at' + (onBoard(i) ? ' on' : '')} style={at(SPOTS[s.piece])} />
                 ))}
-                {SERVICES.map((s, i) => MOVES[s.piece].map(([x, y, d]) => (
+                {services.map((s, i) => MOVES[s.piece].map(([x, y, d]) => (
                   <span key={s.piece + x + y} className={'dot3 at' + (onBoard(i) ? ' on' : '')} style={at([x, y], { '--dl': d * 0.06 + 's' })} />
                 )))}
                 {PAWN_PATH.map((sq, i) => (
@@ -197,11 +203,11 @@ export default function BoardStory() {
               </div>
               <div className="b3-nums">
                 {PAWN_PATH.map((sq, i) => (
-                  <b key={i} className={'at' + (step >= i ? ' on' : '') + (step === i ? ' now' : '')} style={at(sq)}>{STEPS[i].n}</b>
+                  <b key={i} className={'at' + (step >= i ? ' on' : '') + (step === i ? ' now' : '')} style={at(sq)}>{steps[i].n}</b>
                 ))}
               </div>
 
-              {SERVICES.map((s, i) => (
+              {services.map((s, i) => (
                 <span key={s.piece} className={'p3 at' + (onBoard(i) ? ' up act' : '')} style={at(SPOTS[s.piece])}>
                   <span className="p3-shadow" />
                   <span className="p3-fig"><span className="p3-body"><svg viewBox="0 0 45 45"><use href={`#p-${s.piece}`} /></svg></span></span>

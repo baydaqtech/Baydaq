@@ -1,3 +1,5 @@
+import { useCopy, useT } from '../lib/i18n';
+
 // Chess lines in this section (the Ruqaa headline, the pawn caption, the piece tags) are hidden
 // for now but kept; set to true to show them again.
 const SHOW_CHESS_LINES = false;
@@ -10,27 +12,23 @@ const SHOW_PRINCIPLES = false;
 // Set to false to bring back the separate "about" section.
 export const ABOUT_IN_CONTACT = true;
 
-// Shared by this section and the contact section's intro.
-export const ABOUT_TEXT = 'بيدق تك شركة تقنية تساعد الشركات والأفراد على بناء مواقعهم وتطبيقاتهم وتطويرها. نبدأ معك من فكرتك مهما كانت صغيرة، ونحوّلها خطوة بعد خطوة إلى منتج يعمل ويخدم عملك.';
-
-const PRINCIPLES = [
-  { n: '١', piece: 'knight', tag: 'الحصان: يجد طريقه حيث لا يصل غيره', title: 'حلول على مقاسك', desc: 'سواء كنت تبدأ مشروعاً جديداً أو تطوّر نظاماً قائماً، نصمّم ما يناسب حجم عملك وميزانيتك.' },
-  { n: '٢', piece: 'pawn', tag: 'البيدق: يتقدّم حتى يصبح وزيراً', title: 'جاهز للنمو', desc: 'نبني بطريقة تسمح لك بإضافة مزايا جديدة لاحقاً، دون أن تبدأ من الصفر.' },
-  { n: '٣', piece: 'rook', tag: 'القلعة: تحمي وتبقى ثابتة', title: 'معك بعد الإطلاق', desc: 'لا نسلّم المشروع ونختفي. نتابع ونصلح ونطوّر معك متى احتجت.' },
-];
+// Pieces for the three principles, in the order of landing.about.principles.
+const PRINCIPLE_PIECES = ['knight', 'pawn', 'rook'];
 
 export default function About() {
+  const t = useT();
+  const principles = useCopy('landing.about.principles').map((p, i) => ({ ...p, piece: PRINCIPLE_PIECES[i] }));
   return (
     <section className="block heritage" id="about" aria-labelledby="about-title" style={{ paddingTop: 0 }}>
       <div className={'wrap about-grid' + (SHOW_PAWN_FIGURE ? '' : ' solo')}>
         <div className="heritage-copy">
-          <span className="eyebrow" id="about-title">من نحن</span>
-          {SHOW_CHESS_LINES && <p className="ruqaa gold">البيدق إذا بلغ آخر الرقعة ترقّى.</p>}
-          <p>{ABOUT_TEXT}</p>
+          <span className="eyebrow" id="about-title">{t('landing.about.eyebrow')}</span>
+          {SHOW_CHESS_LINES && <p className="ruqaa gold">{t('landing.about.ruqaa')}</p>}
+          <p>{t('landing.about.text')}</p>
         </div>
 
         {SHOW_PAWN_FIGURE && (
-          <figure className="promo" aria-label="بيدق يتقدّم من الخانة e2 إلى e8 فيصبح وزيراً">
+          <figure className="promo" aria-label={t('landing.about.figure_label')}>
             <div className="trail-row" aria-hidden="true">
               {[0, 1, 2, 3, 4, 5, 6].map((i) => <span className="t" key={i} />)}
               <span className="trail" />
@@ -41,7 +39,7 @@ export default function About() {
             <div className="trail-labels mono" aria-hidden="true">
               {['e2', 'e3', 'e4', 'e5', 'e6', 'e7', 'e8=Q'].map((l) => <span key={l}>{l}</span>)}
             </div>
-            {SHOW_CHESS_LINES && <figcaption className="trail-cap">ست خطوات إلى الأمام… والبيدق يصبح وزيراً.</figcaption>}
+            {SHOW_CHESS_LINES && <figcaption className="trail-cap">{t('landing.about.figure_caption')}</figcaption>}
           </figure>
         )}
       </div>
@@ -49,7 +47,7 @@ export default function About() {
       {SHOW_PRINCIPLES && (
         <div className="wrap">
           <ul className="principles">
-            {PRINCIPLES.map((p) => (
+            {principles.map((p) => (
               <li key={p.piece}>
                 <div className="pr-stage" aria-hidden="true">
                   <span className="pr-num">{p.n}</span>
