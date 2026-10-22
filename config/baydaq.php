@@ -30,4 +30,20 @@ return [
 
     'vat_rate' => '0.15',
 
+    /*
+    |--------------------------------------------------------------------------
+    | First system admin
+    |--------------------------------------------------------------------------
+    |
+    | The owner account created by `php artisan db:seed`. Nothing is created
+    | when these are empty. The password must be changed at first sign-in.
+    |
+    */
+
+    'admin' => [
+        'name' => env('ADMIN_NAME'),
+        'email' => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
 ];
