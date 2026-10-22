@@ -18,6 +18,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Portal\HomeController;
+use App\Http\Controllers\Portal\ProjectController as PortalProjectController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\ServiceCatalogController;
@@ -150,5 +151,6 @@ Route::prefix('app')
     ->middleware(['auth', 'password.changed', 'role:client'])
     ->group(function () {
         Route::get('/', HomeController::class)->name('home');
+        Route::get('/projects/{project}', [PortalProjectController::class, 'show'])->name('projects.show');
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
     });

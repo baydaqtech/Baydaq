@@ -22,3 +22,8 @@ export function formatDate(value, locale) {
 
   return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: 'medium' }).format(new Date(value));
 }
+
+/** 60 → "60%" / "٦٠٪". */
+export function formatPercent(value, locale) {
+  return new Intl.NumberFormat(numberLocale(locale), { style: 'percent', maximumFractionDigits: 2 }).format(Number(value) / 100);
+}
