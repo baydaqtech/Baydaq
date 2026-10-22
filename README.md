@@ -4,7 +4,7 @@
 
 ## التشغيل
 
-1. انسخ ملف الإعدادات (فيه متغيّرات Docker والمنفذ 8080)، واكتب فيه `ADMIN_NAME` و`ADMIN_EMAIL` و`ADMIN_PASSWORD` لحساب مالك النظام:
+1. انسخ ملف الإعدادات (فيه متغيّرات Docker والمنافذ: الموقع 8090، و Vite 5180، و MySQL 3310، و Mailpit 8030)، واكتب فيه `ADMIN_NAME` و`ADMIN_EMAIL` و`ADMIN_PASSWORD` لحساب مالك النظام:
 
    ```sh
    cp .env.example .env
@@ -29,7 +29,7 @@
    docker compose exec laravel.test npm run build
    ```
 
-4. افتح الموقع على: http://localhost:8080، ولوحة الإدارة على: http://localhost:8080/admin
+4. افتح الموقع على: http://localhost:8090، ولوحة الإدارة على: http://localhost:8090/admin
 
 ## التطوير
 
