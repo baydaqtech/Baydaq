@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AccountSetupController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Portal\HomeController;
 use App\Http\Controllers\ProductController;
@@ -50,6 +51,7 @@ Route::prefix('admin')
     ->middleware(['auth', 'password.changed', 'role:system_admin|admin'])
     ->group(function () {
         Route::get('/', DashboardController::class)->name('dashboard');
+        Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
     });
 
 Route::prefix('app')
@@ -57,4 +59,5 @@ Route::prefix('app')
     ->middleware(['auth', 'password.changed', 'role:client'])
     ->group(function () {
         Route::get('/', HomeController::class)->name('home');
+        Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
     });

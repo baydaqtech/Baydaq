@@ -76,6 +76,28 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->hasAnyRole([Role::SystemAdmin, Role::Admin]);
     }
 
+    /**
+     * A team member holding any of the given permissions (the system admin holds them all).
+     */
+    public function hasAdminPermission(Permission ...$permissions): bool
+    {
+        if (! $this->isAdmin()) {
+            return false;
+        }
+
+        if ($this->isSystemAdmin()) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($this->checkPermissionTo($permission->value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function isSystemAdmin(): bool
     {
         return $this->hasRole(Role::SystemAdmin);
