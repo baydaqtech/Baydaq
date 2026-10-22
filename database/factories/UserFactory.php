@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\Permission;
 use App\Enums\Role;
+use App\Models\Client;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -70,11 +71,13 @@ class UserFactory extends Factory
     }
 
     /**
-     * A partner or customer account.
+     * A partner or customer account, linked to a client company.
      */
-    public function client(): static
+    public function client(?Client $client = null): static
     {
-        return $this->withRole(Role::Client);
+        return $this->withRole(Role::Client)->state(fn (array $attributes) => [
+            'client_id' => $client ?? Client::factory(),
+        ]);
     }
 
     /**

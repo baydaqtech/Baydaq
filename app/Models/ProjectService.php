@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\PricingModel;
+use App\Enums\ProjectServiceStatus;
+use Database\Factories\ProjectServiceFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * A catalog service turned on for one project, with its own plan and price.
+ */
+#[Fillable(['service_id', 'status', 'plan', 'price', 'pricing_model', 'started_at', 'notes'])]
+#[Hidden(['api_key'])]
+class ProjectService extends Model
+{
+    /** @use HasFactory<ProjectServiceFactory> */
+    use HasFactory;
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => ProjectServiceStatus::class,
+            'pricing_model' => PricingModel::class,
+            'price' => 'decimal:2',
+            'api_key' => 'encrypted',
+            'started_at' => 'date',
+            'meta' => 'array',
+        ];
+    }
+
+    /**
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * @return BelongsTo<Service, $this>
+     */
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class);
+    }
+}
