@@ -57,6 +57,6 @@ class NewRequestReceived extends Notification implements ShouldQueue
 
         return $mail
             ->line($request->message)
-            ->action(__('requests.mail.action'), url("/admin/requests/{$request->id}"));
+            ->action(__('requests.mail.action'), route('admin.requests.show', $request));
     }
 }

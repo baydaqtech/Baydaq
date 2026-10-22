@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, Menu } from 'lucide-react';
+import { Boxes, Building2, FileText, FolderKanban, Inbox, LayoutDashboard, Layers, Menu, Settings, Users } from 'lucide-react';
 import BrandMark from '@/components/platform/BrandMark';
 import UserMenu from '@/components/platform/UserMenu';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,19 @@ import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 /**
- * Admin navigation. `permission` hides an item from team members who lack it
+ * Admin navigation. `permissions` hides an item from team members who hold none of them
  * (the system admin has every permission); the server still checks each route.
  */
 const NAV = [
   { href: '/admin', label: 'admin.nav.dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin/requests', label: 'admin.nav.requests', icon: Inbox, permissions: ['requests.manage'] },
+  { href: '/admin/clients', label: 'admin.nav.clients', icon: Building2, permissions: ['clients.view', 'clients.manage'] },
+  { href: '/admin/projects', label: 'admin.nav.projects', icon: FolderKanban, permissions: ['projects.view', 'projects.manage'] },
+  { href: '/admin/invoices', label: 'admin.nav.invoices', icon: FileText, permissions: ['invoices.view', 'invoices.manage'] },
+  { href: '/admin/services', label: 'admin.nav.services', icon: Layers, permissions: ['services.manage'] },
+  { href: '/admin/products', label: 'admin.nav.products', icon: Boxes, permissions: ['services.manage'] },
+  { href: '/admin/team', label: 'admin.nav.team', icon: Users, permissions: ['admins.manage'] },
+  { href: '/admin/settings', label: 'admin.nav.settings', icon: Settings, permissions: ['settings.manage'] },
 ];
 
 function NavLinks({ onNavigate }) {
@@ -24,7 +32,7 @@ function NavLinks({ onNavigate }) {
 
   return (
     <nav className="flex flex-col gap-1">
-      {NAV.filter((item) => !item.permission || permissions.includes(item.permission)).map((item) => {
+      {NAV.filter((item) => !item.permissions || item.permissions.some((name) => permissions.includes(name))).map((item) => {
         const active = item.exact ? path === item.href : path.startsWith(item.href);
 
         return (
