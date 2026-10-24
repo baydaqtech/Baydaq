@@ -3,14 +3,24 @@
 namespace App\Enums\Concerns;
 
 /**
- * Translated labels for string-backed enums, read from lang/{locale}/enums.php
- * under the enum's LABELS group.
+ * Translated labels for string-backed enums, read from lang/{locale}/{labelFile}.php
+ * under the enum's LABELS group. The file is "enums" unless the enum overrides labelFile();
+ * module enums keep their labels in the module's own file (e.g. "hr") so the shared
+ * enums group stays small.
  */
 trait HasLabels
 {
     public function label(): string
     {
-        return __('enums.'.self::LABELS.'.'.$this->value);
+        return __(static::labelFile().'.'.self::LABELS.'.'.$this->value);
+    }
+
+    /**
+     * The lang file holding this enum's labels.
+     */
+    protected static function labelFile(): string
+    {
+        return 'enums';
     }
 
     /**

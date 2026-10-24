@@ -25,6 +25,8 @@ class HandleInertiaRequests extends Middleware
     private const PLATFORM_PATHS = [
         'admin', 'admin/*',
         'app', 'app/*',
+        'suite', 'suite/*',
+        'menu/*', 'book/*', 'card/*',
         'login', 'logout',
         'forgot-password', 'reset-password', 'reset-password/*',
         'account/*', 'password/*',

@@ -18,6 +18,10 @@ export default function PortalLayout({ title, children }) {
               <BrandMark className="size-7" />
               <span className="font-semibold">{t('common.platform')}</span>
             </Link>
+            <nav className="ms-6 hidden items-center gap-4 text-sm sm:flex">
+              <Link href="/app" className="text-muted-foreground hover:text-foreground">{t('portal.home.title')}</Link>
+              <Link href="/app/statement" className="text-muted-foreground hover:text-foreground">{t('portal.home.statement')}</Link>
+            </nav>
             <div className="ms-auto">
               <UserMenu />
             </div>

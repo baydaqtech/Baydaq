@@ -8,6 +8,14 @@
 @source "../js/Pages/Auth";
 @source "../js/Pages/Admin";
 @source "../js/Pages/Portal";
+@source "../js/Pages/Suite";
+@source "../js/Pages/Hr";
+@source "../js/Pages/Invoicing";
+@source "../js/Pages/Pos";
+@source "../js/Pages/Reservations";
+@source "../js/Pages/Subscriptions";
+@source "../js/Pages/Assets";
+@source "../js/components/suite";
 @source "../js/components/ui";
 @source "../js/components/platform";
 @source "../js/layouts";

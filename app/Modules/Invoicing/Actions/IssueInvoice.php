@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Modules\Invoicing\Actions;
+
+use App\Modules\Invoicing\Enums\InvoiceStatus;
+use App\Modules\Invoicing\Enums\InvoiceType;
+use App\Modules\Invoicing\Enums\UnitStatus;
+use App\Modules\Invoicing\Events\InvoiceIssued;
+use App\Modules\Invoicing\Models\EinvoiceUnit;
+use App\Modules\Invoicing\Models\Invoice;
+use App\Modules\Invoicing\Zatca\Certificate;
+use App\Modules\Invoicing\Zatca\Signer;
+use App\Modules\Invoicing\Zatca\UblBuilder;
+use App\Modules\Invoicing\Zatca\ZatcaClient;
+use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\OrgDirectory;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class IssueInvoice
+{
+    public function __construct(
+        private OrgDirectory $directory,
+        private UblBuilder $ubl,
+        private Signer $signer,
+        private ZatcaClient $zatca,
+        private Audit $audit,
+    ) {}
+
+    /**
+     * Issue a draft through a unit: take the next number and counter under a row lock, build the
+     * XML with the previous hash, sign it, send it for clearance (standard) or reporting
+     * (simplified), store the submission, and advance the unit's chain only when ZATCA accepted
+     * it. A rejected invoice keeps its number and can be fixed and re-issued? No: ZATCA's chain is
+     * per accepted document, so a rejection leaves the chain untouched and the invoice marked rejected.
+     */
+    public function handle(Invoice $invoice, EinvoiceUnit $unit, ?Authenticatable $actor = null): Invoice
+    {
+        if ($invoice->status !== InvoiceStatus::Draft && $invoice->status !== InvoiceStatus::Rejected) {
+            throw ValidationException::withMessages(['status' => __('invoicing.errors.not_draft')]);
+        }
+
+        if ($unit->company_id !== $invoice->company_id || ! in_array($unit->status, [UnitStatus::Compliance, UnitStatus::Production], true) || $unit->credentials() === null) {
+            throw ValidationException::withMessages(['unit_id' => __('invoicing.errors.unit_not_ready')]);
+        }
+
+        $company = $this->directory->company($invoice->company_id) ?? throw ValidationException::withMessages(['company_id' => __('invoicing.errors.unit_not_ready')]);
+
+        if (! $company->vatNumber) {
+            throw ValidationException::withMessages(['company_id' => __('invoicing.errors.company_vat')]);
+        }
+
+        return DB::transaction(function () use ($invoice, $unit, $company, $actor): Invoice {
+            $unit = EinvoiceUnit::query()->lockForUpdate()->findOrFail($unit->id);
+            $counter = $unit->counter + 1;
+
+            $invoice->forceFill([
+                'number' => $invoice->number ?? $this->nextNumber($invoice),
+                'issue_time' => $invoice->issue_time ?? now()->format('H:i:s'),
+                'unit_id' => $unit->id,
+                'counter' => $counter,
+            ])->save();
+
+            $credentials = $unit->credentials();
+            $certificate = new Certificate($credentials['certificate']);
+            $unsigned = $this->ubl->build($invoice->refresh(), UblBuilder::seller($company), $counter, $unit->previous_hash);
+            $signed = $this->signer->sign(
+                $unsigned, $unit->private_key, $certificate,
+                $company->nameAr, $company->vatNumber,
+                $invoice->issue_date->toDateString().'T'.$invoice->issue_time, (string) $invoice->total, (string) $invoice->vat,
+                $invoice->type === InvoiceType::Simplified,
+            );
+
+            $simplified = $invoice->type === InvoiceType::Simplified;
+            $result = $simplified
+                ? $this->zatca->report($unit->environment, $credentials['certificate'], $credentials['secret'], $invoice->uuid, $signed['hash'], $signed['xml'])
+                : $this->zatca->clear($unit->environment, $credentials['certificate'], $credentials['secret'], $invoice->uuid, $signed['hash'], $signed['xml']);
+
+            $accepted = in_array($result['status'], [200, 202], true);
+            $status = $result['body']['reportingStatus'] ?? $result['body']['clearanceStatus'] ?? ($accepted ? 'ACCEPTED' : 'ERROR');
+            $xml = $accepted && ! $simplified && isset($result['body']['clearedInvoice']) ? (base64_decode($result['body']['clearedInvoice'], true) ?: $signed['xml']) : $signed['xml'];
+
+            $invoice->submissions()->make()->forceFill([
+                'unit_id' => $unit->id,
+                'mode' => $simplified ? 'reporting' : 'clearance',
+                'environment' => $unit->environment->value,
+                'status' => $accepted ? ($result['status'] === 202 ? 'accepted_with_warnings' : 'accepted') : ($result['status'] >= 500 ? 'error' : 'rejected'),
+                'counter' => $counter,
+                'hash' => $signed['hash'],
+                'xml' => $xml,
+                'response' => ['http' => $result['status'], 'status' => $status, 'body' => $result['body']],
+                'submitted_at' => now(),
+            ])->save();
+
+            if ($accepted) {
+                $unit->forceFill(['counter' => $counter, 'previous_hash' => $signed['hash']])->save();
+                $invoice->forceFill([
+                    'status' => ($simplified ? InvoiceStatus::Reported : InvoiceStatus::Cleared)->value,
+                    'hash' => $signed['hash'],
+                    'qr' => $signed['qr'],
+                    'issued_by' => $actor?->getAuthIdentifier(),
+                    'issued_at' => now(),
+                ])->save();
+                $this->audit->record($invoice, 'issued', ['number' => $invoice->number, 'counter' => $counter, 'mode' => $simplified ? 'reporting' : 'clearance'], $actor);
+                InvoiceIssued::dispatch($invoice->id, $invoice->company_id, $invoice->number, (string) $invoice->total);
+            } else {
+                $invoice->forceFill(['status' => InvoiceStatus::Rejected->value, 'counter' => null])->save();
+                $this->audit->record($invoice, 'rejected', ['http' => $result['status'], 'errors' => $result['body']['validationResults']['errorMessages'] ?? $result['body']], $actor);
+            }
+
+            return $invoice->refresh()->load(['lines', 'customer', 'submissions']);
+        });
+    }
+
+    /** Sequential per company and year: INV-2026-00001 (notes share the sequence, prefixed CN-/DN-). */
+    private function nextNumber(Invoice $invoice): string
+    {
+        $prefix = match ($invoice->kind->value) {
+            'credit_note' => 'CN',
+            'debit_note' => 'DN',
+            default => 'INV',
+        }.'-'.$invoice->issue_date->year.'-';
+
+        $last = Invoice::query()->where('company_id', $invoice->company_id)->where('number', 'like', $prefix.'%')->lockForUpdate()->orderByDesc('number')->value('number');
+        $sequence = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
+
+        return $prefix.str_pad((string) $sequence, 5, '0', STR_PAD_LEFT);
+    }
+}

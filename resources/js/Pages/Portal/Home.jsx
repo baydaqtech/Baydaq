@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { AlertTriangle, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, Briefcase, Wallet } from 'lucide-react';
 import BrandMark from '@/components/platform/BrandMark';
 import InvoiceTable from '@/components/platform/InvoiceTable';
 import StatCard from '@/components/platform/StatCard';
@@ -43,7 +43,7 @@ function ProjectCard({ project }) {
   );
 }
 
-export default function Home({ projects, invoices, billing }) {
+export default function Home({ projects, invoices, billing, suite_url: suiteUrl }) {
   const t = useT();
   const { locale } = useLocale();
   const { user } = usePage().props.auth;
@@ -54,6 +54,21 @@ export default function Home({ projects, invoices, billing }) {
         <h1 className="text-2xl font-semibold">{t('portal.home.welcome', { name: user.name })}</h1>
         <p className="mt-1 text-muted-foreground">{t('portal.home.lede')}</p>
       </div>
+
+      {suiteUrl && (
+        <Link href={suiteUrl} className="group mb-8 block">
+          <Card className="border-brass/40 bg-walnut text-ivory transition-colors group-hover:border-brass">
+            <CardContent className="flex items-center gap-4">
+              <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-brass/20 text-brass"><Briefcase className="size-5" /></span>
+              <div className="min-w-0 flex-1">
+                <h2 className="font-semibold">{t('portal.home.business')}</h2>
+                <p className="mt-0.5 text-sm text-ivory/70">{t('portal.home.business_text')}</p>
+              </div>
+              <ArrowUpRight className="size-5 shrink-0 text-brass rtl:-scale-x-100" />
+            </CardContent>
+          </Card>
+        </Link>
+      )}
 
       <section aria-labelledby="projects-title">
         <h2 id="projects-title" className="mb-3 text-lg font-semibold">{t('portal.home.title')}</h2>

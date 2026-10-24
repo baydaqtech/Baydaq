@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Actions\Usage\UsageSummary;
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Portal\InvoiceResource;
@@ -18,16 +19,16 @@ class ProjectController extends Controller
     /**
      * One project: overview, files, services and billing tabs.
      */
-    public function show(Request $request, Project $project): Response
+    public function show(Request $request, Project $project, UsageSummary $usage): Response
     {
         Gate::authorize('view', $project);
 
-        $project->load(['resources', 'files', 'projectServices.service']);
+        $project->load(['resources', 'files', 'milestones', 'projectServices.service']);
         $invoices = $project->invoices()->issued()->latest('issue_date')->get();
 
         return Inertia::render('Portal/Project', [
             'project' => new ProjectResource($project),
-            'services' => ProjectServiceResource::collection($project->projectServices),
+            'services' => $project->projectServices->map(fn ($projectService) => (new ProjectServiceResource($projectService))->additional(['usage' => $usage->handle($projectService)])->resolve() + ['usage' => $usage->handle($projectService)])->values()->all(),
             'invoices' => InvoiceResource::collection($invoices),
             'billing' => [
                 'due' => (string) $invoices->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Overdue])->sum('total'),

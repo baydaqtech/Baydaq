@@ -25,7 +25,7 @@ export default function Repeater({ items, onChange, blank, renderRow, addLabel, 
             className="mt-6 text-muted-foreground hover:text-destructive"
             disabled={items.length <= minRows}
             onClick={() => onChange(items.filter((_, i) => i !== index))}
-            aria-label={t('admin.common.remove')}
+            aria-label={t('common.actions.remove')}
           >
             <Trash2 />
           </Button>
@@ -34,7 +34,7 @@ export default function Repeater({ items, onChange, blank, renderRow, addLabel, 
       <div>
         <Button type="button" variant="outline" size="sm" onClick={() => onChange([...items, { ...blank }])}>
           <Plus data-icon="inline-start" />
-          {addLabel ?? t('admin.common.add_row')}
+          {addLabel ?? t('common.actions.add_row')}
         </Button>
       </div>
     </div>

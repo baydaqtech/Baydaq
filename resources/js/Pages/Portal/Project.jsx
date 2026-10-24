@@ -15,12 +15,26 @@ import { formatDate, formatMoney, formatNumber, formatPercent } from '@/lib/form
 import { useLocale, useT } from '@/lib/i18n';
 import { serviceIcon } from '@/lib/serviceIcons';
 
+function UsageBars({ history }) {
+  const max = Math.max(1, ...history.map((month) => Number(month.quantity)));
+
+  return (
+    <div className="flex h-10 items-end gap-1" aria-hidden>
+      {history.map((month) => (
+        <div key={month.month} className="flex-1 rounded-sm bg-brass/70" style={{ height: `${Math.max(6, (Number(month.quantity) / max) * 100)}%` }} title={`${month.month}: ${month.quantity}`} />
+      ))}
+    </div>
+  );
+}
+
 function ServiceCard({ service }) {
   const t = useT();
   const { locale } = useLocale();
   const s = (field) => t(`portal.services.${field}`);
   const Icon = serviceIcon(service.icon);
   const unit = service.unit ? t(`common.units.${service.unit}`) : null;
+  const usage = service.usage;
+  const hasUsage = usage && Number(usage.quantity) > 0;
 
   return (
     <Card className="gap-3">
@@ -38,15 +52,25 @@ function ServiceCard({ service }) {
         <DetailList className="sm:grid-cols-3" items={[
           { label: s('plan'), value: service.plan },
           { label: s('price'), value: service.price && `${formatMoney(service.price, locale)}${unit && service.pricing_model === 'per_use' ? ` ${s('per_unit').replace(':unit', unit)}` : ''}` },
-          { label: s('pricing_model'), value: t(`enums.pricing_model.${service.pricing_model}`) },
           { label: s('started_at'), value: formatDate(service.started_at, locale) },
         ]} />
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
-          <span className="flex items-center gap-2"><KeyRound className="size-4 text-muted-foreground" />{s('api_key')}</span>
-          <span className="text-muted-foreground">{s('api_key_soon')}</span>
+        <div className="rounded-lg border bg-muted/30 p-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2"><KeyRound className="size-4 text-muted-foreground" />{service.connected ? s('connected') : s('api_key_soon')}</span>
+            {usage?.last_used_at && <span className="text-xs text-muted-foreground">{s('last_used')}: {formatDate(usage.last_used_at, locale)}</span>}
+          </div>
+          {hasUsage ? (
+            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+              <DetailList className="sm:grid-cols-2" items={[
+                { label: `${s('usage_month')} (${usage.month})`, value: `${formatNumber(usage.quantity, locale)}${unit ? ` ${unit}` : ''} · ${formatMoney(usage.cost, locale)}` },
+                { label: s('usage_forecast'), value: formatMoney(usage.forecast, locale) },
+              ]} />
+              <div className="w-32"><UsageBars history={usage.history} /></div>
+            </div>
+          ) : <p className="mt-2 text-xs text-muted-foreground">{s('no_usage')}</p>}
         </div>
         {service.docs_url && (
-          <Button asChild size="sm" variant="outline" className="self-start">
+          <Button asChild size="xs" variant="ghost" className="self-start">
             <a href={service.docs_url} target="_blank" rel="noopener"><BookOpen data-icon="inline-start" />{s('docs')}</a>
           </Button>
         )}
@@ -114,6 +138,24 @@ export default function Project({ project, services, invoices, billing, tab }) {
                 project.launched_at && { label: p('launched_at'), value: formatDate(project.launched_at, locale) },
                 { label: p('app'), value: link(project.app_url, p('open')) },
               ]} />
+            </CardContent>
+          </Card>
+          <Card className="lg:col-span-2">
+            <CardHeader><CardTitle>{p('milestones')}</CardTitle></CardHeader>
+            <CardContent>
+              {(project.milestones ?? []).length === 0 && <p className="text-sm text-muted-foreground">{p('no_milestones')}</p>}
+              <ol className="relative ms-2 border-s ps-5">
+                {(project.milestones ?? []).map((milestone) => (
+                  <li key={milestone.title} className="relative pb-4 last:pb-0">
+                    <span className={`absolute -start-[1.6rem] top-1 size-3 rounded-full border-2 ${milestone.done_at ? 'border-brass bg-brass' : 'border-border bg-card'}`} />
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <span className={`text-sm font-medium ${milestone.done_at ? '' : 'text-muted-foreground'}`}>{milestone.title}</span>
+                      <span className="text-xs text-muted-foreground">{milestone.done_at ? `${p('done')} · ${formatDate(milestone.done_at, locale)}` : milestone.due_date ? `${p('due')} · ${formatDate(milestone.due_date, locale)}` : ''}</span>
+                    </div>
+                    {milestone.description && <p className="mt-0.5 text-xs text-muted-foreground">{milestone.description}</p>}
+                  </li>
+                ))}
+              </ol>
             </CardContent>
           </Card>
           <Card>

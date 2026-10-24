@@ -1,0 +1,89 @@
+<?php
+
+return [
+    'title' => 'Invoicing',
+    'nav' => ['invoices' => 'Invoices', 'customers' => 'Customers', 'einvoicing' => 'E-invoicing'],
+    'features' => ['customers' => 'Customers', 'invoices' => 'Invoices', 'einvoicing' => 'E-invoicing units (ZATCA)'],
+    'abilities' => ['issue' => 'Issue invoices to ZATCA', 'cancel' => 'Cancel drafts', 'onboard' => 'Onboard units with ZATCA'],
+
+    'customers' => [
+        'title' => 'Customers',
+        'new' => 'New customer',
+        'edit' => 'Edit customer',
+        'saved' => 'Customer saved.',
+        'none' => 'No customers yet.',
+        'fields' => [
+            'name_ar' => 'Name (Arabic)', 'name_en' => 'Name (English)', 'vat_number' => 'VAT number', 'cr_number' => 'CR number',
+            'email' => 'Email', 'phone' => 'Phone', 'street' => 'Street', 'building_number' => 'Building no.', 'district' => 'District',
+            'city' => 'City', 'postal_code' => 'Postal code', 'country' => 'Country', 'is_active' => 'Active',
+        ],
+    ],
+
+    'invoices' => [
+        'title' => 'Invoices',
+        'new' => 'New invoice',
+        'edit' => 'Edit draft',
+        'saved' => 'Draft saved.',
+        'issued' => 'Invoice :number accepted by ZATCA.',
+        'rejected' => 'ZATCA rejected the invoice; see the submission details.',
+        'cancelled' => 'Draft cancelled.',
+        'none' => 'No invoices yet.',
+        'issue' => 'Issue',
+        'issue_title' => 'Issue this invoice?',
+        'issue_text' => 'It gets its number and is sent to ZATCA through the chosen unit. This cannot be undone.',
+        'cancel' => 'Cancel draft',
+        'download_xml' => 'XML',
+        'download_pdf' => 'PDF',
+        'lines' => 'Lines',
+        'add_line' => 'Add line',
+        'totals' => 'Totals',
+        'submissions' => 'ZATCA submissions',
+        'qr' => 'QR',
+        'customer_walkin' => 'Walk-in customer',
+        'fields' => [
+            'number' => 'Number', 'type' => 'Type', 'kind' => 'Kind', 'status' => 'Status', 'customer' => 'Customer', 'related' => 'Corrects invoice',
+            'issue_date' => 'Issue date', 'due_date' => 'Due date', 'supply_date' => 'Supply date', 'payment_means' => 'Payment',
+            'note' => 'Note', 'reason' => 'Reason', 'unit' => 'E-invoicing unit',
+            'description' => 'Description', 'quantity' => 'Qty', 'unit_price' => 'Unit price', 'discount' => 'Discount', 'vat_rate' => 'VAT %',
+            'subtotal' => 'Subtotal', 'vat' => 'VAT', 'total' => 'Total', 'issued_at' => 'Issued',
+        ],
+        'payment' => ['10' => 'Cash', '30' => 'Credit', '42' => 'Bank transfer', '48' => 'Card'],
+    ],
+
+    'units' => [
+        'title' => 'E-invoicing units',
+        'lede' => 'Each device or installation that issues invoices is a unit registered with ZATCA. Onboard it with a one-time code from the Fatoora portal, pass the compliance checks, then request the production certificate.',
+        'new' => 'New unit',
+        'created' => 'Unit created. Now enter the OTP from the Fatoora portal.',
+        'otp' => 'Fatoora OTP',
+        'request_csid' => 'Get compliance certificate',
+        'request_production' => 'Get production certificate',
+        'csid_ok' => 'Compliance certificate received.',
+        'production_ok' => 'Production certificate received. The unit is live.',
+        'counter' => 'Counter',
+        'fields' => ['name' => 'Name', 'company' => 'Company', 'branch' => 'Branch', 'environment' => 'Environment', 'status' => 'Status', 'serial' => 'Serial'],
+    ],
+
+    'errors' => [
+        'not_draft' => 'Only drafts can be changed.',
+        'standard_needs_customer' => 'A standard (B2B) invoice needs a customer with a VAT number and an address.',
+        'note_needs_invoice' => 'A credit or debit note must reference an issued invoice of the same company.',
+        'lines_required' => 'Add at least one line.',
+        'unit_not_ready' => 'Choose a unit that belongs to the company and holds a certificate.',
+        'company_vat' => 'Add the company’s VAT number and national address first (Structure → company).',
+        'csid_failed' => 'ZATCA refused the request: :message',
+    ],
+
+    'pdf' => [
+        'tax_invoice' => 'Tax Invoice', 'simplified_tax_invoice' => 'Simplified Tax Invoice', 'credit_note' => 'Credit Note', 'debit_note' => 'Debit Note',
+        'seller' => 'Seller', 'buyer' => 'Buyer', 'vat_no' => 'VAT No.', 'cr_no' => 'CR No.', 'date' => 'Date', 'number' => 'Invoice No.',
+        'description' => 'Description', 'qty' => 'Qty', 'unit_price' => 'Unit price', 'vat' => 'VAT', 'total' => 'Total',
+        'subtotal' => 'Subtotal (excl. VAT)', 'discount' => 'Discount', 'vat_total' => 'Total VAT', 'grand_total' => 'Total (incl. VAT)', 'rounding' => 'Rounding',
+    ],
+
+    'invoice_type' => ['standard' => 'Standard (B2B)', 'simplified' => 'Simplified (B2C)'],
+    'invoice_kind' => ['invoice' => 'Invoice', 'credit_note' => 'Credit note', 'debit_note' => 'Debit note'],
+    'invoice_status' => ['draft' => 'Draft', 'issued' => 'Issued', 'cleared' => 'Cleared', 'reported' => 'Reported', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled'],
+    'unit_status' => ['new' => 'New', 'compliance' => 'Compliance', 'production' => 'Production', 'revoked' => 'Revoked'],
+    'zatca_environment' => ['sandbox' => 'Sandbox', 'simulation' => 'Simulation', 'production' => 'Production'],
+];

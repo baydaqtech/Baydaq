@@ -11,6 +11,10 @@ use App\Http\Resources\Admin\InvoiceResource;
 use App\Http\Resources\Admin\ProjectResource;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Client;
+use App\Modules\Platform\Enums\Module;
+use App\Modules\Platform\Enums\SubscriptionStatus;
+use App\Modules\Platform\Models\Access\AccessRole;
+use App\Modules\Platform\Models\Subscription;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,10 +67,27 @@ class ClientController extends Controller
         ]);
 
         return $this->adminPage('Admin/Clients/Show', [
+            'copy' => ['admin' => trans('admin'), 'suite' => ['module' => trans('suite.module'), 'billing_unit' => trans('suite.billing_unit'), 'subscription_status' => trans('suite.subscription_status')]],
             'client' => new ClientResource($client),
             'users' => UserResource::collection($client->users),
             'projects' => ProjectResource::collection($client->projects),
             'invoices' => InvoiceResource::collection($client->invoices),
+            'subscriptions' => Subscription::forClient($client)->orderByDesc('starts_on')->get()->map(fn (Subscription $subscription): array => [
+                'id' => $subscription->id,
+                'module' => $subscription->module->value,
+                'status' => $subscription->status->value,
+                'billing_unit' => $subscription->billing_unit->value,
+                'quantity' => $subscription->quantity,
+                'unit_price' => $subscription->unit_price,
+                'starts_on' => $subscription->starts_on->toDateString(),
+                'ends_on' => $subscription->ends_on?->toDateString(),
+                'notes' => $subscription->notes,
+            ])->all(),
+            'suite' => [
+                'provisioned' => AccessRole::forClient($client)->where('key', AccessRole::OWNER_KEY)->exists(),
+                'modules' => Module::options(),
+                'statuses' => SubscriptionStatus::options(),
+            ],
         ]);
     }
 

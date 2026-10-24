@@ -1,0 +1,196 @@
+import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { Pencil, Plus } from 'lucide-react';
+import FormField from '@/components/platform/FormField';
+import PageHeader from '@/components/platform/PageHeader';
+import SelectInput from '@/components/platform/SelectInput';
+import FieldSchemaEditor from '@/components/hr/FieldSchemaEditor';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SuiteLayout from '@/layouts/SuiteLayout';
+import { useLocale, useT } from '@/lib/i18n';
+import { useAccess, useSuiteUrl } from '@/lib/suite';
+import type { CatalogItem, DocumentField } from '@/types/hr';
+import type { Option } from '@/types/resources';
+
+type Catalog = 'sections' | 'jobs' | 'allowance-types' | 'document-types' | 'bonus-types' | 'deduction-types' | 'leave-types';
+
+interface Props {
+  sections: CatalogItem[];
+  jobs: CatalogItem[];
+  allowance_types: CatalogItem[];
+  document_types: CatalogItem[];
+  bonus_types: CatalogItem[];
+  deduction_types: CatalogItem[];
+  leave_types: CatalogItem[];
+  companies: Option[];
+  calculations: Option[];
+  field_types: Option[];
+}
+
+function CheckList({ options, value, onChange }: { options: Option[]; value: number[]; onChange: (value: number[]) => void }) {
+  return (
+    <div className="flex flex-wrap gap-3">
+      {options.map((option) => (
+        <label key={option.value} className="flex items-center gap-2 text-sm">
+          <Checkbox checked={value.includes(Number(option.value))} onCheckedChange={(state) => onChange(state === true ? [...value, Number(option.value)] : value.filter((id) => id !== Number(option.value)))} />
+          {option.label}
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function ItemDialog({ catalog, item, sections, companies, calculations, fieldTypes }: { catalog: Catalog; item?: CatalogItem; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[] }) {
+  const t = useT();
+  const { dir } = useLocale();
+  const url = useSuiteUrl();
+  const [open, setOpen] = useState(false);
+  const f = (field: string) => t(`hr.catalog.fields.${field}`);
+  const form = useForm<{ name_ar: string; name_en: string; is_active: boolean; sort_order: number; section_ids: number[]; blocked_company_ids: number[]; calculation: string; default_value: string; counts_for_gosi: boolean; has_number: boolean; has_expiry: boolean; alert_days: string; fields: DocumentField[]; days_per_year: string; is_paid: boolean; needs_balance: boolean }>({
+    name_ar: item?.name_ar ?? '',
+    name_en: item?.name_en ?? '',
+    is_active: item?.is_active ?? true,
+    sort_order: item?.sort_order ?? 0,
+    section_ids: item?.section_ids ?? [],
+    blocked_company_ids: item?.blocked_company_ids ?? [],
+    calculation: item?.calculation ?? 'fixed',
+    default_value: item?.default_value ?? '0',
+    counts_for_gosi: item?.counts_for_gosi ?? false,
+    has_number: item?.has_number ?? true,
+    has_expiry: item?.has_expiry ?? true,
+    alert_days: (item?.alert_days ?? [90, 30, 7]).join(', '),
+    fields: item?.fields ?? [],
+    days_per_year: String(item?.days_per_year ?? '21'),
+    is_paid: (item?.is_paid as boolean | undefined) ?? true,
+    needs_balance: (item?.needs_balance as boolean | undefined) ?? true,
+  });
+  const { data, setData, errors } = form;
+  const titleKey = { sections: 'new_section', jobs: 'new_job', 'allowance-types': 'new_allowance_type', 'document-types': 'new_document_type', 'bonus-types': 'new_bonus_type', 'deduction-types': 'new_deduction_type', 'leave-types': 'new_leave_type' }[catalog];
+
+  function submit(event: React.FormEvent) {
+    event.preventDefault();
+    const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
+    form.transform((payload) => ({ ...payload, alert_days: payload.alert_days.split(',').map((value) => Number(value.trim())).filter(Boolean) }));
+    item ? form.put(url(`/hr/catalog/${catalog}/${item.id}`), options) : form.post(url(`/hr/catalog/${catalog}`), options);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {item ? <Button size="icon-sm" variant="ghost" aria-label={t('common.actions.edit')}><Pencil /></Button> : <Button size="sm"><Plus data-icon="inline-start" />{t(`hr.catalog.${titleKey}`)}</Button>}
+      </DialogTrigger>
+      <DialogContent dir={dir} className="max-w-2xl">
+        <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+          <DialogHeader className="sm:col-span-2"><DialogTitle>{item ? item.name : t(`hr.catalog.${titleKey}`)}</DialogTitle></DialogHeader>
+          <FormField label={f('name_ar')} error={errors.name_ar}><Input dir="rtl" value={data.name_ar} onChange={(event) => setData('name_ar', event.target.value)} /></FormField>
+          <FormField label={f('name_en')} error={errors.name_en}><Input dir="ltr" value={data.name_en} onChange={(event) => setData('name_en', event.target.value)} /></FormField>
+          {catalog === 'jobs' && (
+            <FormField label={t('hr.catalog.linked_sections')} error={errors.section_ids} className="sm:col-span-2">
+              <CheckList options={sections.map((section) => ({ value: section.id, label: section.name }))} value={data.section_ids} onChange={(value) => setData('section_ids', value)} />
+            </FormField>
+          )}
+          {(catalog === 'sections' || catalog === 'jobs') && companies.length > 1 && (
+            <FormField label={t('hr.catalog.blocked_in')} hint={t('hr.catalog.blocked_hint')} className="sm:col-span-2">
+              <CheckList options={companies} value={data.blocked_company_ids} onChange={(value) => setData('blocked_company_ids', value)} />
+            </FormField>
+          )}
+          {catalog === 'allowance-types' && (
+            <>
+              <FormField label={f('calculation')} error={errors.calculation}><SelectInput value={data.calculation} onChange={(value) => setData('calculation', value)} options={calculations} /></FormField>
+              <FormField label={f('default_value')} error={errors.default_value}><Input type="number" step="0.01" dir="ltr" value={data.default_value} onChange={(event) => setData('default_value', event.target.value)} /></FormField>
+              <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.counts_for_gosi} onCheckedChange={(state) => setData('counts_for_gosi', state === true)} />{f('counts_for_gosi')}</label>
+            </>
+          )}
+          {catalog === 'leave-types' && (
+            <>
+              <FormField label={t('hr.leave.fields.days_per_year')} error={errors.days_per_year}><Input type="number" step="0.5" dir="ltr" value={data.days_per_year} onChange={(event) => setData('days_per_year', event.target.value)} /></FormField>
+              <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.is_paid} onCheckedChange={(state) => setData('is_paid', state === true)} />{t('hr.leave.fields.is_paid')}</label>
+              <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.needs_balance} onCheckedChange={(state) => setData('needs_balance', state === true)} />{t('hr.leave.fields.needs_balance')}</label>
+            </>
+          )}
+          {catalog === 'document-types' && (
+            <>
+              <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.has_number} onCheckedChange={(state) => setData('has_number', state === true)} />{f('has_number')}</label>
+              <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.has_expiry} onCheckedChange={(state) => setData('has_expiry', state === true)} />{f('has_expiry')}</label>
+              {data.has_expiry && <FormField label={f('alert_days')} error={errors.alert_days} className="sm:col-span-2"><Input dir="ltr" value={data.alert_days} onChange={(event) => setData('alert_days', event.target.value)} placeholder="90, 30, 7" /></FormField>}
+              <FormField label={f('fields')} className="sm:col-span-2">
+                <FieldSchemaEditor fields={data.fields} onChange={(fields) => setData('fields', fields)} types={fieldTypes} errors={errors as Record<string, string>} />
+              </FormField>
+            </>
+          )}
+          <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.is_active} onCheckedChange={(state) => setData('is_active', state === true)} />{f('is_active')}</label>
+          <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: CatalogItem[]; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[] }) {
+  const t = useT();
+  const { can } = useAccess();
+  const companyName = (id: number) => rest.companies.find((company) => Number(company.value) === id)?.label ?? id;
+
+  return (
+    <>
+      <div className="mb-3 flex justify-end">{can('hr.catalog.create') && <ItemDialog catalog={catalog} {...rest} />}</div>
+      <Card><CardContent>
+        <ul className="divide-y">
+          {items.length === 0 && <li className="py-6 text-center text-sm text-muted-foreground">{t('common.actions.empty')}</li>}
+          {items.map((item) => (
+            <li key={item.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium">{item.name_ar}</span><bdi className="text-muted-foreground">{item.name_en}</bdi>
+                  {!item.is_active && <Badge variant="outline" className="text-muted-foreground">—</Badge>}
+                </div>
+                <div className="mt-1 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                  {item.sections?.map((section) => <Badge key={section} variant="outline">{section}</Badge>)}
+                  {item.blocked_company_ids?.map((id) => <Badge key={id} variant="outline" className="border-transparent bg-red-100 text-red-800">{t('hr.catalog.blocked_in')} {companyName(id)}</Badge>)}
+                  {item.calculation && <span>{t(`hr.allowance_calculation.${item.calculation}`)} · {item.default_value}</span>}
+                  {item.fields && item.fields.length > 0 && <span>{item.fields.length} {t('hr.catalog.fields.fields').toLowerCase()}</span>}
+                </div>
+              </div>
+              {can('hr.catalog.update') && <ItemDialog catalog={catalog} item={item} {...rest} />}
+            </li>
+          ))}
+        </ul>
+      </CardContent></Card>
+    </>
+  );
+}
+
+export default function CatalogIndex({ sections, jobs, allowance_types: allowanceTypes, document_types: documentTypes, bonus_types: bonusTypes, deduction_types: deductionTypes, leave_types: leaveTypes, companies, calculations, field_types: fieldTypes }: Props) {
+  const t = useT();
+  const shared = { sections, companies, calculations, fieldTypes };
+
+  return (
+    <SuiteLayout title={t('hr.catalog.title')}>
+      <PageHeader title={t('hr.catalog.title')} />
+      <Tabs defaultValue="sections">
+        <TabsList>
+          <TabsTrigger value="sections">{t('hr.catalog.sections')}</TabsTrigger>
+          <TabsTrigger value="jobs">{t('hr.catalog.jobs')}</TabsTrigger>
+          <TabsTrigger value="allowance-types">{t('hr.catalog.allowance_types')}</TabsTrigger>
+          <TabsTrigger value="document-types">{t('hr.catalog.document_types')}</TabsTrigger>
+          <TabsTrigger value="bonus-types">{t('hr.pay.bonuses')}</TabsTrigger>
+          <TabsTrigger value="deduction-types">{t('hr.pay.deductions')}</TabsTrigger>
+          <TabsTrigger value="leave-types">{t('hr.leave.types')}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="sections"><ItemList catalog="sections" items={sections} {...shared} /></TabsContent>
+        <TabsContent value="jobs"><ItemList catalog="jobs" items={jobs} {...shared} /></TabsContent>
+        <TabsContent value="allowance-types"><ItemList catalog="allowance-types" items={allowanceTypes} {...shared} /></TabsContent>
+        <TabsContent value="document-types"><ItemList catalog="document-types" items={documentTypes} {...shared} /></TabsContent>
+        <TabsContent value="bonus-types"><ItemList catalog="bonus-types" items={bonusTypes} {...shared} /></TabsContent>
+        <TabsContent value="deduction-types"><ItemList catalog="deduction-types" items={deductionTypes} {...shared} /></TabsContent>
+        <TabsContent value="leave-types"><ItemList catalog="leave-types" items={leaveTypes} {...shared} /></TabsContent>
+      </Tabs>
+    </SuiteLayout>
+  );
+}

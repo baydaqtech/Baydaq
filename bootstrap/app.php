@@ -3,10 +3,15 @@
 use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
+use App\Modules\Platform\Http\Middleware\EnsureModuleIsActive;
+use App\Modules\Platform\Http\Middleware\EnsureSuiteAccess;
+use App\Modules\Platform\Http\Middleware\ResolveApiTenant;
+use App\Modules\Platform\Http\Middleware\ResolveSuiteScope;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -14,6 +19,7 @@ use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -31,7 +37,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'password.changed' => EnsurePasswordIsChanged::class,
+            'suite.scope' => ResolveSuiteScope::class,
+            'api.tenant' => ResolveApiTenant::class,
+            'module' => EnsureModuleIsActive::class,
+            'access' => EnsureSuiteAccess::class,
         ]);
+
+        // The tenant and scope must exist before suite models are bound from the route.
+        $middleware->prependToPriorityList(before: SubstituteBindings::class, prepend: ResolveSuiteScope::class);
 
         // Signed-in users who open /login go to their own home (admin or portal).
         $middleware->redirectUsersTo(fn (Request $request): string => $request->user()?->homeUrl() ?? '/');

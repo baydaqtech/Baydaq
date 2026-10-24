@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Modules\Invoicing\Ports;
+
+use App\Modules\Invoicing\Data\IssuedInvoice;
+
+/**
+ * Other modules (POS, bookings, memberships) issue tax invoices here. Lines carry prices
+ * including VAT as the customer saw them; the issuer splits VAT out, signs and submits to ZATCA.
+ */
+interface InvoiceIssuer
+{
+    /**
+     * Issue a simplified (B2C) invoice through the company's unit. Returns the invoice even when
+     * ZATCA rejected it (status "rejected") so the caller can keep the sale and retry later.
+     *
+     * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price_incl_vat: numeric-string|float|int, vat_rate?: numeric-string|float|int, discount_incl_vat?: numeric-string|float|int}>  $lines
+     * @param  '10'|'30'|'42'|'48'  $paymentMeans
+     */
+    public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null): IssuedInvoice;
+
+    /** Whether the company has a unit able to issue right now (id of the first ready unit, or null). */
+    public function readyUnitFor(int $companyId): ?int;
+
+    /** @return list<array{id: int, name: string}> units of a company that hold a certificate */
+    public function unitsFor(int $companyId): array;
+}

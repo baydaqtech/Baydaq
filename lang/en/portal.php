@@ -7,6 +7,9 @@ return [
         'lede' => 'Follow your projects, services and invoices with Baydaq Tech.',
         'no_projects' => 'No projects yet. They appear here once the Baydaq team sets them up.',
         'services_count' => ':count services',
+        'statement' => 'Statement',
+        'business' => 'Business suite',
+        'business_text' => 'HR and the rest of your business modules: companies, branches, people and access.',
     ],
 
     'billing' => [
@@ -23,6 +26,21 @@ return [
         'status' => 'Status',
         'pdf' => 'Download PDF',
         'how_to_pay' => 'Pay by bank transfer; the account details are on the invoice PDF.',
+        'paid_this_year' => 'Paid this year',
+    ],
+
+    'statement' => [
+        'title' => 'Statement of account',
+        'lede' => 'Everything across your projects and your business suite.',
+        'subscriptions' => 'Business suite subscriptions',
+        'no_subscriptions' => 'No subscriptions yet.',
+        'renews' => 'Renews in :days days',
+        'ended' => 'Ended',
+        'module' => 'Module',
+        'quantity' => 'Quantity',
+        'period' => 'Period',
+        'yearly' => 'Per period',
+        'invoices' => 'Invoices',
     ],
 
     'project' => [
@@ -46,6 +64,10 @@ return [
         'team' => 'Your project team',
         'no_team' => 'The team will be added soon.',
         'no_files' => 'No files yet.',
+        'milestones' => 'Milestones',
+        'no_milestones' => 'Milestones will appear here as the team plans them.',
+        'done' => 'Done',
+        'due' => 'Due',
         'open' => 'Open',
     ],
 
@@ -57,7 +79,12 @@ return [
         'started_at' => 'Since',
         'docs' => 'Docs',
         'api_key' => 'API key',
-        'api_key_soon' => 'Available when the service API launches.',
+        'api_key_soon' => 'Not connected yet.',
+        'connected' => 'Connected',
+        'usage_month' => 'This month',
+        'usage_forecast' => 'Forecast',
+        'last_used' => 'Last activity',
+        'no_usage' => 'No usage recorded yet.',
         'per_unit' => 'per :unit',
         'request_more' => 'Need another service?',
     ],

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A catalog service turned on for one project, with its own plan and price.
@@ -41,6 +42,8 @@ class ProjectService extends Model
             'price' => 'decimal:2',
             'api_key' => 'encrypted',
             'started_at' => 'date',
+            'api_key_issued_at' => 'datetime',
+            'last_used_at' => 'datetime',
             'meta' => 'array',
         ];
     }
@@ -59,5 +62,18 @@ class ProjectService extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /**
+     * @return HasMany<ServiceUsage, $this>
+     */
+    public function usage(): HasMany
+    {
+        return $this->hasMany(ServiceUsage::class);
+    }
+
+    public function hasApiKey(): bool
+    {
+        return $this->api_key_issued_at !== null;
     }
 }

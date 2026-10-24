@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Permission;
 use App\Enums\Role;
+use App\Modules\Platform\Models\Access\AccessAssignment;
 use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -12,8 +13,10 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'locale'])]
@@ -21,7 +24,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements HasLocalePreference
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * Defaults matching the database, so a freshly created model has them loaded.
@@ -66,6 +69,16 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * Suite roles this user holds, each at one point of the client's tree.
+     *
+     * @return HasMany<AccessAssignment, $this>
+     */
+    public function accessAssignments(): HasMany
+    {
+        return $this->hasMany(AccessAssignment::class);
+    }
+
     public function preferredLocale(): string
     {
         return $this->locale;
@@ -104,11 +117,16 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * Where the user lands after signing in: the admin for the team, the portal for clients.
+     * Where the user lands after signing in: the admin for the team, the portal for client
+     * accounts (owners see Build and Business there), the suite for everyone else (employees).
      */
     public function homeUrl(): string
     {
-        return $this->isAdmin() ? route('admin.dashboard') : route('portal.home');
+        if ($this->isAdmin()) {
+            return route('admin.dashboard');
+        }
+
+        return $this->hasRole(Role::Client) ? route('portal.home') : route('suite.entry');
     }
 
     /**

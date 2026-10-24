@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
-import { ExternalLink, FilePlus2, Pause, Pencil, Play, Plus } from 'lucide-react';
+import { ExternalLink, FilePlus2, KeyRound, Pause, Pencil, Play, Plus } from 'lucide-react';
+import ConfirmAction from '@/components/platform/ConfirmAction';
 import DetailList from '@/components/platform/DetailList';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
@@ -116,6 +117,32 @@ function ServiceDialog({ project, options, availableServices, existing }) {
           <DialogFooter>
             <Button type="submit" disabled={form.processing}>{t('admin.common.save')}</Button>
           </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function UsageDialog({ project, projectService }) {
+  const t = useT();
+  const { dir } = useLocale();
+  const [open, setOpen] = useState(false);
+  const form = useForm({ quantity: '', date: new Date().toISOString().slice(0, 10) });
+  const s = (field) => t(`admin.projects.services.${field}`);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button size="xs" variant="ghost">{s('record_usage')}</Button></DialogTrigger>
+      <DialogContent dir={dir}>
+        <form onSubmit={(event) => { event.preventDefault(); form.post(`/admin/projects/${project.slug}/services/${projectService.id}/usage`, { preserveScroll: true, onSuccess: () => setOpen(false) }); }} className="flex flex-col gap-4">
+          <DialogHeader><DialogTitle>{s('record_usage')} · {projectService.service.name}</DialogTitle></DialogHeader>
+          <FormField label={s('quantity')} htmlFor="usage-quantity" error={form.errors.quantity}>
+            <Input id="usage-quantity" type="number" step="0.01" dir="ltr" value={form.data.quantity} onChange={(event) => form.setData('quantity', event.target.value)} />
+          </FormField>
+          <FormField label={s('date')} htmlFor="usage-date" error={form.errors.date}>
+            <Input id="usage-date" type="date" dir="ltr" value={form.data.date} onChange={(event) => form.setData('date', event.target.value)} />
+          </FormField>
+          <DialogFooter><Button type="submit" disabled={form.processing}>{t('admin.common.save')}</Button></DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
@@ -299,9 +326,17 @@ export default function ProjectShow({ project, tab, availableServices, options }
                     { label: s('started_at'), value: formatDate(projectService.started_at, locale) },
                   ]} />
                   {projectService.notes && <p className="text-sm text-muted-foreground">{projectService.notes}</p>}
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <KeyRound className="size-3.5" />{projectService.connected ? s('connected') : s('not_connected')}
+                    {projectService.last_used_at && <span>· {formatDate(projectService.last_used_at, locale)}</span>}
+                  </div>
                   {manage && (
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                       <ServiceDialog project={project} options={options} availableServices={availableServices} existing={projectService} />
+                      <ConfirmAction href={`/admin/projects/${project.slug}/services/${projectService.id}/key`} method="post" size="xs" variant="ghost" title={projectService.connected ? s('rotate_key') : s('issue_key')}>
+                        {projectService.connected ? s('rotate_key') : s('issue_key')}
+                      </ConfirmAction>
+                      <UsageDialog project={project} projectService={projectService} />
                       <Button size="xs" variant="ghost" onClick={() => toggleService(projectService)}>
                         {projectService.status === 'active'
                           ? <><Pause data-icon="inline-start" />{s('pause')}</>

@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Modules\Pos;
+
+use App\Modules\Platform\Access\FeatureRegistry;
+use App\Modules\Pos\Enums\PosFeature;
+use Illuminate\Support\ServiceProvider;
+
+/**
+ * Point of sale and QR menus. Uses HR's StaffDirectory for cashiers and Invoicing's
+ * InvoiceIssuer for receipts; never their tables.
+ */
+class PosServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
+        $this->app->make(FeatureRegistry::class)->register(PosFeature::class);
+
+        if (file_exists(__DIR__.'/routes.php')) {
+            $this->loadRoutesFrom(__DIR__.'/routes.php');
+        }
+    }
+}

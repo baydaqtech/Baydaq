@@ -38,6 +38,12 @@ class ProjectResource extends JsonResource
             'app_url' => $this->app_url,
             'services_count' => $this->whenCounted('projectServices'),
             'team' => $this->whenLoaded('resources', fn () => $this->resources->map->only(['name', 'role'])),
+            'milestones' => $this->whenLoaded('milestones', fn () => $this->milestones->map(fn ($milestone) => [
+                'title' => $milestone->title,
+                'description' => $milestone->description,
+                'due_date' => $milestone->due_date?->toDateString(),
+                'done_at' => $milestone->done_at?->toDateString(),
+            ])),
             'files' => $this->whenLoaded('files', fn () => $this->files->map(fn ($file) => [
                 'title' => $file->title,
                 'url' => $file->url,

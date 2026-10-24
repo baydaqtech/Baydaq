@@ -1,0 +1,96 @@
+<?php
+
+return [
+    'title' => 'Subscriptions',
+    'features' => ['plans' => 'Membership plans', 'members' => 'Members and memberships', 'check_ins' => 'Check-in at the door'],
+    'abilities' => ['sell' => 'Sell and renew memberships', 'freeze' => 'Freeze memberships', 'cancel' => 'Cancel memberships', 'check_in' => 'Check members in'],
+
+    'plans' => [
+        'title' => 'Plans',
+        'new' => 'New plan',
+        'saved' => 'Plan saved.',
+        'none' => 'No plans yet.',
+        'all_branches' => 'All branches',
+        'unlimited' => 'Unlimited',
+        'every' => 'Every :count :unit',
+        'fields' => [
+            'company' => 'Company', 'name_ar' => 'Name (Arabic)', 'name_en' => 'Name (English)', 'description_ar' => 'Description (Arabic)', 'description_en' => 'Description (English)',
+            'period_count' => 'Length', 'period_unit' => 'Unit', 'price' => 'Price (incl. VAT)', 'vat_rate' => 'VAT %', 'sessions' => 'Visits included (empty = unlimited)',
+            'freeze_days' => 'Freeze days allowed', 'gender' => 'Members', 'is_active' => 'On sale', 'branches' => 'Valid at (none = all branches)', 'period' => 'Period',
+        ],
+    ],
+
+    'members' => [
+        'title' => 'Members',
+        'new' => 'New member',
+        'saved' => 'Member saved.',
+        'sold' => 'Membership sold.',
+        'frozen' => 'Membership frozen; the end date moved out.',
+        'cancelled' => 'Membership cancelled.',
+        'none' => 'No members yet.',
+        'no_membership' => 'No current membership',
+        'memberships' => 'Memberships',
+        'check_ins' => 'Visits',
+        'sell' => 'Sell a membership',
+        'renew' => 'Renew',
+        'freeze' => 'Freeze',
+        'cancel' => 'Cancel',
+        'card' => 'Member card',
+        'copy_card' => 'Copy card link',
+        'copied' => 'Link copied.',
+        'current' => 'Current',
+        'frozen_now' => 'Frozen today',
+        'sessions_left' => ':count visits left',
+        'freeze_left' => ':count freeze days left',
+        'filters' => ['active' => 'With a current membership', 'lapsed' => 'Without a membership'],
+        'fields' => [
+            'company' => 'Company', 'number' => 'No.', 'name' => 'Name', 'phone' => 'Mobile', 'email' => 'Email', 'gender' => 'Gender', 'birth_date' => 'Birth date', 'note' => 'Note', 'is_active' => 'Active',
+            'plan' => 'Plan', 'starts_on' => 'Starts', 'ends_on' => 'Ends', 'status' => 'Status', 'price' => 'Price', 'payment_means' => 'Paid by', 'reason' => 'Reason', 'from' => 'From', 'to' => 'To',
+            'time' => 'Time', 'branch' => 'Branch', 'result' => 'Result',
+        ],
+        'genders' => ['male' => 'Male', 'female' => 'Female'],
+    ],
+
+    'check_in' => [
+        'title' => 'Check-in',
+        'code' => 'Card code or member number',
+        'submit' => 'Check in',
+        'welcome' => 'Welcome, :name',
+        'until' => 'Valid until :date',
+        'recent' => 'Today at this branch',
+        'none' => 'No visits yet today.',
+        'no_branch' => 'You have no branch with check-in.',
+    ],
+
+    'card' => [
+        'title' => 'Member card',
+        'show_at_door' => 'Show this code at the front desk.',
+        'valid_until' => 'Valid until :date',
+        'starts' => 'Starts on :date',
+        'visits_left' => ':count visits left',
+        'frozen' => 'Frozen today',
+        'none' => 'No current membership. Ask at the front desk to renew.',
+    ],
+
+    'errors' => [
+        'phone_taken' => 'A member with this mobile number already exists.',
+        'plan_unavailable' => 'This plan is not on sale for this member.',
+        'plan_gender' => 'This plan is for a different members section.',
+        'start_in_past' => 'A membership cannot start in the past.',
+        'overlap' => 'This member already has a membership in that period.',
+        'not_active' => 'Only active memberships can be changed.',
+        'freeze_dates' => 'Choose freeze dates from today onwards, within the membership.',
+        'freeze_allowance' => 'Only :days freeze days are left on this membership.',
+        'freeze_overlap' => 'These dates overlap an existing freeze.',
+        'branch_company' => 'Choose branches of the plan\'s company.',
+    ],
+
+    'period_unit' => ['day' => 'day(s)', 'week' => 'week(s)', 'month' => 'month(s)', 'year' => 'year(s)'],
+    'plan_gender' => ['any' => 'Everyone', 'male' => 'Men', 'female' => 'Women'],
+    'membership_status' => ['active' => 'Active', 'expired' => 'Expired', 'cancelled' => 'Cancelled'],
+    'check_in_result' => [
+        'allowed' => 'Welcome in', 'repeat' => 'Already checked in', 'unknown_card' => 'Unknown card', 'inactive' => 'Member is suspended', 'no_membership' => 'No current membership',
+        'not_started' => 'Membership has not started yet', 'frozen' => 'Membership is frozen today', 'no_sessions' => 'No visits left', 'wrong_branch' => 'Not valid at this branch',
+    ],
+    'payment_means' => ['10' => 'Cash', '48' => 'Card (mada)', '42' => 'Bank transfer'],
+];

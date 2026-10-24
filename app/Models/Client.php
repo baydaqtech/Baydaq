@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\ClientStatus;
 use App\Models\Concerns\HasBilingualFields;
+use App\Modules\Platform\Models\Organization;
+use App\Modules\Platform\Models\Subscription;
 use Database\Factories\ClientFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -60,5 +62,25 @@ class Client extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * The client's suite tree (read within the client as tenant).
+     *
+     * @return HasMany<Organization, $this>
+     */
+    public function organizations(): HasMany
+    {
+        return $this->hasMany(Organization::class);
+    }
+
+    /**
+     * Modules the client has bought.
+     *
+     * @return HasMany<Subscription, $this>
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 }

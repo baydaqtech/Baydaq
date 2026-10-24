@@ -15,7 +15,7 @@ trait RendersAdminPages
      */
     protected function adminPage(string $component, array $props = []): Response
     {
-        return Inertia::render($component, [...$props, 'copy' => ['admin' => trans('admin')]]);
+        return Inertia::render($component, ['copy' => ['admin' => trans('admin')], ...$props]);
     }
 
     /**

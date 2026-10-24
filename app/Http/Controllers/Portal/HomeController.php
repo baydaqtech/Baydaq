@@ -8,6 +8,7 @@ use App\Http\Resources\Portal\InvoiceResource;
 use App\Http\Resources\Portal\ProjectResource;
 use App\Models\Invoice;
 use App\Models\Project;
+use App\Modules\Platform\Models\Access\AccessAssignment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,6 +34,8 @@ class HomeController extends Controller
                 'due' => (string) (clone $invoices)->outstanding()->sum('total'),
                 'overdue' => (string) (clone $invoices)->where('status', InvoiceStatus::Overdue)->sum('total'),
             ],
+            // Owners (and anyone granted a suite role) get a door into the business suite.
+            'suite_url' => AccessAssignment::forClient($clientId)->where('user_id', $request->user()->id)->exists() ? route('suite.entry') : null,
             'copy' => ['portal' => trans('portal')],
         ]);
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Services\IssueApiKey;
+use App\Actions\Usage\RecordUsage;
 use App\Enums\PricingModel;
 use App\Enums\ProjectServiceStatus;
 use App\Http\Controllers\Concerns\RendersAdminPages;
@@ -41,6 +43,33 @@ class ProjectServiceController extends Controller
             'status' => ['required', Rule::enum(ProjectServiceStatus::class)],
         ]));
         $this->toast(__('admin.projects.services.updated'));
+
+        return back();
+    }
+
+    /**
+     * Issue (or rotate) the key Baydaq's service backend reports usage with. Shown once, in the toast.
+     */
+    public function issueKey(Project $project, ProjectService $projectService, IssueApiKey $issueApiKey): RedirectResponse
+    {
+        abort_unless($projectService->project_id === $project->id, 404);
+
+        $key = $issueApiKey->handle($projectService);
+        $this->toast(__('admin.projects.services.key_issued', ['key' => $key]), 'info');
+
+        return back();
+    }
+
+    /**
+     * Hand-entered usage, for services whose backend does not report yet.
+     */
+    public function recordUsage(Request $request, Project $project, ProjectService $projectService, RecordUsage $recordUsage): RedirectResponse
+    {
+        abort_unless($projectService->project_id === $project->id, 404);
+        $data = $request->validate(['quantity' => ['required', 'numeric', 'min:0.01'], 'date' => ['required', 'date', 'before_or_equal:today']]);
+
+        $recordUsage->handle($projectService, $data['quantity'], $data['date'], 'manual');
+        $this->toast(__('admin.projects.services.usage_recorded'));
 
         return back();
     }

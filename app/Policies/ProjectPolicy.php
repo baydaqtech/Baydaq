@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\Permission;
+use App\Enums\Role;
 use App\Models\Project;
 use App\Models\User;
 
@@ -17,7 +18,8 @@ class ProjectPolicy
     }
 
     /**
-     * The team with project access, or a user of the client that owns the project.
+     * The team with project access, or a client account of the client that owns the project.
+     * Suite users (employees) share the client_id but are not client accounts.
      */
     public function view(User $user, Project $project): bool
     {
@@ -25,6 +27,6 @@ class ProjectPolicy
             return $this->viewAny($user);
         }
 
-        return $user->client_id !== null && $user->client_id === $project->client_id;
+        return $user->hasRole(Role::Client) && $user->client_id !== null && $user->client_id === $project->client_id;
     }
 }

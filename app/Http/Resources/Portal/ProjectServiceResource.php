@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * A service the client's project uses. API keys arrive with the service APIs (phase 3)
- * and are never part of a page.
+ * A service the client's project uses. The key itself stays with Baydaq's backends; the client
+ * sees whether the service is connected and what it used.
  *
  * @mixin ProjectService
  */
@@ -33,6 +33,8 @@ class ProjectServiceResource extends JsonResource
             'price' => $this->price,
             'pricing_model' => $this->pricing_model->value,
             'started_at' => $this->started_at?->toDateString(),
+            'connected' => $this->hasApiKey(),
+            'last_used_at' => $this->last_used_at?->toIso8601String(),
         ];
     }
 }

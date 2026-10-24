@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\Permission;
+use App\Enums\Role;
 use App\Models\Invoice;
 use App\Models\User;
 
@@ -23,7 +24,8 @@ class InvoicePolicy
     }
 
     /**
-     * The team with invoice access, or the client the invoice was issued to.
+     * The team with invoice access, or a client account of the client the invoice was issued to.
+     * Suite users (employees) share the client_id but are not client accounts.
      */
     public function view(User $user, Invoice $invoice): bool
     {
@@ -31,7 +33,8 @@ class InvoicePolicy
             return $this->viewAny($user);
         }
 
-        return $user->client_id !== null
+        return $user->hasRole(Role::Client)
+            && $user->client_id !== null
             && $user->client_id === $invoice->client_id
             && in_array($invoice->status, self::VISIBLE_TO_CLIENTS, true);
     }

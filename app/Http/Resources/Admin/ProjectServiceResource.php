@@ -35,6 +35,8 @@ class ProjectServiceResource extends JsonResource
             'price' => $this->price,
             'pricing_model' => $this->pricing_model->value,
             'started_at' => $this->started_at?->toDateString(),
+            'connected' => $this->hasApiKey(),
+            'last_used_at' => $this->last_used_at?->toIso8601String(),
             'notes' => $this->notes,
         ];
     }

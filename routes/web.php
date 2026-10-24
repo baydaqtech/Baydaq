@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
+use App\Http\Controllers\Admin\ClientSubscriptionController;
+use App\Http\Controllers\Admin\ClientSuiteController;
 use App\Http\Controllers\Admin\ClientUserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Portal\HomeController;
 use App\Http\Controllers\Portal\ProjectController as PortalProjectController;
+use App\Http\Controllers\Portal\StatementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\ServiceCatalogController;
@@ -72,6 +75,10 @@ Route::prefix('admin')
             Route::put('/clients/{client}', [AdminClientController::class, 'update'])->name('clients.update');
             Route::post('/clients/{client}/users', [ClientUserController::class, 'store'])->name('clients.users.store');
             Route::post('/clients/{client}/users/{user}/invite', [ClientUserController::class, 'resendInvite'])->name('clients.users.invite');
+            Route::post('/clients/{client}/suite', [ClientSuiteController::class, 'provision'])->name('clients.suite.provision');
+            Route::post('/clients/{client}/subscriptions', [ClientSubscriptionController::class, 'store'])->name('clients.subscriptions.store');
+            Route::put('/clients/{client}/subscriptions/{subscription}', [ClientSubscriptionController::class, 'update'])->name('clients.subscriptions.update');
+            Route::post('/clients/{client}/subscriptions/{subscription}/invoice', [ClientSubscriptionController::class, 'invoice'])->name('clients.subscriptions.invoice');
         });
         Route::middleware('permission:clients.view|clients.manage')->group(function () {
             Route::get('/clients', [AdminClientController::class, 'index'])->name('clients.index');
@@ -88,6 +95,8 @@ Route::prefix('admin')
             Route::put('/projects/{project}/files', [ProjectItemsController::class, 'files'])->name('projects.files');
             Route::post('/projects/{project}/services', [ProjectServiceController::class, 'store'])->name('projects.services.store');
             Route::put('/projects/{project}/services/{projectService}', [ProjectServiceController::class, 'update'])->name('projects.services.update');
+            Route::post('/projects/{project}/services/{projectService}/key', [ProjectServiceController::class, 'issueKey'])->name('projects.services.key');
+            Route::post('/projects/{project}/services/{projectService}/usage', [ProjectServiceController::class, 'recordUsage'])->name('projects.services.usage');
         });
         Route::middleware('permission:projects.view|projects.manage')->group(function () {
             Route::get('/projects', [AdminProjectController::class, 'index'])->name('projects.index');
@@ -152,5 +161,6 @@ Route::prefix('app')
     ->group(function () {
         Route::get('/', HomeController::class)->name('home');
         Route::get('/projects/{project}', [PortalProjectController::class, 'show'])->name('projects.show');
+        Route::get('/statement', StatementController::class)->name('statement');
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
     });
