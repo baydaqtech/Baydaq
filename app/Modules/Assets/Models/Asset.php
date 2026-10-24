@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * A tagged item the company owns, kept at a branch and possibly held by an employee.
  */
 #[Table('ast__assets')]
-#[Fillable(['category_id', 'name_ar', 'name_en', 'serial', 'model', 'purchase_date', 'cost', 'salvage_value', 'useful_life_months', 'notes'])]
+#[Fillable(['category_id', 'warehouse_id', 'name_ar', 'name_en', 'serial', 'model', 'purchase_date', 'cost', 'salvage_value', 'useful_life_months', 'notes'])]
 class Asset extends Model
 {
     use BelongsToClient, HasBilingualFields;

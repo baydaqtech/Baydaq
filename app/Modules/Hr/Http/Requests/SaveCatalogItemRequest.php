@@ -4,6 +4,8 @@ namespace App\Modules\Hr\Http\Requests;
 
 use App\Modules\Hr\Enums\AllowanceCalculation;
 use App\Modules\Hr\Enums\DocumentFieldType;
+use App\Modules\Hr\Enums\LeaveAccrual;
+use App\Modules\Hr\Enums\LeaveYearBasis;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -47,6 +49,12 @@ class SaveCatalogItemRequest extends FormRequest
             'bonus-types', 'deduction-types' => [],
             'leave-types' => [
                 'days_per_year' => ['required', 'numeric', 'min:0', 'max:365'],
+                'senior_days_per_year' => ['nullable', 'numeric', 'min:0', 'max:365', 'required_with:senior_after_years'],
+                'senior_after_years' => ['nullable', 'integer', 'min:1', 'max:50', 'required_with:senior_days_per_year'],
+                'accrual' => ['required', Rule::enum(LeaveAccrual::class)],
+                'year_basis' => ['required', Rule::enum(LeaveYearBasis::class)],
+                'carry_over_days' => ['nullable', 'numeric', 'min:0', 'max:365'],
+                'allow_negative' => ['boolean'],
                 'is_paid' => ['boolean'],
                 'needs_balance' => ['boolean'],
             ],

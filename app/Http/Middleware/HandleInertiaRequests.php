@@ -26,7 +26,7 @@ class HandleInertiaRequests extends Middleware
         'admin', 'admin/*',
         'app', 'app/*',
         'suite', 'suite/*',
-        'menu/*', 'book/*', 'card/*',
+        'menu/*', 'book/*', 'card/*', 'me', 'me/*',
         'login', 'logout',
         'forgot-password', 'reset-password', 'reset-password/*',
         'account/*', 'password/*',

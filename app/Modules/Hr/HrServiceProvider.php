@@ -2,12 +2,14 @@
 
 namespace App\Modules\Hr;
 
+use App\Modules\Hr\Adapters\EmployeePayrollAdjustments;
 use App\Modules\Hr\Adapters\EmployeeStaffAvailability;
 use App\Modules\Hr\Adapters\EmployeeStaffDirectory;
 use App\Modules\Hr\Console\ApplyMovements;
 use App\Modules\Hr\Console\NotifyExpiringDocuments;
 use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Ports\OffboardingClearance;
+use App\Modules\Hr\Ports\PayrollAdjustments;
 use App\Modules\Hr\Ports\StaffAvailability;
 use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Platform\Access\FeatureRegistry;
@@ -25,6 +27,7 @@ class HrServiceProvider extends ServiceProvider
         $this->app->bind(StaffDirectory::class, EmployeeStaffDirectory::class);
         $this->app->bind(StaffAvailability::class, EmployeeStaffAvailability::class);
         $this->app->singleton(OffboardingClearance::class);
+        $this->app->bind(PayrollAdjustments::class, EmployeePayrollAdjustments::class);
     }
 
     public function boot(): void

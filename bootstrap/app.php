@@ -45,6 +45,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // The tenant and scope must exist before suite models are bound from the route.
         $middleware->prependToPriorityList(before: SubstituteBindings::class, prepend: ResolveSuiteScope::class);
+        // Same for the app and /me: the tenant must be known before models in the URL are looked up.
+        $middleware->prependToPriorityList(before: SubstituteBindings::class, prepend: ResolveApiTenant::class);
 
         // Signed-in users who open /login go to their own home (admin or portal).
         $middleware->redirectUsersTo(fn (Request $request): string => $request->user()?->homeUrl() ?? '/');

@@ -94,4 +94,18 @@ return [
         'password' => env('ADMIN_PASSWORD'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Assets and inventory
+    |--------------------------------------------------------------------------
+    |
+    | Handover and incident photos live on a private disk ("assets" locally,
+    | "assets-s3" on Cloud) and are shown through signed links that expire.
+    |
+    */
+
+    'assets' => [
+        'disk' => env('ASSETS_DISK', 'assets'),
+        'photo_max_kb' => 8192,
+    ],
 ];

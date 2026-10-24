@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, CreditCard, DoorOpen, Package, ScanLine, UserRound, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -36,6 +36,11 @@ const NAV = [
   { path: '/subscriptions/check-in', label: 'suite.module_nav.subscriptions.check_in', icon: DoorOpen, module: 'subscriptions', keys: ['subscriptions.check_ins.view', 'subscriptions.check_ins.check_in'] },
   { path: '/subscriptions/plans', label: 'suite.module_nav.subscriptions.plans', icon: CreditCard, module: 'subscriptions', keys: ['subscriptions.plans.view', 'subscriptions.plans.create', 'subscriptions.plans.update'] },
   { path: '/assets/audits', label: 'suite.module_nav.assets.audits', icon: ScanLine, module: 'assets', keys: ['assets.audits.view'] },
+  { path: '/assets/inventory/items', label: 'suite.module_nav.assets.items', icon: Boxes, module: 'assets', keys: ['assets.inventory.view'] },
+  { path: '/assets/inventory/warehouses', label: 'suite.module_nav.assets.warehouses', icon: Warehouse, module: 'assets', keys: ['assets.inventory.view'] },
+  { path: '/assets/inventory/transfers', label: 'suite.module_nav.assets.transfers', icon: Truck, module: 'assets', keys: ['assets.transfers.view', 'assets.transfers.create'] },
+  { path: '/assets/inventory/handovers', label: 'suite.module_nav.assets.handovers', icon: Handshake, module: 'assets', keys: ['assets.handovers.view', 'assets.handovers.create'] },
+  { path: '/assets/inventory/incidents', label: 'suite.module_nav.assets.incidents', icon: ShieldAlert, module: 'assets', keys: ['assets.incidents.view', 'assets.incidents.resolve'] },
   { path: '/assets', label: 'suite.module_nav.assets.register', icon: Package, module: 'assets', keys: ['assets.register.view'] },
 ];
 

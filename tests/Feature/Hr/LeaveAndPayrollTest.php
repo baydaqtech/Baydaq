@@ -58,27 +58,32 @@ class LeaveAndPayrollTest extends TestCase
             ]);
         }
 
-        $this->annual = (new LeaveType(['name_ar' => 'سنوية', 'name_en' => 'Annual', 'days_per_year' => '21']))->forceFill(['client_id' => $this->client->id]);
+        $this->annual = (new LeaveType(['name_ar' => 'سنوية', 'name_en' => 'Annual', 'days_per_year' => '21', 'senior_days_per_year' => '30', 'senior_after_years' => 5]))->forceFill(['client_id' => $this->client->id]);
         $this->annual->save();
         $this->unpaid = (new LeaveType(['name_ar' => 'بدون راتب', 'name_en' => 'Unpaid', 'days_per_year' => '0', 'is_paid' => false, 'needs_balance' => false]))->forceFill(['client_id' => $this->client->id]);
         $this->unpaid->save();
     }
 
-    public function test_leave_balance_accrues_monthly_and_rises_after_five_years(): void
+    public function test_leave_balance_accrues_monthly_carries_over_and_rises_after_five_years(): void
     {
-        // Hired 2024: full year → 21 days accrued over 11 months so far (Jan–Nov).
-        $this->assertSame('19.25', app(LeaveBalance::class)->handle($this->saudi, $this->annual)['entitled']);
-        // Hired 2020: more than five years → 30 days a year.
-        $this->assertSame('27.50', app(LeaveBalance::class)->handle($this->expat, $this->annual)['entitled']);
+        // Hired 2024: 21 days in 2024 and 2025 carried, then 21 ÷ 12 × 10 completed months (Jan–Oct).
+        $saudi = app(LeaveBalance::class)->handle($this->saudi, $this->annual);
+        $this->assertSame(['42.00', '17.50', '59.50', '21.00', 10], [$saudi['carried'], $saudi['accrued'], $saudi['entitled'], $saudi['rate'], $saudi['units']]);
+
+        // Hired March 2020: 30 days a year from March 2025 (five years of service).
+        $expat = app(LeaveBalance::class)->handle($this->expat, $this->annual);
+        $this->assertSame(['25.00', '30.00', '2025-03-01'], [$expat['accrued'], $expat['rate'], $expat['senior_from']]);
+        $this->assertSame('130.00', $expat['carried']); // 17.50 (2020) + 4 × 21 + 28.50 (2025: two months at 21, ten at 30)
     }
 
     public function test_leave_requests_respect_balance_and_overlaps(): void
     {
+        $this->annual->forceFill(['carry_over_days' => 0])->save(); // nothing rolls over: only this year's 17.50
         $leave = app(RequestLeave::class)->handle($this->saudi, $this->annual, ['starts_on' => '2026-11-20', 'ends_on' => '2026-11-24'], $this->owner);
         $this->assertSame('5.00', (string) $leave->days);
 
         app(DecideLeave::class)->handle($leave, LeaveStatus::Approved, null, $this->owner);
-        $this->assertSame('14.25', app(LeaveBalance::class)->handle($this->saudi, $this->annual)['available']);
+        $this->assertSame('12.50', app(LeaveBalance::class)->handle($this->saudi, $this->annual)['available']);
 
         try {
             app(RequestLeave::class)->handle($this->saudi, $this->annual, ['starts_on' => '2026-11-23', 'ends_on' => '2026-11-25']);

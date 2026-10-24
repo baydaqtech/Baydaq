@@ -3,6 +3,7 @@
 namespace Tests\Feature\Suite;
 
 use App\Models\User;
+use App\Modules\Platform\Enums\ScopeLevel;
 use App\Modules\Platform\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +60,9 @@ class ModuleAccessTest extends TestCase
         $employee = User::factory()->create(['client_id' => $this->client->id]);
 
         $this->actingAs($employee)->get('/app')->assertForbidden();
-        $this->actingAs($employee)->get('/login')->assertRedirect(route('suite.entry'));
+        $this->actingAs($employee)->get('/login')->assertRedirect(route('me.home')); // no role in the suite: their own page
+
+        $manager = $this->memberWith(['suite.structure.view'], ScopeLevel::Client);
+        $this->actingAs($manager)->get('/login')->assertRedirect(route('suite.entry'));
     }
 }

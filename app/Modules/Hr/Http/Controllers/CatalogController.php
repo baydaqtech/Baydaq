@@ -9,6 +9,8 @@ use App\Modules\Hr\Actions\Catalog\SaveJob;
 use App\Modules\Hr\Actions\Catalog\SaveSection;
 use App\Modules\Hr\Enums\AllowanceCalculation;
 use App\Modules\Hr\Enums\DocumentFieldType;
+use App\Modules\Hr\Enums\LeaveAccrual;
+use App\Modules\Hr\Enums\LeaveYearBasis;
 use App\Modules\Hr\Http\Requests\SaveCatalogItemRequest;
 use App\Modules\Hr\Http\Resources\CatalogResource;
 use App\Modules\Hr\Models\AllowanceType;
@@ -52,6 +54,8 @@ class CatalogController extends Controller
             'companies' => collect($directory->companies())->map(fn (CompanyRef $company): array => ['value' => $company->id, 'label' => $company->name])->all(),
             'calculations' => AllowanceCalculation::options(),
             'field_types' => DocumentFieldType::options(),
+            'leave_accruals' => LeaveAccrual::options(),
+            'leave_year_bases' => LeaveYearBasis::options(),
         ], ['hr']);
     }
 

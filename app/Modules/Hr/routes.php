@@ -11,7 +11,14 @@ use App\Modules\Hr\Http\Controllers\MovementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
+use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use Illuminate\Support\Facades\Route;
+
+// An employee's own page (with or without a role in the suite).
+Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
+    Route::get('/', [SelfServiceController::class, 'show'])->name('home');
+    Route::post('/leave', [SelfServiceController::class, 'requestLeave'])->middleware('throttle:10,1')->name('leave.store');
+});
 
 /*
 | HR pages live under /suite/{scope}/hr and need an active HR subscription. Change routes come
@@ -70,6 +77,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         // Leave.
         Route::post('/employees/{employee}/leave', [LeaveController::class, 'store'])->middleware('access:hr.leave.create')->name('leave.store');
         Route::put('/leave/{leave}', [LeaveController::class, 'decide'])->middleware('access:hr.leave.approve')->name('leave.decide');
+        Route::post('/employees/{employee}/leave-adjustments', [LeaveController::class, 'adjust'])->middleware('access:hr.leave.approve')->name('leave.adjust');
         Route::get('/leave', [LeaveController::class, 'index'])->middleware('access:hr.leave.view|hr.leave.approve')->name('leave.index');
 
         // Payroll.

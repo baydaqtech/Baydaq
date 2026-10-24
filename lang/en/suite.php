@@ -30,7 +30,7 @@ return [
         'pos' => ['sell' => 'Sell', 'orders' => 'Orders', 'kitchen' => 'Kitchen', 'catalog' => 'Catalog', 'registers' => 'Registers'],
         'reservations' => ['calendar' => 'Calendar', 'bookings' => 'Bookings', 'catalog' => 'Services'],
         'subscriptions' => ['members' => 'Members', 'check_in' => 'Check-in', 'plans' => 'Plans'],
-        'assets' => ['register' => 'Assets', 'audits' => 'Stock-takes', 'categories' => 'Asset categories'],
+        'assets' => ['register' => 'Assets', 'audits' => 'Stock-takes', 'categories' => 'Asset categories', 'items' => 'Items', 'warehouses' => 'Warehouses', 'transfers' => 'Transfers', 'handovers' => 'Handovers', 'incidents' => 'Incidents'],
     ],
 
     'nav' => [

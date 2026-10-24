@@ -67,7 +67,7 @@ class PayrollPagesTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->has('pay.bonuses', 1)->where('pay.bonuses.0.status', 'pending')
                 ->has('pay.advances', 1)->has('pay.advances.0.schedule', 2)
-                ->has('leave.requests', 1)->has('leave.balances', 1)->where('leave.balances.0.entitled', '19.25'));
+                ->has('leave.requests', 1)->has('leave.balances', 1)->where('leave.balances.0.carried', '21.00')->where('leave.balances.0.entitled', '38.50')->where('leave.balances.0.pending', '3.00'));
 
         $leaveId = $this->employee->leaveRequests()->value('id');
         $this->actingAs($this->owner)->put($this->hrUrl("leave/{$leaveId}"), ['status' => 'approved'])->assertRedirect();

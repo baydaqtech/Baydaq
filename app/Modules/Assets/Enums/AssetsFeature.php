@@ -13,6 +13,10 @@ enum AssetsFeature: string implements Feature
     case Register = 'register';       // assets, categories, custody, disposal
     case Maintenance = 'maintenance'; // repair and service jobs
     case Audits = 'audits';           // stock-takes
+    case Inventory = 'inventory';     // units, items, warehouses, stock receipts and counts
+    case Transfers = 'transfers';     // warehouse to warehouse
+    case Handovers = 'handovers';     // between a warehouse and people, or between people
+    case Incidents = 'incidents';     // broken, lost, stolen… and how they were settled
 
     public static function group(): string
     {
@@ -30,6 +34,9 @@ enum AssetsFeature: string implements Feature
             self::Register => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Export],
             self::Maintenance => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update],
             self::Audits => [FeatureAction::View, FeatureAction::Create],
+            self::Inventory => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Export],
+            self::Transfers, self::Handovers => [FeatureAction::View, FeatureAction::Create],
+            self::Incidents => [FeatureAction::View, FeatureAction::Create],
         };
     }
 
@@ -38,6 +45,9 @@ enum AssetsFeature: string implements Feature
         return match ($this) {
             self::Register => ['assign', 'dispose', 'view_costs'],
             self::Audits => ['close'],
+            self::Transfers => ['send', 'receive'],
+            self::Handovers => ['accept_any'],
+            self::Incidents => ['resolve', 'charge_employee'],
             default => [],
         };
     }

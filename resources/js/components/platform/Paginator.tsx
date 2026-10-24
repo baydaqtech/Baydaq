@@ -4,14 +4,19 @@ import { buttonVariants } from '@/components/ui/button';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { Paginated } from '@/types/resources';
+import type { LaravelPage, Paginated } from '@/types/resources';
 
-type Props = Pick<Paginated<unknown>, 'meta' | 'links'>;
+type Props = { page: Paginated<unknown> | LaravelPage<unknown> };
 
-/** "1–20 of 45" with previous/next, from a Laravel paginated resource ({ meta, links }). */
-export default function Paginator({ meta, links }: Props) {
+/**
+ * "1–20 of 45" with previous/next, from a paginated resource ({ meta, links }) or a paginator
+ * sent as is (flat fields).
+ */
+export default function Paginator({ page }: Props) {
   const t = useT();
   const { locale } = useLocale();
+  const meta = 'meta' in page ? page.meta : page;
+  const links = 'meta' in page ? page.links : { prev: page.prev_page_url, next: page.next_page_url };
 
   if (!meta || meta.last_page <= 1) {
     return null;

@@ -3,6 +3,7 @@
 namespace App\Modules\Hr\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Hr\Actions\Leave\AdjustLeaveBalance;
 use App\Modules\Hr\Actions\Leave\DecideLeave;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Enums\HrFeature;
@@ -65,6 +66,20 @@ class LeaveController extends Controller
 
         $decide->handle($leave, LeaveStatus::from($data['status']), $data['note'] ?? null, $request->user());
         $this->toast(__('hr.leave.decided'));
+
+        return back();
+    }
+
+    public function adjust(Request $request, Employee $employee, AdjustLeaveBalance $adjust, CurrentTenant $tenant): RedirectResponse
+    {
+        $this->authorizeEmployee($employee, HrFeature::Leave, FeatureAction::Approve);
+        $data = $request->validate([
+            'leave_type_id' => ['required', Rule::exists('hr__leave_types', 'id')->where('client_id', $tenant->id())],
+            'days' => ['required', 'numeric', 'between:-365,365'], 'effective_on' => ['required', 'date'], 'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $adjust->handle($employee, LeaveType::query()->findOrFail($data['leave_type_id']), (string) $data['days'], $data['effective_on'], $data['reason'], $request->user());
+        $this->toast(__('hr.leave.adjust.saved'));
 
         return back();
     }

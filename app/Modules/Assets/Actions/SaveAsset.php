@@ -3,6 +3,7 @@
 namespace App\Modules\Assets\Actions;
 
 use App\Modules\Assets\Models\Asset;
+use App\Modules\Assets\Models\Warehouse;
 use App\Modules\Platform\Ports\Audit;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Tenancy\CurrentTenant;
@@ -26,6 +27,10 @@ class SaveAsset
 
         if ($branch === null || ($asset->exists && $branch->companyId !== $asset->company_id)) {
             throw ValidationException::withMessages(['branch_id' => __('assets.errors.branch_company')]);
+        }
+
+        if (! empty($data['warehouse_id']) && ! Warehouse::query()->whereKey($data['warehouse_id'])->where('branch_id', $branch->id)->exists()) {
+            throw ValidationException::withMessages(['warehouse_id' => __('assets.errors.warehouse_branch')]);
         }
 
         return DB::transaction(function () use ($asset, $data, $branch, $actor): Asset {

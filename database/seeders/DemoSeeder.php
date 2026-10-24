@@ -16,10 +16,19 @@ use App\Models\ProjectResource;
 use App\Models\ProjectService;
 use App\Models\Service;
 use App\Models\User;
+use App\Modules\Assets\Actions\Inventory\DefaultUnits;
+use App\Modules\Assets\Actions\Inventory\ManageHandover;
+use App\Modules\Assets\Actions\Inventory\ManageTransfer;
+use App\Modules\Assets\Actions\Inventory\ReceiveStock;
+use App\Modules\Assets\Actions\Inventory\SaveItem;
 use App\Modules\Assets\Actions\ManageCustody;
 use App\Modules\Assets\Actions\SaveAsset;
 use App\Modules\Assets\Models\Asset;
 use App\Modules\Assets\Models\Category as AssetCategory;
+use App\Modules\Assets\Models\Item;
+use App\Modules\Assets\Models\Unit;
+use App\Modules\Assets\Models\Warehouse;
+use App\Modules\Assets\Support\Holder;
 use App\Modules\Hr\Actions\Catalog\SaveJob;
 use App\Modules\Hr\Actions\Catalog\SaveSection;
 use App\Modules\Hr\Actions\Contracts\SaveContract;
@@ -246,6 +255,49 @@ class DemoSeeder extends Seeder
         app(SaveAsset::class)->handle(new Asset, ['category_id' => $furniture->id, 'name_ar' => 'طاولة اجتماعات', 'name_en' => 'Meeting table', 'purchase_date' => now()->subMonths(30)->toDateString(), 'cost' => '4500.00'], $hq->id);
 
         app(ManageCustody::class)->assign($laptop, Employee::query()->where('employee_number', 'E-004')->value('id'), now()->subMonths(7)->toDateString(), 'جديد');
+
+        $this->seedInventory($client, $first);
+    }
+
+    /**
+     * Glass cups and juice in a main store and an events hall (kept by Noura); 30 cups are waiting
+     * for the mobile demo user (employee@baydaq.test) to confirm.
+     */
+    private function seedInventory(Client $client, Company $first): void
+    {
+        app(DefaultUnits::class)->ensure();
+        $unit = fn (string $symbol): int => Unit::query()->where('symbol', $symbol)->value('id');
+        $cups = app(SaveItem::class)->handle((new Item)->forceFill(['client_id' => $client->id]), ['name_ar' => 'أكواب زجاج', 'name_en' => 'Glass cups', 'unit_id' => $unit('pc'), 'min_stock' => 50], [
+            ['name_ar' => 'كوب ماء 250 مل', 'name_en' => 'Water glass 250 ml', 'barcode' => '6281000000011', 'sku' => 'GL-250', 'content' => 250, 'content_unit_id' => $unit('ml'), 'unit_cost' => '12'],
+            ['name_ar' => 'كوب عصير 350 مل', 'name_en' => 'Juice glass 350 ml', 'barcode' => '6281000000028', 'sku' => 'GL-350', 'content' => 350, 'content_unit_id' => $unit('ml'), 'unit_cost' => '15'],
+        ], [['name_ar' => 'كرتون', 'name_en' => 'Carton', 'factor' => 24]]);
+        $juice = app(SaveItem::class)->handle((new Item)->forceFill(['client_id' => $client->id]), ['name_ar' => 'عصير', 'name_en' => 'Juice', 'unit_id' => $unit('ml')], [
+            ['name_ar' => 'مانجو', 'name_en' => 'Mango', 'sku' => 'JC-MNG', 'unit_cost' => '0.02'],
+            ['name_ar' => 'حليب', 'name_en' => 'Milk', 'sku' => 'JC-MLK', 'unit_cost' => '0.015'],
+        ]);
+
+        $warehouse = function (string $code, string $ar, string $en, int $branchId, string $kind, ?int $keeper) use ($client, $first): Warehouse {
+            $warehouse = (new Warehouse(['name_ar' => $ar, 'name_en' => $en, 'kind' => $kind, 'keeper_employee_id' => $keeper]))->forceFill(['client_id' => $client->id, 'company_id' => $first->id, 'branch_id' => $branchId, 'code' => $code]);
+            $warehouse->save();
+
+            return $warehouse;
+        };
+        $ruh = Branch::query()->where('code', 'RUH')->firstOrFail();
+        $main = $warehouse('MAIN', 'المستودع الرئيسي', 'Main store', $first->headOffice()->value('id'), 'main', null);
+        $hall = $warehouse('HALL', 'قاعة المناسبات', 'Events hall', $ruh->id, 'event', Employee::query()->where('employee_number', 'E-002')->value('id'));
+
+        app(ReceiveStock::class)->handle($main, [
+            ['variant_id' => $cups->variants[0]->id, 'quantity' => 10, 'unit' => 'pack:'.$cups->packs[0]->id],
+            ['variant_id' => $cups->variants[1]->id, 'quantity' => 4, 'unit' => 'pack:'.$cups->packs[0]->id],
+            ['variant_id' => $juice->variants[0]->id, 'quantity' => 20, 'unit' => 'unit:'.$unit('L')],
+            ['variant_id' => $juice->variants[1]->id, 'quantity' => 12, 'unit' => 'unit:'.$unit('L')],
+        ]);
+        $transfer = app(ManageTransfer::class)->create($main, $hall, [['variant_id' => $cups->variants[0]->id, 'quantity' => 60]], 'For the weekend events');
+        app(ManageTransfer::class)->send($transfer);
+        $line = $transfer->lines()->value('id');
+        app(ManageTransfer::class)->receive($transfer, [$line => 58], [$line => [['kind' => 'broken', 'quantity' => 2, 'description' => 'Carton dropped while unloading']]]);
+
+        app(ManageHandover::class)->create(Holder::warehouse($hall->id), Holder::employee(Employee::query()->where('employee_number', 'E-003')->value('id')), [['variant_id' => $cups->variants[0]->id, 'quantity' => 30]], details: ['purpose' => 'حفل زفاف · Wedding']);
     }
 
     /**

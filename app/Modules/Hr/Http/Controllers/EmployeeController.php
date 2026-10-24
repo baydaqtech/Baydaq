@@ -127,7 +127,7 @@ class EmployeeController extends Controller
             ] : null,
             'leave' => $can['view_leave'] ? [
                 'requests' => $employee->leaveRequests()->with('type')->latest('starts_on')->limit(24)->get()->map(fn ($leave): array => LeaveController::leaveArray($leave))->all(),
-                'balances' => LeaveType::query()->where('is_active', true)->where('needs_balance', true)->get()->map(fn (LeaveType $type): array => ['type' => $type->localized('name'), ...app(LeaveBalance::class)->handle($employee, $type)])->all(),
+                'balances' => LeaveType::query()->where('is_active', true)->where('needs_balance', true)->get()->map(fn (LeaveType $type): array => ['type_id' => $type->id, 'type' => $type->localized('name'), ...app(LeaveBalance::class)->handle($employee, $type)])->all(),
                 'types' => LeaveType::query()->where('is_active', true)->get()->map(fn (LeaveType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
             ] : null,
             'document_types' => CatalogResource::collection(DocumentType::query()->where('is_active', true)->orderBy('sort_order')->get()),

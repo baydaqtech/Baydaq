@@ -126,7 +126,12 @@ class User extends Authenticatable implements HasLocalePreference
             return route('admin.dashboard');
         }
 
-        return $this->hasRole(Role::Client) ? route('portal.home') : route('suite.entry');
+        if ($this->hasRole(Role::Client)) {
+            return route('portal.home');
+        }
+
+        // People with a role in the suite land there; employees without one get their own page.
+        return $this->accessAssignments()->exists() ? route('suite.entry') : route('me.home');
     }
 
     /**

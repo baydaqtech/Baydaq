@@ -31,6 +31,8 @@ interface Props {
   companies: Option[];
   calculations: Option[];
   field_types: Option[];
+  leave_accruals: Option[];
+  leave_year_bases: Option[];
 }
 
 function CheckList({ options, value, onChange }: { options: Option[]; value: number[]; onChange: (value: number[]) => void }) {
@@ -46,13 +48,13 @@ function CheckList({ options, value, onChange }: { options: Option[]; value: num
   );
 }
 
-function ItemDialog({ catalog, item, sections, companies, calculations, fieldTypes }: { catalog: Catalog; item?: CatalogItem; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[] }) {
+function ItemDialog({ catalog, item, sections, companies, calculations, fieldTypes, leaveAccruals, leaveYearBases }: { catalog: Catalog; item?: CatalogItem; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[]; leaveAccruals: Option[]; leaveYearBases: Option[] }) {
   const t = useT();
   const { dir } = useLocale();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
   const f = (field: string) => t(`hr.catalog.fields.${field}`);
-  const form = useForm<{ name_ar: string; name_en: string; is_active: boolean; sort_order: number; section_ids: number[]; blocked_company_ids: number[]; calculation: string; default_value: string; counts_for_gosi: boolean; has_number: boolean; has_expiry: boolean; alert_days: string; fields: DocumentField[]; days_per_year: string; is_paid: boolean; needs_balance: boolean }>({
+  const form = useForm<{ name_ar: string; name_en: string; is_active: boolean; sort_order: number; section_ids: number[]; blocked_company_ids: number[]; calculation: string; default_value: string; counts_for_gosi: boolean; has_number: boolean; has_expiry: boolean; alert_days: string; fields: DocumentField[]; days_per_year: string; senior_days_per_year: string; senior_after_years: string; accrual: string; year_basis: string; carry_over_days: string; allow_negative: boolean; is_paid: boolean; needs_balance: boolean }>({
     name_ar: item?.name_ar ?? '',
     name_en: item?.name_en ?? '',
     is_active: item?.is_active ?? true,
@@ -67,6 +69,12 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
     alert_days: (item?.alert_days ?? [90, 30, 7]).join(', '),
     fields: item?.fields ?? [],
     days_per_year: String(item?.days_per_year ?? '21'),
+    senior_days_per_year: item ? String(item.senior_days_per_year ?? '') : '30',
+    senior_after_years: item ? String(item.senior_after_years ?? '') : '5',
+    accrual: String(item?.accrual ?? 'monthly'),
+    year_basis: String(item?.year_basis ?? 'calendar'),
+    carry_over_days: String(item?.carry_over_days ?? ''),
+    allow_negative: (item?.allow_negative as boolean | undefined) ?? false,
     is_paid: (item?.is_paid as boolean | undefined) ?? true,
     needs_balance: (item?.needs_balance as boolean | undefined) ?? true,
   });
@@ -76,7 +84,11 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
   function submit(event: React.FormEvent) {
     event.preventDefault();
     const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
-    form.transform((payload) => ({ ...payload, alert_days: payload.alert_days.split(',').map((value) => Number(value.trim())).filter(Boolean) }));
+    form.transform((payload) => ({
+      ...payload,
+      alert_days: payload.alert_days.split(',').map((value) => Number(value.trim())).filter(Boolean),
+      senior_days_per_year: payload.senior_days_per_year || null, senior_after_years: payload.senior_after_years || null, carry_over_days: payload.carry_over_days === '' ? null : payload.carry_over_days,
+    }));
     item ? form.put(url(`/hr/catalog/${catalog}/${item.id}`), options) : form.post(url(`/hr/catalog/${catalog}`), options);
   }
 
@@ -112,6 +124,16 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
               <FormField label={t('hr.leave.fields.days_per_year')} error={errors.days_per_year}><Input type="number" step="0.5" dir="ltr" value={data.days_per_year} onChange={(event) => setData('days_per_year', event.target.value)} /></FormField>
               <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.is_paid} onCheckedChange={(state) => setData('is_paid', state === true)} />{t('hr.leave.fields.is_paid')}</label>
               <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.needs_balance} onCheckedChange={(state) => setData('needs_balance', state === true)} />{t('hr.leave.fields.needs_balance')}</label>
+              {data.needs_balance && (
+                <>
+                  <FormField label={t('hr.leave.fields.senior_days_per_year')} error={errors.senior_days_per_year}><Input type="number" step="0.5" dir="ltr" value={data.senior_days_per_year} onChange={(event) => setData('senior_days_per_year', event.target.value)} /></FormField>
+                  <FormField label={t('hr.leave.fields.senior_after_years')} error={errors.senior_after_years}><Input type="number" dir="ltr" value={data.senior_after_years} onChange={(event) => setData('senior_after_years', event.target.value)} /></FormField>
+                  <FormField label={t('hr.leave.fields.accrual')} hint={t(`hr.leave.accrual_hint.${data.accrual}`)} error={errors.accrual}><SelectInput value={data.accrual} onChange={(value) => setData('accrual', value)} options={leaveAccruals} /></FormField>
+                  <FormField label={t('hr.leave.fields.year_basis')} error={errors.year_basis}><SelectInput value={data.year_basis} onChange={(value) => setData('year_basis', value)} options={leaveYearBases} /></FormField>
+                  <FormField label={t('hr.leave.fields.carry_over_days')} hint={t('hr.leave.carry_hint')} error={errors.carry_over_days}><Input type="number" step="0.5" dir="ltr" value={data.carry_over_days} onChange={(event) => setData('carry_over_days', event.target.value)} /></FormField>
+                  <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.allow_negative} onCheckedChange={(state) => setData('allow_negative', state === true)} />{t('hr.leave.fields.allow_negative')}</label>
+                </>
+              )}
             </>
           )}
           {catalog === 'document-types' && (
@@ -132,7 +154,7 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
   );
 }
 
-function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: CatalogItem[]; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[] }) {
+function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: CatalogItem[]; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[]; leaveAccruals: Option[]; leaveYearBases: Option[] }) {
   const t = useT();
   const { can } = useAccess();
   const companyName = (id: number) => rest.companies.find((company) => Number(company.value) === id)?.label ?? id;
@@ -155,6 +177,7 @@ function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: Catalo
                   {item.blocked_company_ids?.map((id) => <Badge key={id} variant="outline" className="border-transparent bg-red-100 text-red-800">{t('hr.catalog.blocked_in')} {companyName(id)}</Badge>)}
                   {item.calculation && <span>{t(`hr.allowance_calculation.${item.calculation}`)} · {item.default_value}</span>}
                   {item.fields && item.fields.length > 0 && <span>{item.fields.length} {t('hr.catalog.fields.fields').toLowerCase()}</span>}
+                  {catalog === 'leave-types' && Boolean(item.needs_balance) && <span>{t('hr.leave.rule_summary', { days: String(item.days_per_year), senior: String(item.senior_days_per_year ?? item.days_per_year), years: String(item.senior_after_years ?? '—'), accrual: t(`hr.leave_accrual.${item.accrual}`) })}</span>}
                 </div>
               </div>
               {can('hr.catalog.update') && <ItemDialog catalog={catalog} item={item} {...rest} />}
@@ -166,9 +189,9 @@ function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: Catalo
   );
 }
 
-export default function CatalogIndex({ sections, jobs, allowance_types: allowanceTypes, document_types: documentTypes, bonus_types: bonusTypes, deduction_types: deductionTypes, leave_types: leaveTypes, companies, calculations, field_types: fieldTypes }: Props) {
+export default function CatalogIndex({ sections, jobs, allowance_types: allowanceTypes, document_types: documentTypes, bonus_types: bonusTypes, deduction_types: deductionTypes, leave_types: leaveTypes, companies, calculations, field_types: fieldTypes, leave_accruals: leaveAccruals, leave_year_bases: leaveYearBases }: Props) {
   const t = useT();
-  const shared = { sections, companies, calculations, fieldTypes };
+  const shared = { sections, companies, calculations, fieldTypes, leaveAccruals, leaveYearBases };
 
   return (
     <SuiteLayout title={t('hr.catalog.title')}>

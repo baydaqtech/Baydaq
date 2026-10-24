@@ -37,8 +37,9 @@ class RequestLeave
             throw ValidationException::withMessages(['starts_on' => __('hr.leave.errors.overlap')]);
         }
 
-        if ($type->needs_balance) {
-            $available = BigDecimal::of($this->balance->handle($employee, $type, $starts)['available']);
+        // Pending requests already spoken for count against the balance too.
+        if ($type->needs_balance && ! $type->allow_negative) {
+            $available = BigDecimal::of($this->balance->handle($employee, $type, $starts)['available_after_pending']);
 
             if ($available->isLessThan($days)) {
                 throw ValidationException::withMessages(['days' => __('hr.leave.errors.balance', ['available' => (string) $available])]);

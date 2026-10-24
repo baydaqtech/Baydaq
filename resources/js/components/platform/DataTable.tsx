@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import type { Paginated } from '@/types/resources';
+import type { LaravelPage, Paginated } from '@/types/resources';
 
 export interface Column<T> {
   key: string;
@@ -15,7 +15,7 @@ export interface Column<T> {
 }
 
 interface Props<T> {
-  rows: Paginated<T> | T[];
+  rows: Paginated<T> | LaravelPage<T> | T[];
   columns: Column<T>[];
   rowHref?: (row: T) => string | undefined;
   rowKey?: (row: T) => string | number;
@@ -75,7 +75,7 @@ export default function DataTable<T extends Record<string, unknown>>({ rows, col
           </TableBody>
         </Table>
       </div>
-      {!Array.isArray(rows) && <Paginator meta={rows.meta} links={rows.links} />}
+      {!Array.isArray(rows) && <Paginator page={rows} />}
     </Card>
   );
 }

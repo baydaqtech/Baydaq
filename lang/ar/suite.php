@@ -30,7 +30,7 @@ return [
         'pos' => ['sell' => 'البيع', 'orders' => 'الطلبات', 'kitchen' => 'المطبخ', 'catalog' => 'القائمة', 'registers' => 'أجهزة الكاشير'],
         'reservations' => ['calendar' => 'التقويم', 'bookings' => 'الحجوزات', 'catalog' => 'الخدمات'],
         'subscriptions' => ['members' => 'الأعضاء', 'check_in' => 'تسجيل الدخول', 'plans' => 'الباقات'],
-        'assets' => ['register' => 'الأصول', 'audits' => 'الجرد', 'categories' => 'فئات الأصول'],
+        'assets' => ['register' => 'الأصول', 'audits' => 'الجرد', 'categories' => 'فئات الأصول', 'items' => 'الأصناف', 'warehouses' => 'المستودعات', 'transfers' => 'التحويلات', 'handovers' => 'التسليم والاستلام', 'incidents' => 'الحوادث'],
     ],
 
     'nav' => [

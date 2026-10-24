@@ -169,7 +169,7 @@ class AssetController extends Controller
     private function validated(Request $request): array
     {
         $data = $request->validate([
-            'branch_id' => ['required', 'integer'], 'category_id' => ['required', 'integer', Rule::exists(Category::class, 'id')->where('client_id', app(CurrentTenant::class)->id())],
+            'branch_id' => ['required', 'integer'], 'warehouse_id' => ['nullable', 'integer'], 'category_id' => ['required', 'integer', Rule::exists(Category::class, 'id')->where('client_id', app(CurrentTenant::class)->id())],
             'name_ar' => ['required', 'string', 'max:255'], 'name_en' => ['required', 'string', 'max:255'], 'serial' => ['nullable', 'string', 'max:255'], 'model' => ['nullable', 'string', 'max:255'],
             'purchase_date' => ['nullable', 'date', 'before_or_equal:today'], 'cost' => ['nullable', 'numeric', 'min:0'], 'salvage_value' => ['nullable', 'numeric', 'min:0', 'lte:cost'],
             'useful_life_months' => ['nullable', 'integer', 'min:1', 'max:600'], 'notes' => ['nullable', 'string', 'max:2000'],
