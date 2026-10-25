@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Invoicing\Actions\IssueInvoice;
 use App\Modules\Invoicing\Actions\RenderInvoicePdf;
 use App\Modules\Invoicing\Actions\SaveInvoice;
+use App\Modules\Invoicing\Actions\SendPaymentLink;
 use App\Modules\Invoicing\Enums\InvoiceKind;
 use App\Modules\Invoicing\Enums\InvoiceStatus;
 use App\Modules\Invoicing\Enums\InvoiceType;
@@ -26,6 +27,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Collection;
+use Inertia\Inertia;
 use Inertia\Response;
 
 class InvoiceController extends Controller
@@ -79,7 +81,8 @@ class InvoiceController extends Controller
                 'uuid' => $invoice->uuid, 'due_date' => $invoice->due_date?->toDateString(), 'supply_date' => $invoice->supply_date?->toDateString(),
                 'payment_means' => $invoice->payment_means, 'note' => $invoice->note, 'reason' => $invoice->reason,
                 'related' => $invoice->related?->number, 'discount' => (string) $invoice->discount, 'rounding' => (string) $invoice->rounding, 'payable' => $invoice->payableAmount(), 'qr' => $invoice->qr, 'hash' => $invoice->hash, 'counter' => $invoice->counter,
-                'unit' => $invoice->unit?->name, 'issued_at' => $invoice->issued_at?->toIso8601String(),
+                'unit' => $invoice->unit?->name, 'issued_at' => $invoice->issued_at?->toIso8601String(), 'paid_at' => $invoice->paid_at?->toIso8601String(),
+                'customer_phone' => $invoice->customer?->phone, 'intercompany' => $invoice->intercompany,
                 'lines' => $invoice->lines->map(fn (InvoiceLine $line): array => ['id' => $line->id, 'description' => $line->description, 'quantity' => (string) $line->quantity, 'unit_price' => (string) $line->unit_price, 'discount' => (string) $line->discount, 'vat_rate' => (string) $line->vat_rate, 'net' => (string) $line->net, 'vat' => (string) $line->vat, 'total' => (string) $line->total])->all(),
                 'submissions' => $invoice->submissions->map(fn (Submission $submission): array => ['id' => $submission->id, 'mode' => $submission->mode, 'environment' => $submission->environment, 'status' => $submission->status, 'counter' => $submission->counter, 'submitted_at' => $submission->submitted_at->toIso8601String(), 'response' => $submission->response])->all(),
             ],
@@ -89,8 +92,23 @@ class InvoiceController extends Controller
                 'issue' => in_array($invoice->status, [InvoiceStatus::Draft, InvoiceStatus::Rejected], true) && $this->access()->allowsBranch(InvoicingFeature::Invoices->key('issue'), 0, $invoice->company_id),
                 'cancel' => $invoice->isDraft() && $this->access()->allowsBranch(InvoicingFeature::Invoices->key('cancel'), 0, $invoice->company_id),
                 'export' => $invoice->submissions->isNotEmpty(),
+                'collect' => $invoice->paid_at === null && in_array($invoice->status, [InvoiceStatus::Issued, InvoiceStatus::Cleared, InvoiceStatus::Reported], true)
+                    && $this->access()->allowsBranch(InvoicingFeature::Invoices->key('collect'), 0, $invoice->company_id),
             ],
         ], ['invoicing']);
+    }
+
+    /** WhatsApp the customer a link to pay this invoice online (I3). */
+    public function paymentLink(Request $request, Invoice $invoice, SendPaymentLink $send): RedirectResponse
+    {
+        abort_unless($this->access()->allowsBranch(InvoicingFeature::Invoices->key('collect'), 0, $invoice->company_id), 403);
+        $data = $request->validate(['phone' => ['nullable', 'string', 'max:30']]);
+
+        $url = $send->handle($invoice->load('customer'), $data['phone'] ?? null);
+        Inertia::flash('payment_url', $url);
+        $this->toast(__('invoicing.payment_link_sent'));
+
+        return back();
     }
 
     public function edit(Invoice $invoice): Response

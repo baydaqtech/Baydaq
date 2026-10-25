@@ -5,6 +5,7 @@ namespace App\Modules\Hr\Actions\Shifts;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\Holiday;
 use App\Modules\Hr\Models\Shift;
+use App\Modules\Hr\Support\EmployeeMessenger;
 use App\Modules\Hr\Support\HrSettings;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Tenancy\CurrentTenant;
@@ -71,7 +72,13 @@ class SaveShift
             'on_holiday' => $holiday !== null,
             'ramadan_hours' => $inRamadan,
             'notes' => $data['notes'] ?? null,
-        ])->save();
+        ]);
+        $newlyAssigned = $shift->isDirty('employee_id') && $employeeId !== null;
+        $shift->save();
+
+        if ($newlyAssigned) {
+            app(EmployeeMessenger::class)->send($shift->employee, 'hr_shift_assigned', ['branch' => $branch->name, 'date' => $date->toDateString(), 'from' => $starts->format('H:i'), 'to' => $ends->format('H:i')], "hr.shift:{$shift->id}");
+        }
 
         return $shift;
     }

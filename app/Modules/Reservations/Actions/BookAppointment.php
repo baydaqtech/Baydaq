@@ -10,6 +10,7 @@ use App\Modules\Reservations\Enums\BookingStatus;
 use App\Modules\Reservations\Models\Booking;
 use App\Modules\Reservations\Models\BranchSettings;
 use App\Modules\Reservations\Models\Service;
+use App\Modules\Reservations\Support\BookingMessages;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class BookAppointment
      */
     public function handle(Service $service, int $branchId, string $startsAt, array $data, BookingChannel $channel, ?Authenticatable $actor = null): Booking
     {
-        return DB::transaction(function () use ($service, $branchId, $startsAt, $data, $channel, $actor): Booking {
+        $booking = DB::transaction(function () use ($service, $branchId, $startsAt, $data, $channel, $actor): Booking {
             $clientId = $this->tenant->client()->id;
             BranchSettings::forBranch($branchId, $clientId);
             BranchSettings::query()->whereKey($branchId)->lockForUpdate()->first();
@@ -73,6 +74,12 @@ class BookAppointment
 
             return $booking;
         });
+
+        if ($booking->status === BookingStatus::Confirmed) {
+            app(BookingMessages::class)->confirmed($booking);
+        }
+
+        return $booking;
     }
 
     /**

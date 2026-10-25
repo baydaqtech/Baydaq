@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Invoicing;
 
+use App\Modules\Invoicing\Actions\SaveInvoice;
 use App\Modules\Invoicing\Enums\InvoicingFeature;
 use App\Modules\Invoicing\Models\Customer;
 use App\Modules\Invoicing\Models\EinvoiceUnit;
@@ -9,6 +10,8 @@ use App\Modules\Invoicing\Models\Invoice;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Enums\ScopeLevel;
 use App\Modules\Platform\Models\Company;
+use App\Modules\Platform\Models\Message;
+use App\Modules\Platform\Models\Payment;
 use App\Modules\Platform\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -101,5 +104,28 @@ class InvoicingPagesTest extends TestCase
         $this->actingAs($viewer)->get($this->url('invoices', 'c-'.$this->company->slug))->assertOk();
         $this->actingAs($viewer)->get($this->url('invoices/create', 'c-'.$this->company->slug))->assertForbidden();
         $this->actingAs($viewer)->get($this->url('units', 'c-'.$this->company->slug))->assertForbidden();
+    }
+
+    public function test_an_issued_invoice_is_sent_as_a_whatsapp_payment_link_and_marked_paid(): void
+    {
+        $this->fakeZatcaAccepting();
+        $this->readyUnit($this->company->id, $this->client->id);
+        $customer = (new Customer(['name_ar' => 'عميل', 'name_en' => 'Buyer', 'phone' => '0551234567']))->forceFill(['client_id' => $this->client->id]);
+        $customer->save();
+        $invoice = app(SaveInvoice::class)->handle(new Invoice, $this->company->id, ['type' => 'simplified', 'kind' => 'invoice', 'customer_id' => $customer->id, 'issue_date' => '2026-11-01', 'payment_means' => '10'], [['description' => 'Service', 'quantity' => 1, 'unit_price' => '100']]);
+
+        $this->actingAs($this->owner)->post($this->url("invoices/{$invoice->id}/payment-link"))->assertSessionHasErrors('invoice'); // still a draft
+
+        $this->actingAs($this->owner)->post($this->url("invoices/{$invoice->id}/issue"), ['unit_id' => EinvoiceUnit::query()->value('id')])->assertSessionHasNoErrors();
+        $this->actingAs($this->owner)->post($this->url("invoices/{$invoice->id}/payment-link"))->assertSessionHasNoErrors();
+        $this->actingAs($this->owner)->post($this->url("invoices/{$invoice->id}/payment-link"))->assertSessionHasNoErrors(); // reuses the open link
+
+        $this->assertSame(1, Payment::query()->count());
+        $message = Message::query()->where('template', 'inv_payment_link')->latest('id')->firstOrFail();
+        $this->assertSame('966551234567', $message->to);
+        $this->assertStringContainsString(Payment::query()->value('token'), $message->body);
+
+        $this->post('/pay/'.Payment::query()->value('token'));
+        $this->assertNotNull($invoice->fresh()->paid_at);
     }
 }

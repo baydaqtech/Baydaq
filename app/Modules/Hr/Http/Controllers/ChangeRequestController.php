@@ -40,7 +40,7 @@ class ChangeRequestController extends Controller
 
     public function settings(Request $request, HrSettings $settings): RedirectResponse
     {
-        $data = $request->validate(['dual_control' => ['sometimes', 'boolean'], 'attendance_selfie' => ['sometimes', 'boolean'], 'ramadan_hours' => ['sometimes', 'integer', 'min:0', 'max:12']]);
+        $data = $request->validate(['dual_control' => ['sometimes', 'boolean'], 'attendance_selfie' => ['sometimes', 'boolean'], 'whatsapp_notifications' => ['sometimes', 'boolean'], 'ramadan_hours' => ['sometimes', 'integer', 'min:0', 'max:12']]);
 
         foreach ($data as $key => $value) {
             $settings->set($key, $key === 'ramadan_hours' ? (int) $value : (bool) $value);

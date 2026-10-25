@@ -47,7 +47,7 @@ export default function Statement({ invoices, totals, subscriptions }) {
       <section>
         <h2 className="mb-3 text-lg font-semibold">{st('invoices')}</h2>
         <InvoiceTable invoices={invoices} showProject />
-        <p className="mt-3 text-sm text-muted-foreground">{t('portal.billing.how_to_pay')}</p>
+        <p className="mt-3 text-sm text-muted-foreground">{st('pay_hint')}</p>
       </section>
     </PortalLayout>
   );

@@ -5,6 +5,7 @@ namespace App\Modules\Reservations\Actions;
 use App\Modules\Platform\Ports\Audit;
 use App\Modules\Reservations\Enums\BookingStatus;
 use App\Modules\Reservations\Models\Booking;
+use App\Modules\Reservations\Support\BookingMessages;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Validation\ValidationException;
 
@@ -25,6 +26,10 @@ class ChangeBookingStatus
         $from = $booking->status;
         $booking->forceFill(['status' => $to->value, 'cancel_reason' => $to === BookingStatus::Cancelled ? $reason : $booking->cancel_reason])->save();
         $this->audit->record($booking, 'status_changed', ['from' => $from->value, 'to' => $to->value, 'reason' => $reason], $actor);
+
+        if ($to === BookingStatus::Confirmed) {
+            app(BookingMessages::class)->confirmed($booking);
+        }
 
         return $booking;
     }

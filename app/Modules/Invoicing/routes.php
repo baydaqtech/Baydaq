@@ -21,6 +21,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:inv
             Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
         });
         Route::post('/invoices/{invoice}/issue', [InvoiceController::class, 'issue'])->middleware('access:invoicing.invoices.issue')->name('invoices.issue');
+        Route::post('/invoices/{invoice}/payment-link', [InvoiceController::class, 'paymentLink'])->middleware('access:invoicing.invoices.collect')->name('invoices.payment_link');
         Route::post('/invoices/{invoice}/cancel', [InvoiceController::class, 'cancel'])->middleware('access:invoicing.invoices.cancel')->name('invoices.cancel');
         Route::get('/invoices/{invoice}/xml', [InvoiceController::class, 'xml'])->middleware('access:invoicing.invoices.export')->name('invoices.xml');
         Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])->middleware('access:invoicing.invoices.view')->name('invoices.pdf');

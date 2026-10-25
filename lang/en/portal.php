@@ -30,6 +30,8 @@ return [
     ],
 
     'statement' => [
+        'pay_description' => 'Baydaq invoice :number',
+        'pay_hint' => 'Pay online by mada, Apple Pay or card, or by bank transfer to the account on the invoice.',
         'title' => 'Statement of account',
         'lede' => 'Everything across your projects and your business suite.',
         'subscriptions' => 'Business suite subscriptions',

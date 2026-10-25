@@ -4,7 +4,14 @@ return [
     'title' => 'Invoicing',
     'nav' => ['invoices' => 'Invoices', 'customers' => 'Customers', 'einvoicing' => 'E-invoicing'],
     'features' => ['customers' => 'Customers', 'invoices' => 'Invoices', 'einvoicing' => 'E-invoicing units (ZATCA)'],
-    'abilities' => ['issue' => 'Issue invoices to ZATCA', 'cancel' => 'Cancel drafts', 'onboard' => 'Onboard units with ZATCA'],
+    'abilities' => ['issue' => 'Issue invoices to ZATCA', 'cancel' => 'Cancel drafts', 'onboard' => 'Onboard units with ZATCA', 'collect' => 'Send payment links'],
+    'pay_description' => 'Invoice :number',
+    'payment_link_sent' => 'Payment link sent on WhatsApp.',
+    'send_payment_link' => 'Send payment link',
+    'payment_link_text' => 'The customer gets a WhatsApp message with a secure link to pay by mada, Apple Pay or card. The invoice is marked paid when the money arrives.',
+    'paid_online' => 'Paid online',
+    'intercompany' => 'Intercompany',
+    'phone' => 'WhatsApp number',
 
     'customers' => [
         'title' => 'Customers',
@@ -65,6 +72,7 @@ return [
     ],
 
     'errors' => [
+        'not_payable' => 'Only an issued, unpaid invoice can be paid online.',
         'not_draft' => 'Only drafts can be changed.',
         'standard_needs_customer' => 'A standard (B2B) invoice needs a customer with a VAT number and an address.',
         'note_needs_invoice' => 'A credit or debit note must reference an issued invoice of the same company.',

@@ -26,7 +26,7 @@ interface Props {
 export default function Book({ token, place, services, window: range, slots }: Props) {
   const t = useT();
   const { locale } = useLocale();
-  const flash = usePage().flash as { booking?: { reference: string; status: string; deposit: string } };
+  const flash = usePage().flash as { booking?: { reference: string; status: string; deposit: string; payment_url?: string | null } };
   const [done, setDone] = useState(flash.booking ?? null);
   const form = useForm({ service_id: 0, date: range.from, starts_at: '', party_size: 1, customer_name: '', customer_phone: '', customer_email: '', note: '' });
   const service = services.find((item) => item.id === form.data.service_id);
@@ -63,6 +63,7 @@ export default function Book({ token, place, services, window: range, slots }: P
               <CalendarCheck className="size-10 text-emerald-600" />
               <p className="text-lg font-semibold">{t('reservations.book.done', { reference: done.reference })}</p>
               {done.status === 'pending' && <p className="text-sm text-muted-foreground">{t('reservations.book.pending', { amount: done.deposit })}</p>}
+              {done.status === 'pending' && done.payment_url && <a href={done.payment_url} className="inline-flex w-fit items-center rounded-md bg-brass px-4 py-2 text-sm font-medium text-white">{t('reservations.book.pay_deposit')}</a>}
               <Button variant="outline" onClick={() => setDone(null)}>{t('reservations.book.another')}</Button>
             </CardContent>
           </Card>

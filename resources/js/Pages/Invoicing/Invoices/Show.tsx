@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Link, useForm } from '@inertiajs/react';
-import { Download, FileText, Pencil, Send } from 'lucide-react';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import { CreditCard, Download, FileText, Pencil, Send } from 'lucide-react';
 import ConfirmAction from '@/components/platform/ConfirmAction';
 import DetailList from '@/components/platform/DetailList';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -20,7 +22,7 @@ import type { InvoiceSummary } from './Index';
 
 interface Line { id: number; description: string; quantity: string; unit_price: string; discount: string; vat_rate: string; net: string; vat: string; total: string }
 interface Submission { id: number; mode: string; environment: string; status: string; counter: number; submitted_at: string; response: { http: number; status: string; body: Record<string, unknown> } | null }
-type Full = InvoiceSummary & { rounding: string; payable: string; uuid: string; due_date: string | null; supply_date: string | null; payment_means: string; note: string | null; reason: string | null; related: string | null; discount: string; qr: string | null; hash: string | null; counter: number | null; unit: string | null; issued_at: string | null; lines: Line[]; submissions: Submission[] };
+type Full = InvoiceSummary & { rounding: string; payable: string; uuid: string; due_date: string | null; supply_date: string | null; payment_means: string; note: string | null; reason: string | null; related: string | null; discount: string; qr: string | null; hash: string | null; counter: number | null; unit: string | null; issued_at: string | null; paid_at: string | null; customer_phone: string | null; intercompany: boolean; lines: Line[]; submissions: Submission[] };
 
 function IssueDialog({ invoice, units }: { invoice: Full; units: Option[] }) {
   const t = useT();
@@ -43,7 +45,31 @@ function IssueDialog({ invoice, units }: { invoice: Full; units: Option[] }) {
   );
 }
 
-export default function InvoiceShow({ invoice, units, can }: { invoice: Full; units: Option[]; can: { edit: boolean; issue: boolean; cancel: boolean; export: boolean } }) {
+/** WhatsApp the customer a link to pay online (I3). */
+function PaymentLinkDialog({ invoice }: { invoice: Full }) {
+  const t = useT();
+  const { dir } = useLocale();
+  const url = useSuiteUrl();
+  const [open, setOpen] = useState(false);
+  const flash = usePage().flash as { payment_url?: string };
+  const form = useForm({ phone: invoice.customer_phone ?? '' });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button size="sm" variant="outline"><CreditCard data-icon="inline-start" />{t('invoicing.send_payment_link')}</Button></DialogTrigger>
+      <DialogContent dir={dir}>
+        <form onSubmit={(event) => { event.preventDefault(); form.post(url(`/invoicing/invoices/${invoice.id}/payment-link`), { preserveScroll: true }); }} className="flex flex-col gap-4">
+          <DialogHeader><DialogTitle>{t('invoicing.send_payment_link')}</DialogTitle><DialogDescription>{t('invoicing.payment_link_text')}</DialogDescription></DialogHeader>
+          <FormField label={t('invoicing.phone')} error={form.errors.phone}><Input dir="ltr" value={form.data.phone} onChange={(event) => form.setData('phone', event.target.value)} /></FormField>
+          {flash.payment_url && <a href={flash.payment_url} target="_blank" rel="noreferrer" dir="ltr" className="break-all text-sm text-brass underline">{flash.payment_url}</a>}
+          <DialogFooter><Button type="submit" disabled={form.processing}>{t('invoicing.send_payment_link')}</Button></DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function InvoiceShow({ invoice, units, can }: { invoice: Full; units: Option[]; can: { edit: boolean; issue: boolean; cancel: boolean; export: boolean; collect: boolean } }) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -53,12 +79,13 @@ export default function InvoiceShow({ invoice, units, can }: { invoice: Full; un
   return (
     <SuiteLayout title={invoice.number ?? t('invoicing.invoices.title')}>
       <PageHeader
-        title={<span className="flex items-center gap-2"><FileText className="size-5 text-brass" /><span dir="ltr">{invoice.number ?? '—'}</span><StatusBadge group="invoice_status" value={invoice.status} file="invoicing" /></span>}
+        title={<span className="flex items-center gap-2"><FileText className="size-5 text-brass" /><span dir="ltr">{invoice.number ?? '—'}</span><StatusBadge group="invoice_status" value={invoice.status} file="invoicing" />{invoice.paid_at && <Badge variant="outline" className="border-transparent bg-emerald-100 text-emerald-800">{t('invoicing.paid_online')}</Badge>}{invoice.intercompany && <Badge variant="outline">{t('invoicing.intercompany')}</Badge>}</span>}
         description={`${t(`invoicing.invoice_kind.${invoice.kind}`)} · ${t(`invoicing.invoice_type.${invoice.type}`)} · ${invoice.company ?? ''}`}
         actions={(
           <>
             {can.edit && <Button asChild size="sm" variant="outline"><Link href={url(`/invoicing/invoices/${invoice.id}/edit`)}><Pencil data-icon="inline-start" />{t('common.actions.edit')}</Link></Button>}
             {can.issue && <IssueDialog invoice={invoice} units={units} />}
+            {can.collect && <PaymentLinkDialog invoice={invoice} />}
             {can.cancel && <ConfirmAction href={url(`/invoicing/invoices/${invoice.id}/cancel`)} method="post" size="sm" variant="ghost" title={t('invoicing.invoices.cancel')}>{t('invoicing.invoices.cancel')}</ConfirmAction>}
             <Button asChild size="sm" variant="outline"><a href={url(`/invoicing/invoices/${invoice.id}/pdf`)} target="_blank" rel="noreferrer"><Download data-icon="inline-start" />{t('invoicing.invoices.download_pdf')}</a></Button>
             {can.export && <Button asChild size="sm" variant="outline"><a href={url(`/invoicing/invoices/${invoice.id}/xml`)}><Download data-icon="inline-start" />{t('invoicing.invoices.download_xml')}</a></Button>}

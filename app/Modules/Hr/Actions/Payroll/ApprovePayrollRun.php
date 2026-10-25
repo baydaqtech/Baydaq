@@ -11,6 +11,7 @@ use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Bonus;
 use App\Modules\Hr\Models\Deduction;
 use App\Modules\Hr\Models\PayrollRun;
+use App\Modules\Hr\Support\EmployeeMessenger;
 use App\Modules\Platform\Ports\Audit;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,10 @@ class ApprovePayrollRun
 
         $run->forceFill(['status' => PayrollStatus::Paid->value, 'paid_on' => $paidOn])->save();
         $this->audit->record($run, 'paid', ['paid_on' => $paidOn], $actor);
+
+        foreach ($run->lines()->with('employee')->get() as $line) {
+            app(EmployeeMessenger::class)->send($line->employee, 'hr_payslip_ready', ['month' => $run->pay_month->format('Y-m'), 'amount' => (string) $line->net], "hr.payroll_line:{$line->id}");
+        }
 
         return $run;
     }

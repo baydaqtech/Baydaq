@@ -47,6 +47,7 @@ class Invoice extends Model
             'due_date' => 'date',
             'supply_date' => 'date',
             'issued_at' => 'datetime',
+            'paid_at' => 'datetime',
             'subtotal' => 'decimal:2',
             'discount' => 'decimal:2',
             'vat' => 'decimal:2',

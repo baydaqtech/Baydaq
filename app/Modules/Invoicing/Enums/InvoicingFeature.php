@@ -36,7 +36,7 @@ enum InvoicingFeature: string implements Feature
     public function abilities(): array
     {
         return match ($this) {
-            self::Invoices => ['issue', 'cancel'],
+            self::Invoices => ['issue', 'cancel', 'collect'],
             self::Einvoicing => ['onboard'],
             default => [],
         };

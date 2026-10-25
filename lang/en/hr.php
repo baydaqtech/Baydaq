@@ -53,6 +53,8 @@ return [
         'attendance_selfie_hint' => 'Off by default: a selfie is personal data under PDPL. When on, the app takes one with every check-in and out; only people who see attendance can open it.',
         'ramadan_hours' => 'Longest shift in Ramadan (hours)',
         'ramadan_hours_hint' => 'Six by the Labor Law (Art. 98). 0 leaves Ramadan shifts as planned.',
+        'whatsapp_notifications' => 'WhatsApp employees about their own HR matters',
+        'whatsapp_notifications_hint' => 'Leave and advance decisions, salary paid, documents about to expire and new shifts go to the employee\'s phone on WhatsApp.',
         'rules' => 'Rules',
         'errors' => [
             'decided' => 'This change was already decided.',

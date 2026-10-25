@@ -17,3 +17,4 @@ Schedule::command('hr:recharge-secondments')->monthlyOn(1, '03:00');
 
 // Subscriptions: memberships past their last day expire just after midnight (Riyadh time).
 Schedule::command('subscriptions:expire')->dailyAt('00:30');
+Schedule::command('reservations:send-reminders')->hourly();

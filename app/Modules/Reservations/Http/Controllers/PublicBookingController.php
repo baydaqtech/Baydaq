@@ -4,10 +4,12 @@ namespace App\Modules\Reservations\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Platform\Ports\OrgDirectory;
+use App\Modules\Platform\Ports\Payments;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use App\Modules\Reservations\Actions\BookAppointment;
 use App\Modules\Reservations\Actions\FindSlots;
 use App\Modules\Reservations\Enums\BookingChannel;
+use App\Modules\Reservations\Enums\BookingStatus;
 use App\Modules\Reservations\Models\Booking;
 use App\Modules\Reservations\Models\BranchSettings;
 use App\Modules\Reservations\Models\Service;
@@ -65,7 +67,12 @@ class PublicBookingController extends Controller
             return $book->handle($service, $settings->branch_id, $data['starts_at'], collect($data)->only(['customer_name', 'customer_phone', 'customer_email', 'party_size', 'note'])->all(), BookingChannel::Online);
         });
 
-        Inertia::flash('booking', ['reference' => $booking->reference, 'status' => $booking->status->value, 'deposit' => (string) $booking->deposit]);
+        // A deposit is paid online straight away (the booking confirms itself when it arrives).
+        $paymentUrl = $booking->status === BookingStatus::Pending && (float) $booking->deposit > 0
+            ? app(Payments::class)->link("reservations.booking:{$booking->id}", (string) $booking->deposit, __('reservations.book.deposit_for', ['reference' => $booking->reference]), url("/book/{$token}"), $settings->client_id)->url
+            : null;
+
+        Inertia::flash('booking', ['reference' => $booking->reference, 'status' => $booking->status->value, 'deposit' => (string) $booking->deposit, 'payment_url' => $paymentUrl]);
 
         return back();
     }

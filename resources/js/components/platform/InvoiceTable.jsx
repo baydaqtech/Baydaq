@@ -1,4 +1,5 @@
-import { FileDown } from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { CreditCard, FileDown } from 'lucide-react';
 import DataTable from '@/components/platform/DataTable';
 import StatusBadge from '@/components/platform/StatusBadge';
 import { Button } from '@/components/ui/button';
@@ -23,9 +24,12 @@ export default function InvoiceTable({ invoices, showProject = false }) {
         { key: 'total', label: b('total'), render: (invoice) => <span className="font-medium">{formatMoney(invoice.total, locale, invoice.currency)}</span> },
         { key: 'status', label: b('status'), render: (invoice) => <StatusBadge group="invoice_status" value={invoice.status} /> },
         { key: 'pdf', label: '', className: 'text-end', render: (invoice) => (
-          <Button asChild size="xs" variant="outline">
-            <a href={invoice.pdf_url} target="_blank" rel="noopener"><FileDown data-icon="inline-start" />{b('pdf')}</a>
-          </Button>
+          <span className="flex justify-end gap-2">
+            {invoice.pay_url && <Button size="xs" onClick={() => router.post(invoice.pay_url)}><CreditCard data-icon="inline-start" />{t('common.payments.pay_online')}</Button>}
+            <Button asChild size="xs" variant="outline">
+              <a href={invoice.pdf_url} target="_blank" rel="noopener"><FileDown data-icon="inline-start" />{b('pdf')}</a>
+            </Button>
+          </span>
         ) },
       ].filter(Boolean)}
     />

@@ -7,6 +7,7 @@ use App\Modules\Platform\Http\Controllers\CompanyController;
 use App\Modules\Platform\Http\Controllers\HomeController;
 use App\Modules\Platform\Http\Controllers\MemberController;
 use App\Modules\Platform\Http\Controllers\OrganizationController;
+use App\Modules\Platform\Http\Controllers\PaymentController;
 use App\Modules\Platform\Http\Controllers\StructureController;
 use App\Modules\Platform\Http\Controllers\SuiteEntryController;
 use App\Modules\Platform\Http\Controllers\WorkLocationController;
@@ -68,4 +69,12 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
             Route::get('/access/members', [MemberController::class, 'index'])->name('access.members.index');
         });
     });
+});
+
+// Online payments: provider webhook, the way back from the payment page, and the local test page.
+Route::post('/payments/webhook/{provider}', [PaymentController::class, 'webhook'])->middleware('throttle:120,1')->name('payments.webhook');
+Route::middleware('web')->group(function (): void {
+    Route::get('/payments/{token}/return', [PaymentController::class, 'return'])->name('payments.return');
+    Route::get('/pay/{token}', [PaymentController::class, 'fake'])->name('payments.fake');
+    Route::post('/pay/{token}', [PaymentController::class, 'fakePay'])->middleware('throttle:10,1')->name('payments.fake.pay');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Portal;
 
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,6 +30,7 @@ class InvoiceResource extends JsonResource
             'currency' => $this->currency,
             'paid_at' => $this->paid_at?->toIso8601String(),
             'pdf_url' => route('portal.invoices.pdf', $this->resource),
+            'pay_url' => in_array($this->resource->status, [InvoiceStatus::Sent, InvoiceStatus::Overdue], true) ? route('portal.invoices.pay', $this->resource) : null,
         ];
     }
 }

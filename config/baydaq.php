@@ -108,4 +108,41 @@ return [
         'disk' => env('ASSETS_DISK', 'assets'),
         'photo_max_kb' => 8192,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messaging (WhatsApp)
+    |--------------------------------------------------------------------------
+    |
+    | "log" only records messages (local, tests, demos); "whatsapp" sends them
+    | through Baydaq's own WhatsApp service.
+    |
+    */
+
+    'messaging' => [
+        'driver' => env('MESSAGING_DRIVER', 'log'),
+        'whatsapp' => [
+            'url' => env('BAYDAQ_WHATSAPP_URL'),
+            'token' => env('BAYDAQ_WHATSAPP_TOKEN'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Online payments
+    |--------------------------------------------------------------------------
+    |
+    | "fake" serves a local test payment page; "moyasar" creates Moyasar invoices
+    | (mada, Apple Pay, STC Pay, cards) and receives their webhook.
+    |
+    */
+
+    'payments' => [
+        'driver' => env('PAYMENTS_DRIVER', 'fake'),
+        'moyasar' => [
+            'url' => env('MOYASAR_URL', 'https://api.moyasar.com/v1'),
+            'secret_key' => env('MOYASAR_SECRET_KEY'),
+            'webhook_secret' => env('MOYASAR_WEBHOOK_SECRET'),
+        ],
+    ],
 ];

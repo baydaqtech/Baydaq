@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\MarkInvoicePaidOnline;
 use App\Models\User;
+use App\Modules\Platform\Events\PaymentSucceeded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -33,5 +36,8 @@ class AppServiceProvider extends ServiceProvider
 
         // The system admin passes every permission check.
         Gate::before(fn (User $user): ?bool => $user->isSystemAdmin() ? true : null);
+
+        // Baydaq invoices paid online from the portal.
+        Event::listen(PaymentSucceeded::class, MarkInvoicePaidOnline::class);
     }
 }

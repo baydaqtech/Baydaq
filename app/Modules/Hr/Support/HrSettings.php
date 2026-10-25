@@ -16,6 +16,7 @@ class HrSettings
         'dual_control' => false,          // IBAN and salary changes wait for a second person (H13)
         'ramadan_hours' => 6,             // longest shift in Ramadan (Labor Law Art. 98), 0 = no cap (H9)
         'attendance_selfie' => false,     // ask for a selfie with each punch; off by default under PDPL (H8)
+        'whatsapp_notifications' => false, // WhatsApp employees about their leave, advances, pay, documents, shifts (H14)
         'nitaqat_targets' => [],          // company id => Saudization % needed for the company's band (H4)
     ];
 

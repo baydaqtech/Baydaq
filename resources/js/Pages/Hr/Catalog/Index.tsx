@@ -204,6 +204,7 @@ function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: Catalo
 export interface HrRules {
   dual_control: boolean;
   attendance_selfie: boolean;
+  whatsapp_notifications: boolean;
   ramadan_hours: number;
   [key: string]: unknown;
 }
@@ -213,7 +214,7 @@ function RulesCard({ settings }: { settings: HrRules }) {
   const t = useT();
   const url = useSuiteUrl();
   const { can } = useAccess();
-  const form = useForm({ dual_control: settings.dual_control, attendance_selfie: settings.attendance_selfie, ramadan_hours: String(settings.ramadan_hours) });
+  const form = useForm({ dual_control: settings.dual_control, attendance_selfie: settings.attendance_selfie, whatsapp_notifications: settings.whatsapp_notifications, ramadan_hours: String(settings.ramadan_hours) });
 
   return (
     <Card><CardContent>
@@ -225,6 +226,10 @@ function RulesCard({ settings }: { settings: HrRules }) {
         <label className="flex items-start gap-2 text-sm">
           <Checkbox checked={form.data.attendance_selfie} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('attendance_selfie', state === true)} />
           <span><span className="font-medium">{t('hr.changes.attendance_selfie')}</span><span className="block text-muted-foreground">{t('hr.changes.attendance_selfie_hint')}</span></span>
+        </label>
+        <label className="flex items-start gap-2 text-sm">
+          <Checkbox checked={form.data.whatsapp_notifications} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('whatsapp_notifications', state === true)} />
+          <span><span className="font-medium">{t('hr.changes.whatsapp_notifications')}</span><span className="block text-muted-foreground">{t('hr.changes.whatsapp_notifications_hint')}</span></span>
         </label>
         <FormField label={t('hr.changes.ramadan_hours')} hint={t('hr.changes.ramadan_hours_hint')} error={form.errors.ramadan_hours} className="max-w-xs">
           <Input type="number" min="0" max="12" dir="ltr" value={form.data.ramadan_hours} disabled={!can('hr.catalog.update')} onChange={(event) => form.setData('ramadan_hours', event.target.value)} />

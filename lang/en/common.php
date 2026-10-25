@@ -62,4 +62,12 @@ return [
         'approve' => 'Approve',
         'reject' => 'Reject',
     ],
+    'payments' => [
+        'test_title' => 'Test payment',
+        'test_pay' => 'Pay (test)',
+        'test_note' => 'This is a test page: no card is charged. Real payments start once a payment provider is connected.',
+        'pay_online' => 'Pay online',
+        'paid_thanks' => 'Payment received. Thank you.',
+        'status' => ['pending' => 'Waiting for payment', 'paid' => 'Paid', 'failed' => 'Failed', 'expired' => 'Expired'],
+    ],
 ];

@@ -20,6 +20,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Portal\HomeController;
+use App\Http\Controllers\Portal\InvoicePaymentController;
 use App\Http\Controllers\Portal\ProjectController as PortalProjectController;
 use App\Http\Controllers\Portal\StatementController;
 use App\Http\Controllers\ProductController;
@@ -163,4 +164,5 @@ Route::prefix('app')
         Route::get('/projects/{project}', [PortalProjectController::class, 'show'])->name('projects.show');
         Route::get('/statement', StatementController::class)->name('statement');
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
+        Route::post('/invoices/{invoice}/pay', InvoicePaymentController::class)->middleware('throttle:10,1')->name('invoices.pay');
     });

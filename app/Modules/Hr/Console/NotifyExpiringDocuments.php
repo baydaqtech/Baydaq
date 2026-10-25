@@ -6,6 +6,7 @@ use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Models\DocumentRenewal;
 use App\Modules\Hr\Models\EmployeeDocument;
 use App\Modules\Hr\Notifications\DocumentExpiring;
+use App\Modules\Hr\Support\EmployeeMessenger;
 use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Tenancy\CurrentTenant;
@@ -61,6 +62,7 @@ class NotifyExpiringDocuments extends Command
                     }
 
                     DocumentRenewal::openFor($document);
+                    app(EmployeeMessenger::class)->send($document->employee, 'hr_document_expiring', ['document' => $document->type->localized('name'), 'date' => $document->expires_on->toDateString(), 'days' => max(0, $daysLeft)], "hr.document:{$document->id}");
                     $document->alerted = [...($document->alerted ?? []), $threshold];
                     $document->scheduleNextAlert()->save();
                 }

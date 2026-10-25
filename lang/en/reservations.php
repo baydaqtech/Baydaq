@@ -69,6 +69,8 @@ return [
         'no_slots' => 'No free times that day. Try another day.',
         'done' => 'Booked! Your reference is :reference.',
         'pending' => 'We are holding your time. Pay the deposit of :amount SAR at the branch or as instructed to confirm it.',
+        'pay_deposit' => 'Pay the deposit online',
+        'deposit_for' => 'Booking deposit :reference',
         'minutes' => ':count min',
         'another' => 'Book another',
     ],

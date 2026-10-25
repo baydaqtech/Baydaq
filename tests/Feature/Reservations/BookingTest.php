@@ -10,7 +10,10 @@ use App\Modules\Invoicing\Models\Invoice;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Models\Branch;
 use App\Modules\Platform\Models\Company;
+use App\Modules\Platform\Models\Message;
+use App\Modules\Platform\Models\Payment;
 use App\Modules\Platform\Models\Subscription;
+use App\Modules\Platform\Ports\Payments;
 use App\Modules\Reservations\Actions\BookAppointment;
 use App\Modules\Reservations\Actions\ChangeBookingStatus;
 use App\Modules\Reservations\Actions\CheckoutBooking;
@@ -171,5 +174,29 @@ class BookingTest extends TestCase
         $this->assertSame('50.00', $invoice->payableAmount());
         $this->assertSame('48', $invoice->payment_means);
         Event::assertDispatched(BookingCompleted::class, fn (BookingCompleted $event) => $event->employeeId === $this->barber->id && $event->total === '50.00');
+    }
+
+    public function test_whatsapp_confirms_bookings_and_reminds_the_day_before_once(): void
+    {
+        $this->book('15:00');
+        $this->assertSame(['res_booking_confirmed'], Message::query()->pluck('template')->all());
+        $this->assertSame('966500000000', Message::query()->value('to'));
+
+        $this->travelTo('2026-11-01 08:00:00');
+        $this->artisan('reservations:send-reminders')->assertSuccessful();
+        $this->artisan('reservations:send-reminders')->assertSuccessful();
+        $this->assertSame(1, Message::query()->where('template', 'res_booking_reminder')->count());
+    }
+
+    public function test_an_online_deposit_paid_on_the_payment_page_confirms_the_booking(): void
+    {
+        $this->haircut->forceFill(['deposit' => '20.00'])->save();
+        $booking = $this->book('15:00', BookingChannel::Online);
+        $link = app(Payments::class)->link("reservations.booking:{$booking->id}", '20.00', 'Deposit', null, $this->client->id);
+
+        $this->post('/pay/'.Payment::query()->findOrFail($link->id)->token);
+
+        $this->assertSame(BookingStatus::Confirmed, $booking->fresh()->status);
+        $this->assertNotNull($booking->fresh()->deposit_paid_at);
     }
 }
