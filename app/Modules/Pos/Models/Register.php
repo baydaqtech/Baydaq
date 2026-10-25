@@ -22,7 +22,9 @@ class Register extends Model
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'require_check_in' => true, 'is_active' => true];
+        'require_check_in' => true,
+        'is_active' => true,
+    ];
 
     /**
      * @return array<string, string>

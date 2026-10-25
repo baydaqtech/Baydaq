@@ -87,6 +87,7 @@ export default function InvoiceShow({ invoice, canManage }) {
               { label: f('due_date'), value: formatDate(invoice.due_date, locale) },
               invoice.sent_at && { label: t('admin.invoices.sent_at'), value: formatDate(invoice.sent_at, locale) },
               invoice.paid_at && { label: t('admin.invoices.paid_at'), value: formatDate(invoice.paid_at, locale) },
+              invoice.einvoice_number && { label: t('admin.invoices.einvoice_number'), value: invoice.einvoice_number },
               { label: f('notes'), value: invoice.notes },
             ]} />
           </CardContent>

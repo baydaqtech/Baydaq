@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * Something a customer books: a haircut, a court hour, a chalet night. Priced including VAT.
  */
 #[Table('res__services')]
-#[Fillable(['company_id', 'name_ar', 'name_en', 'description_ar', 'description_en', 'duration_minutes', 'buffer_minutes', 'price', 'vat_rate', 'deposit', 'needs_staff', 'is_online', 'is_active', 'color', 'sort_order'])]
+#[Fillable(['company_id', 'name_ar', 'name_en', 'description_ar', 'description_en', 'duration_minutes', 'buffer_minutes', 'price', 'vat_rate', 'deposit', 'needs_staff', 'is_stay', 'check_in_time', 'check_out_time', 'is_online', 'is_active', 'color', 'sort_order'])]
 class Service extends Model
 {
     use BelongsToClient, HasBilingualFields;
@@ -30,7 +30,7 @@ class Service extends Model
     {
         return [
             'duration_minutes' => 'integer', 'buffer_minutes' => 'integer', 'price' => 'decimal:2', 'vat_rate' => 'decimal:2', 'deposit' => 'decimal:2',
-            'needs_staff' => 'boolean', 'is_online' => 'boolean', 'is_active' => 'boolean',
+            'needs_staff' => 'boolean', 'is_stay' => 'boolean', 'is_online' => 'boolean', 'is_active' => 'boolean',
         ];
     }
 

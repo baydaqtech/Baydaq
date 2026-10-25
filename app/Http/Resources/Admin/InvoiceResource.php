@@ -38,6 +38,7 @@ class InvoiceResource extends JsonResource
             'currency' => $this->currency,
             'notes' => $this->notes,
             'sent_at' => $this->sent_at?->toIso8601String(),
+            'einvoice_number' => $this->einvoice_number,
             'paid_at' => $this->paid_at?->toIso8601String(),
             'items' => $this->whenLoaded('items', fn () => $this->items->map->only(['id', 'description', 'quantity', 'unit_price', 'total'])),
             'can' => [

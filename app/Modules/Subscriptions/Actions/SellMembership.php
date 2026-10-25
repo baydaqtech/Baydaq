@@ -25,9 +25,11 @@ class SellMembership
     /**
      * Sell a plan to a member, or renew one: a renewal starts the day after the current period
      * ends (or today, if it already ended). Periods of one member never overlap. The price is
-     * invoiced as a simplified tax invoice when the tenant has Invoicing and a ready unit.
+     * invoiced as a simplified tax invoice when the tenant has Invoicing and a ready unit, except
+     * for a corporate plan, which the company pays for in bulk (S1). A sale through a
+     * buy-now-pay-later provider records which one (S2).
      */
-    public function handle(Member $member, Plan $plan, PaymentMeans $means, ?string $startsOn = null, ?int $branchId = null, ?Authenticatable $actor = null, ?Membership $renewing = null): Membership
+    public function handle(Member $member, Plan $plan, PaymentMeans $means, ?string $startsOn = null, ?int $branchId = null, ?Authenticatable $actor = null, ?Membership $renewing = null, ?string $bnplProvider = null): Membership
     {
         if ($plan->company_id !== $member->company_id || ! $plan->is_active) {
             throw ValidationException::withMessages(['plan_id' => __('subscriptions.errors.plan_unavailable')]);
@@ -48,7 +50,7 @@ class SellMembership
 
         $end = $plan->period_unit->lastDay($start, $plan->period_count);
 
-        return DB::transaction(function () use ($member, $plan, $means, $branchId, $actor, $renewing, $start, $end): Membership {
+        return DB::transaction(function () use ($member, $plan, $means, $branchId, $actor, $renewing, $start, $end, $bnplProvider): Membership {
             $overlaps = Membership::query()->where('member_id', $member->id)->where('status', MembershipStatus::Active)->lockForUpdate()
                 ->whereDate('starts_on', '<=', $end)->whereDate('ends_on', '>=', $start)->exists();
 
@@ -59,11 +61,11 @@ class SellMembership
             $membership = (new Membership)->forceFill([
                 'client_id' => $member->client_id, 'company_id' => $member->company_id, 'member_id' => $member->id, 'plan_id' => $plan->id,
                 'renewed_from_id' => $renewing?->id, 'sold_at_branch_id' => $branchId, 'starts_on' => $start->toDateString(), 'ends_on' => $end->toDateString(),
-                'sessions_total' => $plan->sessions, 'price' => (string) $plan->price, 'sold_by' => $actor?->getAuthIdentifier(),
+                'sessions_total' => $plan->sessions, 'price' => (string) $plan->price, 'bnpl_provider' => $bnplProvider, 'sold_by' => $actor?->getAuthIdentifier(),
             ]);
             $membership->save();
 
-            $unitId = $this->entitlements->isActive(Module::Invoicing) ? $this->invoices->readyUnitFor($member->company_id) : null;
+            $unitId = ! $plan->is_corporate && $this->entitlements->isActive(Module::Invoicing) ? $this->invoices->readyUnitFor($member->company_id) : null;
 
             if ($unitId !== null) {
                 $issued = $this->invoices->issueSimplified($member->company_id, $unitId, [[

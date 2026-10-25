@@ -11,6 +11,7 @@ use App\Modules\Reservations\Models\Booking;
 use App\Modules\Reservations\Models\BranchSettings;
 use App\Modules\Reservations\Models\Service;
 use App\Modules\Reservations\Support\BookingMessages;
+use Brick\Math\BigDecimal;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ class BookAppointment
      * chair. A chosen resource or staff member must be free; otherwise the first free one is used.
      * Online bookings that need a deposit wait as "pending" until it is received.
      *
-     * @param  array{customer_name: string, customer_phone: string, customer_email?: ?string, party_size?: int, note?: ?string, resource_id?: ?int, employee_id?: ?int}  $data
+     * @param  array{customer_name: string, customer_phone: string, customer_email?: ?string, party_size?: int, note?: ?string, resource_id?: ?int, employee_id?: ?int, nights?: int}  $data
      */
     public function handle(Service $service, int $branchId, string $startsAt, array $data, BookingChannel $channel, ?Authenticatable $actor = null): Booking
     {
@@ -39,7 +40,8 @@ class BookAppointment
             $timezone = $this->directory->company($service->company_id)?->timezone ?? 'Asia/Riyadh';
             $start = CarbonImmutable::parse($startsAt)->setTimezone($timezone);
             $partySize = max(1, (int) ($data['party_size'] ?? 1));
-            $local = collect($this->slots->handle($service, $branchId, $start->toDateString(), $channel === BookingChannel::Online, $partySize))
+            $nights = $service->is_stay ? max(1, (int) ($data['nights'] ?? 1)) : 0;
+            $local = collect($this->slots->handle($service, $branchId, $start->toDateString(), $channel === BookingChannel::Online, $partySize, nights: max(1, $nights)))
                 ->first(fn (array $slot): bool => CarbonImmutable::parse($slot['starts_at'])->eq($start));
 
             if ($local === null) {
@@ -59,12 +61,13 @@ class BookAppointment
                 'employee_id' => $employeeId,
                 'reference' => $this->reference(),
                 'starts_at' => $start->utc(),
-                'ends_at' => $start->addMinutes($service->duration_minutes)->utc(),
-                'blocks_until' => $start->addMinutes($service->duration_minutes + $service->buffer_minutes)->utc(),
+                'ends_at' => CarbonImmutable::parse($local['ends_at'])->utc(),
+                'blocks_until' => CarbonImmutable::parse($local['ends_at'])->addMinutes($service->buffer_minutes)->utc(),
+                'nights' => $nights,
                 'status' => ((float) $deposit > 0 ? BookingStatus::Pending : BookingStatus::Confirmed)->value,
                 'channel' => $channel->value,
                 'party_size' => $partySize,
-                'price' => (string) $service->price,
+                'price' => (string) BigDecimal::of((string) $service->price)->multipliedBy(max(1, $nights))->toScale(2),
                 'deposit' => $deposit,
                 'created_by' => $actor?->getAuthIdentifier(),
             ]);

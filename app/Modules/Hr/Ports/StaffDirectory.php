@@ -15,4 +15,7 @@ interface StaffDirectory
 
     /** @return list<EmployeeSummary> active employees whose home or secondment covers the branch today */
     public function staffAt(int $branchId): array;
+
+    /** @return list<EmployeeSummary> active employees employed by the company */
+    public function activeInCompany(int $companyId): array;
 }

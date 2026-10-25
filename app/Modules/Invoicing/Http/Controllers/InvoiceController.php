@@ -36,13 +36,14 @@ class InvoiceController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only(['search', 'status', 'type']);
+        $filters = $request->only(['search', 'status', 'type', 'intercompany']);
         $companies = $this->companiesFor(InvoicingFeature::Invoices, FeatureAction::View);
 
         $invoices = Invoice::query()->with('customer')->whereIn('company_id', $companies->pluck('id'))
             ->when($filters['search'] ?? null, fn ($query, string $search) => $query->where(fn ($query) => $query->where('number', 'like', "%{$search}%")->orWhereHas('customer', fn ($query) => $query->whereAny(['name_ar', 'name_en'], 'like', "%{$search}%"))))
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
             ->when($filters['type'] ?? null, fn ($query, string $type) => $query->where('type', $type))
+            ->when($filters['intercompany'] ?? null, fn ($query, string $value) => $query->where('intercompany', $value === 'only'))
             ->latest('issue_date')->latest('id')->paginate(20)->withQueryString();
 
         $names = $companies->mapWithKeys(fn (CompanyRef $company): array => [$company->id => $company->name]);
@@ -52,7 +53,34 @@ class InvoiceController extends Controller
             'filters' => $filters,
             'statuses' => InvoiceStatus::options(),
             'types' => InvoiceType::options(),
+            'group' => $this->groupTotals($companies->pluck('id')->all(), $names),
         ], ['invoicing']);
+    }
+
+    /**
+     * This year's issued sales per company, split into outside customers and the group's own
+     * companies (I2). The group total leaves intercompany sales out, since they cancel out.
+     *
+     * @param  list<int>  $companyIds
+     * @return array{companies: list<array{company: ?string, external: string, intercompany: string}>, group_external: string, intercompany: string}
+     */
+    private function groupTotals(array $companyIds, $names): array
+    {
+        $rows = Invoice::query()->whereIn('company_id', $companyIds)->whereNotIn('status', [InvoiceStatus::Draft, InvoiceStatus::Cancelled, InvoiceStatus::Rejected])
+            ->whereYear('issue_date', today()->year)->where('kind', 'invoice')
+            ->selectRaw('company_id, intercompany, sum(total) as total')->groupBy('company_id', 'intercompany')->get();
+
+        $companies = $rows->groupBy('company_id')->map(fn ($group, $companyId): array => [
+            'company' => $names[$companyId] ?? null,
+            'external' => number_format((float) $group->where('intercompany', false)->sum('total'), 2, '.', ''),
+            'intercompany' => number_format((float) $group->where('intercompany', true)->sum('total'), 2, '.', ''),
+        ])->values()->all();
+
+        return [
+            'companies' => $companies,
+            'group_external' => number_format((float) $rows->where('intercompany', false)->sum('total'), 2, '.', ''),
+            'intercompany' => number_format((float) $rows->where('intercompany', true)->sum('total'), 2, '.', ''),
+        ];
     }
 
     public function create(): Response
@@ -182,6 +210,7 @@ class InvoiceController extends Controller
             'id' => $invoice->id, 'number' => $invoice->number, 'company_id' => $invoice->company_id, 'company' => $companyNames->get($invoice->company_id),
             'customer' => $invoice->customer?->localized('name'), 'type' => $invoice->type->value, 'kind' => $invoice->kind->value, 'status' => $invoice->status->value,
             'issue_date' => $invoice->issue_date->toDateString(), 'subtotal' => (string) $invoice->subtotal, 'vat' => (string) $invoice->vat, 'total' => (string) $invoice->total,
+            'intercompany' => $invoice->intercompany, 'paid' => $invoice->paid_at !== null,
         ];
     }
 

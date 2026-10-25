@@ -19,5 +19,7 @@ final readonly class EmployeeSummary
         public ?string $section,
         public string $status,
         public ?int $userId,
+        public ?string $phone = null,
+        public ?string $gender = null,
     ) {}
 }

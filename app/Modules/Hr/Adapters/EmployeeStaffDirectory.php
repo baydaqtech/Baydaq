@@ -34,13 +34,19 @@ class EmployeeStaffDirectory implements StaffDirectory
             ->map(fn (Employee $employee): EmployeeSummary => self::summary($employee))->all();
     }
 
+    public function activeInCompany(int $companyId): array
+    {
+        return Employee::query()->with(['job', 'section'])->where('company_id', $companyId)->where('status', EmployeeStatus::Active)
+            ->orderBy('name_en')->get()->map(fn (Employee $employee): EmployeeSummary => self::summary($employee))->all();
+    }
+
     public static function summary(Employee $employee): EmployeeSummary
     {
         return new EmployeeSummary(
             $employee->id, $employee->company_id, $employee->branch_id, $employee->employee_number,
             $employee->localized('name'), $employee->name_ar, $employee->name_en,
             $employee->job?->localized('name'), $employee->section?->localized('name'),
-            $employee->status->value, $employee->user_id,
+            $employee->status->value, $employee->user_id, $employee->phone, $employee->gender?->value,
         );
     }
 }

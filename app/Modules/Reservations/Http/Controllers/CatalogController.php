@@ -115,7 +115,7 @@ class CatalogController extends Controller
             'name_ar' => ['required', 'string', 'max:255'], 'name_en' => ['required', 'string', 'max:255'], 'description_ar' => ['nullable', 'string'], 'description_en' => ['nullable', 'string'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:1440'], 'buffer_minutes' => ['nullable', 'integer', 'min:0', 'max:240'],
             'price' => ['required', 'numeric', 'min:0'], 'vat_rate' => ['required', Rule::in(['0', '5', '15'])], 'deposit' => ['nullable', 'numeric', 'min:0', 'lte:price'],
-            'needs_staff' => ['boolean'], 'is_online' => ['boolean'], 'is_active' => ['boolean'], 'color' => ['nullable', 'string', 'max:7'], 'sort_order' => ['nullable', 'integer'],
+            'needs_staff' => ['boolean'], 'is_stay' => ['boolean'], 'check_in_time' => ['nullable', 'required_if_accepted:is_stay', 'date_format:H:i'], 'check_out_time' => ['nullable', 'required_if_accepted:is_stay', 'date_format:H:i'], 'is_online' => ['boolean'], 'is_active' => ['boolean'], 'color' => ['nullable', 'string', 'max:7'], 'sort_order' => ['nullable', 'integer'],
             'resource_ids' => ['nullable', 'array'], 'resource_ids.*' => ['integer'], 'employee_ids' => ['nullable', 'array'], 'employee_ids.*' => ['integer'],
         ]);
         $companyId = (int) ($data['company_id'] ?? $service->company_id);

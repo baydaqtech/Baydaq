@@ -68,7 +68,7 @@ class CalendarController extends Controller
             'branch_id' => ['required', 'integer'], 'service_id' => ['required', 'integer'], 'starts_at' => ['required', 'date'],
             'customer_name' => ['required', 'string', 'max:255'], 'customer_phone' => ['required', 'string', 'max:30'], 'customer_email' => ['nullable', 'email', 'max:255'],
             'party_size' => ['nullable', 'integer', 'min:1', 'max:500'], 'note' => ['nullable', 'string', 'max:255'],
-            'resource_id' => ['nullable', 'integer'], 'employee_id' => ['nullable', 'integer'],
+            'resource_id' => ['nullable', 'integer'], 'employee_id' => ['nullable', 'integer'], 'nights' => ['nullable', 'integer', 'min:1', 'max:60'],
         ]);
         $this->authorizeBranchFor(ReservationsFeature::Bookings, FeatureAction::Create, (int) $data['branch_id']);
         $service = Service::query()->findOrFail($data['service_id']);

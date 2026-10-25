@@ -40,11 +40,11 @@ class PublicBookingController extends Controller
                 'place' => ['company' => $company->name, 'branch' => $branch->name],
                 'services' => $services->map(fn (Service $service): array => [
                     'id' => $service->id, 'name' => $service->localized('name'), 'description' => $service->localized('description'),
-                    'duration_minutes' => $service->duration_minutes, 'price' => (string) $service->price, 'deposit' => (string) $service->deposit,
+                    'duration_minutes' => $service->duration_minutes, 'price' => (string) $service->price, 'deposit' => (string) $service->deposit, 'is_stay' => $service->is_stay,
                 ])->all(),
                 'window' => ['from' => $today->toDateString(), 'to' => $today->addDays($settings->max_days_ahead)->toDateString()],
                 'slots' => $chosen && $request->filled('date')
-                    ? array_map(fn (array $slot): array => ['starts_at' => $slot['starts_at'], 'time' => $slot['time']], $slots->handle($chosen, $settings->branch_id, (string) $request->query('date'), true, max(1, $request->integer('party_size', 1))))
+                    ? array_map(fn (array $slot): array => ['starts_at' => $slot['starts_at'], 'time' => $slot['time']], $slots->handle($chosen, $settings->branch_id, (string) $request->query('date'), true, max(1, $request->integer('party_size', 1)), nights: max(1, $request->integer('nights', 1))))
                     : null,
             ];
         });
@@ -56,7 +56,7 @@ class PublicBookingController extends Controller
     {
         $settings = $this->settings($token);
         $data = $request->validate([
-            'service_id' => ['required', 'integer'], 'starts_at' => ['required', 'date'], 'party_size' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'service_id' => ['required', 'integer'], 'starts_at' => ['required', 'date'], 'party_size' => ['nullable', 'integer', 'min:1', 'max:50'], 'nights' => ['nullable', 'integer', 'min:1', 'max:30'],
             'customer_name' => ['required', 'string', 'max:255'], 'customer_phone' => ['required', 'string', 'regex:/^\+?[0-9 ]{8,20}$/'], 'customer_email' => ['nullable', 'email', 'max:255'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
@@ -64,7 +64,7 @@ class PublicBookingController extends Controller
         $booking = $tenant->runFor($settings->client_id, function () use ($settings, $data, $book): Booking {
             $service = Service::query()->where('is_online', true)->findOrFail($data['service_id']);
 
-            return $book->handle($service, $settings->branch_id, $data['starts_at'], collect($data)->only(['customer_name', 'customer_phone', 'customer_email', 'party_size', 'note'])->all(), BookingChannel::Online);
+            return $book->handle($service, $settings->branch_id, $data['starts_at'], collect($data)->only(['customer_name', 'customer_phone', 'customer_email', 'party_size', 'nights', 'note'])->all(), BookingChannel::Online);
         });
 
         // A deposit is paid online straight away (the booking confirms itself when it arrives).

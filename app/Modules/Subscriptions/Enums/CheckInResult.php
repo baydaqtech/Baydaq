@@ -19,6 +19,7 @@ enum CheckInResult: string
     case Frozen = 'frozen';
     case NoSessions = 'no_sessions';
     case WrongBranch = 'wrong_branch';
+    case WrongZone = 'wrong_zone';
 
     protected static function labelFile(): string
     {

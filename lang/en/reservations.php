@@ -6,6 +6,7 @@ return [
     'abilities' => ['checkout' => 'Check out and take payment', 'cancel' => 'Cancel bookings'],
 
     'catalog' => [
+        'stay_hint' => 'The price is per night; staff the service needs are held for the whole stay.',
         'title' => 'Services and resources',
         'services' => 'Services',
         'resources' => 'Resources',
@@ -22,6 +23,9 @@ return [
         'minutes' => ':count min',
         'weekdays' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         'fields' => [
+            'is_stay' => 'Booked by the night (chalet, room)',
+            'check_in_time' => 'Check-in',
+            'check_out_time' => 'Check-out',
             'name_ar' => 'Name (Arabic)', 'name_en' => 'Name (English)', 'description_ar' => 'Description (Arabic)', 'description_en' => 'Description (English)',
             'company' => 'Company', 'branch' => 'Branch', 'duration_minutes' => 'Duration (min)', 'buffer_minutes' => 'Buffer after (min)', 'price' => 'Price (incl. VAT)',
             'vat_rate' => 'VAT %', 'deposit' => 'Deposit for online bookings', 'needs_staff' => 'Needs a staff member', 'is_online' => 'Bookable online', 'is_active' => 'Active',
@@ -56,6 +60,7 @@ return [
     ],
 
     'book' => [
+        'nights' => 'Nights',
         'title' => 'Book online',
         'service' => 'Service',
         'date' => 'Day',

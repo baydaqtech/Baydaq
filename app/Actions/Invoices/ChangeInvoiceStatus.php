@@ -20,6 +20,8 @@ class ChangeInvoiceStatus
         'void' => [InvoiceStatus::Draft, InvoiceStatus::Sent, InvoiceStatus::Overdue],
     ];
 
+    public function __construct(private IssueEinvoice $einvoice) {}
+
     /**
      * Mark sent (saves the company details on the invoice), paid, or void.
      */
@@ -38,6 +40,10 @@ class ChangeInvoiceStatus
         };
 
         $invoice->save();
+
+        if ($to === InvoiceStatus::Sent) {
+            $this->einvoice->handle($invoice);
+        }
 
         return $invoice;
     }

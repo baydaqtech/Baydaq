@@ -199,4 +199,23 @@ class BookingTest extends TestCase
         $this->assertSame(BookingStatus::Confirmed, $booking->fresh()->status);
         $this->assertNotNull($booking->fresh()->deposit_paid_at);
     }
+
+    public function test_a_chalet_is_booked_for_several_nights_with_its_host_and_blocks_overlapping_stays(): void
+    {
+        $chalet = $this->resource($this->headOffice, 'شاليه 1');
+        $stay = app(SaveService::class)->handle(new Service, [
+            'company_id' => $this->company->id, 'name_ar' => 'إقامة شاليه', 'name_en' => 'Chalet stay', 'duration_minutes' => 60, 'buffer_minutes' => 0, 'price' => '800.00',
+            'needs_staff' => true, 'is_stay' => true, 'check_in_time' => '15:00', 'check_out_time' => '12:00',
+        ], [$chalet->id], [$this->barber->id]);
+
+        $booking = app(BookAppointment::class)->handle($stay, $this->headOffice->id, '2026-11-02T15:00:00+03:00', ['customer_name' => 'Fahad', 'customer_phone' => '0500000000', 'nights' => 3], BookingChannel::Staff);
+
+        $this->assertSame(3, $booking->nights);
+        $this->assertSame('2400.00', (string) $booking->price);
+        $this->assertSame('2026-11-05 09:00:00', $booking->ends_at->toDateTimeString()); // 12:00 Riyadh
+        $this->assertSame($this->barber->id, $booking->employee_id);
+
+        $this->assertSame([], app(FindSlots::class)->handle($stay, $this->headOffice->id, '2026-11-04'));
+        $this->assertCount(1, app(FindSlots::class)->handle($stay, $this->headOffice->id, '2026-11-05'));
+    }
 }

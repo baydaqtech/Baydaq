@@ -94,4 +94,18 @@ return [
     'invoice_status' => ['draft' => 'مسودة', 'issued' => 'صادرة', 'cleared' => 'معتمدة', 'reported' => 'مُبلَّغ عنها', 'rejected' => 'مرفوضة', 'cancelled' => 'ملغاة'],
     'unit_status' => ['new' => 'جديدة', 'compliance' => 'توافق', 'production' => 'إنتاج', 'revoked' => 'ملغاة'],
     'zatca_environment' => ['sandbox' => 'تجريبية', 'simulation' => 'محاكاة', 'production' => 'إنتاج'],
+    'group' => [
+        'title' => 'مبيعات المجموعة هذا العام',
+        'total' => 'إجمالي المجموعة للعملاء الخارجيين',
+        'eliminated' => 'استُبعد :amount بين شركات المجموعة',
+        'exclude' => 'بدون فواتير المجموعة',
+        'only' => 'فواتير المجموعة فقط',
+    ],
+    'readiness' => [
+        'title' => 'الاستعداد للربط مع زاتكا',
+        'steps' => ['بيانات الشركة', 'إضافة جهاز (وحدة)', 'شهادة الامتثال (رمز التحقق)', 'شهادة الإنتاج', 'جاهز للإصدار'],
+        'missing' => 'ناقص: :fields',
+        'fields' => ['vat_number' => 'الرقم الضريبي', 'cr_number' => 'السجل التجاري', 'street' => 'الشارع', 'building_number' => 'رقم المبنى', 'district' => 'الحي', 'city' => 'المدينة', 'postal_code' => 'الرمز البريدي'],
+        'fix_company' => 'أكمل البيانات في الهيكل',
+    ],
 ];

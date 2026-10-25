@@ -2,9 +2,13 @@
 
 namespace App\Modules\Subscriptions;
 
+use App\Modules\Hr\Events\EmployeeHired;
+use App\Modules\Hr\Events\EmployeeTerminated;
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Subscriptions\Console\ExpireMemberships;
 use App\Modules\Subscriptions\Enums\SubscriptionsFeature;
+use App\Modules\Subscriptions\Listeners\SyncCorporateMembership;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -18,6 +22,7 @@ class SubscriptionsServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
         $this->app->make(FeatureRegistry::class)->register(SubscriptionsFeature::class);
         $this->loadRoutesFrom(__DIR__.'/routes.php');
+        Event::listen([EmployeeHired::class, EmployeeTerminated::class], SyncCorporateMembership::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([ExpireMemberships::class]);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Assets\Http\Controllers\Api\AuditController;
 use App\Modules\Assets\Http\Controllers\Api\InventoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,11 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->prefix('inventory')->name('in
     Route::post('/handovers/{handover}/accept', [InventoryController::class, 'accept'])->name('handovers.accept');
     Route::post('/handovers/{handover}/reject', [InventoryController::class, 'reject'])->name('handovers.reject');
     Route::post('/incidents', [InventoryController::class, 'report'])->middleware('throttle:30,1')->name('incidents.store');
+});
+
+// Stock-takes: count assets by scanning their QR tags (A2).
+Route::middleware(['auth:sanctum', 'api.tenant'])->prefix('audits')->name('audits.')->group(function (): void {
+    Route::get('/', [AuditController::class, 'index'])->name('index');
+    Route::get('/{audit}', [AuditController::class, 'show'])->name('show');
+    Route::post('/{audit}/scan', [AuditController::class, 'scan'])->middleware('throttle:240,1')->name('scan');
 });

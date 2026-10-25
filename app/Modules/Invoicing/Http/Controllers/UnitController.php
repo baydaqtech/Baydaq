@@ -34,6 +34,7 @@ class UnitController extends Controller
                 'has_compliance' => $unit->compliance_certificate !== null, 'has_production' => $unit->production_certificate !== null,
             ])->all(),
             'companies' => $companies->map(fn (CompanyRef $company): array => ['value' => $company->id, 'label' => $company->name, 'ready' => (bool) $company->vatNumber])->all(),
+            'readiness' => $companies->map(fn (CompanyRef $company): array => $this->readiness($company))->values()->all(),
             'branches' => collect($directory->branches())->map(fn (BranchRef $branch): array => ['value' => $branch->id, 'label' => $branch->name, 'company_id' => $branch->companyId])->all(),
             'environments' => ZatcaEnvironment::options(),
             'can_onboard' => $this->access()->allows(InvoicingFeature::Einvoicing->key('onboard')),
@@ -70,5 +71,30 @@ class UnitController extends Controller
         $this->toast(__('invoicing.units.production_ok'));
 
         return back();
+    }
+
+    /**
+     * Where a company stands in ZATCA onboarding (I1): its registration details, then a unit per
+     * device, then the compliance and production certificates.
+     *
+     * @return array{company_id: int, company: string, missing: list<string>, step: int}
+     */
+    private function readiness(CompanyRef $company): array
+    {
+        $missing = array_keys(array_filter([
+            'vat_number' => ! $company->vatNumber, 'cr_number' => ! $company->crNumber,
+            ...collect($company->address)->map(fn (?string $value): bool => ! $value)->all(),
+        ]));
+        $units = EinvoiceUnit::query()->where('company_id', $company->id)->get();
+
+        $step = match (true) {
+            $missing !== [] => 1,
+            $units->isEmpty() => 2,
+            $units->every(fn (EinvoiceUnit $unit): bool => $unit->compliance_certificate === null) => 3,
+            $units->every(fn (EinvoiceUnit $unit): bool => $unit->production_certificate === null) => 4,
+            default => 5,
+        };
+
+        return ['company_id' => $company->id, 'company' => $company->name, 'missing' => $missing, 'step' => $step];
     }
 }

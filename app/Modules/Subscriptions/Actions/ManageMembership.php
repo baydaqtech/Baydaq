@@ -6,6 +6,7 @@ use App\Modules\Platform\Ports\Audit;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Subscriptions\Enums\MembershipStatus;
 use App\Modules\Subscriptions\Models\Freeze;
+use App\Modules\Subscriptions\Models\Member;
 use App\Modules\Subscriptions\Models\Membership;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -62,5 +63,32 @@ class ManageMembership
         $this->audit->record($membership, 'cancelled', ['reason' => $reason], $actor);
 
         return $membership;
+    }
+
+    /** Add a family member to a family membership, up to the plan's family size (S2). */
+    public function addDependent(Membership $membership, Member $member, ?Authenticatable $actor = null): Membership
+    {
+        $membership->loadMissing(['plan', 'dependents']);
+
+        if ($member->company_id !== $membership->company_id || $member->id === $membership->member_id || $membership->dependents->contains($member)) {
+            throw ValidationException::withMessages(['member' => __('subscriptions.errors.dependent_invalid')]);
+        }
+
+        if ($membership->dependents->count() + 1 >= $membership->plan->family_size) {
+            throw ValidationException::withMessages(['member' => __('subscriptions.errors.family_full', ['size' => $membership->plan->family_size])]);
+        }
+
+        $membership->dependents()->attach($member->id);
+        $this->audit->record($membership, 'dependent_added', ['member_id' => $member->id], $actor);
+
+        return $membership->load('dependents');
+    }
+
+    public function removeDependent(Membership $membership, Member $member, ?Authenticatable $actor = null): Membership
+    {
+        $membership->dependents()->detach($member->id);
+        $this->audit->record($membership, 'dependent_removed', ['member_id' => $member->id], $actor);
+
+        return $membership->load('dependents');
     }
 }

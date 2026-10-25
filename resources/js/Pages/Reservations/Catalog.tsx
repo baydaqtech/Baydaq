@@ -23,7 +23,7 @@ import type { Option } from '@/types/resources';
 
 interface Service {
   id: number; company_id: number; name: string; name_ar: string; name_en: string; description_ar: string | null; description_en: string | null;
-  duration_minutes: number; buffer_minutes: number; price: string; vat_rate: string; deposit: string; needs_staff: boolean; is_online: boolean; is_active: boolean;
+  duration_minutes: number; buffer_minutes: number; price: string; vat_rate: string; deposit: string; needs_staff: boolean; is_stay: boolean; check_in_time: string | null; check_out_time: string | null; is_online: boolean; is_active: boolean;
   color: string | null; sort_order: number; resource_ids: number[]; employee_ids: number[]; [key: string]: unknown;
 }
 interface ResourceRow { id: number; company_id: number; branch_id: number; name: string; name_ar: string; name_en: string; kind: string; capacity: number; is_active: boolean; sort_order: number; [key: string]: unknown }
@@ -62,7 +62,7 @@ function ServiceDialog({ service, companies, resources, staff, branches }: { ser
     company_id: service?.company_id ?? companies[0]?.value ?? '', name_ar: service?.name_ar ?? '', name_en: service?.name_en ?? '',
     description_ar: service?.description_ar ?? '', description_en: service?.description_en ?? '',
     duration_minutes: service?.duration_minutes ?? 30, buffer_minutes: service?.buffer_minutes ?? 0, price: service?.price ?? '', vat_rate: service ? String(Number(service.vat_rate)) : '15',
-    deposit: service?.deposit ?? '0', needs_staff: service?.needs_staff ?? false, is_online: service?.is_online ?? true, is_active: service?.is_active ?? true,
+    deposit: service?.deposit ?? '0', needs_staff: service?.needs_staff ?? false, is_stay: service?.is_stay ?? false, check_in_time: service?.check_in_time?.slice(0, 5) ?? '15:00', check_out_time: service?.check_out_time?.slice(0, 5) ?? '12:00', is_online: service?.is_online ?? true, is_active: service?.is_active ?? true,
     color: service?.color ?? '#c8a84b', resource_ids: service?.resource_ids ?? ([] as number[]), employee_ids: service?.employee_ids ?? ([] as number[]),
   });
   const companyId = Number(form.data.company_id);
@@ -99,7 +99,14 @@ function ServiceDialog({ service, companies, resources, staff, branches }: { ser
             <SwitchField id="service-active" label={f('is_active')} checked={form.data.is_active} onChange={(value: boolean) => form.setData('is_active', value)} />
             <SwitchField id="service-online" label={f('is_online')} checked={form.data.is_online} onChange={(value: boolean) => form.setData('is_online', value)} />
             <SwitchField id="service-staff" label={f('needs_staff')} checked={form.data.needs_staff} onChange={(value: boolean) => form.setData('needs_staff', value)} />
+            <SwitchField id="service-stay" label={f('is_stay')} checked={form.data.is_stay} onChange={(value: boolean) => form.setData('is_stay', value)} />
           </div>
+          {form.data.is_stay && (
+            <>
+              <FormField label={f('check_in_time')} hint={t('reservations.catalog.stay_hint')} error={form.errors.check_in_time}><Input type="time" dir="ltr" value={form.data.check_in_time} onChange={(event) => form.setData('check_in_time', event.target.value)} /></FormField>
+              <FormField label={f('check_out_time')} error={form.errors.check_out_time}><Input type="time" dir="ltr" value={form.data.check_out_time} onChange={(event) => form.setData('check_out_time', event.target.value)} /></FormField>
+            </>
+          )}
           <fieldset className="flex flex-col gap-2 sm:col-span-2">
             <legend className="mb-1 text-sm font-medium">{f('resources')}</legend>
             <div className="flex flex-wrap gap-3">

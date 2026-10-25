@@ -28,6 +28,15 @@ interface InvoiceIssuer
      */
     public function draftIntercompany(int $sellerCompanyId, int $buyerCompanyId, array $lines, string $source, ?string $note = null): int;
 
+    /**
+     * Issue an invoice to an outside buyer known only by name (no VAT number, so a simplified
+     * invoice), through the company's first ready unit. Null when the company has no ready unit.
+     *
+     * @param  array{name_ar: string, name_en?: string|null, email?: string|null, phone?: string|null}  $buyer
+     * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price: numeric-string|float|int, vat_rate?: numeric-string|float|int}>  $lines  net prices
+     */
+    public function issueToBuyer(int $companyId, array $buyer, array $lines, string $source, ?string $note = null): ?IssuedInvoice;
+
     /** Whether the company has a unit able to issue right now (id of the first ready unit, or null). */
     public function readyUnitFor(int $companyId): ?int;
 

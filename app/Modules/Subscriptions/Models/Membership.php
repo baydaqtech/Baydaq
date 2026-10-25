@@ -8,6 +8,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -54,6 +55,16 @@ class Membership extends Model
     /**
      * @return HasMany<Freeze, $this>
      */
+    /**
+     * Family members sharing this membership besides its holder (S2).
+     *
+     * @return BelongsToMany<Member, $this>
+     */
+    public function dependents(): BelongsToMany
+    {
+        return $this->belongsToMany(Member::class, 'sub__membership_members');
+    }
+
     public function freezes(): HasMany
     {
         return $this->hasMany(Freeze::class);

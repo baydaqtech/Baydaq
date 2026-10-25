@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * company's branches when none are chosen.
  */
 #[Table('sub__plans')]
-#[Fillable(['company_id', 'name_ar', 'name_en', 'description_ar', 'description_en', 'period_unit', 'period_count', 'price', 'vat_rate', 'sessions', 'freeze_days', 'gender', 'is_active', 'sort_order'])]
+#[Fillable(['company_id', 'name_ar', 'name_en', 'description_ar', 'description_en', 'period_unit', 'period_count', 'price', 'vat_rate', 'sessions', 'freeze_days', 'gender', 'is_corporate', 'family_size', 'is_active', 'sort_order'])]
 class Plan extends Model
 {
     use BelongsToClient, HasBilingualFields;
@@ -33,7 +33,7 @@ class Plan extends Model
     {
         return [
             'period_unit' => PeriodUnit::class, 'gender' => PlanGender::class, 'period_count' => 'integer', 'sessions' => 'integer', 'freeze_days' => 'integer',
-            'price' => 'decimal:2', 'vat_rate' => 'decimal:2', 'is_active' => 'boolean',
+            'price' => 'decimal:2', 'vat_rate' => 'decimal:2', 'is_active' => 'boolean', 'is_corporate' => 'boolean', 'family_size' => 'integer',
         ];
     }
 

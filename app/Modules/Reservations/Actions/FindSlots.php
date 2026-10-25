@@ -21,9 +21,12 @@ class FindSlots
      * and the tenant has HR (staff on leave or working elsewhere that day are not offered). Online
      * customers also respect the branch's notice and booking horizon.
      *
-     * @return list<array{starts_at: string, time: string, resource_ids: list<int>, employee_ids: list<int>}>
+     * A stay (R2) has one start a day, at check-in, and holds its resource and staff member
+     * until check-out after the given number of nights.
+     *
+     * @return list<array{starts_at: string, ends_at: string, time: string, resource_ids: list<int>, employee_ids: list<int>}>
      */
-    public function handle(Service $service, int $branchId, string $date, bool $public = false, int $partySize = 1, ?int $ignoreBookingId = null): array
+    public function handle(Service $service, int $branchId, string $date, bool $public = false, int $partySize = 1, ?int $ignoreBookingId = null, int $nights = 1): array
     {
         $branch = $this->directory->branch($branchId);
 
@@ -55,6 +58,10 @@ class FindSlots
             return [];
         }
 
+        if ($service->is_stay) {
+            return $this->stay($service, $day, max(1, $nights), $earliest, $resourceIds, $staffIds, $needsResource, $needsStaff, $ignoreBookingId);
+        }
+
         $busy = Booking::query()->holding($day->startOfDay(), $day->endOfDay()->addMinutes($service->buffer_minutes))
             ->where(fn ($query) => $query->whereIn('resource_id', $resourceIds ?: [0])->orWhereIn('employee_id', $staffIds ?: [0]))
             ->when($ignoreBookingId, fn ($query, int $id) => $query->whereKeyNot($id))
@@ -79,10 +86,38 @@ class FindSlots
                     continue;
                 }
 
-                $slots[] = ['starts_at' => $start->toIso8601String(), 'time' => $start->format('H:i'), 'resource_ids' => $freeResources, 'employee_ids' => $freeStaff];
+                $slots[] = ['starts_at' => $start->toIso8601String(), 'ends_at' => $start->addMinutes($service->duration_minutes)->toIso8601String(), 'time' => $start->format('H:i'), 'resource_ids' => $freeResources, 'employee_ids' => $freeStaff];
             }
         }
 
         return $slots;
+    }
+
+    /**
+     * @param  list<int>  $resourceIds
+     * @param  list<int>  $staffIds
+     * @return list<array{starts_at: string, ends_at: string, time: string, resource_ids: list<int>, employee_ids: list<int>}>
+     */
+    private function stay(Service $service, CarbonImmutable $day, int $nights, CarbonImmutable $earliest, array $resourceIds, array $staffIds, bool $needsResource, bool $needsStaff, ?int $ignoreBookingId): array
+    {
+        $start = $day->setTimeFromTimeString((string) ($service->check_in_time ?? '15:00'));
+        $end = $day->addDays($nights)->setTimeFromTimeString((string) ($service->check_out_time ?? '12:00'));
+
+        if ($start->lt($earliest)) {
+            return [];
+        }
+
+        $busy = Booking::query()->holding($start, $end->addMinutes($service->buffer_minutes))
+            ->where(fn ($query) => $query->whereIn('resource_id', $resourceIds ?: [0])->orWhereIn('employee_id', $staffIds ?: [0]))
+            ->when($ignoreBookingId, fn ($query, int $id) => $query->whereKeyNot($id))
+            ->get(['resource_id', 'employee_id']);
+        $freeResources = array_values(array_diff($resourceIds, $busy->pluck('resource_id')->filter()->all()));
+        $freeStaff = array_values(array_diff($staffIds, $busy->pluck('employee_id')->filter()->all()));
+
+        if (($needsResource && $freeResources === []) || ($needsStaff && $freeStaff === [])) {
+            return [];
+        }
+
+        return [['starts_at' => $start->toIso8601String(), 'ends_at' => $end->toIso8601String(), 'time' => $start->format('H:i'), 'resource_ids' => $freeResources, 'employee_ids' => $freeStaff]];
     }
 }

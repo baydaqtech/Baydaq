@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import FormActions from '@/components/platform/FormActions';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
+import SelectInput from '@/components/platform/SelectInput';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -16,9 +17,9 @@ const FIELDS = [
   ['iban', 'ltr'], ['invoice_note', null],
 ];
 
-export default function Settings({ issuer }) {
+export default function Settings({ issuer, einvoicing_company_id: einvoicingCompanyId, companies }) {
   const t = useT();
-  const form = useForm(Object.fromEntries(FIELDS.map(([key]) => [key, issuer[key] ?? ''])));
+  const form = useForm({ ...Object.fromEntries(FIELDS.map(([key]) => [key, issuer[key] ?? ''])), einvoicing_company_id: einvoicingCompanyId ?? '' });
   const { data, setData, errors, processing } = form;
 
   function submit(event) {
@@ -37,6 +38,13 @@ export default function Settings({ issuer }) {
                 <Input id={key} dir={dir ?? undefined} value={data[key]} onChange={(event) => setData(key, event.target.value)} />
               </FormField>
             ))}
+            <div className="flex flex-col gap-2 border-t pt-4 sm:col-span-2">
+              <h3 className="text-sm font-semibold">{t('admin.settings.einvoicing')}</h3>
+              <p className="text-xs text-muted-foreground">{t('admin.settings.einvoicing_text')}</p>
+              <FormField label={t('admin.settings.fields.einvoicing_company_id')} htmlFor="einvoicing_company_id" error={errors.einvoicing_company_id}>
+                <SelectInput id="einvoicing_company_id" value={data.einvoicing_company_id} onChange={(value) => setData('einvoicing_company_id', value)} options={companies} emptyLabel={t('admin.settings.einvoicing_off')} />
+              </FormField>
+            </div>
             <div className="sm:col-span-2"><FormActions processing={processing} /></div>
           </form>
         </CardContent>

@@ -18,13 +18,13 @@ interface Recent { id: number; time: string; member_id: number; member: string; 
 interface Outcome { result: string; allowed: boolean; member: { id: number; name: string; number: string } | null; membership: { ends_on: string; sessions_left: number | null } | null }
 
 /** The front desk: a code field that keeps focus (barcode scanners type and press Enter) and a big yes/no. */
-export default function CheckIn({ branches, branch_id: branchId, can_check_in: canCheckIn, recent }: { branches: Option[]; branch_id: number | null; can_check_in: boolean; recent: Recent[] }) {
+export default function CheckIn({ branches, branch_id: branchId, zones, can_check_in: canCheckIn, recent }: { branches: Option[]; branch_id: number | null; zones: Option[]; can_check_in: boolean; recent: Recent[] }) {
   const t = useT();
   const url = useSuiteUrl();
   const flash = usePage().flash as { check_in?: Outcome };
   const [outcome, setOutcome] = useState<Outcome | null>(flash.check_in ?? null);
   const input = useRef<HTMLInputElement>(null);
-  const form = useForm({ branch_id: branchId, code: '' });
+  const form = useForm({ branch_id: branchId, code: '', zone_id: zones[0]?.value ?? '' });
 
   useEffect(() => input.current?.focus(), [outcome]);
 
@@ -47,6 +47,7 @@ export default function CheckIn({ branches, branch_id: branchId, can_check_in: c
         <div className="flex flex-col gap-4">
           {canCheckIn && (
             <form onSubmit={submit} className="flex gap-2">
+              {zones.length > 0 && <SelectInput className="h-12 w-44" value={form.data.zone_id} onChange={(value) => form.setData('zone_id', value)} options={zones} />}
               <Input ref={input} dir="ltr" autoFocus autoComplete="off" className="h-12 text-lg" placeholder={t('subscriptions.check_in.code')} aria-label={t('subscriptions.check_in.code')} value={form.data.code} onChange={(event) => form.setData('code', event.target.value)} />
               <Button type="submit" size="lg" className="h-12" disabled={form.processing || !form.data.code}>{t('subscriptions.check_in.submit')}</Button>
             </form>

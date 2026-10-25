@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Cpu, Plus } from 'lucide-react';
+import { CheckCircle2, Cpu, Plus } from 'lucide-react';
 import ConfirmAction from '@/components/platform/ConfirmAction';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
@@ -11,12 +11,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import SuiteLayout from '@/layouts/SuiteLayout';
-import { useLocale, useT } from '@/lib/i18n';
+import { useCopy, useLocale, useT } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { useSuiteUrl } from '@/lib/suite';
 import type { Option } from '@/types/resources';
 
 interface Unit { id: number; name: string; company: string | null; serial: string; environment: string; status: string; counter: number; has_compliance: boolean; has_production: boolean }
-interface Props { units: Unit[]; companies: (Option & { ready: boolean })[]; branches: (Option & { company_id: number })[]; environments: Option[]; can_onboard: boolean }
+interface Readiness { company_id: number; company: string; missing: string[]; step: number }
+interface Props { readiness: Readiness[]; units: Unit[]; companies: (Option & { ready: boolean })[]; branches: (Option & { company_id: number })[]; environments: Option[]; can_onboard: boolean }
 
 function NewUnitDialog({ companies, branches, environments }: Pick<Props, 'companies' | 'branches' | 'environments'>) {
   const t = useT();
@@ -56,13 +58,46 @@ function OtpForm({ unit }: { unit: Unit }) {
   );
 }
 
-export default function UnitsIndex({ units, companies, branches, environments, can_onboard: canOnboard }: Props) {
+function ReadinessCard({ readiness }: { readiness: Readiness }) {
+  const t = useT();
+  const steps = useCopy<string[] | undefined>('invoicing.readiness.steps') ?? [];
+
+  return (
+    <Card><CardContent className="flex flex-col gap-3">
+      <div className="font-medium">{readiness.company}</div>
+      <ol className="grid gap-2 sm:grid-cols-5">
+        {steps.map((label, index) => {
+          const position = index + 1;
+          const state = position < readiness.step || readiness.step === 5 ? 'done' : position === readiness.step ? 'current' : 'todo';
+
+          return (
+            <li key={label} className={cn('flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs', state === 'done' && 'border-emerald-200 bg-emerald-50 text-emerald-800', state === 'current' && 'border-brass font-medium', state === 'todo' && 'text-muted-foreground')}>
+              {state === 'done' ? <CheckCircle2 className="size-4 shrink-0" /> : <span className="grid size-4 shrink-0 place-items-center rounded-full border text-[10px]">{position}</span>}
+              <span>{label}</span>
+            </li>
+          );
+        })}
+      </ol>
+      {readiness.missing.length > 0 && (
+        <p className="text-xs text-muted-foreground">{t('invoicing.readiness.missing', { fields: readiness.missing.map((field) => t(`invoicing.readiness.fields.${field}`)).join('، ') })} — {t('invoicing.readiness.fix_company')}</p>
+      )}
+    </CardContent></Card>
+  );
+}
+
+export default function UnitsIndex({ readiness, units, companies, branches, environments, can_onboard: canOnboard }: Props) {
   const t = useT();
   const url = useSuiteUrl();
 
   return (
     <SuiteLayout title={t('invoicing.units.title')}>
       <PageHeader title={t('invoicing.units.title')} description={t('invoicing.units.lede')} actions={canOnboard && <NewUnitDialog companies={companies} branches={branches} environments={environments} />} />
+      {readiness.some((row) => row.step < 5) && (
+        <section className="mb-6 flex flex-col gap-3">
+          <h2 className="text-sm font-semibold">{t('invoicing.readiness.title')}</h2>
+          {readiness.filter((row) => row.step < 5).map((row) => <ReadinessCard key={row.company_id} readiness={row} />)}
+        </section>
+      )}
       <div className="grid gap-3 md:grid-cols-2">
         {units.length === 0 && <Card className="md:col-span-2"><CardContent className="py-8 text-center text-muted-foreground">{t('common.actions.empty')}</CardContent></Card>}
         {units.map((unit) => (

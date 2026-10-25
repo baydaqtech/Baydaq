@@ -34,7 +34,7 @@ class Booking extends Model
     {
         return [
             'status' => BookingStatus::class, 'channel' => BookingChannel::class,
-            'starts_at' => 'datetime', 'ends_at' => 'datetime', 'blocks_until' => 'datetime', 'deposit_paid_at' => 'datetime', 'reminded_at' => 'datetime',
+            'starts_at' => 'datetime', 'ends_at' => 'datetime', 'blocks_until' => 'datetime', 'deposit_paid_at' => 'datetime', 'reminded_at' => 'datetime', 'nights' => 'integer',
             'price' => 'decimal:2', 'deposit' => 'decimal:2', 'paid_amount' => 'decimal:2', 'party_size' => 'integer',
         ];
     }

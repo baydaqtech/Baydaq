@@ -23,6 +23,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 
 class MemberController extends Controller
@@ -75,7 +76,9 @@ class MemberController extends Controller
                 ...$member->only(['id', 'number', 'name', 'phone', 'email', 'gender', 'note', 'is_active']), 'birth_date' => $member->birth_date?->toDateString(),
                 'card_url' => route('member.card', $member->card_token),
             ],
-            'memberships' => $member->memberships()->with(['plan', 'freezes'])->latest('starts_on')->get()->map(fn (Membership $membership): array => [
+            'memberships' => $member->memberships()->with(['plan', 'freezes', 'dependents'])->latest('starts_on')->get()->map(fn (Membership $membership): array => [
+                'family_size' => $membership->plan->family_size, 'bnpl_provider' => $membership->bnpl_provider, 'is_corporate' => $membership->plan->is_corporate,
+                'dependents' => $membership->dependents->map(fn (Member $dependent): array => ['id' => $dependent->id, 'name' => $dependent->name, 'number' => $dependent->number])->all(),
                 'id' => $membership->id, 'plan' => $membership->plan->localized('name'), 'status' => $membership->status->value,
                 'starts_on' => $membership->starts_on->toDateString(), 'ends_on' => $membership->ends_on->toDateString(),
                 'is_current' => $membership->status === MembershipStatus::Active && $membership->covers($today), 'is_frozen' => $membership->isFrozenOn($today),
@@ -107,10 +110,10 @@ class MemberController extends Controller
     public function sell(Request $request, Member $member, SellMembership $sell): RedirectResponse
     {
         abort_unless($this->companiesFor(SubscriptionsFeature::Members, 'sell')->contains('id', $member->company_id), 403);
-        $data = $request->validate(['plan_id' => ['required', 'integer'], 'starts_on' => ['nullable', 'date'], 'payment_means' => ['required', Rule::enum(PaymentMeans::class)], 'renew_id' => ['nullable', 'integer']]);
+        $data = $request->validate(['plan_id' => ['required', 'integer'], 'starts_on' => ['nullable', 'date'], 'payment_means' => ['required', Rule::enum(PaymentMeans::class)], 'renew_id' => ['nullable', 'integer'], 'bnpl_provider' => ['nullable', Rule::in(['tamara', 'tabby'])]]);
         $renewing = isset($data['renew_id']) ? $member->memberships()->findOrFail($data['renew_id']) : null;
 
-        $sell->handle($member, Plan::query()->findOrFail($data['plan_id']), PaymentMeans::from($data['payment_means']), $renewing ? null : ($data['starts_on'] ?? null), actor: $request->user(), renewing: $renewing);
+        $sell->handle($member, Plan::query()->findOrFail($data['plan_id']), PaymentMeans::from($data['payment_means']), $renewing ? null : ($data['starts_on'] ?? null), actor: $request->user(), renewing: $renewing, bnplProvider: $data['bnpl_provider'] ?? null);
         $this->toast(__('subscriptions.members.sold'));
 
         return back();
@@ -146,5 +149,29 @@ class MemberController extends Controller
             'name' => ['required', 'string', 'max:255'], 'phone' => ['required', 'string', 'regex:/^\+?[0-9 ]{8,20}$/'], 'email' => ['nullable', 'email', 'max:255'],
             'gender' => ['nullable', Rule::in(['male', 'female'])], 'birth_date' => ['nullable', 'date', 'before:today'], 'note' => ['nullable', 'string', 'max:255'], 'is_active' => ['boolean'],
         ]);
+    }
+
+    /** Add a family member to a family membership (S2). */
+    public function addDependent(Request $request, Membership $membership, ManageMembership $manage): RedirectResponse
+    {
+        abort_unless($this->companiesFor(SubscriptionsFeature::Members, 'sell')->contains('id', $membership->company_id), 403);
+        $data = $request->validate(['member' => ['required', 'string', 'max:30']]);
+        $code = strtoupper(trim($data['member']));
+        $dependent = Member::query()->where('company_id', $membership->company_id)->where(fn ($query) => $query->where('number', $code)->orWhere('phone', preg_replace('/\s+/', '', $code)))->first()
+            ?? throw ValidationException::withMessages(['member' => __('subscriptions.errors.member_not_found')]);
+
+        $manage->addDependent($membership, $dependent, $request->user());
+        $this->toast(__('subscriptions.members.dependent_added'));
+
+        return back();
+    }
+
+    public function removeDependent(Request $request, Membership $membership, Member $member, ManageMembership $manage): RedirectResponse
+    {
+        abort_unless($this->companiesFor(SubscriptionsFeature::Members, 'sell')->contains('id', $membership->company_id), 403);
+        $manage->removeDependent($membership, $member, $request->user());
+        $this->toast(__('subscriptions.members.dependent_removed'));
+
+        return back();
     }
 }

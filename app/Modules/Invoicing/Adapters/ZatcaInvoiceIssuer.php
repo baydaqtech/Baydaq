@@ -65,6 +65,29 @@ class ZatcaInvoiceIssuer implements InvoiceIssuer
         return $invoice->id;
     }
 
+    public function issueToBuyer(int $companyId, array $buyer, array $lines, string $source, ?string $note = null): ?IssuedInvoice
+    {
+        $unitId = $this->readyUnitFor($companyId);
+
+        if ($unitId === null) {
+            return null;
+        }
+
+        $customer = Customer::query()->whereNull('company_id')->whereNull('vat_number')->where('name_ar', $buyer['name_ar'])->first()
+            ?? tap((new Customer([
+                'name_ar' => $buyer['name_ar'], 'name_en' => $buyer['name_en'] ?? null, 'email' => $buyer['email'] ?? null, 'phone' => $buyer['phone'] ?? null,
+            ]))->forceFill(['client_id' => $this->tenant->client()->id]))->save();
+
+        $invoice = $this->save->handle(new Invoice, $companyId, [
+            'type' => 'simplified', 'kind' => 'invoice', 'customer_id' => $customer->id,
+            'issue_date' => today()->toDateString(), 'payment_means' => '42', 'note' => $note,
+        ], $lines);
+        $invoice->forceFill(['source' => $source])->save();
+        $invoice = $this->issue->handle($invoice, EinvoiceUnit::query()->findOrFail($unitId), auth()->user());
+
+        return new IssuedInvoice($invoice->id, $invoice->number, $invoice->status->value, $invoice->qr, $invoice->payableAmount(), (string) $invoice->vat);
+    }
+
     public function readyUnitFor(int $companyId): ?int
     {
         return EinvoiceUnit::query()->where('company_id', $companyId)->whereIn('status', [UnitStatus::Production, UnitStatus::Compliance])->orderByRaw("status = 'production' desc")->value('id');

@@ -94,4 +94,18 @@ return [
     'invoice_status' => ['draft' => 'Draft', 'issued' => 'Issued', 'cleared' => 'Cleared', 'reported' => 'Reported', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled'],
     'unit_status' => ['new' => 'New', 'compliance' => 'Compliance', 'production' => 'Production', 'revoked' => 'Revoked'],
     'zatca_environment' => ['sandbox' => 'Sandbox', 'simulation' => 'Simulation', 'production' => 'Production'],
+    'group' => [
+        'title' => 'Group sales this year',
+        'total' => 'Group total to outside customers',
+        'eliminated' => ':amount between group companies left out',
+        'exclude' => 'Without intercompany',
+        'only' => 'Intercompany only',
+    ],
+    'readiness' => [
+        'title' => 'Getting ready for ZATCA',
+        'steps' => ['Company details', 'Add a device (unit)', 'Compliance certificate (OTP)', 'Production certificate', 'Ready to issue'],
+        'missing' => 'Missing: :fields',
+        'fields' => ['vat_number' => 'VAT number', 'cr_number' => 'CR number', 'street' => 'street', 'building_number' => 'building number', 'district' => 'district', 'city' => 'city', 'postal_code' => 'postal code'],
+        'fix_company' => 'Complete the details in Structure',
+    ],
 ];

@@ -12,7 +12,7 @@ import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Slot } from '@/types/reservations';
 
-interface PublicService { id: number; name: string; description: string | null; duration_minutes: number; price: string; deposit: string }
+interface PublicService { id: number; name: string; description: string | null; duration_minutes: number; price: string; deposit: string; is_stay: boolean }
 
 interface Props {
   token: string;
@@ -28,11 +28,11 @@ export default function Book({ token, place, services, window: range, slots }: P
   const { locale } = useLocale();
   const flash = usePage().flash as { booking?: { reference: string; status: string; deposit: string; payment_url?: string | null } };
   const [done, setDone] = useState(flash.booking ?? null);
-  const form = useForm({ service_id: 0, date: range.from, starts_at: '', party_size: 1, customer_name: '', customer_phone: '', customer_email: '', note: '' });
+  const form = useForm({ service_id: 0, date: range.from, starts_at: '', party_size: 1, nights: 1, customer_name: '', customer_phone: '', customer_email: '', note: '' });
   const service = services.find((item) => item.id === form.data.service_id);
 
-  function load(next: { service_id?: number; date?: string }) {
-    const data = { service_id: next.service_id ?? form.data.service_id, date: next.date ?? form.data.date };
+  function load(next: { service_id?: number; date?: string; nights?: number }) {
+    const data = { service_id: next.service_id ?? form.data.service_id, date: next.date ?? form.data.date, nights: next.nights ?? form.data.nights };
     form.setData((current) => ({ ...current, ...data, starts_at: '' }));
     router.reload({ only: ['slots'], data });
   }
@@ -100,6 +100,12 @@ export default function Book({ token, place, services, window: range, slots }: P
                   ) : <p className="text-sm text-muted-foreground">{t('reservations.book.no_slots')}</p>}
                 </FormField>
               </>
+            )}
+
+            {service?.is_stay && (
+              <FormField label={t('reservations.book.nights')}>
+                <Input type="number" min={1} max={30} dir="ltr" className="w-28" value={form.data.nights} onChange={(event) => { const nights = Math.max(1, Number(event.target.value)); form.setData('nights', nights); load({ nights }); }} />
+              </FormField>
             )}
 
             {form.data.starts_at && (

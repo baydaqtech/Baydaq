@@ -283,6 +283,7 @@ return [
         'voided' => 'Invoice voided.',
         'locked' => 'An invoice cannot be edited once it is sent.',
         'paid_at' => 'Paid on',
+        'einvoice_number' => 'ZATCA e-invoice number',
         'sent_at' => 'Sent on',
     ],
 
@@ -349,6 +350,9 @@ return [
         'title' => 'Settings',
         'issuer' => 'Company details on invoices',
         'issuer_text' => 'Printed on every invoice; a copy is saved on each invoice when it is sent.',
+        'einvoicing' => 'E-invoicing (ZATCA)',
+        'einvoicing_text' => 'When a company is chosen, each invoice you send is also issued as a ZATCA e-invoice from that company in the suite.',
+        'einvoicing_off' => 'Off',
         'fields' => [
             'company_name_ar' => 'Company name in Arabic',
             'company_name_en' => 'Company name in English',
@@ -360,6 +364,7 @@ return [
             'account_name' => 'Account name',
             'iban' => 'IBAN',
             'invoice_note' => 'Line at the bottom of the invoice',
+            'einvoicing_company_id' => 'Issue from company',
         ],
     ],
 ];

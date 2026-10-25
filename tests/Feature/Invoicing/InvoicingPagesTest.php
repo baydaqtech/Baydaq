@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\Invoicing;
 
+use App\Enums\Permission;
+use App\Models\Invoice as CoreInvoice;
+use App\Models\Setting;
+use App\Models\User;
 use App\Modules\Invoicing\Actions\SaveInvoice;
 use App\Modules\Invoicing\Enums\InvoicingFeature;
 use App\Modules\Invoicing\Models\Customer;
@@ -127,5 +131,73 @@ class InvoicingPagesTest extends TestCase
 
         $this->post('/pay/'.Payment::query()->value('token'));
         $this->assertNotNull($invoice->fresh()->paid_at);
+    }
+
+    public function test_the_units_page_shows_where_each_company_stands_in_onboarding(): void
+    {
+        $other = Company::factory()->for($this->organization)->create(['client_id' => $this->client->id, 'vat_number' => null]);
+
+        $this->actingAs($this->owner)->get($this->url('units'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('readiness', fn ($rows) => collect($rows)->firstWhere('company_id', $this->company->id)['step'] === 2
+                && collect($rows)->firstWhere('company_id', $other->id)['step'] === 1
+                && in_array('vat_number', collect($rows)->firstWhere('company_id', $other->id)['missing'], true)));
+
+        $this->readyUnit($this->company->id, $this->client->id);
+
+        $this->actingAs($this->owner)->get($this->url('units'))->assertInertia(fn (Assert $page) => $page
+            ->where('readiness', fn ($rows) => collect($rows)->firstWhere('company_id', $this->company->id)['step'] === 4));
+    }
+
+    public function test_group_totals_leave_intercompany_sales_out_and_the_list_filters_them(): void
+    {
+        $other = Company::factory()->for($this->organization)->create(['client_id' => $this->client->id]);
+        $line = [['description' => 'Service', 'quantity' => 1, 'unit_price' => '100.00']];
+        $external = app(SaveInvoice::class)->handle(new Invoice, $this->company->id, ['type' => 'simplified', 'issue_date' => '2026-11-01', 'payment_means' => '10'], $line);
+        $internal = app(SaveInvoice::class)->handle(new Invoice, $this->company->id, ['type' => 'simplified', 'issue_date' => '2026-11-01', 'payment_means' => '42'], $line);
+        $external->forceFill(['status' => 'reported'])->save();
+        $internal->forceFill(['status' => 'reported', 'intercompany' => true])->save();
+        app(SaveInvoice::class)->handle(new Invoice, $other->id, ['type' => 'simplified', 'issue_date' => '2026-11-01', 'payment_means' => '10'], $line)->forceFill(['status' => 'reported'])->save();
+
+        $this->actingAs($this->owner)->get($this->url('invoices'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('group.group_external', '230.00')
+            ->where('group.intercompany', '115.00')
+            ->has('group.companies', 2));
+
+        $this->actingAs($this->owner)->get($this->url('invoices').'?intercompany=only')->assertInertia(fn (Assert $page) => $page
+            ->has('invoices.data', 1)->where('invoices.data.0.id', $internal->id)->where('invoices.data.0.intercompany', true));
+        $this->actingAs($this->owner)->get($this->url('invoices').'?intercompany=exclude')->assertInertia(fn (Assert $page) => $page->has('invoices.data', 2));
+    }
+
+    public function test_a_baydaq_invoice_sent_from_the_admin_is_issued_as_an_einvoice_from_the_chosen_company(): void
+    {
+        $this->readyUnit($this->company->id, $this->client->id);
+        $this->fakeZatcaAccepting();
+        $admin = User::factory()->admin(Permission::InvoicesManage, Permission::SettingsManage)->create();
+        $invoice = CoreInvoice::factory()->create();
+        $invoice->items()->make(['description' => 'Website build', 'quantity' => 1, 'unit_price' => '1000.00'])->forceFill(['total' => '1000.00'])->save();
+
+        $this->actingAs($admin)->put('/admin/settings', ['einvoicing_company_id' => $this->company->id])->assertSessionHasNoErrors()->assertRedirect();
+        $this->actingAs($admin)->post("/admin/invoices/{$invoice->id}/send")->assertRedirect();
+
+        $invoice->refresh();
+        $this->assertSame('sent', $invoice->status->value);
+        $this->assertNotNull($invoice->einvoice_number);
+        $this->assertSame('reported', $invoice->einvoice_status);
+        $einvoice = Invoice::query()->findOrFail($invoice->einvoice_id);
+        $this->assertSame('baydaq.invoice', $einvoice->source);
+        $this->assertSame('1150.00', (string) $einvoice->total);
+        $this->assertSame($invoice->client->name_ar, $einvoice->customer->name_ar);
+    }
+
+    public function test_sending_still_works_when_the_chosen_company_has_no_ready_unit(): void
+    {
+        $admin = User::factory()->admin(Permission::InvoicesManage)->create();
+        $invoice = CoreInvoice::factory()->create();
+        Setting::store(['einvoicing_company_id' => (string) $this->company->id]);
+
+        $this->actingAs($admin)->post("/admin/invoices/{$invoice->id}/send")->assertRedirect();
+
+        $this->assertSame('sent', $invoice->refresh()->status->value);
+        $this->assertNull($invoice->einvoice_id);
     }
 }
