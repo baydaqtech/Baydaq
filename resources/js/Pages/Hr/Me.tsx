@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
+import AdvanceCalculator, { type AdvanceData } from '@/components/hr/AdvanceCalculator';
 import LeaveBalanceCard, { type LeaveBalance } from '@/components/hr/LeaveBalanceCard';
 import BrandMark from '@/components/platform/BrandMark';
 import FormField from '@/components/platform/FormField';
@@ -22,10 +23,11 @@ interface Props {
   balances: LeaveBalance[];
   requests: LeaveItem[];
   types: Option[];
+  advance: AdvanceData;
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types }: Props) {
+export default function Me({ employee, balances, requests, types, advance }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -72,6 +74,8 @@ export default function Me({ employee, balances, requests, types }: Props) {
             </Card>
           )}
         </section>
+
+        <AdvanceCalculator data={advance} />
 
         <Card>
           <CardHeader><CardTitle className="text-base">{t('hr.leave.title')}</CardTitle></CardHeader>

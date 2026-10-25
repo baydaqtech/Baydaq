@@ -20,9 +20,11 @@ use App\Modules\Hr\Models\DocumentType;
 use App\Modules\Hr\Models\Job;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\Section;
+use App\Modules\Hr\Support\HrSettings;
 use App\Modules\Platform\Data\CompanyRef;
 use App\Modules\Platform\Http\Controllers\Concerns\AuthorizesSuite;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
+use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\OrgDirectory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
@@ -52,6 +54,8 @@ class CatalogController extends Controller
             'deduction_types' => CatalogResource::collection(DeductionType::query()->orderBy('sort_order')->get()),
             'leave_types' => CatalogResource::collection(LeaveType::query()->orderBy('sort_order')->get()),
             'companies' => collect($directory->companies())->map(fn (CompanyRef $company): array => ['value' => $company->id, 'label' => $company->name])->all(),
+            'settings' => app(HrSettings::class)->all(),
+            'roles' => collect(app(Access::class)->roles())->map(fn (array $role): array => ['value' => $role['id'], 'label' => $role['name']])->all(),
             'calculations' => AllowanceCalculation::options(),
             'field_types' => DocumentFieldType::options(),
             'leave_accruals' => LeaveAccrual::options(),

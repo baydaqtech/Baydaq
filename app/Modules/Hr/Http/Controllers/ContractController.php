@@ -4,6 +4,7 @@ namespace App\Modules\Hr\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Contracts\SaveContract;
+use App\Modules\Hr\Actions\Employees\DualControl;
 use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Http\Controllers\Concerns\ScopesEmployees;
 use App\Modules\Hr\Http\Requests\SaveContractRequest;
@@ -22,7 +23,7 @@ class ContractController extends Controller
         $this->authorizeEmployee($employee, HrFeature::Contracts, FeatureAction::Create);
 
         $saveContract->handle($employee, new Contract, $request->safe()->except('allowances'), $request->validated('allowances'), $request->user());
-        $this->toast(__('hr.contracts.saved'));
+        $this->toast(app(DualControl::class)->held() === [] ? __('hr.contracts.saved') : __('hr.changes.held'));
 
         return back();
     }
@@ -33,7 +34,7 @@ class ContractController extends Controller
         abort_unless($contract->employee_id === $employee->id, 404);
 
         $saveContract->handle($employee, $contract, $request->safe()->except('allowances'), $request->validated('allowances'), $request->user());
-        $this->toast(__('hr.contracts.saved'));
+        $this->toast(app(DualControl::class)->held() === [] ? __('hr.contracts.saved') : __('hr.changes.held'));
 
         return back();
     }

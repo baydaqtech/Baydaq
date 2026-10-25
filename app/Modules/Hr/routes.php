@@ -2,6 +2,7 @@
 
 use App\Modules\Hr\Http\Controllers\AttendanceController;
 use App\Modules\Hr\Http\Controllers\CatalogController;
+use App\Modules\Hr\Http\Controllers\ChangeRequestController;
 use App\Modules\Hr\Http\Controllers\ContractController;
 use App\Modules\Hr\Http\Controllers\EmployeeController;
 use App\Modules\Hr\Http\Controllers\EmployeeDocumentController;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
     Route::get('/', [SelfServiceController::class, 'show'])->name('home');
     Route::post('/leave', [SelfServiceController::class, 'requestLeave'])->middleware('throttle:10,1')->name('leave.store');
+    Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->name('advance.store');
 });
 
 /*
@@ -37,6 +39,8 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::put('/employees/{employee}/status', [EmployeeController::class, 'status'])->name('employees.status');
         });
         Route::post('/employees/{employee}/login', [EmployeeController::class, 'linkLogin'])->middleware('access:hr.employees.link_login')->name('employees.login');
+        Route::put('/changes/{change}', [ChangeRequestController::class, 'decide'])->middleware('access:hr.employees.approve_changes|hr.employees.update')->name('changes.decide');
+        Route::put('/settings', [ChangeRequestController::class, 'settings'])->middleware('access:hr.catalog.update')->name('settings.update');
 
         Route::middleware('access:hr.contracts.create|hr.contracts.update')->group(function (): void {
             Route::post('/employees/{employee}/contracts', [ContractController::class, 'store'])->name('contracts.store');
@@ -49,6 +53,8 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::delete('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'deleteFile'])->name('documents.files.destroy');
         });
         Route::delete('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'destroy'])->middleware('access:hr.documents.delete')->name('documents.destroy');
+        Route::get('/documents/radar', [EmployeeDocumentController::class, 'radar'])->middleware('access:hr.documents.view')->name('documents.radar');
+        Route::put('/renewals/{renewal}', [EmployeeDocumentController::class, 'renewal'])->middleware('access:hr.documents.update')->name('documents.renewals.update');
         Route::get('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'file'])->middleware('access:hr.documents.view')->name('documents.files.show');
 
         Route::post('/employees/{employee}/movements', [MovementController::class, 'store'])->middleware('access:hr.movements.create')->name('movements.store');
@@ -88,6 +94,8 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::get('/payroll/{run}', [PayrollController::class, 'show'])->middleware('access:hr.payroll.view')->name('payroll.show');
         Route::get('/payroll', [PayrollController::class, 'index'])->middleware('access:hr.payroll.view')->name('payroll.index');
         Route::get('/employees/{employee}/eosb', [PayrollController::class, 'eosb'])->middleware('access:hr.payroll.view_eosb')->name('payroll.eosb');
+        Route::post('/employees/{employee}/final-settlement', [PayrollController::class, 'settle'])->middleware('access:hr.payroll.view_eosb')->name('payroll.settle');
+        Route::get('/reports/eosb', [PayrollController::class, 'liability'])->middleware('access:hr.payroll.view_eosb')->name('reports.eosb');
 
         Route::get('/org-chart', OrgChartController::class)->middleware('access:hr.employees.view')->name('org_chart');
         Route::get('/reports/headcount', HeadcountReportController::class)->middleware('access:hr.reports.view')->name('reports.headcount');

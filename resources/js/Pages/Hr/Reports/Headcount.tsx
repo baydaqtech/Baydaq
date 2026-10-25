@@ -1,9 +1,12 @@
+import { Link } from '@inertiajs/react';
 import PageHeader from '@/components/platform/PageHeader';
 import StatCard from '@/components/platform/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatNumber } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
+import { useAccess, useSuiteUrl } from '@/lib/suite';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   by_branch: { branch: string; total: number }[];
@@ -37,10 +40,12 @@ function Bars({ rows, label }: { rows: { label: string; total: number }[]; label
 export default function Headcount({ by_branch: byBranch, by_section: bySection, total }: Props) {
   const t = useT();
   const { locale } = useLocale();
+  const url = useSuiteUrl();
+  const { can } = useAccess();
 
   return (
     <SuiteLayout title={t('hr.reports.headcount')}>
-      <PageHeader title={t('hr.reports.headcount')} />
+      <PageHeader title={t('hr.reports.headcount')} actions={can('hr.payroll.view_eosb') && <Button asChild size="sm" variant="outline"><Link href={url('/hr/reports/eosb')}>{t('hr.reports.eosb')}</Link></Button>} />
       <div className="mb-4 max-w-xs"><StatCard label={t('hr.reports.total')} value={formatNumber(total, locale)} /></div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Bars label={t('hr.reports.by_branch')} rows={byBranch.map((row) => ({ label: row.branch, total: row.total }))} />

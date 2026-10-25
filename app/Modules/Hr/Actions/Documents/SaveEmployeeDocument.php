@@ -2,6 +2,7 @@
 
 namespace App\Modules\Hr\Actions\Documents;
 
+use App\Modules\Hr\Models\DocumentRenewal;
 use App\Modules\Hr\Models\DocumentType;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\EmployeeDocument;
@@ -29,11 +30,19 @@ class SaveEmployeeDocument
             $document->forceFill(['employee_id' => $employee->id, 'client_id' => $employee->client_id, 'document_type_id' => $type->id]);
             $document->setRelation('type', $type);
 
+            $renewed = $document->exists && $document->isDirty('expires_on') && $document->expires_on !== null;
+
             if ($document->isDirty('expires_on')) {
                 $document->alerted = [];
             }
 
             $document->scheduleNextAlert()->save();
+
+            // A new expiry date means the renewal happened: close the open renewal tasks.
+            if ($renewed) {
+                DocumentRenewal::query()->where('employee_document_id', $document->id)->where('status', 'open')->whereDate('expires_on', '<', $document->expires_on)
+                    ->update(['status' => 'done', 'done_by' => $actor?->getAuthIdentifier(), 'done_at' => now()]);
+            }
 
             $disk = config('baydaq.hr.disk');
 

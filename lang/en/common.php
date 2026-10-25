@@ -59,5 +59,7 @@ return [
         'created_at' => 'Created',
         'arabic' => 'Arabic',
         'english' => 'English',
+        'approve' => 'Approve',
+        'reject' => 'Reject',
     ],
 ];

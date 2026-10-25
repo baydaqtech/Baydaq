@@ -14,6 +14,7 @@ enum RepaymentMethod: string
     case Cash = 'cash';
     case Transfer = 'transfer';
     case Settlement = 'settlement';
+    case FinalSettlement = 'final_settlement';   // taken from the end-of-service award
 
     protected static function labelFile(): string
     {

@@ -128,6 +128,7 @@ export interface CatalogItem {
   section_ids?: number[];
   sections?: string[];
   blocked_company_ids?: number[];
+  default_role_id?: number | null;
   calculation?: 'fixed' | 'percent_of_basic';
   default_value?: string;
   counts_for_gosi?: boolean;

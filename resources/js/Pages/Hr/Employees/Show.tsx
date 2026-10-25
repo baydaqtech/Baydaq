@@ -13,6 +13,7 @@ import PayTab, { type PayData } from '@/components/hr/PayTab';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -29,6 +30,9 @@ interface Props {
   company: string | null;
   branch: string | null;
   login: { id: number; name: string; email: string; pending: boolean } | null;
+  suggested_role: string | null;
+  end_of_service: EndOfServiceData | null;
+  pending_changes: PendingChange[];
   device: { model: string | null; platform: string | null; bound_at: string } | null;
   contracts: ContractResource[];
   documents: EmployeeDocumentResource[];
@@ -70,12 +74,92 @@ function StatusDialog({ employee, statuses }: { employee: EmployeeResource; stat
   );
 }
 
-function LoginDialog({ employee }: { employee: EmployeeResource }) {
+export interface PendingChange {
+  id: number;
+  kind: 'iban' | 'salary';
+  summary: Record<string, { from: string | null; to: string | null }>;
+  created_at: string;
+  requested_by: string | null;
+  can_approve: boolean;
+  can_reject: boolean;
+}
+
+/** Held IBAN/salary changes waiting for a second person (H13). */
+function PendingChanges({ changes }: { changes: PendingChange[] }) {
+  const t = useT();
+  const url = useSuiteUrl();
+
+  return (
+    <Card className="mb-4 border-amber-300 bg-amber-50/60">
+      <CardContent className="flex flex-col gap-2 py-3 text-sm">
+        {changes.map((change) => (
+          <div key={change.id} className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <strong>{t(`hr.changes.kind.${change.kind}`)}</strong> · {t('hr.changes.pending')}
+              {Object.entries(change.summary).map(([field, value]) => <span key={field} dir="ltr" className="ms-2 text-muted-foreground">{value.from ?? '—'} → {value.to ?? '—'}</span>)}
+              {change.requested_by && <span className="ms-2 text-xs text-muted-foreground">{t('hr.changes.requested_by', { name: change.requested_by })}</span>}
+            </div>
+            <div className="flex gap-2">
+              {change.can_approve && <ConfirmAction href={url(`/hr/changes/${change.id}`)} method="put" data={{ decision: 'approve' }} size="sm" title={t('common.actions.approve')}>{t('common.actions.approve')}</ConfirmAction>}
+              {change.can_reject && <ConfirmAction href={url(`/hr/changes/${change.id}`)} method="put" data={{ decision: 'reject' }} size="sm" variant="outline" title={t('common.actions.reject')}>{t('common.actions.reject')}</ConfirmAction>}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface SettlementFigures { advances_owed?: string; advances_recovered: string; advances_left: string; net_payable: string }
+
+export interface EndOfServiceData {
+  previews: Record<string, SettlementFigures & { eosb: { years: number; monthly_wage: string; full_award: string; award: string } }>;
+  settlement: (SettlementFigures & { reason: string; last_day: string; eosb_award: string }) | null;
+  can_settle: boolean;
+}
+
+/** The award if they left now, net of open advances; recorded once they leave (H10, H16). */
+function EndOfServiceCard({ employee, data }: { employee: EmployeeResource; data: EndOfServiceData }) {
+  const t = useT();
+  const { locale } = useLocale();
+  const url = useSuiteUrl();
+  const [reason, setReason] = useState('termination');
+  const p = (key: string) => t(`hr.payroll.${key}`);
+  const money = (value: string) => formatMoney(value, locale);
+  const preview = data.previews[reason];
+  const shown = data.settlement ?? { ...preview, eosb_award: preview.eosb.award };
+
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+        <CardTitle className="text-base">{data.settlement ? p('settlement') : `${p('end_of_service')} · ${p('if_leaving')}`}</CardTitle>
+        {!data.settlement && <div className="w-48"><SelectInput value={reason} onChange={setReason} options={Object.keys(data.previews).map((key) => ({ value: key, label: t(`hr.payroll.reason.${key}`) }))} /></div>}
+      </CardHeader>
+      <CardContent>
+        <DetailList items={[
+          data.settlement ? { label: t(`hr.payroll.reason.${data.settlement.reason}`), value: formatDate(data.settlement.last_day, locale) } : { label: p('years'), value: formatNumber(preview.eosb.years, locale) },
+          data.settlement ? null : { label: p('monthly_wage'), value: money(preview.eosb.monthly_wage) },
+          { label: p('award'), value: money(shown.eosb_award) },
+          { label: p('advances_recovered'), value: money(shown.advances_recovered) },
+          Number(shown.advances_left) > 0 ? { label: p('advances_left'), value: <span className="text-red-700">{money(shown.advances_left)}</span> } : null,
+          { label: p('net_payable'), value: <strong>{money(shown.net_payable)}</strong> },
+        ]} />
+        {data.can_settle && (
+          <div className="mt-3 flex justify-end">
+            <ConfirmAction href={url(`/hr/employees/${employee.id}/final-settlement`)} method="post" data={{ reason }} size="sm" title={p('settle')} description={`${t(`hr.payroll.reason.${reason}`)} · ${money(preview.net_payable)}`}>{p('settle')}</ConfirmAction>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LoginDialog({ employee, suggestedRole }: { employee: EmployeeResource; suggestedRole: string | null }) {
   const t = useT();
   const { dir } = useLocale();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
-  const form = useForm({ email: employee.email ?? '' });
+  const form = useForm({ email: employee.email ?? '', grant_job_role: suggestedRole !== null });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -89,6 +173,12 @@ function LoginDialog({ employee }: { employee: EmployeeResource }) {
           <FormField label={t('hr.employees.fields.email')} htmlFor="login-email" error={form.errors.email}>
             <Input id="login-email" type="email" dir="ltr" value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} />
           </FormField>
+          {suggestedRole && (
+            <label className="flex items-start gap-2 text-sm">
+              <Checkbox checked={form.data.grant_job_role} onCheckedChange={(checked) => form.setData('grant_job_role', checked === true)} />
+              <span>{t('hr.employees.grant_job_role', { role: suggestedRole })}</span>
+            </label>
+          )}
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('hr.employees.link_login')}</Button></DialogFooter>
         </form>
       </DialogContent>
@@ -241,7 +331,7 @@ function MovementDialog({ employee, branches }: { employee: EmployeeResource; br
   );
 }
 
-export default function EmployeeShow({ employee, company, branch, login, device, contracts, documents, movements, audit, statuses, branches, allowance_types: allowanceTypes, document_types: documentTypes, pay, leave }: Props) {
+export default function EmployeeShow({ employee, company, branch, login, suggested_role: suggestedRole, end_of_service: endOfService, pending_changes: pendingChanges, device, contracts, documents, movements, audit, statuses, branches, allowance_types: allowanceTypes, document_types: documentTypes, pay, leave }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -256,7 +346,7 @@ export default function EmployeeShow({ employee, company, branch, login, device,
         actions={(
           <>
             {can.update && <StatusDialog employee={employee} statuses={statuses} />}
-            {can.link_login && !employee.user_id && <LoginDialog employee={employee} />}
+            {can.link_login && !employee.user_id && <LoginDialog employee={employee} suggestedRole={suggestedRole} />}
             {can.update && <Button asChild size="sm" variant="outline"><Link href={url(`/hr/employees/${employee.id}/edit`)}><Pencil data-icon="inline-start" />{t('common.actions.edit')}</Link></Button>}
           </>
         )}
@@ -273,6 +363,7 @@ export default function EmployeeShow({ employee, company, branch, login, device,
         </div>
       </PageHeader>
 
+      {pendingChanges.length > 0 && <PendingChanges changes={pendingChanges} />}
       <Tabs defaultValue="profile">
         <TabsList>
           <TabsTrigger value="profile">{t('hr.employees.tabs.profile')}</TabsTrigger>
@@ -305,6 +396,7 @@ export default function EmployeeShow({ employee, company, branch, login, device,
               { label: f('notes'), value: employee.notes, wide: true },
             ]} />
           </CardContent></Card>
+          {endOfService && <EndOfServiceCard employee={employee} data={endOfService} />}
         </TabsContent>
 
         {can.view_salaries && (

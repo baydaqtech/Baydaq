@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property list<int>|null $alert_days
  */
 #[Table('hr__document_types')]
-#[Fillable(['name_ar', 'name_en', 'has_number', 'has_expiry', 'alert_days', 'fields', 'is_active', 'sort_order'])]
+#[Fillable(['name_ar', 'name_en', 'has_number', 'has_expiry', 'alert_days', 'renewal_cost', 'fields', 'is_active', 'sort_order'])]
 class DocumentType extends Model
 {
     /** @use HasFactory<DocumentTypeFactory> */
@@ -43,6 +43,7 @@ class DocumentType extends Model
             'has_number' => 'boolean',
             'has_expiry' => 'boolean',
             'alert_days' => 'array',
+            'renewal_cost' => 'decimal:2',
             'fields' => 'array',
             'is_active' => 'boolean',
         ];

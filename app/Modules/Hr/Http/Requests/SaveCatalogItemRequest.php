@@ -40,6 +40,7 @@ class SaveCatalogItemRequest extends FormRequest
             'jobs' => [
                 'section_ids' => ['required', 'array', 'min:1'], 'section_ids.*' => ['integer'],
                 'blocked_company_ids' => ['nullable', 'array'], 'blocked_company_ids.*' => ['integer'],
+                'default_role_id' => ['nullable', 'integer'],
             ],
             'allowance-types' => [
                 'calculation' => ['required', Rule::enum(AllowanceCalculation::class)],
@@ -62,6 +63,7 @@ class SaveCatalogItemRequest extends FormRequest
                 'has_number' => ['boolean'],
                 'has_expiry' => ['boolean'],
                 'alert_days' => ['nullable', 'array', 'max:5'], 'alert_days.*' => ['integer', 'min:1', 'max:730'],
+                'renewal_cost' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
                 'fields' => ['nullable', 'array', 'max:20'],
                 'fields.*.key' => ['nullable', 'string', 'max:40', 'alpha_dash:ascii'],
                 'fields.*.label_ar' => ['required', 'string', 'max:100'],

@@ -53,7 +53,7 @@ enum HrFeature: string implements Feature
     public function abilities(): array
     {
         return match ($this) {
-            self::Employees => ['view_salaries', 'view_iban', 'view_national_id', 'link_login'],
+            self::Employees => ['view_salaries', 'view_iban', 'view_national_id', 'link_login', 'approve_changes'],
             self::Contracts => ['view_salaries'],
             self::Attendance => ['resolve_flags', 'reset_device'],
             self::Payroll => ['mark_paid', 'view_eosb'],

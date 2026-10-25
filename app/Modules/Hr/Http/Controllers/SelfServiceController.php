@@ -5,6 +5,9 @@ namespace App\Modules\Hr\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Leave\LeaveBalance;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
+use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
+use App\Modules\Hr\Actions\Pay\RequestAdvance;
+use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Platform\Enums\Module;
@@ -38,8 +41,47 @@ class SelfServiceController extends Controller
             'balances' => $this->balances($employee, $balance),
             'requests' => $employee->leaveRequests()->with('type')->latest('starts_on')->limit(30)->get()->map(fn ($leave): array => LeaveController::leaveArray($leave))->all(),
             'types' => LeaveType::query()->where('is_active', true)->orderBy('sort_order')->get()->map(fn (LeaveType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
+            'advance' => self::advances($employee),
             'copy' => ['hr' => trans('hr')],
         ]);
+    }
+
+    /** Ask for a salary advance after seeing the ceiling and the plan (H18). */
+    public function requestAdvance(Request $request, RequestAdvance $requestAdvance): RedirectResponse
+    {
+        $requestAdvance->handle($this->employee($request), self::validateAdvance($request), $request->user());
+        $this->toast(__('hr.pay.advance_requested'));
+
+        return back();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function validateAdvance(Request $request): array
+    {
+        return $request->validate([
+            'amount' => ['required', 'numeric', 'min:1'],
+            'installments' => ['required', 'integer', 'min:1', 'max:'.RequestAdvance::MAX_INSTALLMENTS],
+            'first_installment_month' => ['required', 'date', 'after_or_equal:'.today()->startOfMonth()->toDateString()],
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+    }
+
+    /**
+     * The calculator's limits and the employee's own advances.
+     *
+     * @return array<string, mixed>
+     */
+    public static function advances(Employee $employee): array
+    {
+        return [
+            ...app(AdvanceCalculator::class)->limits($employee),
+            'items' => Advance::query()->where('employee_id', $employee->id)->latest()->limit(10)->get()->map(fn (Advance $advance): array => [
+                'id' => $advance->id, 'amount' => (string) $advance->amount, 'installments' => $advance->installments, 'status' => $advance->status->value,
+                'balance' => $advance->balance(), 'first_installment_month' => $advance->first_installment_month->format('Y-m'),
+            ])->all(),
+        ];
     }
 
     public function requestLeave(Request $request, RequestLeave $requestLeave): RedirectResponse

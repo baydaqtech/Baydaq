@@ -18,6 +18,7 @@ const NAV = [
   { path: '/hr/employees', label: 'suite.module_nav.hr.employees', icon: IdCard, module: 'hr', keys: ['hr.employees.view', 'hr.employees.create', 'hr.employees.update'] },
   { path: '/hr/attendance', label: 'suite.module_nav.hr.attendance', icon: Fingerprint, module: 'hr', keys: ['hr.attendance.view'] },
   { path: '/hr/movements', label: 'suite.module_nav.hr.movements', icon: ArrowLeftRight, module: 'hr', keys: ['hr.movements.view', 'hr.movements.create'] },
+  { path: '/hr/documents/radar', label: 'suite.module_nav.hr.documents', icon: FileText, module: 'hr', keys: ['hr.documents.view'] },
   { path: '/hr/leave', label: 'suite.module_nav.hr.leave', icon: CalendarDays, module: 'hr', keys: ['hr.leave.view', 'hr.leave.approve'] },
   { path: '/hr/payroll', label: 'suite.module_nav.hr.payroll', icon: Banknote, module: 'hr', keys: ['hr.payroll.view'] },
   { path: '/hr/reports/headcount', label: 'suite.module_nav.hr.reports', icon: BarChart3, module: 'hr', keys: ['hr.reports.view'] },

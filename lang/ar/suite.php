@@ -25,7 +25,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'catalog' => 'إعدادات الموارد البشرية'],
+        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'catalog' => 'إعدادات الموارد البشرية'],
         'invoicing' => ['invoices' => 'الفواتير', 'customers' => 'العملاء', 'einvoicing' => 'الفوترة الإلكترونية'],
         'pos' => ['sell' => 'البيع', 'orders' => 'الطلبات', 'kitchen' => 'المطبخ', 'catalog' => 'القائمة', 'registers' => 'أجهزة الكاشير'],
         'reservations' => ['calendar' => 'التقويم', 'bookings' => 'الحجوزات', 'catalog' => 'الخدمات'],

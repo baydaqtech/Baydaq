@@ -4,9 +4,12 @@ namespace App\Modules\Hr\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Employees\ChangeEmployeeStatus;
+use App\Modules\Hr\Actions\Employees\DualControl;
 use App\Modules\Hr\Actions\Employees\LinkEmployeeUser;
 use App\Modules\Hr\Actions\Employees\SaveEmployee;
 use App\Modules\Hr\Actions\Leave\LeaveBalance;
+use App\Modules\Hr\Actions\Payroll\SettleFinalAccount;
+use App\Modules\Hr\Enums\ChangeRequestStatus;
 use App\Modules\Hr\Enums\EmployeeStatus;
 use App\Modules\Hr\Enums\Gender;
 use App\Modules\Hr\Enums\HrFeature;
@@ -22,10 +25,12 @@ use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\AllowanceType;
 use App\Modules\Hr\Models\Bonus;
 use App\Modules\Hr\Models\BonusType;
+use App\Modules\Hr\Models\ChangeRequest;
 use App\Modules\Hr\Models\Deduction;
 use App\Modules\Hr\Models\DeductionType;
 use App\Modules\Hr\Models\DocumentType;
 use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\FinalSettlement;
 use App\Modules\Hr\Models\Job;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\Section;
@@ -34,6 +39,7 @@ use App\Modules\Platform\Data\CompanyRef;
 use App\Modules\Platform\Enums\FeatureAction;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
+use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Ports\Audit;
 use App\Modules\Platform\Ports\Entitlements;
@@ -105,6 +111,7 @@ class EmployeeController extends Controller
             'company' => $company?->name,
             'branch' => $branchNames[$employee->branch_id] ?? null,
             'login' => $employee->user_id ? app(Accounts::class)->summary($employee->user_id) : null,
+            'suggested_role' => ($roleId = $employee->job?->default_role_id) ? collect(app(Access::class)->roles())->firstWhere('id', $roleId)['name'] ?? null : null,
             'device' => ($device = AttendanceController::deviceFor($employee)) ? ['model' => $device->model, 'platform' => $device->platform, 'bound_at' => $device->bound_at->toDateString()] : null,
             'contracts' => $can['view_salaries'] ? ContractResource::collection($employee->contracts) : [],
             'documents' => $can['view_documents'] ? EmployeeDocumentResource::collection($employee->documents) : [],
@@ -131,6 +138,14 @@ class EmployeeController extends Controller
                 'types' => LeaveType::query()->where('is_active', true)->get()->map(fn (LeaveType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
             ] : null,
             'document_types' => CatalogResource::collection(DocumentType::query()->where('is_active', true)->orderBy('sort_order')->get()),
+            'end_of_service' => $can['view_eosb'] && $employee->hired_on ? $this->endOfService($employee) : null,
+            'pending_changes' => ChangeRequest::query()->where('employee_id', $employee->id)->where('status', ChangeRequestStatus::Pending->value)->latest()->get()
+                ->map(fn (ChangeRequest $change): array => [
+                    'id' => $change->id, 'kind' => $change->kind, 'summary' => $change->summary, 'created_at' => $change->created_at->toDateTimeString(),
+                    'requested_by' => $change->requested_by ? app(Accounts::class)->summary($change->requested_by)['name'] ?? null : null,
+                    'can_approve' => $this->able($employee, HrFeature::Employees, 'approve_changes') && $change->requested_by !== auth()->id(),
+                    'can_reject' => $this->able($employee, HrFeature::Employees, 'approve_changes') || $change->requested_by === auth()->id(),
+                ])->all(),
         ], ['hr']);
     }
 
@@ -159,7 +174,7 @@ class EmployeeController extends Controller
         }
 
         $saveEmployee->handle($employee, $data->all(), $request->user());
-        $this->toast(__('hr.employees.saved'));
+        $this->toast(app(DualControl::class)->held() === [] ? __('hr.employees.saved') : __('hr.changes.held'));
 
         return to_route('hr.employees.show', $employee);
     }
@@ -178,12 +193,33 @@ class EmployeeController extends Controller
     public function linkLogin(Request $request, Employee $employee, LinkEmployeeUser $linkEmployeeUser): RedirectResponse
     {
         $this->authorizeEmployee($employee, HrFeature::Employees, 'link_login');
-        $data = $request->validate(['email' => ['required', 'email', 'max:255']]);
+        $data = $request->validate(['email' => ['required', 'email', 'max:255'], 'grant_job_role' => ['boolean']]);
 
-        $linkEmployeeUser->handle($employee, $data['email'], $request->user());
+        $linkEmployeeUser->handle($employee, $data['email'], $request->user(), (bool) ($data['grant_job_role'] ?? false));
         $this->toast(__('hr.employees.login_linked'));
 
         return back();
+    }
+
+    /**
+     * The award if they left today (or on their last day), net of open advances, and the
+     * recorded final settlement once there is one.
+     *
+     * @return array<string, mixed>
+     */
+    private function endOfService(Employee $employee): array
+    {
+        $settle = app(SettleFinalAccount::class);
+        $settlement = FinalSettlement::query()->where('employee_id', $employee->id)->first();
+
+        return [
+            'previews' => collect(['termination', 'resignation', 'contract_end'])->mapWithKeys(fn (string $reason): array => [$reason => $settle->preview($employee, $reason)])->all(),
+            'settlement' => $settlement ? [
+                'reason' => $settlement->reason, 'last_day' => $settlement->last_day->toDateString(), 'eosb_award' => (string) $settlement->eosb_award,
+                'advances_recovered' => (string) $settlement->advances_recovered, 'advances_left' => (string) $settlement->advances_left, 'net_payable' => (string) $settlement->net_payable,
+            ] : null,
+            'can_settle' => $settlement === null && $employee->status === EmployeeStatus::Terminated && $this->able($employee, HrFeature::Pay, FeatureAction::Approve->value),
+        ];
     }
 
     /**

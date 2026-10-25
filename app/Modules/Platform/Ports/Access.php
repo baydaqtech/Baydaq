@@ -4,6 +4,7 @@ namespace App\Modules\Platform\Ports;
 
 use App\Models\User;
 use App\Modules\Platform\Access\BranchSet;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -26,4 +27,17 @@ interface Access
      * @return Collection<int, User>
      */
     public function usersWith(string $key, int $branchId): Collection;
+
+    /**
+     * The tenant's roles, for pickers in other modules (the owner role is left out).
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public function roles(): array;
+
+    /**
+     * Give a login a role at one branch. With an actor, they must already hold every key of the
+     * role there (no escalation); without one, the grant is the system's own.
+     */
+    public function grantAtBranch(int $userId, int $roleId, int $branchId, ?Authenticatable $actor): void;
 }

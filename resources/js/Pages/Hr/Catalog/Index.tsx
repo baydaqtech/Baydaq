@@ -29,6 +29,8 @@ interface Props {
   deduction_types: CatalogItem[];
   leave_types: CatalogItem[];
   companies: Option[];
+  roles: Option[];
+  settings: HrRules;
   calculations: Option[];
   field_types: Option[];
   leave_accruals: Option[];
@@ -48,25 +50,27 @@ function CheckList({ options, value, onChange }: { options: Option[]; value: num
   );
 }
 
-function ItemDialog({ catalog, item, sections, companies, calculations, fieldTypes, leaveAccruals, leaveYearBases }: { catalog: Catalog; item?: CatalogItem; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[]; leaveAccruals: Option[]; leaveYearBases: Option[] }) {
+function ItemDialog({ catalog, item, sections, companies, roles, calculations, fieldTypes, leaveAccruals, leaveYearBases }: { catalog: Catalog; item?: CatalogItem; sections: CatalogItem[]; companies: Option[]; roles: Option[]; calculations: Option[]; fieldTypes: Option[]; leaveAccruals: Option[]; leaveYearBases: Option[] }) {
   const t = useT();
   const { dir } = useLocale();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
   const f = (field: string) => t(`hr.catalog.fields.${field}`);
-  const form = useForm<{ name_ar: string; name_en: string; is_active: boolean; sort_order: number; section_ids: number[]; blocked_company_ids: number[]; calculation: string; default_value: string; counts_for_gosi: boolean; has_number: boolean; has_expiry: boolean; alert_days: string; fields: DocumentField[]; days_per_year: string; senior_days_per_year: string; senior_after_years: string; accrual: string; year_basis: string; carry_over_days: string; allow_negative: boolean; is_paid: boolean; needs_balance: boolean }>({
+  const form = useForm<{ name_ar: string; name_en: string; is_active: boolean; sort_order: number; section_ids: number[]; blocked_company_ids: number[]; default_role_id: string; calculation: string; default_value: string; counts_for_gosi: boolean; has_number: boolean; has_expiry: boolean; alert_days: string; renewal_cost: string; fields: DocumentField[]; days_per_year: string; senior_days_per_year: string; senior_after_years: string; accrual: string; year_basis: string; carry_over_days: string; allow_negative: boolean; is_paid: boolean; needs_balance: boolean }>({
     name_ar: item?.name_ar ?? '',
     name_en: item?.name_en ?? '',
     is_active: item?.is_active ?? true,
     sort_order: item?.sort_order ?? 0,
     section_ids: item?.section_ids ?? [],
     blocked_company_ids: item?.blocked_company_ids ?? [],
+    default_role_id: item?.default_role_id ? String(item.default_role_id) : '',
     calculation: item?.calculation ?? 'fixed',
     default_value: item?.default_value ?? '0',
     counts_for_gosi: item?.counts_for_gosi ?? false,
     has_number: item?.has_number ?? true,
     has_expiry: item?.has_expiry ?? true,
     alert_days: (item?.alert_days ?? [90, 30, 7]).join(', '),
+    renewal_cost: item?.renewal_cost ? String(item.renewal_cost) : '',
     fields: item?.fields ?? [],
     days_per_year: String(item?.days_per_year ?? '21'),
     senior_days_per_year: item ? String(item.senior_days_per_year ?? '') : '30',
@@ -87,6 +91,8 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
     form.transform((payload) => ({
       ...payload,
       alert_days: payload.alert_days.split(',').map((value) => Number(value.trim())).filter(Boolean),
+      default_role_id: payload.default_role_id === '' ? null : Number(payload.default_role_id),
+      renewal_cost: payload.renewal_cost === '' ? null : payload.renewal_cost,
       senior_days_per_year: payload.senior_days_per_year || null, senior_after_years: payload.senior_after_years || null, carry_over_days: payload.carry_over_days === '' ? null : payload.carry_over_days,
     }));
     item ? form.put(url(`/hr/catalog/${catalog}/${item.id}`), options) : form.post(url(`/hr/catalog/${catalog}`), options);
@@ -105,6 +111,11 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
           {catalog === 'jobs' && (
             <FormField label={t('hr.catalog.linked_sections')} error={errors.section_ids} className="sm:col-span-2">
               <CheckList options={sections.map((section) => ({ value: section.id, label: section.name }))} value={data.section_ids} onChange={(value) => setData('section_ids', value)} />
+            </FormField>
+          )}
+          {catalog === 'jobs' && (
+            <FormField label={t('hr.catalog.default_role')} hint={t('hr.catalog.default_role_hint')} error={errors.default_role_id} className="sm:col-span-2">
+              <SelectInput value={data.default_role_id} onChange={(value) => setData('default_role_id', value)} options={roles} emptyLabel={t('hr.catalog.no_role')} />
             </FormField>
           )}
           {(catalog === 'sections' || catalog === 'jobs') && companies.length > 1 && (
@@ -140,7 +151,8 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
             <>
               <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.has_number} onCheckedChange={(state) => setData('has_number', state === true)} />{f('has_number')}</label>
               <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.has_expiry} onCheckedChange={(state) => setData('has_expiry', state === true)} />{f('has_expiry')}</label>
-              {data.has_expiry && <FormField label={f('alert_days')} error={errors.alert_days} className="sm:col-span-2"><Input dir="ltr" value={data.alert_days} onChange={(event) => setData('alert_days', event.target.value)} placeholder="90, 30, 7" /></FormField>}
+              {data.has_expiry && <FormField label={f('alert_days')} error={errors.alert_days}><Input dir="ltr" value={data.alert_days} onChange={(event) => setData('alert_days', event.target.value)} placeholder="90, 30, 7" /></FormField>}
+              {data.has_expiry && <FormField label={f('renewal_cost')} error={errors.renewal_cost}><Input type="number" step="0.01" min="0" dir="ltr" value={data.renewal_cost} onChange={(event) => setData('renewal_cost', event.target.value)} /></FormField>}
               <FormField label={f('fields')} className="sm:col-span-2">
                 <FieldSchemaEditor fields={data.fields} onChange={(fields) => setData('fields', fields)} types={fieldTypes} errors={errors as Record<string, string>} />
               </FormField>
@@ -154,7 +166,7 @@ function ItemDialog({ catalog, item, sections, companies, calculations, fieldTyp
   );
 }
 
-function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: CatalogItem[]; sections: CatalogItem[]; companies: Option[]; calculations: Option[]; fieldTypes: Option[]; leaveAccruals: Option[]; leaveYearBases: Option[] }) {
+function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: CatalogItem[]; sections: CatalogItem[]; companies: Option[]; roles: Option[]; calculations: Option[]; fieldTypes: Option[]; leaveAccruals: Option[]; leaveYearBases: Option[] }) {
   const t = useT();
   const { can } = useAccess();
   const companyName = (id: number) => rest.companies.find((company) => Number(company.value) === id)?.label ?? id;
@@ -189,9 +201,34 @@ function ItemList({ catalog, items, ...rest }: { catalog: Catalog; items: Catalo
   );
 }
 
-export default function CatalogIndex({ sections, jobs, allowance_types: allowanceTypes, document_types: documentTypes, bonus_types: bonusTypes, deduction_types: deductionTypes, leave_types: leaveTypes, companies, calculations, field_types: fieldTypes, leave_accruals: leaveAccruals, leave_year_bases: leaveYearBases }: Props) {
+export interface HrRules {
+  dual_control: boolean;
+  [key: string]: unknown;
+}
+
+/** Tenant-wide HR rules, switched on and off here. */
+function RulesCard({ settings }: { settings: HrRules }) {
   const t = useT();
-  const shared = { sections, companies, calculations, fieldTypes, leaveAccruals, leaveYearBases };
+  const url = useSuiteUrl();
+  const { can } = useAccess();
+  const form = useForm({ dual_control: settings.dual_control });
+
+  return (
+    <Card><CardContent>
+      <form onSubmit={(event) => { event.preventDefault(); form.put(url('/hr/settings'), { preserveScroll: true }); }} className="flex flex-col gap-4">
+        <label className="flex items-start gap-2 text-sm">
+          <Checkbox checked={form.data.dual_control} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('dual_control', state === true)} />
+          <span><span className="font-medium">{t('hr.changes.dual_control')}</span><span className="block text-muted-foreground">{t('hr.changes.dual_control_hint')}</span></span>
+        </label>
+        {can('hr.catalog.update') && <div className="flex justify-end"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></div>}
+      </form>
+    </CardContent></Card>
+  );
+}
+
+export default function CatalogIndex({ sections, jobs, allowance_types: allowanceTypes, document_types: documentTypes, bonus_types: bonusTypes, deduction_types: deductionTypes, leave_types: leaveTypes, companies, roles, settings, calculations, field_types: fieldTypes, leave_accruals: leaveAccruals, leave_year_bases: leaveYearBases }: Props) {
+  const t = useT();
+  const shared = { sections, companies, roles, calculations, fieldTypes, leaveAccruals, leaveYearBases };
 
   return (
     <SuiteLayout title={t('hr.catalog.title')}>
@@ -205,6 +242,7 @@ export default function CatalogIndex({ sections, jobs, allowance_types: allowanc
           <TabsTrigger value="bonus-types">{t('hr.pay.bonuses')}</TabsTrigger>
           <TabsTrigger value="deduction-types">{t('hr.pay.deductions')}</TabsTrigger>
           <TabsTrigger value="leave-types">{t('hr.leave.types')}</TabsTrigger>
+          <TabsTrigger value="rules">{t('hr.changes.rules')}</TabsTrigger>
         </TabsList>
         <TabsContent value="sections"><ItemList catalog="sections" items={sections} {...shared} /></TabsContent>
         <TabsContent value="jobs"><ItemList catalog="jobs" items={jobs} {...shared} /></TabsContent>
@@ -213,6 +251,7 @@ export default function CatalogIndex({ sections, jobs, allowance_types: allowanc
         <TabsContent value="bonus-types"><ItemList catalog="bonus-types" items={bonusTypes} {...shared} /></TabsContent>
         <TabsContent value="deduction-types"><ItemList catalog="deduction-types" items={deductionTypes} {...shared} /></TabsContent>
         <TabsContent value="leave-types"><ItemList catalog="leave-types" items={leaveTypes} {...shared} /></TabsContent>
+        <TabsContent value="rules"><RulesCard settings={settings} /></TabsContent>
       </Tabs>
     </SuiteLayout>
   );

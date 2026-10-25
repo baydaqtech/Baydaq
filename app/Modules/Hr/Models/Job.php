@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * several sections and blocked for some companies.
  */
 #[Table('hr__jobs')]
-#[Fillable(['name_ar', 'name_en', 'is_active', 'sort_order'])]
+#[Fillable(['name_ar', 'name_en', 'is_active', 'sort_order', 'default_role_id'])]
 class Job extends Model
 {
     /** @use HasFactory<JobFactory> */
@@ -36,7 +36,7 @@ class Job extends Model
      */
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'sort_order' => 'integer'];
+        return ['is_active' => 'boolean', 'sort_order' => 'integer', 'default_role_id' => 'integer'];
     }
 
     /**

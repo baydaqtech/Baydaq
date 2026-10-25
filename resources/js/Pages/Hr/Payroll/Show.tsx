@@ -7,7 +7,9 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import StatCard from '@/components/platform/StatCard';
 import StatusBadge from '@/components/platform/StatusBadge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import SuiteLayout from '@/layouts/SuiteLayout';
@@ -45,7 +47,68 @@ function PaidDialog({ run }: { run: RunRow }) {
   );
 }
 
-export default function PayrollShow({ run, lines, can }: { run: RunRow; lines: Line[]; can: { approve: boolean; rebuild: boolean; mark_paid: boolean; export: boolean } }) {
+interface DiffRow { employee_id: number; name: string; net: string }
+
+export interface PayrollDiffData {
+  previous_month: string;
+  net_change: string;
+  joined: DiffRow[];
+  left: DiffRow[];
+  changed: { employee_id: number; name: string; from: string; to: string; change: string; parts: Record<string, string> }[];
+}
+
+const PART_LABELS: Record<string, string> = { basic: 'basic', allowances: 'allowances', bonuses: 'bonuses', deductions: 'deductions', advance_installments: 'advances', unpaid_leave: 'unpaid_leave', gosi_employee: 'gosi' };
+
+/** Joiners, leavers and moved nets against the previous month, shown before approval (H11). */
+function WhatChanged({ diff }: { diff: PayrollDiffData | null }) {
+  const t = useT();
+  const { locale } = useLocale();
+  const url = useSuiteUrl();
+  const money = (value: string) => formatMoney(value, locale);
+  const signed = (value: string) => `${Number(value) > 0 ? '+' : ''}${money(value)}`;
+
+  if (diff === null) {
+    return <Card className="mb-4"><CardContent className="py-4 text-sm text-muted-foreground">{t('hr.payroll.diff.first')}</CardContent></Card>;
+  }
+
+  const empty = diff.joined.length === 0 && diff.left.length === 0 && diff.changed.length === 0;
+
+  return (
+    <Card className="mb-4">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+        <CardTitle className="text-base">{t('hr.payroll.diff.title', { month: diff.previous_month })}</CardTitle>
+        <span className="text-sm text-muted-foreground">{t('hr.payroll.diff.net_change')}: <strong dir="ltr">{signed(diff.net_change)}</strong></span>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4 text-sm">
+        {empty && <p className="text-muted-foreground">{t('hr.payroll.diff.nothing')}</p>}
+        {[['joined', diff.joined], ['left', diff.left]].map(([key, rows]) => (rows as DiffRow[]).length > 0 && (
+          <div key={key as string}>
+            <h3 className="mb-1 font-medium">{t(`hr.payroll.diff.${key}`)} ({(rows as DiffRow[]).length})</h3>
+            <ul className="flex flex-wrap gap-2">{(rows as DiffRow[]).map((row) => <li key={row.employee_id}><Badge variant="outline"><Link href={url(`/hr/employees/${row.employee_id}`)}>{row.name}</Link> · {money(row.net)}</Badge></li>)}</ul>
+          </div>
+        ))}
+        {diff.changed.length > 0 && (
+          <div>
+            <h3 className="mb-1 font-medium">{t('hr.payroll.diff.changed')} ({diff.changed.length})</h3>
+            <ul className="divide-y">
+              {diff.changed.map((row) => (
+                <li key={row.employee_id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                  <Link href={url(`/hr/employees/${row.employee_id}`)} className="font-medium hover:underline">{row.name}</Link>
+                  <span className="flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                    {Object.entries(row.parts).map(([part, change]) => <Badge key={part} variant="outline">{t(`hr.payroll.fields.${PART_LABELS[part] ?? part}`)} <span dir="ltr">{signed(change)}</span></Badge>)}
+                  </span>
+                  <span dir="ltr">{money(row.from)} → <strong>{money(row.to)}</strong> ({signed(row.change)})</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function PayrollShow({ run, lines, diff, can }: { run: RunRow; lines: Line[]; diff: PayrollDiffData | null; can: { approve: boolean; rebuild: boolean; mark_paid: boolean; export: boolean } }) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -71,6 +134,7 @@ export default function PayrollShow({ run, lines, can }: { run: RunRow; lines: L
         <StatCard label={f('deductions')} value={money(run.total_deductions)} />
         <StatCard label={f('net')} value={money(run.total_net)} />
       </div>
+      {run.status === 'draft' && <WhatChanged diff={diff} />}
       <DataTable<Line>
         rows={lines}
         columns={[

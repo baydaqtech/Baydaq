@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Payroll\ApprovePayrollRun;
 use App\Modules\Hr\Actions\Payroll\BuildPayrollRun;
 use App\Modules\Hr\Actions\Payroll\EndOfServiceBenefit;
+use App\Modules\Hr\Actions\Payroll\EosbLiability;
+use App\Modules\Hr\Actions\Payroll\PayrollDiff;
+use App\Modules\Hr\Actions\Payroll\SettleFinalAccount;
 use App\Modules\Hr\Actions\Payroll\WpsFile;
 use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Enums\PayrollStatus;
@@ -78,6 +81,7 @@ class PayrollController extends Controller
                 'unpaid_leave' => (string) $line->unpaid_leave, 'gosi_employee' => (string) $line->gosi_employee, 'gosi_employer' => (string) $line->gosi_employer,
                 'gross' => (string) $line->gross, 'net' => (string) $line->net, 'breakdown' => $line->breakdown,
             ])->all(),
+            'diff' => app(PayrollDiff::class)->handle($run),
             'can' => [
                 'approve' => $run->status === PayrollStatus::Draft && $this->reach(HrFeature::Payroll, FeatureAction::Approve)->allowsWholeCompany($run->company_id),
                 'rebuild' => $run->status === PayrollStatus::Draft && $this->reach(HrFeature::Payroll, FeatureAction::Create)->allowsWholeCompany($run->company_id),
@@ -122,6 +126,31 @@ class PayrollController extends Controller
         $data = $request->validate(['reason' => ['required', Rule::in(['termination', 'resignation', 'contract_end', 'retirement'])], 'last_day' => ['nullable', 'date']]);
 
         return response()->json($eosb->handle($employee, $data['reason'], isset($data['last_day']) ? Carbon::parse($data['last_day']) : null));
+    }
+
+    /** Close a leaver's account: the award less open advances (H16). */
+    public function settle(Request $request, Employee $employee, SettleFinalAccount $settle): RedirectResponse
+    {
+        abort_unless($this->able($employee, HrFeature::Payroll, 'view_eosb') && $this->able($employee, HrFeature::Pay, FeatureAction::Approve->value), 403);
+        $data = $request->validate(['reason' => ['required', Rule::in(['termination', 'resignation', 'contract_end', 'retirement'])]]);
+
+        $settle->settle($employee, $data['reason'], $request->user());
+        $this->toast(__('hr.payroll.settled'));
+
+        return back();
+    }
+
+    /** End-of-service liability today, per company and per person, over the user's reach (H10). */
+    public function liability(OrgDirectory $directory, EosbLiability $liability): Response
+    {
+        $report = $liability->handle($this->reach(HrFeature::Payroll, 'view_eosb'));
+        $companyNames = collect($directory->companies())->mapWithKeys(fn (CompanyRef $company): array => [$company->id => $company->name]);
+
+        return $this->suitePage('Hr/Reports/EosbLiability', [
+            'total' => $report['total'],
+            'companies' => array_map(fn (array $row): array => [...$row, 'company' => $companyNames[$row['company_id']] ?? '—'], $report['companies']),
+            'employees' => array_map(fn (array $row): array => [...$row, 'company' => $companyNames[$row['company_id']] ?? '—'], $report['employees']),
+        ], ['hr']);
     }
 
     /**

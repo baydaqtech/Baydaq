@@ -3,6 +3,7 @@
 namespace App\Modules\Hr\Console;
 
 use App\Modules\Hr\Enums\HrFeature;
+use App\Modules\Hr\Models\DocumentRenewal;
 use App\Modules\Hr\Models\EmployeeDocument;
 use App\Modules\Hr\Notifications\DocumentExpiring;
 use App\Modules\Platform\Ports\Access;
@@ -19,7 +20,8 @@ class NotifyExpiringDocuments extends Command
 
     /**
      * For each document whose next alert date has come: notify everyone who may view documents of
-     * that branch (and the employee's own login), mark the threshold as sent, plan the next one.
+     * that branch (and the employee's own login), open its renewal task, mark the threshold as
+     * sent, plan the next one.
      */
     public function handle(CurrentTenant $tenant, Access $access, Accounts $accounts): int
     {
@@ -58,6 +60,7 @@ class NotifyExpiringDocuments extends Command
                         $sent++;
                     }
 
+                    DocumentRenewal::openFor($document);
                     $document->alerted = [...($document->alerted ?? []), $threshold];
                     $document->scheduleNextAlert()->save();
                 }

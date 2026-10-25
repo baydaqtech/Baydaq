@@ -26,6 +26,7 @@ class SaveEmployee
         private Audit $audit,
         private CurrentTenant $tenant,
         private OffboardingClearance $clearance,
+        private DualControl $dualControl,
     ) {}
 
     /**
@@ -37,6 +38,12 @@ class SaveEmployee
      */
     public function handle(Employee $employee, array $data, ?Authenticatable $actor = null): Employee
     {
+        // Under the two-person rule a new IBAN waits for someone else's approval.
+        if ($employee->exists && array_key_exists('iban', $data) && $data['iban'] !== $employee->iban && $this->dualControl->enabled()) {
+            $this->dualControl->hold($employee, 'iban', ['iban' => $data['iban']], $this->sensitiveChanges($employee, ['iban' => $data['iban']]), null, $actor);
+            unset($data['iban']);
+        }
+
         $companyId = (int) ($data['company_id'] ?? $employee->company_id);
         $branchId = (int) ($data['branch_id'] ?? $employee->branch_id);
         $branch = $this->directory->branch($branchId);
