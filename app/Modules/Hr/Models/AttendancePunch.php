@@ -28,6 +28,7 @@ class AttendancePunch extends Model
             'flag' => PunchFlag::class,
             'resolution' => PunchResolution::class,
             'punched_at' => 'datetime',
+            'is_remote' => 'boolean',
             'work_date' => 'date',
             'resolved_at' => 'datetime',
             'latitude' => 'float',

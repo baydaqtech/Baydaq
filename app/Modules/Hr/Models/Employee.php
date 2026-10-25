@@ -58,6 +58,7 @@ class Employee extends Model
             'hired_on' => 'date',
             'terminated_on' => 'date',
             'gosi_registered_on' => 'date',
+            'remote_days' => 'array',
         ];
     }
 

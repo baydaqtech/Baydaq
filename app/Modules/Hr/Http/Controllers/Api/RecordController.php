@@ -4,9 +4,11 @@ namespace App\Modules\Hr\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
+use App\Modules\Hr\Actions\Remote\RemoteWork;
 use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
+use App\Modules\Hr\Http\Controllers\RemoteController;
 use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
@@ -27,6 +29,18 @@ class RecordController extends Controller
     public function show(Request $request): JsonResponse
     {
         return response()->json(SelfServiceController::record($this->employee($request)));
+    }
+
+    public function remote(Request $request): JsonResponse
+    {
+        return response()->json(SelfServiceController::remote($this->employee($request)));
+    }
+
+    public function requestRemote(Request $request, RemoteWork $remote): JsonResponse
+    {
+        $data = SelfServiceController::validateRemoteRequest($request);
+
+        return response()->json(RemoteController::requestArray($remote->request($this->employee($request), $data['work_date'], $data['reason'] ?? null)), 201);
     }
 
     public function reviews(Request $request): JsonResponse

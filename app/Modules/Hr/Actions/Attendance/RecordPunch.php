@@ -2,6 +2,7 @@
 
 namespace App\Modules\Hr\Actions\Attendance;
 
+use App\Modules\Hr\Actions\Remote\RemoteWork;
 use App\Modules\Hr\Enums\EmployeeStatus;
 use App\Modules\Hr\Enums\PunchFlag;
 use App\Modules\Hr\Enums\PunchType;
@@ -18,7 +19,7 @@ class RecordPunch
     /** GPS readings worse than this are refused; the phone should try again. */
     public const MAX_ACCURACY_M = 150;
 
-    public function __construct(private OrgDirectory $directory) {}
+    public function __construct(private OrgDirectory $directory, private RemoteWork $remote) {}
 
     /**
      * Judge and store a punch. The server decides everything: which geofence the point falls in
@@ -41,15 +42,20 @@ class RecordPunch
             throw ValidationException::withMessages(['accuracy_m' => __('hr.attendance.errors.poor_accuracy', ['max' => self::MAX_ACCURACY_M])]);
         }
 
-        $location = $this->match((float) $reading['latitude'], (float) $reading['longitude'], $accuracy ?? 0, $reading['wifi_bssid'] ?? null)
-            ?? throw ValidationException::withMessages(['location' => __('hr.attendance.errors.outside')]);
-
         $punchedAt = isset($reading['punched_at']) ? Carbon::parse($reading['punched_at']) : now();
         $company = $this->directory->company($employee->company_id);
         $workDate = $punchedAt->copy()->setTimezone($company?->timezone ?? 'Asia/Riyadh')->toDateString();
+        $location = $this->match((float) $reading['latitude'], (float) $reading['longitude'], $accuracy ?? 0, $reading['wifi_bssid'] ?? null);
 
-        $branchId = $this->branchFor($employee, $location, $workDate);
-        $flag = $this->flagFor($employee, $branchId, $workDate, (bool) ($reading['mocked'] ?? false));
+        // Away from every work location: fine on a remote day (counted at the home branch), refused otherwise.
+        $remote = $location === null && $this->remote->isRemoteDay($employee, $workDate);
+
+        if ($location === null && ! $remote) {
+            throw ValidationException::withMessages(['location' => __('hr.attendance.errors.outside')]);
+        }
+
+        $branchId = $remote ? $employee->branch_id : $this->branchFor($employee, $location, $workDate);
+        $flag = $remote ? ((bool) ($reading['mocked'] ?? false) ? PunchFlag::MockedLocation : null) : $this->flagFor($employee, $branchId, $workDate, (bool) ($reading['mocked'] ?? false));
 
         $punch = new AttendancePunch;
         $punch->forceFill([
@@ -62,7 +68,8 @@ class RecordPunch
             'longitude' => $reading['longitude'],
             'accuracy_m' => $accuracy,
             'mocked' => (bool) ($reading['mocked'] ?? false),
-            'work_location_id' => $location->id,
+            'work_location_id' => $location?->id,
+            'is_remote' => $remote,
             'branch_id' => $branchId,
             'home_branch_id' => $employee->branch_id,
             'flag' => $flag?->value,

@@ -9,6 +9,7 @@ use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
+use App\Modules\Hr\Actions\Remote\RemoteWork;
 use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
 use App\Modules\Hr\Actions\Tasks\TaskFlow;
@@ -18,6 +19,7 @@ use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\RemoteRequest;
 use App\Modules\Hr\Models\Review;
 use App\Modules\Hr\Models\Separation;
 use App\Modules\Hr\Models\Shift;
@@ -67,6 +69,7 @@ class SelfServiceController extends Controller
             'break_state' => self::breakState($employee),
             'record' => self::record($employee),
             'reviews' => self::reviews($employee),
+            'remote' => self::remote($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
@@ -258,6 +261,38 @@ class SelfServiceController extends Controller
                 'cycle' => $review->cycle->name, 'due_on' => $review->cycle->due_on->toDateString(), 'open' => $review->cycle->status === 'open',
                 'criteria' => array_map(fn (array $criterion): array => ['key' => $criterion['key'], 'label' => app()->getLocale() === 'ar' ? $criterion['label_ar'] : $criterion['label_en']], $review->cycle->criteria),
             ])->all();
+    }
+
+    /**
+     * My work pattern and my requests to work from home.
+     *
+     * @return array{work_mode: string, remote_days: list<int>, remote_today: bool, requests: list<array<string, mixed>>}
+     */
+    public static function remote(Employee $employee): array
+    {
+        return [
+            'work_mode' => $employee->work_mode, 'remote_days' => $employee->remote_days ?? [],
+            'remote_today' => app(RemoteWork::class)->isRemoteDay($employee, today()->toDateString()),
+            'requests' => RemoteRequest::query()->where('employee_id', $employee->id)->whereDate('work_date', '>=', today()->subDays(14))
+                ->orderByDesc('work_date')->limit(20)->get()->map(fn (RemoteRequest $request): array => RemoteController::requestArray($request))->all(),
+        ];
+    }
+
+    public function requestRemote(Request $request, RemoteWork $remote): RedirectResponse
+    {
+        $data = self::validateRemoteRequest($request);
+        $remote->request($this->employee($request), $data['work_date'], $data['reason'] ?? null);
+        $this->toast(__('hr.remote.requested'));
+
+        return back();
+    }
+
+    /**
+     * @return array{work_date: string, reason?: ?string}
+     */
+    public static function validateRemoteRequest(Request $request): array
+    {
+        return $request->validate(['work_date' => ['required', 'date', 'after_or_equal:today'], 'reason' => ['nullable', 'string', 'max:255']]);
     }
 
     public function selfReview(Request $request, Review $review, ReviewFlow $flow): RedirectResponse

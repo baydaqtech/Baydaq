@@ -19,6 +19,7 @@ use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
 use App\Modules\Hr\Http\Controllers\RecruitmentController;
+use App\Modules\Hr\Http\Controllers\RemoteController;
 use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
@@ -46,6 +47,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->middleware('feature:hr.tasks')->name('tasks.move');
     Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.store');
     Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.end');
+    Route::post('/remote', [SelfServiceController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:hr.remote'])->name('remote.store');
     Route::post('/reviews/{review}', [SelfServiceController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:hr.performance'])->name('reviews.self');
     Route::post('/resignation', [SelfServiceController::class, 'resign'])->middleware(['throttle:5,1', 'feature:hr.offboarding'])->name('resignation.store');
     Route::post('/resignation/{separation}/withdraw', [SelfServiceController::class, 'withdrawResignation'])->middleware('throttle:5,1')->name('resignation.withdraw');
@@ -159,6 +161,12 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::put('/reviews/{review}', [ReviewController::class, 'update'])->middleware('access:hr.reviews.approve')->name('reviews.update');
             Route::put('/reviews/cycles/{cycle}/close', [ReviewController::class, 'close'])->middleware('access:hr.reviews.approve')->name('reviews.close');
             Route::get('/reviews', [ReviewController::class, 'index'])->middleware('access:hr.reviews.view|hr.reviews.approve')->name('reviews.index');
+        });
+
+        Route::middleware('feature:hr.remote')->group(function (): void {
+            Route::put('/employees/{employee}/work-pattern', [RemoteController::class, 'pattern'])->middleware('access:hr.remote.update')->name('remote.pattern');
+            Route::put('/remote/{remoteRequest}', [RemoteController::class, 'decide'])->middleware('access:hr.remote.approve')->name('remote.decide');
+            Route::get('/remote', [RemoteController::class, 'index'])->middleware('access:hr.remote.view|hr.remote.update|hr.remote.approve')->name('remote.index');
         });
 
         // Leaving and the disciplinary record.

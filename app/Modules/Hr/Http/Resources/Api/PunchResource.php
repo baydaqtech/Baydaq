@@ -23,6 +23,7 @@ class PunchResource extends JsonResource
             'work_date' => $this->work_date->toDateString(),
             'branch_id' => $this->branch_id,
             'work_location_id' => $this->work_location_id,
+            'is_remote' => (bool) $this->is_remote,
             'flag' => $this->flag?->value,
             'resolution' => $this->resolution?->value,
         ];
