@@ -10,6 +10,7 @@ use App\Modules\Platform\Ports\Audit;
 use Brick\Math\BigDecimal;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class SaveDeduction
@@ -25,6 +26,20 @@ class SaveDeduction
      */
     public function handle(Employee $employee, DeductionType $type, array $data, ?Authenticatable $actor = null): Deduction
     {
+        // Deductions for one employee are recorded one at a time, so concurrent ones (a penalty,
+        // a cash shortage, a staff meal) cannot each see room under the cap and overrun it together.
+        return DB::transaction(function () use ($employee, $type, $data, $actor): Deduction {
+            Employee::query()->lockForUpdate()->whereKey($employee->id)->value('id');
+
+            return $this->record($employee, $type, $data, $actor);
+        });
+    }
+
+    /**
+     * @param  array{amount: numeric-string|float|int, pay_month: string, reason?: ?string, origin?: string}  $data
+     */
+    private function record(Employee $employee, DeductionType $type, array $data, ?Authenticatable $actor): Deduction
+    {
         $month = Carbon::parse($data['pay_month'])->startOfMonth();
         $amount = BigDecimal::of((string) $data['amount']);
         $daily = $this->wage->daily($this->wage->contractOf($employee));
@@ -36,7 +51,7 @@ class SaveDeduction
         }
 
         $alreadyThisMonth = BigDecimal::of((string) Deduction::query()->where('employee_id', $employee->id)
-            ->whereDate('pay_month', $month)->whereIn('status', [AdjustmentStatus::Pending, AdjustmentStatus::Approved, AdjustmentStatus::Paid])->sum('amount'));
+            ->whereDate('pay_month', $month)->whereIn('status', [AdjustmentStatus::Pending, AdjustmentStatus::Approved, AdjustmentStatus::Paid])->lockForUpdate()->sum('amount'));
 
         if ($daily->isPositive() && $alreadyThisMonth->plus($amount)->isGreaterThan($monthlyCap)) {
             throw ValidationException::withMessages(['amount' => __('hr.pay.errors.deduction_cap_month', ['max' => (string) $monthlyCap, 'left' => (string) $monthlyCap->minus($alreadyThisMonth)])]);

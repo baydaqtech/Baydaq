@@ -44,7 +44,7 @@ class CheckoutBooking
                     'quantity' => 1,
                     'unit_price_incl_vat' => (string) $booking->price,
                     'vat_rate' => (string) $booking->service->vat_rate,
-                ]], $means->value, $booking->reference);
+                ]], $means->value, $booking->reference, 'reservations.booking');
 
                 $booking->forceFill(['invoice_id' => $issued->id])->save();
             }

@@ -66,6 +66,10 @@ class PlanController extends Controller
         $companyId = (int) ($data['company_id'] ?? $plan->company_id);
         $this->authorizeCompanyFor(SubscriptionsFeature::Plans, $plan->exists ? FeatureAction::Update : FeatureAction::Create, $companyId);
 
+        if ($plan->exists) {
+            $this->authorizeCompanyFor(SubscriptionsFeature::Plans, FeatureAction::Update, $plan->company_id);
+        }
+
         $branchIds = array_values(array_unique(array_map('intval', $data['branch_ids'] ?? [])));
         $valid = $this->branchesFor(SubscriptionsFeature::Plans, FeatureAction::View)->filter(fn (BranchRef $branch): bool => $branch->companyId === $companyId)->pluck('id');
 

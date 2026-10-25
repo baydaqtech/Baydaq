@@ -76,7 +76,16 @@ class PurchasingController extends Controller
 
     public function updateSupplier(Request $request, Supplier $supplier): RedirectResponse
     {
-        $supplier->update($this->validateSupplier($request));
+        $data = $this->validateSupplier($request);
+
+        // Changing where a supplier is paid is a classic fraud: only account-wide bill approvers may.
+        if (filled($data['iban'] ?? null) && $data['iban'] !== $supplier->iban) {
+            $this->authorizeAccount(FinanceFeature::Payables->key(FeatureAction::Approve));
+        } else {
+            unset($data['iban']);
+        }
+
+        $supplier->update($data);
         $this->toast(__('finance.saved'));
 
         return back();

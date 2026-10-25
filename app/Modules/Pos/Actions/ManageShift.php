@@ -64,6 +64,10 @@ class ManageShift
         }
 
         return DB::transaction(function () use ($shift, $countedCash): Shift {
+            if (Shift::query()->lockForUpdate()->whereKey($shift->id)->value('closed_at') !== null) {
+                throw ValidationException::withMessages(['shift' => __('pos.errors.shift_closed')]);
+            }
+
             $orders = Order::query()->where('shift_id', $shift->id)->where('status', OrderStatus::Paid);
             $cash = Payment::query()->whereIn('order_id', (clone $orders)->select('id'))->where('method', PaymentMethod::Cash)->sum('amount');
             $expected = BigDecimal::of((string) $shift->opening_cash)->plus((string) $cash);

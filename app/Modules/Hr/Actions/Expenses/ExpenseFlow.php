@@ -11,6 +11,7 @@ use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -44,7 +45,17 @@ class ExpenseFlow
 
     public function decide(ExpenseClaim $claim, bool $approve, ?string $note, ?Authenticatable $actor = null): ExpenseClaim
     {
+        return DB::transaction(fn (): ExpenseClaim => $this->decideLocked($this->lock($claim), $approve, $note, $actor));
+    }
+
+    private function decideLocked(ExpenseClaim $claim, bool $approve, ?string $note, ?Authenticatable $actor): ExpenseClaim
+    {
         $this->expect($claim, 'submitted');
+
+        // Nobody approves their own claim.
+        if ($actor !== null && $claim->employee->user_id === $actor->getAuthIdentifier()) {
+            throw ValidationException::withMessages(['status' => __('hr.expenses.errors.own')]);
+        }
         $claim->forceFill(['status' => $approve ? 'approved' : 'rejected', 'decision_note' => $note, 'decided_by' => $actor?->getAuthIdentifier(), 'decided_at' => now()])->save();
         $this->audit->record($claim, $approve ? 'approved' : 'rejected', ['amount' => (string) $claim->amount], $actor);
 
@@ -62,6 +73,11 @@ class ExpenseFlow
 
     public function markPaid(ExpenseClaim $claim, string $paidOn, ?Authenticatable $actor = null): ExpenseClaim
     {
+        return DB::transaction(fn (): ExpenseClaim => $this->markPaidLocked($this->lock($claim), $paidOn, $actor));
+    }
+
+    private function markPaidLocked(ExpenseClaim $claim, string $paidOn, ?Authenticatable $actor): ExpenseClaim
+    {
         $this->expect($claim, 'approved');
         $claim->forceFill(['status' => 'paid', 'paid_on' => $paidOn])->save();
         $this->audit->record($claim, 'paid', [], $actor);
@@ -71,6 +87,12 @@ class ExpenseFlow
         ]));
 
         return $claim;
+    }
+
+    /** Approve, refuse and pay back act on a locked, fresh claim, so two clicks cannot both act. */
+    private function lock(ExpenseClaim $claim): ExpenseClaim
+    {
+        return ExpenseClaim::query()->with('employee')->lockForUpdate()->findOrFail($claim->id);
     }
 
     private function expect(ExpenseClaim $claim, string $status): void

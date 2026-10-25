@@ -90,7 +90,7 @@ class ExpenseController extends Controller
             'spent_on' => ['required', 'date', 'before_or_equal:today'],
             'category' => ['required', 'in:'.implode(',', ExpenseClaim::CATEGORIES)],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:100000'],
-            'vat' => ['nullable', 'numeric', 'min:0'],
+            'vat' => ['nullable', 'numeric', 'min:0', 'lte:amount'],
             'merchant' => ['nullable', 'string', 'max:255'],
             'merchant_vat_number' => ['nullable', 'digits:15'],
             'description' => ['nullable', 'string', 'max:255'],

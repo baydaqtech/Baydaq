@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -28,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        // In production every link and redirect is https, so nothing travels in clear text.
+        if ($this->app->isProduction()) {
+            URL::forceScheme('https');
+        }
 
         // Inertia props are plain objects; no {"data": ...} wrapper.
         JsonResource::withoutWrapping();

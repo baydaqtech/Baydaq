@@ -35,6 +35,7 @@ use App\Modules\Hr\Models\Job;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\Letter;
 use App\Modules\Hr\Models\Section;
+use App\Modules\Hr\Models\Separation;
 use App\Modules\Platform\Data\BranchRef;
 use App\Modules\Platform\Data\CompanyRef;
 use App\Modules\Platform\Enums\FeatureAction;
@@ -49,6 +50,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 
 class EmployeeController extends Controller
@@ -189,6 +191,11 @@ class EmployeeController extends Controller
     {
         $this->authorizeEmployee($employee, HrFeature::Employees, FeatureAction::Update);
         $data = $request->validate(['status' => ['required', Rule::enum(EmployeeStatus::class)], 'terminated_on' => ['nullable', 'date']]);
+
+        // A departure in progress is finished from the leavers page, so its notice and checklist apply.
+        if ($data['status'] === EmployeeStatus::Terminated->value && Separation::query()->where('employee_id', $employee->id)->whereIn('status', Separation::OPEN)->exists()) {
+            throw ValidationException::withMessages(['status' => __('hr.separations.errors.use_separation')]);
+        }
 
         $changeStatus->handle($employee, EmployeeStatus::from($data['status']), $request->user(), $data['terminated_on'] ?? null);
         $this->toast(__('hr.employees.status_changed'));

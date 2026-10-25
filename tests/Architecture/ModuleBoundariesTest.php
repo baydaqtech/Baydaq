@@ -34,6 +34,7 @@ class ModuleBoundariesTest extends TestCase
         'Reservations' => 'res__',
         'Subscriptions' => 'sub__',
         'Menus' => 'menu__',
+        'Finance' => 'finance__',
     ];
 
     #[Test]

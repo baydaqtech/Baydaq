@@ -21,4 +21,7 @@ interface Accounts
 
     /** Send a notification to a login of the tenant. */
     public function notify(int $userId, Notification $notification): void;
+
+    /** Sign a login out of every app (revoke its API tokens), e.g. when the person leaves. */
+    public function signOutEverywhere(int $userId): void;
 }

@@ -96,6 +96,11 @@ class PayOrder
         }
 
         return DB::transaction(function () use ($order, $payments, $actor, $staffCharge, $staffEmployeeId, $walletCharge, $customer): Order {
+            // Two cashiers (or a double tap) paying the same order: only the first gets past the lock.
+            if (Order::query()->lockForUpdate()->whereKey($order->id)->value('status') !== OrderStatus::Open) {
+                throw ValidationException::withMessages(['status' => __('pos.errors.not_open')]);
+            }
+
             if ($customer !== null) {
                 $this->customers->register($customer->id, $order->branch_id, 'pos', $actor);
             }

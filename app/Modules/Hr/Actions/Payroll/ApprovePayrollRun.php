@@ -39,6 +39,11 @@ class ApprovePayrollRun
         }
 
         return DB::transaction(function () use ($run, $actor): PayrollRun {
+            // A second approve waits here and finds the run no longer a draft.
+            if (PayrollRun::query()->lockForUpdate()->whereKey($run->id)->value('status') !== PayrollStatus::Draft) {
+                throw ValidationException::withMessages(['status' => __('hr.payroll.errors.already_approved')]);
+            }
+
             foreach ($run->lines()->get() as $line) {
                 Bonus::query()->where('employee_id', $line->employee_id)->whereDate('pay_month', $run->pay_month)->where('status', AdjustmentStatus::Approved)
                     ->update(['status' => AdjustmentStatus::Paid->value, 'payroll_line_id' => $line->id]);
@@ -84,16 +89,18 @@ class ApprovePayrollRun
 
     public function markPaid(PayrollRun $run, string $paidOn, Authenticatable $actor): PayrollRun
     {
-        if ($run->status !== PayrollStatus::Approved) {
-            throw ValidationException::withMessages(['status' => __('hr.payroll.errors.not_approved')]);
-        }
+        DB::transaction(function () use ($run, $paidOn, $actor): void {
+            if (PayrollRun::query()->lockForUpdate()->whereKey($run->id)->value('status') !== PayrollStatus::Approved) {
+                throw ValidationException::withMessages(['status' => __('hr.payroll.errors.not_approved')]);
+            }
 
-        $run->forceFill(['status' => PayrollStatus::Paid->value, 'paid_on' => $paidOn])->save();
-        $this->ledger->post(new LedgerPosting($run->company_id, null, $paidOn, 'hr.payroll_payment', $run->id, 'Salaries paid '.$run->pay_month->format('Y-m'), [
-            ['account' => 'salaries_payable', 'debit' => (string) BigDecimal::of((string) $run->lines()->sum('net'))->toScale(2)],
-            ['account' => 'bank', 'credit' => (string) BigDecimal::of((string) $run->lines()->sum('net'))->toScale(2)],
-        ]));
-        $this->audit->record($run, 'paid', ['paid_on' => $paidOn], $actor);
+            $run->forceFill(['status' => PayrollStatus::Paid->value, 'paid_on' => $paidOn])->save();
+            $this->ledger->post(new LedgerPosting($run->company_id, null, $paidOn, 'hr.payroll_payment', $run->id, 'Salaries paid '.$run->pay_month->format('Y-m'), [
+                ['account' => 'salaries_payable', 'debit' => (string) BigDecimal::of((string) $run->lines()->sum('net'))->toScale(2)],
+                ['account' => 'bank', 'credit' => (string) BigDecimal::of((string) $run->lines()->sum('net'))->toScale(2)],
+            ]));
+            $this->audit->record($run, 'paid', ['paid_on' => $paidOn], $actor);
+        });
 
         foreach ($run->lines()->with('employee')->get() as $line) {
             app(EmployeeMessenger::class)->send($line->employee, 'hr_payslip_ready', ['month' => $run->pay_month->format('Y-m'), 'amount' => (string) $line->net], "hr.payroll_line:{$line->id}");

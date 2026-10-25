@@ -9,6 +9,7 @@ use App\Modules\Platform\Data\LedgerPosting;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\Ledger;
 use Brick\Math\BigDecimal;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use LogicException;
 
@@ -45,24 +46,36 @@ class GeneralLedger implements Ledger
             return;
         }
 
-        DB::transaction(function () use ($posting, $lines): void {
-            $accounts = ChartOfAccounts::ensure();
-            $entry = (new JournalEntry)->forceFill([
-                'company_id' => $posting->companyId, 'branch_id' => $posting->branchId, 'entry_date' => $posting->date,
-                'source' => $posting->source, 'source_id' => $posting->sourceId, 'memo' => mb_substr($posting->memo, 0, 255),
-                'created_by' => auth()->id(),
-            ]);
-            $entry->save();
+        try {
+            DB::transaction(fn () => $this->write($posting, $lines));
+        } catch (UniqueConstraintViolationException) {
+            // Another request posted this source a moment ago: nothing to do.
+        } catch (LogicException $exception) {
+            report($exception);
+        }
+    }
 
-            foreach ($lines as $line) {
-                $account = (str_starts_with($line['account'], '#') ? Account::query()->find((int) substr($line['account'], 1)) : $accounts->get($line['account']))
-                    ?? throw new LogicException("Unknown ledger account {$line['account']}");
-                $entry->lines()->make()->forceFill([
-                    'account_id' => $account->id, 'debit' => $line['debit'] ?? '0', 'credit' => $line['credit'] ?? '0',
-                    'tax_base' => $line['tax_base'] ?? null, 'memo' => $line['memo'] ?? null,
-                ])->save();
-            }
-        });
+    /**
+     * @param  list<array{account: string, debit?: string, credit?: string, tax_base?: ?string, memo?: ?string}>  $lines
+     */
+    private function write(LedgerPosting $posting, array $lines): void
+    {
+        $accounts = ChartOfAccounts::ensure();
+        $entry = (new JournalEntry)->forceFill([
+            'company_id' => $posting->companyId, 'branch_id' => $posting->branchId, 'entry_date' => $posting->date,
+            'source' => $posting->source, 'source_id' => $posting->sourceId, 'memo' => mb_substr($posting->memo, 0, 255),
+            'created_by' => auth()->id(),
+        ]);
+        $entry->save();
+
+        foreach ($lines as $line) {
+            $account = (str_starts_with($line['account'], '#') ? Account::query()->find((int) substr($line['account'], 1)) : $accounts->get($line['account']))
+                ?? throw new LogicException("Unknown ledger account {$line['account']}");
+            $entry->lines()->make()->forceFill([
+                'account_id' => $account->id, 'debit' => $line['debit'] ?? '0', 'credit' => $line['credit'] ?? '0',
+                'tax_base' => $line['tax_base'] ?? null, 'memo' => $line['memo'] ?? null,
+            ])->save();
+        }
     }
 
     public function reverse(string $source, int $sourceId, string $date): void

@@ -7,6 +7,7 @@ use App\Modules\Hr\Enums\EmployeeStatus;
 use App\Modules\Hr\Events\EmployeeTerminated;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Ports\OffboardingClearance;
+use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Ports\Audit;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,10 @@ class ChangeEmployeeStatus
 
             if ($status === EmployeeStatus::Terminated) {
                 EmployeeTerminated::dispatch(EmployeeStaffDirectory::summary($employee));
+                // Sign the leaver out of the mobile app everywhere.
+                if ($employee->user_id !== null) {
+                    app(Accounts::class)->signOutEverywhere($employee->user_id);
+                }
             }
 
             return $employee;

@@ -116,6 +116,7 @@ class RecruitmentController extends Controller
         ]);
         $branch = $this->directory->branch((int) $data['branch_id']);
         abort_unless($branch && $branch->companyId === $opening->company_id, 422);
+        abort_unless($this->reach(HrFeature::Recruitment, FeatureAction::Approve)->allowsBranch($branch->id, $branch->companyId), 403);
 
         $employee = $flow->hire($candidate, $data, $request->user());
         $this->toast(__('hr.recruitment.hired'));

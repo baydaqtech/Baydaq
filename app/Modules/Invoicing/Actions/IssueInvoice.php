@@ -33,6 +33,12 @@ class IssueInvoice
         private Ledger $ledger,
     ) {}
 
+    /** Modules whose simplified receipts are paid at the counter when issued. */
+    private const COUNTER_SOURCES = ['reservations.booking', 'subscriptions.membership'];
+
+    /** UN/ECE 4461 payment means → where the money lands. */
+    private const MEANS_ACCOUNTS = ['10' => 'cash', '42' => 'bank', '48' => 'card_clearing', '1' => 'card_clearing', '30' => 'receivables'];
+
     /**
      * The invoice for the books: receivable against sales and output VAT; a credit note the other way.
      */
@@ -45,8 +51,13 @@ class IssueInvoice
         $side = fn (BigDecimal $amount, string $normal): array => ($amount->multipliedBy($sign)->isNegative() xor $normal === 'credit')
             ? ['credit' => (string) $amount->abs()->toScale(2)] : ['debit' => (string) $amount->abs()->toScale(2)];
 
+        // A receipt raised by another module at its counter (a booking, a membership) was paid there
+        // and then; anything else is owed until paid.
+        $paidAtCounter = $invoice->type === InvoiceType::Simplified && in_array($invoice->source, self::COUNTER_SOURCES, true);
+        $received = $paidAtCounter ? (self::MEANS_ACCOUNTS[$invoice->payment_means] ?? 'receivables') : 'receivables';
+
         return new LedgerPosting($invoice->company_id, null, $invoice->issue_date->toDateString(), 'invoicing.invoice', $invoice->id, "{$invoice->number}", [
-            ['account' => 'receivables', ...$side(BigDecimal::of($invoice->payableAmount()), 'debit')],
+            ['account' => $received, ...$side(BigDecimal::of($invoice->payableAmount()), 'debit')],
             ['account' => 'sales', ...$side($revenue, 'credit')],
             ['account' => 'vat_output', ...$side($vat, 'credit'), 'tax_base' => (string) $revenue->multipliedBy($sign)->toScale(2)],
             ['account' => 'other_income', ...$side($rounding, 'credit')],
@@ -78,6 +89,11 @@ class IssueInvoice
 
         return DB::transaction(function () use ($invoice, $unit, $company, $actor): Invoice {
             $unit = EinvoiceUnit::query()->lockForUpdate()->findOrFail($unit->id);
+
+            // A second request for the same draft waits on the unit lock, then must see it already issued.
+            if (! in_array(Invoice::query()->lockForUpdate()->whereKey($invoice->id)->value('status'), [InvoiceStatus::Draft, InvoiceStatus::Rejected], true)) {
+                throw ValidationException::withMessages(['status' => __('invoicing.errors.not_draft')]);
+            }
             $counter = $unit->counter + 1;
 
             $invoice->forceFill([

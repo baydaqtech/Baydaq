@@ -33,4 +33,9 @@ class TenantAccounts implements Accounts
     {
         User::query()->where('client_id', $this->tenant->id())->find($userId)?->notify($notification);
     }
+
+    public function signOutEverywhere(int $userId): void
+    {
+        User::query()->where('client_id', $this->tenant->id())->find($userId)?->tokens()->delete();
+    }
 }

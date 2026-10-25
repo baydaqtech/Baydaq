@@ -53,26 +53,32 @@ class PurchasingFlow
     /** draft → approved → received; cancel while not billed. */
     public function moveOrder(PurchaseOrder $order, string $to, ?Authenticatable $actor = null): PurchaseOrder
     {
-        $allowed = ['approved' => ['draft'], 'received' => ['approved'], 'cancelled' => ['draft', 'approved', 'received']][$to] ?? [];
+        return DB::transaction(function () use ($order, $to, $actor): PurchaseOrder {
+            $order = PurchaseOrder::query()->lockForUpdate()->findOrFail($order->id);
+            $allowed = ['approved' => ['draft'], 'received' => ['approved'], 'cancelled' => ['draft', 'approved', 'received']][$to] ?? [];
 
-        if (! in_array($order->status, $allowed, true)) {
-            throw ValidationException::withMessages(['status' => __('finance.errors.status')]);
-        }
+            if (! in_array($order->status, $allowed, true)) {
+                throw ValidationException::withMessages(['status' => __('finance.errors.status')]);
+            }
 
-        $order->forceFill(['status' => $to, ...($to === 'approved' ? ['approved_by' => $actor?->getAuthIdentifier()] : [])])->save();
-        $this->audit->record($order, $to, [], $actor);
+            $order->forceFill(['status' => $to, ...($to === 'approved' ? ['approved_by' => $actor?->getAuthIdentifier()] : [])])->save();
+            $this->audit->record($order, $to, [], $actor);
 
-        return $order;
+            return $order;
+        });
     }
 
     /** The supplier's invoice for a received order, as a draft bill with the same lines. */
     public function billOrder(PurchaseOrder $order, ?string $supplierInvoiceNo, string $billDate): Bill
     {
-        if ($order->status !== 'received') {
-            throw ValidationException::withMessages(['status' => __('finance.errors.status')]);
-        }
-
         return DB::transaction(function () use ($order, $supplierInvoiceNo, $billDate): Bill {
+            // A double click must not make two bills for one order.
+            $order = PurchaseOrder::query()->with('lines')->lockForUpdate()->findOrFail($order->id);
+
+            if ($order->status !== 'received') {
+                throw ValidationException::withMessages(['status' => __('finance.errors.status')]);
+            }
+
             $bill = $this->saveBill(new Bill, [
                 'supplier_id' => $order->supplier_id, 'supplier_invoice_no' => $supplierInvoiceNo, 'bill_date' => $billDate,
             ], $order->lines->map(fn (DocumentLine $line): array => $line->only(['description', 'quantity', 'unit_price', 'vat_rate', 'account_id']))->all(), $order->company_id, $order->branch_id);
@@ -108,6 +114,11 @@ class PurchasingFlow
 
     public function approveBill(Bill $bill, ?Authenticatable $actor = null): Bill
     {
+        return DB::transaction(fn (): Bill => $this->approveLockedBill(Bill::query()->with('supplier')->lockForUpdate()->findOrFail($bill->id), $actor));
+    }
+
+    private function approveLockedBill(Bill $bill, ?Authenticatable $actor): Bill
+    {
         if ($bill->status !== 'draft') {
             throw ValidationException::withMessages(['status' => __('finance.errors.status')]);
         }
@@ -135,11 +146,14 @@ class PurchasingFlow
     {
         $amount = BigDecimal::of($amount);
 
-        if ($bill->status !== 'approved' || $amount->isGreaterThan($bill->balance()) || ! $amount->isPositive()) {
-            throw ValidationException::withMessages(['amount' => __('finance.errors.payment', ['balance' => $bill->balance()])]);
-        }
-
         return DB::transaction(function () use ($bill, $amount, $paidOn, $method, $reference, $actor): BillPayment {
+            // Two payments at once: the second waits here and sees what the first paid.
+            $bill = Bill::query()->with('supplier')->lockForUpdate()->findOrFail($bill->id);
+
+            if ($bill->status !== 'approved' || $amount->isGreaterThan($bill->balance()) || ! $amount->isPositive()) {
+                throw ValidationException::withMessages(['amount' => __('finance.errors.payment', ['balance' => $bill->balance()])]);
+            }
+
             $payment = $bill->payments()->make()->forceFill(['amount' => (string) $amount, 'paid_on' => $paidOn, 'method' => $method, 'reference' => $reference, 'created_by' => $actor?->getAuthIdentifier()]);
             $payment->save();
             $paid = BigDecimal::of((string) $bill->paid)->plus($amount);

@@ -30,6 +30,19 @@ class SeparationFlow
      */
     public function submit(Employee $employee, array $data, string $source, ?Authenticatable $actor = null): Separation
     {
+        // One departure at a time per employee: lock the employee so two submissions can't both pass.
+        return DB::transaction(function () use ($employee, $data, $source, $actor): Separation {
+            Employee::query()->lockForUpdate()->whereKey($employee->id)->value('id');
+
+            return $this->submitLocked($employee, $data, $source, $actor);
+        });
+    }
+
+    /**
+     * @param  array{kind: string, last_day?: ?string, reason?: ?string, submitted_on?: ?string}  $data
+     */
+    private function submitLocked(Employee $employee, array $data, string $source, ?Authenticatable $actor): Separation
+    {
         if ($employee->status === EmployeeStatus::Terminated) {
             throw ValidationException::withMessages(['kind' => __('hr.separations.errors.already_left')]);
         }
@@ -128,7 +141,9 @@ class SeparationFlow
         $this->expect($separation, ['accepted']);
 
         return DB::transaction(function () use ($separation, $actor): Separation {
-            $this->changeStatus->handle($separation->employee, EmployeeStatus::Terminated, $actor, $separation->last_day->toDateString());
+            if ($separation->employee->status !== EmployeeStatus::Terminated) {
+                $this->changeStatus->handle($separation->employee, EmployeeStatus::Terminated, $actor, $separation->last_day->toDateString());
+            }
 
             return $this->move($separation, 'completed', [], $actor);
         });

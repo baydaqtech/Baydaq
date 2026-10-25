@@ -71,7 +71,7 @@ class SellMembership
                 $issued = $this->invoices->issueSimplified($member->company_id, $unitId, [[
                     'description' => $plan->localized('name').' · '.$start->toDateString().' → '.$end->toDateString(),
                     'quantity' => 1, 'unit_price_incl_vat' => (string) $plan->price, 'vat_rate' => (string) $plan->vat_rate,
-                ]], $means->value, $member->number);
+                ]], $means->value, $member->number, 'subscriptions.membership');
                 $membership->forceFill(['invoice_id' => $issued->id])->save();
             }
 

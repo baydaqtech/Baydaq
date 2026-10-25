@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Modules\Platform\Http\Middleware\EnsureModuleIsActive;
 use App\Modules\Platform\Http\Middleware\EnsureSuiteAccess;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetLocale::class,
             HandleInertiaRequests::class,
+            SecurityHeaders::class,
         ]);
 
         $middleware->alias([

@@ -97,6 +97,10 @@ class CatalogController extends Controller
         $data = $request->validate(['company_id' => ['required', 'integer'], 'brand_id' => ['nullable', 'integer'], 'name_ar' => ['required', 'string', 'max:255'], 'name_en' => ['required', 'string', 'max:255'], 'color' => ['nullable', 'string', 'max:7'], 'sort_order' => ['nullable', 'integer'], 'is_active' => ['boolean']]);
         $this->authorizeCatalogCompany($data['company_id']);
 
+        if ($category->exists) {
+            $this->authorizeCatalogCompany($category->company_id);
+        }
+
         if (! $category->exists) {
             $category->client_id = $tenant->client()->id;
         }
@@ -117,6 +121,11 @@ class CatalogController extends Controller
         ]);
         $this->authorizeCatalogCompany($data['company_id']);
 
+        // Editing: the user must also reach the company the product belongs to now.
+        if ($product->exists) {
+            $this->authorizeCatalogCompany($product->company_id);
+        }
+
         $save->handle($product, collect($data)->except(['modifier_group_ids', 'branch_overrides'])->all(), $data['modifier_group_ids'] ?? [], $data['branch_overrides'] ?? []);
     }
 
@@ -127,6 +136,10 @@ class CatalogController extends Controller
             'modifiers' => ['required', 'array', 'min:1'], 'modifiers.*.name_ar' => ['required', 'string', 'max:255'], 'modifiers.*.name_en' => ['required', 'string', 'max:255'], 'modifiers.*.price' => ['required', 'numeric', 'min:0'],
         ]);
         $this->authorizeCatalogCompany($data['company_id']);
+
+        if ($group->exists) {
+            $this->authorizeCatalogCompany($group->company_id);
+        }
 
         if (! $group->exists) {
             $group->client_id = $tenant->client()->id;

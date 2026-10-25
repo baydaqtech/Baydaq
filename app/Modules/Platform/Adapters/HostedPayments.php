@@ -22,6 +22,12 @@ class HostedPayments implements Payments
     public function link(string $reference, string $amount, string $description, ?string $returnUrl = null, ?int $clientId = null): PaymentLink
     {
         $driver = (string) config('baydaq.payments.driver', 'fake');
+
+        // The fake driver lets the payer mark their own invoice paid: never in production.
+        if ($driver === 'fake' && app()->isProduction()) {
+            throw new RuntimeException('PAYMENTS_DRIVER=fake is not allowed in production.');
+        }
+
         $payment = new Payment;
         $payment->forceFill([
             'client_id' => $clientId, 'token' => Str::random(40), 'reference' => $reference, 'amount' => (string) BigDecimal::of($amount)->toScale(2),

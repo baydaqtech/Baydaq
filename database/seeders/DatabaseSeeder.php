@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if (app()->isLocal()) {
-            $this->call(DemoSeeder::class);
+            $this->call([DemoSeeder::class, TestAccountSeeder::class]);
         }
     }
 }

@@ -884,6 +884,7 @@ return [
             'withdraw' => 'A resignation can only be withdrawn within 7 days and before it is final.',
             'defer' => 'A resignation can be postponed once, to a later date no further than :max.',
             'status' => 'This departure cannot do that now.',
+            'use_separation' => 'This employee has a departure in progress: finish it from the Leavers page.',
         ],
     ],
 
@@ -1097,6 +1098,7 @@ return [
         'errors' => [
             'vat' => 'VAT can only be claimed with the supplier\'s VAT number and at most 15/115 of the amount.',
             'status' => 'This claim cannot do that now.',
+            'own' => 'Someone else must approve your own claim.',
         ],
     ],
 ];

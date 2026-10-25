@@ -121,6 +121,10 @@ class CatalogController extends Controller
         $companyId = (int) ($data['company_id'] ?? $service->company_id);
         $this->authorizeCompanyFor(ReservationsFeature::Catalog, $service->exists ? FeatureAction::Update : FeatureAction::Create, $companyId);
 
+        if ($service->exists) {
+            $this->authorizeCompanyFor(ReservationsFeature::Catalog, FeatureAction::Update, $service->company_id);
+        }
+
         $save->handle($service, [...collect($data)->except(['resource_ids', 'employee_ids'])->all(), 'company_id' => $companyId, 'buffer_minutes' => $data['buffer_minutes'] ?? 0, 'deposit' => $data['deposit'] ?? 0, 'sort_order' => $data['sort_order'] ?? 0], $data['resource_ids'] ?? [], $data['employee_ids'] ?? []);
         $this->toast(__('reservations.catalog.saved'));
 

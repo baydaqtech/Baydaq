@@ -20,7 +20,8 @@ class PaymentController extends Controller
     public function webhook(Request $request, string $provider): JsonResponse
     {
         abort_unless($provider === 'moyasar' && config('baydaq.payments.driver') === 'moyasar', 404);
-        abort_unless(hash_equals((string) config('baydaq.payments.moyasar.webhook_secret'), (string) $request->input('secret_token')), 403);
+        $secret = (string) config('baydaq.payments.moyasar.webhook_secret');
+        abort_unless($secret !== '' && hash_equals($secret, (string) $request->input('secret_token')), 403);
 
         $invoiceId = $request->input('data.invoice_id') ?? $request->input('data.id');
         $payment = Payment::query()->where('provider', 'moyasar')->where('provider_id', $invoiceId)->first();
@@ -47,14 +48,14 @@ class PaymentController extends Controller
     /** Local test page standing in for the provider (driver "fake" only). */
     public function fake(string $token): View
     {
-        abort_unless(config('baydaq.payments.driver', 'fake') === 'fake', 404);
+        abort_unless(config('baydaq.payments.driver', 'fake') === 'fake' && ! app()->isProduction(), 404);
 
         return view('payments.fake', ['payment' => Payment::query()->where('token', $token)->firstOrFail()]);
     }
 
     public function fakePay(string $token): RedirectResponse
     {
-        abort_unless(config('baydaq.payments.driver', 'fake') === 'fake', 404);
+        abort_unless(config('baydaq.payments.driver', 'fake') === 'fake' && ! app()->isProduction(), 404);
         $payment = Payment::query()->where('token', $token)->where('status', 'pending')->firstOrFail();
 
         HostedPayments::markPaid($payment);
