@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Briefcase, Coffee, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { BookOpen, Briefcase, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,7 @@ export const NAV = [
   { path: '/hr/tasks', feature: 'hr.tasks', label: 'suite.module_nav.hr.tasks', icon: ListTodo, module: 'hr', keys: ['hr.tasks.view', 'hr.tasks.create'] },
   { path: '/hr/breaks', feature: 'hr.breaks', label: 'suite.module_nav.hr.breaks', icon: Coffee, module: 'hr', keys: ['hr.breaks.view', 'hr.breaks.approve'] },
   { path: '/hr/shifts', feature: 'hr.shifts', label: 'suite.module_nav.hr.shifts', icon: CalendarClock, module: 'hr', keys: ['hr.shifts.view', 'hr.shifts.create'] },
+  { path: '/hr/expenses', feature: 'hr.expenses', label: 'suite.module_nav.hr.expenses', icon: ReceiptText, module: 'hr', keys: ['hr.expenses.view', 'hr.expenses.approve', 'hr.expenses.pay'] },
   { path: '/hr/remote', feature: 'hr.remote', label: 'suite.module_nav.hr.remote', icon: House, module: 'hr', keys: ['hr.remote.view', 'hr.remote.update', 'hr.remote.approve'] },
   { path: '/hr/recruitment', feature: 'hr.recruitment', label: 'suite.module_nav.hr.recruitment', icon: Briefcase, module: 'hr', keys: ['hr.recruitment.view'] },
   { path: '/hr/reviews', feature: 'hr.performance', label: 'suite.module_nav.hr.reviews', icon: Star, module: 'hr', keys: ['hr.reviews.view', 'hr.reviews.approve'] },
@@ -40,6 +41,9 @@ export const NAV = [
   { path: '/invoicing/invoices', label: 'suite.module_nav.invoicing.invoices', icon: FileText, module: 'invoicing', keys: ['invoicing.invoices.view', 'invoicing.invoices.create'] },
   { path: '/invoicing/customers', label: 'suite.module_nav.invoicing.customers', icon: Contact, module: 'invoicing', keys: ['invoicing.customers.view', 'invoicing.customers.create', 'invoicing.customers.update'] },
   { path: '/invoicing/units', label: 'suite.module_nav.invoicing.einvoicing', icon: Cpu, module: 'invoicing', keys: ['invoicing.einvoicing.view', 'invoicing.einvoicing.onboard'] },
+  { path: '/finance/ledger', feature: 'finance.accounting', label: 'suite.module_nav.finance.ledger', icon: BookOpen, keys: ['finance.ledger.view'] },
+  { path: '/finance/reports', feature: 'finance.accounting', label: 'suite.module_nav.finance.reports', icon: PieChart, keys: ['finance.reports.view'] },
+  { path: '/finance/purchasing', feature: 'finance.purchasing', label: 'suite.module_nav.finance.purchasing', icon: ShoppingCart, keys: ['finance.purchasing.view', 'finance.payables.view'] },
   { path: '/pos/registers', label: 'suite.module_nav.pos.registers', icon: Monitor, module: 'pos', keys: ['pos.registers.view', 'pos.registers.create', 'pos.registers.open_shift', 'pos.orders.sell'] },
   { path: '/pos/orders', label: 'suite.module_nav.pos.orders', icon: Receipt, module: 'pos', keys: ['pos.orders.view', 'pos.orders.sell'] },
   { path: '/pos/kitchen', label: 'suite.module_nav.pos.kitchen', icon: ChefHat, module: 'pos', keys: ['pos.orders.kitchen'] },

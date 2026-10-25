@@ -5,10 +5,12 @@ namespace App\Modules\Pos\Actions;
 use App\Modules\Hr\Ports\PayrollAdjustments;
 use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Invoicing\Ports\InvoiceIssuer;
+use App\Modules\Platform\Data\LedgerPosting;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Ports\Audit;
 use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\Entitlements;
+use App\Modules\Platform\Ports\Ledger;
 use App\Modules\Pos\Enums\OrderStatus;
 use App\Modules\Pos\Enums\PaymentMethod;
 use App\Modules\Pos\Events\OrderPaid;
@@ -22,7 +24,36 @@ use Illuminate\Validation\ValidationException;
 
 class PayOrder
 {
-    public function __construct(private InvoiceIssuer $invoices, private Entitlements $entitlements, private Audit $audit, private PayrollAdjustments $payroll, private StaffDirectory $staff, private Customers $customers) {}
+    public function __construct(private InvoiceIssuer $invoices, private Entitlements $entitlements, private Audit $audit, private PayrollAdjustments $payroll, private StaffDirectory $staff, private Customers $customers, private Ledger $ledger) {}
+
+    /** Where each way of paying lands in the books. */
+    private const LEDGER_ACCOUNTS = [
+        'cash' => 'cash', 'mada' => 'card_clearing', 'card' => 'card_clearing', 'stc_pay' => 'card_clearing',
+        'transfer' => 'bank', 'staff_account' => 'payroll_withholdings', 'wallet' => 'customer_wallets',
+    ];
+
+    /**
+     * The sale for the books: each payment method debited, sales and output VAT credited.
+     *
+     * @param  list<array{method: string, amount: string|float}>  $payments
+     */
+    public static function posting(Order $order, array $payments): LedgerPosting
+    {
+        $debits = [];
+
+        foreach ($payments as $payment) {
+            $account = self::LEDGER_ACCOUNTS[$payment['method']] ?? 'cash';
+            $debits[$account] = BigDecimal::of($debits[$account] ?? '0')->plus((string) $payment['amount']);
+        }
+
+        $vat = BigDecimal::of((string) $order->vat);
+
+        return new LedgerPosting($order->company_id, $order->branch_id, $order->order_date->toDateString(), 'pos.order', $order->id, "POS #{$order->number}", [
+            ...array_map(fn (string $account, BigDecimal $amount): array => ['account' => $account, 'debit' => (string) $amount->toScale(2)], array_keys($debits), array_values($debits)),
+            ['account' => 'sales', 'credit' => (string) BigDecimal::of((string) $order->total)->minus($vat)->toScale(2)],
+            ['account' => 'vat_output', 'credit' => (string) $vat->toScale(2), 'tax_base' => (string) BigDecimal::of((string) $order->total)->minus($vat)->toScale(2)],
+        ]);
+    }
 
     /**
      * Take the payments (they must add up to the total), mark the order paid, and, when the
@@ -99,13 +130,14 @@ class PayOrder
                 $issued = $this->invoices->issueSimplified($order->company_id, $unitId, $order->lines->map(fn (OrderLine $line): array => [
                     'description' => $line->name, 'quantity' => (string) $line->quantity, 'unit_price_incl_vat' => (string) $line->unit_price, 'vat_rate' => (string) $line->vat_rate,
                     'discount_incl_vat' => $discounts[$line->id] ?? '0',
-                ])->values()->all(), $mainMethod->zatcaCode(), $order->note);
+                ])->values()->all(), $mainMethod->zatcaCode(), $order->note, 'pos.order');
 
                 $order->forceFill(['invoice_id' => $issued->id])->save();
             }
 
             $this->audit->record($order, 'paid', ['total' => (string) $order->total, 'methods' => array_column($payments, 'method')], $actor);
             OrderPaid::dispatch($order->id, $order->company_id, $order->branch_id, (string) $order->total, $order->cashier_id);
+            $this->ledger->post(self::posting($order, $payments));
 
             return $order->refresh()->load(['lines', 'payments']);
         });

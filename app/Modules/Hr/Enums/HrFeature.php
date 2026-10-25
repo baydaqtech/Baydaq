@@ -32,6 +32,7 @@ enum HrFeature: string implements Feature
     case Recruitment = 'recruitment'; // openings, candidates, hiring
     case Reviews = 'reviews';         // performance review cycles
     case Remote = 'remote';           // work-from-home patterns and requests
+    case Expenses = 'expenses';       // expense claims: approve, pay back
 
     public static function group(): string
     {
@@ -59,6 +60,7 @@ enum HrFeature: string implements Feature
             self::Breaks => [FeatureAction::View, FeatureAction::Approve],
             self::Offboarding, self::Violations, self::Reviews => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve],
             self::Remote => [FeatureAction::View, FeatureAction::Update, FeatureAction::Approve],
+            self::Expenses => [FeatureAction::View, FeatureAction::Approve],
             self::Recruitment => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Approve],
         };
     }
@@ -70,6 +72,7 @@ enum HrFeature: string implements Feature
             self::Contracts => ['view_salaries'],
             self::Attendance => ['resolve_flags', 'reset_device'],
             self::Payroll => ['mark_paid', 'view_eosb'],
+            self::Expenses => ['pay'],
             default => [],
         };
     }

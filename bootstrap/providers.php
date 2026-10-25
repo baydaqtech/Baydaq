@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Assets\AssetsServiceProvider;
+use App\Modules\Finance\FinanceServiceProvider;
 use App\Modules\Hr\HrServiceProvider;
 use App\Modules\Invoicing\InvoicingServiceProvider;
 use App\Modules\Platform\PlatformServiceProvider;
@@ -20,4 +21,5 @@ return [
     ReservationsServiceProvider::class,
     SubscriptionsServiceProvider::class,
     AssetsServiceProvider::class,
+    FinanceServiceProvider::class,
 ];

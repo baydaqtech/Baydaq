@@ -37,6 +37,8 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('throttle:20,1')->middleware('feature:mobile.breaks')->name('breaks.end');
     Route::get('/shifts', [ShiftController::class, 'index'])->middleware('feature:mobile.shifts')->name('shifts.index');
     Route::post('/shifts/{shift}/claim', [ShiftController::class, 'claim'])->middleware('throttle:10,1')->middleware('feature:mobile.shifts')->name('shifts.claim');
+    Route::get('/expenses', [RecordController::class, 'expenses'])->middleware('feature:mobile.expenses')->name('expenses.index');
+    Route::post('/expenses', [RecordController::class, 'claimExpense'])->middleware(['throttle:20,1', 'feature:mobile.expenses', 'feature:hr.expenses'])->name('expenses.store');
     Route::get('/remote', [RecordController::class, 'remote'])->middleware('feature:mobile.remote')->name('remote.show');
     Route::post('/remote/requests', [RecordController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:mobile.remote', 'feature:hr.remote'])->name('remote.requests.store');
     Route::get('/reviews', [RecordController::class, 'reviews'])->middleware('feature:mobile.reviews')->name('reviews.index');

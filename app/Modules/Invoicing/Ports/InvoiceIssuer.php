@@ -16,8 +16,9 @@ interface InvoiceIssuer
      *
      * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price_incl_vat: numeric-string|float|int, vat_rate?: numeric-string|float|int, discount_incl_vat?: numeric-string|float|int}>  $lines
      * @param  '1'|'10'|'30'|'42'|'48'  $paymentMeans
+     * @param  ?string  $source  the module that raised it (e.g. pos.order), whose own books record the sale
      */
-    public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null): IssuedInvoice;
+    public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null, ?string $source = null): IssuedInvoice;
 
     /**
      * Draft an invoice from one company of the owner to another (a recharge). It stays a draft

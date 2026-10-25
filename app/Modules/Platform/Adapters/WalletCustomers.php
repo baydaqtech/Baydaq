@@ -9,6 +9,7 @@ use App\Modules\Platform\Models\Customer;
 use App\Modules\Platform\Models\CustomerRegistration;
 use App\Modules\Platform\Models\WalletEntry;
 use App\Modules\Platform\Ports\Customers;
+use App\Modules\Platform\Tenancy\CurrentTenant;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -26,7 +27,7 @@ class WalletCustomers implements Customers
         }
 
         $customer = Customer::query()->where('phone', $normalized)->first()
-            ?? (new Customer(['name' => $name, 'email' => $email]))->forceFill(['phone' => $normalized]);
+            ?? (new Customer(['name' => $name, 'email' => $email]))->forceFill(['phone' => $normalized, 'client_id' => $this->clientId()]);
 
         if (! $customer->exists || ($customer->name === '' && $name !== '') || ($customer->email === null && $email)) {
             $customer->fill(['name' => $customer->name ?: $name, 'email' => $customer->email ?? $email])->save();
@@ -60,7 +61,7 @@ class WalletCustomers implements Customers
 
         if ($registration === null) {
             (new CustomerRegistration)->forceFill([
-                'customer_id' => $customerId, 'scope_type' => $scopeType, 'scope_id' => $scopeId, 'branch_id' => $branch->id,
+                'client_id' => $this->clientId(), 'customer_id' => $customerId, 'scope_type' => $scopeType, 'scope_id' => $scopeId, 'branch_id' => $branch->id,
                 'source' => $source, 'registered_by' => $actor?->getAuthIdentifier(), 'marketing_consent_at' => $marketingConsent ? now() : null,
             ])->save();
         } elseif ($marketingConsent && $registration->marketing_consent_at === null) {
@@ -113,7 +114,7 @@ class WalletCustomers implements Customers
             }
 
             (new WalletEntry)->forceFill([
-                'customer_id' => $customer->id, 'company_id' => $companyId, 'amount' => (string) $amount->toScale(2), 'balance_after' => (string) $balance,
+                'client_id' => $customer->client_id, 'customer_id' => $customer->id, 'company_id' => $companyId, 'amount' => (string) $amount->toScale(2), 'balance_after' => (string) $balance,
                 'kind' => $kind, 'source' => $source, 'reference' => $reference, 'note' => $note, 'user_id' => $actor?->getAuthIdentifier(),
             ])->save();
             $customer->forceFill(['wallet_balance' => (string) $balance])->save();
@@ -125,5 +126,11 @@ class WalletCustomers implements Customers
     private function ref(Customer $customer): CustomerRef
     {
         return new CustomerRef($customer->id, $customer->name, $customer->phone, $customer->email, (string) $customer->wallet_balance);
+    }
+
+    /** Set explicitly rather than only through the tenant hook: seeders run without model events. */
+    private function clientId(): int
+    {
+        return app(CurrentTenant::class)->client()->id;
     }
 }

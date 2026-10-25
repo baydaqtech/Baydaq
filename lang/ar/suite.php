@@ -263,8 +263,9 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'tasks' => 'المهام', 'breaks' => 'الاستراحات', 'separations' => 'المغادرون', 'violations' => 'المخالفات', 'recruitment' => 'التوظيف', 'reviews' => 'تقييم الأداء', 'remote' => 'العمل عن بُعد', 'catalog' => 'إعدادات الموارد البشرية'],
+        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'tasks' => 'المهام', 'breaks' => 'الاستراحات', 'separations' => 'المغادرون', 'violations' => 'المخالفات', 'recruitment' => 'التوظيف', 'reviews' => 'تقييم الأداء', 'remote' => 'العمل عن بُعد', 'expenses' => 'المصروفات', 'catalog' => 'إعدادات الموارد البشرية'],
         'invoicing' => ['invoices' => 'الفواتير', 'customers' => 'العملاء', 'einvoicing' => 'الفوترة الإلكترونية'],
+        'finance' => ['ledger' => 'دفتر الأستاذ', 'reports' => 'التقارير المالية', 'purchasing' => 'المشتريات'],
         'pos' => ['sell' => 'البيع', 'orders' => 'الطلبات', 'kitchen' => 'المطبخ', 'catalog' => 'القائمة', 'registers' => 'أجهزة الكاشير'],
         'reservations' => ['calendar' => 'التقويم', 'bookings' => 'الحجوزات', 'catalog' => 'الخدمات'],
         'subscriptions' => ['members' => 'الأعضاء', 'check_in' => 'تسجيل الدخول', 'plans' => 'الباقات'],
@@ -407,6 +408,7 @@ return [
         'reservations' => 'الحجوزات',
         'subscriptions' => 'الاشتراكات',
         'menus' => 'القوائم',
+        'finance' => 'المالية',
     ],
     'billing_unit' => [
         'seat' => 'مقعد',

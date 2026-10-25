@@ -13,6 +13,7 @@ use App\Modules\Invoicing\Models\Invoice;
 use App\Modules\Invoicing\Zatca\InvoiceHash;
 use App\Modules\Platform\Models\Company;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
@@ -82,6 +83,7 @@ class IssueInvoiceTest extends TestCase
         $this->assertSame(1, $invoice->counter);
         $this->assertSame(1, $this->unit->fresh()->counter);
         $this->assertSame($invoice->hash, $this->unit->fresh()->previous_hash);
+        $this->assertPostedBalanced('invoicing.invoice', $invoice->id);
 
         $submission = $invoice->submissions->first();
         $this->assertSame('reporting', $submission->mode);
@@ -156,5 +158,15 @@ class IssueInvoiceTest extends TestCase
         $this->assertStringContainsString('<cbc:InvoiceTypeCode name="0200000">381</cbc:InvoiceTypeCode>', $xml);
         $this->assertStringContainsString("<cbc:ID>{$original->number}</cbc:ID>", $xml);
         $this->assertStringContainsString('<cbc:InstructionNote>Returned</cbc:InstructionNote>', $xml);
+    }
+
+    /** The posting landed in the ledger, once, and balances. */
+    private function assertPostedBalanced(string $source, int $sourceId): void
+    {
+        $entries = DB::table('finance__journal_entries')->where('source', $source)->where('source_id', $sourceId)->pluck('id');
+        $this->assertCount(1, $entries);
+        $lines = DB::table('finance__journal_lines')->whereIn('entry_id', $entries);
+        $this->assertEquals((clone $lines)->sum('debit'), (clone $lines)->sum('credit'));
+        $this->assertGreaterThan(0, (clone $lines)->sum('debit'));
     }
 }

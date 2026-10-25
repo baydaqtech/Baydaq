@@ -2,6 +2,7 @@
 
 namespace App\Modules\Invoicing\Actions;
 
+use App\Modules\Invoicing\Enums\InvoiceKind;
 use App\Modules\Invoicing\Enums\InvoiceStatus;
 use App\Modules\Invoicing\Enums\InvoiceType;
 use App\Modules\Invoicing\Enums\UnitStatus;
@@ -12,8 +13,11 @@ use App\Modules\Invoicing\Zatca\Certificate;
 use App\Modules\Invoicing\Zatca\Signer;
 use App\Modules\Invoicing\Zatca\UblBuilder;
 use App\Modules\Invoicing\Zatca\ZatcaClient;
+use App\Modules\Platform\Data\LedgerPosting;
 use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\Ledger;
 use App\Modules\Platform\Ports\OrgDirectory;
+use Brick\Math\BigDecimal;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -26,7 +30,28 @@ class IssueInvoice
         private Signer $signer,
         private ZatcaClient $zatca,
         private Audit $audit,
+        private Ledger $ledger,
     ) {}
+
+    /**
+     * The invoice for the books: receivable against sales and output VAT; a credit note the other way.
+     */
+    public static function posting(Invoice $invoice): LedgerPosting
+    {
+        $vat = BigDecimal::of((string) $invoice->vat);
+        $revenue = BigDecimal::of((string) $invoice->total)->minus($vat);
+        $rounding = BigDecimal::of((string) ($invoice->rounding ?? 0));
+        $sign = $invoice->kind === InvoiceKind::CreditNote ? -1 : 1;
+        $side = fn (BigDecimal $amount, string $normal): array => ($amount->multipliedBy($sign)->isNegative() xor $normal === 'credit')
+            ? ['credit' => (string) $amount->abs()->toScale(2)] : ['debit' => (string) $amount->abs()->toScale(2)];
+
+        return new LedgerPosting($invoice->company_id, null, $invoice->issue_date->toDateString(), 'invoicing.invoice', $invoice->id, "{$invoice->number}", [
+            ['account' => 'receivables', ...$side(BigDecimal::of($invoice->payableAmount()), 'debit')],
+            ['account' => 'sales', ...$side($revenue, 'credit')],
+            ['account' => 'vat_output', ...$side($vat, 'credit'), 'tax_base' => (string) $revenue->multipliedBy($sign)->toScale(2)],
+            ['account' => 'other_income', ...$side($rounding, 'credit')],
+        ]);
+    }
 
     /**
      * Issue a draft through a unit: take the next number and counter under a row lock, build the
@@ -104,6 +129,11 @@ class IssueInvoice
                 ])->save();
                 $this->audit->record($invoice, 'issued', ['number' => $invoice->number, 'counter' => $counter, 'mode' => $simplified ? 'reporting' : 'clearance'], $actor);
                 InvoiceIssued::dispatch($invoice->id, $invoice->company_id, $invoice->number, (string) $invoice->total);
+
+                // A POS receipt is already in the books as the sale itself.
+                if (! str_starts_with((string) $invoice->source, 'pos.')) {
+                    $this->ledger->post(self::posting($invoice));
+                }
             } else {
                 $invoice->forceFill(['status' => InvoiceStatus::Rejected->value, 'counter' => null])->save();
                 $this->audit->record($invoice, 'rejected', ['http' => $result['status'], 'errors' => $result['body']['validationResults']['errorMessages'] ?? $result['body']], $actor);

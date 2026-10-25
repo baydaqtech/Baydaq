@@ -10,6 +10,7 @@ use App\Modules\Hr\Http\Controllers\ComplianceController;
 use App\Modules\Hr\Http\Controllers\ContractController;
 use App\Modules\Hr\Http\Controllers\EmployeeController;
 use App\Modules\Hr\Http\Controllers\EmployeeDocumentController;
+use App\Modules\Hr\Http\Controllers\ExpenseController;
 use App\Modules\Hr\Http\Controllers\GovernmentController;
 use App\Modules\Hr\Http\Controllers\HeadcountReportController;
 use App\Modules\Hr\Http\Controllers\LeaveController;
@@ -47,6 +48,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->middleware('feature:hr.tasks')->name('tasks.move');
     Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.store');
     Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.end');
+    Route::post('/expenses', [SelfServiceController::class, 'claimExpense'])->middleware(['throttle:20,1', 'feature:hr.expenses'])->name('expenses.store');
     Route::post('/remote', [SelfServiceController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:hr.remote'])->name('remote.store');
     Route::post('/reviews/{review}', [SelfServiceController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:hr.performance'])->name('reviews.self');
     Route::post('/resignation', [SelfServiceController::class, 'resign'])->middleware(['throttle:5,1', 'feature:hr.offboarding'])->name('resignation.store');
@@ -163,6 +165,12 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::get('/reviews', [ReviewController::class, 'index'])->middleware('access:hr.reviews.view|hr.reviews.approve')->name('reviews.index');
         });
 
+        Route::middleware('feature:hr.expenses')->group(function (): void {
+            Route::put('/expenses/{claim}/decision', [ExpenseController::class, 'decide'])->middleware('access:hr.expenses.approve')->name('expenses.decide');
+            Route::put('/expenses/{claim}/paid', [ExpenseController::class, 'pay'])->middleware('access:hr.expenses.pay')->name('expenses.pay');
+            Route::get('/expenses/{claim}/receipt', [ExpenseController::class, 'receipt'])->middleware('access:hr.expenses.view|hr.expenses.approve')->name('expenses.receipt');
+            Route::get('/expenses', [ExpenseController::class, 'index'])->middleware('access:hr.expenses.view|hr.expenses.approve|hr.expenses.pay')->name('expenses.index');
+        });
         Route::middleware('feature:hr.remote')->group(function (): void {
             Route::put('/employees/{employee}/work-pattern', [RemoteController::class, 'pattern'])->middleware('access:hr.remote.update')->name('remote.pattern');
             Route::put('/remote/{remoteRequest}', [RemoteController::class, 'decide'])->middleware('access:hr.remote.approve')->name('remote.decide');

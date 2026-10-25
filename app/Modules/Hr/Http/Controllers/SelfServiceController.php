@@ -4,6 +4,7 @@ namespace App\Modules\Hr\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Breaks\BreakFlow;
+use App\Modules\Hr\Actions\Expenses\ExpenseFlow;
 use App\Modules\Hr\Actions\Leave\LeaveBalance;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
@@ -18,6 +19,7 @@ use App\Modules\Hr\Enums\TaskStatus;
 use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\ExpenseClaim;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\RemoteRequest;
 use App\Modules\Hr\Models\Review;
@@ -70,6 +72,7 @@ class SelfServiceController extends Controller
             'record' => self::record($employee),
             'reviews' => self::reviews($employee),
             'remote' => self::remote($employee),
+            'expenses' => self::expenses($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
@@ -276,6 +279,25 @@ class SelfServiceController extends Controller
             'requests' => RemoteRequest::query()->where('employee_id', $employee->id)->whereDate('work_date', '>=', today()->subDays(14))
                 ->orderByDesc('work_date')->limit(20)->get()->map(fn (RemoteRequest $request): array => RemoteController::requestArray($request))->all(),
         ];
+    }
+
+    /**
+     * @return array{claims: list<array<string, mixed>>, categories: list<string>}
+     */
+    public static function expenses(Employee $employee): array
+    {
+        return [
+            'claims' => ExpenseClaim::query()->where('employee_id', $employee->id)->latest('spent_on')->limit(20)->get()->map(fn (ExpenseClaim $claim): array => ExpenseController::claimArray($claim))->all(),
+            'categories' => ExpenseClaim::CATEGORIES,
+        ];
+    }
+
+    public function claimExpense(Request $request, ExpenseFlow $flow): RedirectResponse
+    {
+        $flow->submit($this->employee($request), ExpenseController::validateClaim($request), $request->file('receipt'));
+        $this->toast(__('hr.expenses.submitted'));
+
+        return back();
     }
 
     public function requestRemote(Request $request, RemoteWork $remote): RedirectResponse

@@ -19,7 +19,7 @@ class ZatcaInvoiceIssuer implements InvoiceIssuer
 {
     public function __construct(private SaveInvoice $save, private IssueInvoice $issue, private OrgDirectory $directory, private CurrentTenant $tenant) {}
 
-    public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null): IssuedInvoice
+    public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null, ?string $source = null): IssuedInvoice
     {
         $netLines = array_map(function (array $line): array {
             $rate = BigDecimal::of((string) ($line['vat_rate'] ?? '15'));
@@ -43,6 +43,11 @@ class ZatcaInvoiceIssuer implements InvoiceIssuer
         if (! $rounding->isZero() && $rounding->abs()->isLessThanOrEqualTo('1')) {
             $invoice->forceFill(['rounding' => (string) $rounding->toScale(2)])->save();
         }
+
+        if ($source !== null) {
+            $invoice->forceFill(['source' => $source])->save();
+        }
+
         $invoice = $this->issue->handle($invoice, EinvoiceUnit::query()->findOrFail($unitId), auth()->user());
 
         return new IssuedInvoice($invoice->id, $invoice->number, $invoice->status->value, $invoice->qr, $invoice->payableAmount(), (string) $invoice->vat);

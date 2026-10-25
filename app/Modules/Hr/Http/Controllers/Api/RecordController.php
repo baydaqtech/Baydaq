@@ -3,11 +3,13 @@
 namespace App\Modules\Hr\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Hr\Actions\Expenses\ExpenseFlow;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
 use App\Modules\Hr\Actions\Remote\RemoteWork;
 use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
+use App\Modules\Hr\Http\Controllers\ExpenseController;
 use App\Modules\Hr\Http\Controllers\RemoteController;
 use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
@@ -29,6 +31,18 @@ class RecordController extends Controller
     public function show(Request $request): JsonResponse
     {
         return response()->json(SelfServiceController::record($this->employee($request)));
+    }
+
+    public function expenses(Request $request): JsonResponse
+    {
+        return response()->json(SelfServiceController::expenses($this->employee($request)));
+    }
+
+    public function claimExpense(Request $request, ExpenseFlow $flow): JsonResponse
+    {
+        $claim = $flow->submit($this->employee($request), ExpenseController::validateClaim($request), $request->file('receipt'));
+
+        return response()->json(ExpenseController::claimArray($claim), 201);
     }
 
     public function remote(Request $request): JsonResponse

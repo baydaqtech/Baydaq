@@ -263,8 +263,9 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'tasks' => 'Tasks', 'breaks' => 'Breaks', 'separations' => 'Leavers', 'violations' => 'Violations', 'recruitment' => 'Hiring', 'reviews' => 'Reviews', 'remote' => 'Remote work', 'catalog' => 'HR settings'],
+        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'tasks' => 'Tasks', 'breaks' => 'Breaks', 'separations' => 'Leavers', 'violations' => 'Violations', 'recruitment' => 'Hiring', 'reviews' => 'Reviews', 'remote' => 'Remote work', 'expenses' => 'Expenses', 'catalog' => 'HR settings'],
         'invoicing' => ['invoices' => 'Invoices', 'customers' => 'Customers', 'einvoicing' => 'E-invoicing'],
+        'finance' => ['ledger' => 'Ledger', 'reports' => 'Financial reports', 'purchasing' => 'Purchasing'],
         'pos' => ['sell' => 'Sell', 'orders' => 'Orders', 'kitchen' => 'Kitchen', 'catalog' => 'Catalog', 'registers' => 'Registers'],
         'reservations' => ['calendar' => 'Calendar', 'bookings' => 'Bookings', 'catalog' => 'Services'],
         'subscriptions' => ['members' => 'Members', 'check_in' => 'Check-in', 'plans' => 'Plans'],
@@ -407,6 +408,7 @@ return [
         'reservations' => 'Reservations',
         'subscriptions' => 'Subscriptions',
         'menus' => 'Menus',
+        'finance' => 'Finance',
     ],
     'billing_unit' => [
         'seat' => 'seat',
