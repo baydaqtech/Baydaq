@@ -5,7 +5,9 @@ namespace App\Modules\Reservations;
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Events\PaymentSucceeded;
 use App\Modules\Platform\Ports\CustomerActivity;
+use App\Modules\Platform\Ports\CustomerData;
 use App\Modules\Reservations\Adapters\BookingCustomerActivity;
+use App\Modules\Reservations\Adapters\BookingCustomerData;
 use App\Modules\Reservations\Console\SendBookingReminders;
 use App\Modules\Reservations\Enums\ReservationsFeature;
 use App\Modules\Reservations\Listeners\ConfirmPaidDeposit;
@@ -21,6 +23,7 @@ class ReservationsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->tag([BookingCustomerActivity::class], CustomerActivity::TAG);
+        $this->app->tag([BookingCustomerData::class], CustomerData::TAG);
     }
 
     public function boot(): void

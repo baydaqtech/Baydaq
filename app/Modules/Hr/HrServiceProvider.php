@@ -8,6 +8,7 @@ use App\Modules\Hr\Adapters\EmployeeStaffDirectory;
 use App\Modules\Hr\Adapters\EmployeeStaffPresence;
 use App\Modules\Hr\Adapters\EmployeeSuiteSearch;
 use App\Modules\Hr\Adapters\HrBoardSignals;
+use App\Modules\Hr\Console\AcceptOverdueResignations;
 use App\Modules\Hr\Console\ApplyMovements;
 use App\Modules\Hr\Console\NotifyExpiringDocuments;
 use App\Modules\Hr\Console\RechargeSecondmentsCommand;
@@ -50,7 +51,7 @@ class HrServiceProvider extends ServiceProvider
         }
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ApplyMovements::class, NotifyExpiringDocuments::class, RechargeSecondmentsCommand::class]);
+            $this->commands([AcceptOverdueResignations::class, ApplyMovements::class, NotifyExpiringDocuments::class, RechargeSecondmentsCommand::class]);
         }
     }
 }

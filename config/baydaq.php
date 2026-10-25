@@ -106,6 +106,17 @@ return [
             'annual_leave_days' => 21,
             'annual_leave_days_after_five_years' => 30,
             'month_days' => 30,
+            // Leaving under the 2025 amendments: a resignation the employer does not answer is
+            // accepted after `resignation_deemed_days`; the employer may postpone it up to
+            // `resignation_max_defer_days`; the employee may withdraw within `resignation_withdraw_days`.
+            'resignation_deemed_days' => 30,
+            'resignation_max_defer_days' => 60,
+            'resignation_withdraw_days' => 7,
+            'notice_days_employee' => 30,
+            'notice_days_employer' => 60,
+            // Repeats of the same violation are counted within this many days (work regulations).
+            'violation_repeat_window_days' => 180,
+            'late_grace_minutes' => 15,
         ],
     ],
 

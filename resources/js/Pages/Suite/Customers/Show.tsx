@@ -1,11 +1,12 @@
 import { useForm } from '@inertiajs/react';
-import { Wallet } from 'lucide-react';
+import { Download, ShieldCheck, Wallet } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import SuiteLayout from '@/layouts/SuiteLayout';
@@ -15,7 +16,7 @@ import { useSuiteUrl } from '@/lib/suite';
 import { Link } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 
-interface Customer { id: number; name: string; phone: string; email: string | null; notes: string | null; wallet_balance: string; created_at: string; birth_date: string | null; gender: string | null }
+interface Customer { id: number; name: string; phone: string; email: string | null; notes: string | null; wallet_balance: string; created_at: string; birth_date: string | null; gender: string | null; erased: boolean }
 interface Registration { id: number; scope_type: string; source: string; branch: string | null; marketing_consent: boolean; created_at: string }
 interface Entry { id: number; amount: string; balance_after: string; kind: string; source: string; note: string | null; created_at: string }
 interface Activity { module: string; label: string; detail: string | null; date: string; amount: string | null; path: string | null }
@@ -25,6 +26,8 @@ interface Props {
   entries: Entry[];
   activity: Activity[];
   registrations: Registration[];
+  privacy: boolean;
+  can_erase: boolean;
   can_top_up: boolean;
   can_update: boolean;
 }
@@ -54,7 +57,30 @@ function WalletForm({ customer, kind }: { customer: Customer; kind: 'top_up' | '
   );
 }
 
-export default function CustomerShow({ customer, entries, activity, registrations, can_top_up: canTopUp, can_update: canUpdate }: Props) {
+function PrivacyCard({ customer, canErase }: { customer: Customer; canErase: boolean }) {
+  const t = useT();
+  const url = useSuiteUrl();
+  const p = (field: string) => t(`suite.privacy.${field}`);
+  const form = useForm({ confirm: false });
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="size-4" />{p('title')}{customer.erased && <Badge variant="destructive">{p('erased_badge')}</Badge>}</CardTitle></CardHeader>
+      <CardContent className="flex flex-col gap-3 text-sm">
+        <Button variant="outline" className="self-start" asChild><a href={url(`/customers/${customer.id}/export`)}><Download />{p('export')}</a></Button>
+        {canErase && !customer.erased && (
+          <form className="flex flex-col gap-2 rounded-lg border border-destructive/40 p-3" onSubmit={(event) => { event.preventDefault(); form.post(url(`/customers/${customer.id}/erase`), { preserveScroll: true }); }}>
+            <p className="text-muted-foreground">{p('erase_hint')}</p>
+            <label className="flex items-center gap-2"><Checkbox checked={form.data.confirm} onCheckedChange={(checked) => form.setData('confirm', checked === true)} />{p('erase_confirm')}</label>
+            <Button type="submit" variant="destructive" className="self-start" disabled={!form.data.confirm || form.processing}>{p('erase')}</Button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function CustomerShow({ customer, entries, activity, registrations, privacy, can_erase: canErase, can_top_up: canTopUp, can_update: canUpdate }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -93,6 +119,7 @@ export default function CustomerShow({ customer, entries, activity, registration
           </Card>
         </div>
         <div className="flex flex-col gap-4">
+          {privacy && <PrivacyCard customer={customer} canErase={canErase} />}
           <Card>
             <CardHeader><CardTitle>{c('registrations')}</CardTitle></CardHeader>
             <CardContent>

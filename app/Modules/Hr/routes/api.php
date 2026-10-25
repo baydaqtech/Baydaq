@@ -8,6 +8,7 @@ use App\Modules\Hr\Http\Controllers\Api\LocationController;
 use App\Modules\Hr\Http\Controllers\Api\MeController;
 use App\Modules\Hr\Http\Controllers\Api\PinController;
 use App\Modules\Hr\Http\Controllers\Api\PunchController;
+use App\Modules\Hr\Http\Controllers\Api\RecordController;
 use App\Modules\Hr\Http\Controllers\Api\ShiftController;
 use App\Modules\Hr\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,10 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('throttle:20,1')->middleware('feature:mobile.breaks')->name('breaks.end');
     Route::get('/shifts', [ShiftController::class, 'index'])->middleware('feature:mobile.shifts')->name('shifts.index');
     Route::post('/shifts/{shift}/claim', [ShiftController::class, 'claim'])->middleware('throttle:10,1')->middleware('feature:mobile.shifts')->name('shifts.claim');
+    Route::get('/record', [RecordController::class, 'show'])->middleware('feature:mobile.resignation')->name('record.show');
+    Route::post('/resignation', [RecordController::class, 'resign'])->middleware(['throttle:5,1', 'feature:mobile.resignation', 'feature:hr.offboarding'])->name('resignation.store');
+    Route::post('/resignation/{separation}/withdraw', [RecordController::class, 'withdraw'])->middleware(['throttle:5,1', 'feature:mobile.resignation'])->name('resignation.withdraw');
+    Route::post('/violations/{violation}/response', [RecordController::class, 'respond'])->middleware(['throttle:10,1', 'feature:mobile.resignation'])->name('violations.respond');
     Route::get('/attendance/locations', [LocationController::class, 'index'])->middleware('feature:mobile.attendance')->name('attendance.locations');
     Route::get('/attendance/punches', [PunchController::class, 'index'])->middleware('feature:mobile.attendance')->name('attendance.punches.index');
     Route::post('/attendance/punches', [PunchController::class, 'store'])->middleware('throttle:30,1')->middleware('feature:mobile.attendance')->name('attendance.punches.store');

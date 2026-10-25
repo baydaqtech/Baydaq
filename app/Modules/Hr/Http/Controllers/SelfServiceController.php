@@ -6,17 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Breaks\BreakFlow;
 use App\Modules\Hr\Actions\Leave\LeaveBalance;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
+use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
 use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
 use App\Modules\Hr\Actions\Tasks\TaskFlow;
+use App\Modules\Hr\Actions\Violations\RecordViolation;
 use App\Modules\Hr\Enums\TaskStatus;
 use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\Separation;
 use App\Modules\Hr\Models\Shift;
 use App\Modules\Hr\Models\Task;
+use App\Modules\Hr\Models\Violation;
 use App\Modules\Hr\Models\WorkBreak;
 use App\Modules\Hr\Support\HrSettings;
 use App\Modules\Platform\Enums\Module;
@@ -59,6 +63,7 @@ class SelfServiceController extends Controller
                 ->orderByRaw('due_at is null')->orderBy('due_at')->limit(50)->get()
                 ->map(fn (Task $task): array => TaskController::taskArray($task, $directory->branch($task->branch_id)?->name))->all(),
             'break_state' => self::breakState($employee),
+            'record' => self::record($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
@@ -217,6 +222,60 @@ class SelfServiceController extends Controller
     {
         return LeaveType::query()->where('is_active', true)->where('needs_balance', true)->orderBy('sort_order')->get()
             ->map(fn (LeaveType $type): array => ['type_id' => $type->id, 'type' => $type->localized('name'), ...$balance->handle($employee, $type)])->all();
+    }
+
+    /**
+     * My leaving (the open or latest resignation) and the violations I have been told about.
+     *
+     * @return array{separation: ?array<string, mixed>, violations: list<array<string, mixed>>, notice_days: int}
+     */
+    public static function record(Employee $employee): array
+    {
+        $separation = Separation::query()->where('employee_id', $employee->id)->whereNotIn('status', ['cancelled'])->latest('id')->first();
+
+        return [
+            'separation' => $separation && ($separation->isOpen() || $separation->updated_at->gt(now()->subDays(30))) ? SeparationController::separationArray($separation) : null,
+            'violations' => Violation::query()->where('employee_id', $employee->id)->whereNotNull('notified_at')->where('status', '!=', 'cancelled')
+                ->latest('occurred_on')->limit(20)->get()->map(fn (Violation $violation): array => ViolationController::violationArray($violation))->all(),
+            'notice_days' => (int) config('baydaq.hr.labor.notice_days_employee'),
+        ];
+    }
+
+    public function resign(Request $request, SeparationFlow $flow): RedirectResponse
+    {
+        $flow->submit($this->employee($request), [...self::validateResignation($request), 'kind' => 'resignation'], 'employee', $request->user());
+        $this->toast(__('hr.separations.submitted'));
+
+        return back();
+    }
+
+    public function withdrawResignation(Request $request, Separation $separation, SeparationFlow $flow): RedirectResponse
+    {
+        abort_unless($separation->employee_id === $this->employee($request)->id, 404);
+        $flow->withdraw($separation, $request->user());
+        $this->toast(__('hr.separations.withdrawn'));
+
+        return back();
+    }
+
+    public function respondToViolation(Request $request, Violation $violation, RecordViolation $record): RedirectResponse
+    {
+        abort_unless($violation->employee_id === $this->employee($request)->id, 404);
+        $record->respond($violation, $request->validate(['response' => ['required', 'string', 'max:2000']])['response'], $request->user());
+        $this->toast(__('hr.violations.responded'));
+
+        return back();
+    }
+
+    /**
+     * @return array{last_day?: ?string, reason?: ?string}
+     */
+    public static function validateResignation(Request $request): array
+    {
+        return $request->validate([
+            'last_day' => ['nullable', 'date', 'after_or_equal:today'],
+            'reason' => ['nullable', 'string', 'max:2000'],
+        ]);
     }
 
     private function employee(Request $request): Employee

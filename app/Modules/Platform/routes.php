@@ -12,6 +12,7 @@ use App\Modules\Platform\Http\Controllers\JoinController;
 use App\Modules\Platform\Http\Controllers\MemberController;
 use App\Modules\Platform\Http\Controllers\OrganizationController;
 use App\Modules\Platform\Http\Controllers\PaymentController;
+use App\Modules\Platform\Http\Controllers\PrivacyController;
 use App\Modules\Platform\Http\Controllers\ScopeShortcutController;
 use App\Modules\Platform\Http\Controllers\SearchController;
 use App\Modules\Platform\Http\Controllers\StructureController;
@@ -44,6 +45,14 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
         Route::get('/customers/{customer}', [CustomerController::class, 'show'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.show');
         Route::post('/customers', [CustomerController::class, 'store'])->middleware('access:suite.customers.create')->middleware('feature:suite.customers')->name('customers.store');
         Route::get('/customers', [CustomerController::class, 'index'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.index');
+        // Privacy (PDPL): the request register, a customer's data copy, and erasure.
+        Route::middleware('feature:suite.privacy')->group(function (): void {
+            Route::post('/privacy', [PrivacyController::class, 'store'])->middleware('access:suite.customers.update')->name('privacy.store');
+            Route::put('/privacy/{privacyRequest}', [PrivacyController::class, 'update'])->middleware('access:suite.customers.update')->name('privacy.update');
+            Route::get('/privacy', [PrivacyController::class, 'index'])->middleware('access:suite.customers.update')->name('privacy.index');
+            Route::get('/customers/{customer}/export', [PrivacyController::class, 'export'])->middleware('access:suite.customers.view|suite.customers.update')->name('customers.export');
+            Route::post('/customers/{customer}/erase', [PrivacyController::class, 'erase'])->middleware('access:suite.customers.update')->name('customers.erase');
+        });
         Route::get('/gov', GovController::class)->middleware('access:'.implode('|', GovController::KEYS))->middleware('feature:suite.gov')->name('gov');
         Route::get('/settings/theme', [ThemeController::class, 'edit'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.edit');
         Route::post('/settings/theme', [ThemeController::class, 'update'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.update');

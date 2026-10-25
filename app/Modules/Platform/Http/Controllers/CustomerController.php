@@ -14,6 +14,7 @@ use App\Modules\Platform\Models\CustomerRegistration;
 use App\Modules\Platform\Models\WalletEntry;
 use App\Modules\Platform\Ports\CustomerActivity;
 use App\Modules\Platform\Ports\Customers;
+use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\QrCodes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -123,8 +124,10 @@ class CustomerController extends Controller
             'customer' => [
                 'id' => $customer->id, 'name' => $customer->name, 'phone' => $customer->phone, 'email' => $customer->email,
                 'notes' => $customer->notes, 'wallet_balance' => (string) $customer->wallet_balance, 'created_at' => $customer->created_at->toIso8601String(),
-                'birth_date' => $customer->birth_date?->toDateString(), 'gender' => $customer->gender,
+                'birth_date' => $customer->birth_date?->toDateString(), 'gender' => $customer->gender, 'erased' => $customer->erased_at !== null,
             ],
+            'privacy' => app(Entitlements::class)->hasFeature('suite.privacy'),
+            'can_erase' => $access->branches(SuiteFeature::Customers->key('update'))->all,
             'registrations' => $customer->registrations()->with('branch.company')->latest()->get()->map(fn (CustomerRegistration $registration): array => [
                 'id' => $registration->id, 'scope_type' => $registration->scope_type, 'source' => $registration->source,
                 'branch' => $registration->branch ? $registration->branch->company->localized('name').' · '.$registration->branch->localized('name') : null,

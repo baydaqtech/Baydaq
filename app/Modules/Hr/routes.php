@@ -18,8 +18,10 @@ use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
+use App\Modules\Hr\Http\Controllers\SeparationController;
 use App\Modules\Hr\Http\Controllers\ShiftController;
 use App\Modules\Hr\Http\Controllers\TaskController;
+use App\Modules\Hr\Http\Controllers\ViolationController;
 use Illuminate\Support\Facades\Route;
 
 // The public check behind the QR code printed on a salary or experience letter (H12).
@@ -35,6 +37,9 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->middleware('feature:hr.tasks')->name('tasks.move');
     Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.store');
     Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.end');
+    Route::post('/resignation', [SelfServiceController::class, 'resign'])->middleware(['throttle:5,1', 'feature:hr.offboarding'])->name('resignation.store');
+    Route::post('/resignation/{separation}/withdraw', [SelfServiceController::class, 'withdrawResignation'])->middleware('throttle:5,1')->name('resignation.withdraw');
+    Route::post('/violations/{violation}/response', [SelfServiceController::class, 'respondToViolation'])->middleware('throttle:10,1')->name('violations.respond');
 });
 
 /*
@@ -128,6 +133,18 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         });
         Route::get('/shifts', [ShiftController::class, 'index'])->middleware('access:hr.shifts.view|hr.shifts.create')->middleware('feature:hr.shifts')->name('shifts.index');
         Route::post('/bonus-batch', [PayController::class, 'bonusBatch'])->middleware('access:hr.pay.create')->name('pay.bonus_batch');
+
+        // Leaving and the disciplinary record.
+        Route::middleware('feature:hr.offboarding')->group(function (): void {
+            Route::post('/employees/{employee}/separations', [SeparationController::class, 'store'])->middleware('access:hr.offboarding.create')->name('separations.store');
+            Route::put('/separations/{separation}', [SeparationController::class, 'update'])->middleware('access:hr.offboarding.approve')->name('separations.update');
+            Route::get('/separations', [SeparationController::class, 'index'])->middleware('access:hr.offboarding.view|hr.offboarding.approve')->name('separations.index');
+        });
+        Route::middleware('feature:hr.violations')->group(function (): void {
+            Route::post('/employees/{employee}/violations', [ViolationController::class, 'store'])->middleware('access:hr.violations.create')->name('violations.store');
+            Route::put('/violations/{violation}', [ViolationController::class, 'update'])->middleware('access:hr.violations.approve')->name('violations.update');
+            Route::get('/violations', [ViolationController::class, 'index'])->middleware('access:hr.violations.view|hr.violations.create|hr.violations.approve')->name('violations.index');
+        });
 
         // Government trackers (Qiwa contracts, Muqeem visas, GOSI schemes).
         Route::middleware('feature:suite.gov')->group(function (): void {

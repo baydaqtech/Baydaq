@@ -17,15 +17,15 @@ final class FeatureCatalog
      * @var array<string, list<string>>
      */
     public const FEATURES = [
-        'suite' => ['suite.board', 'suite.customers', 'suite.theme', 'suite.ai', 'suite.gov'],
-        'hr' => ['hr.tasks', 'hr.breaks', 'hr.shifts', 'hr.advances', 'hr.letters', 'hr.compliance', 'hr.remote', 'hr.recruitment', 'hr.performance', 'hr.expenses', 'hr.violations'],
+        'suite' => ['suite.board', 'suite.customers', 'suite.theme', 'suite.ai', 'suite.gov', 'suite.privacy'],
+        'hr' => ['hr.tasks', 'hr.breaks', 'hr.shifts', 'hr.advances', 'hr.letters', 'hr.compliance', 'hr.remote', 'hr.recruitment', 'hr.performance', 'hr.expenses', 'hr.violations', 'hr.offboarding'],
         'finance' => ['finance.accounting', 'finance.purchasing'],
     ];
 
     /** Screens of the employee app that a package can show or hide. */
     public const MOBILE = [
         'mobile.attendance', 'mobile.selfie', 'mobile.leave', 'mobile.tasks', 'mobile.breaks', 'mobile.shifts',
-        'mobile.advances', 'mobile.payslips', 'mobile.letters', 'mobile.expenses', 'mobile.remote', 'mobile.assets_audit',
+        'mobile.advances', 'mobile.payslips', 'mobile.letters', 'mobile.expenses', 'mobile.remote', 'mobile.assets_audit', 'mobile.resignation',
     ];
 
     /** @return list<string> */

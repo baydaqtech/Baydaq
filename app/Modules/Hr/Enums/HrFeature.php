@@ -27,6 +27,8 @@ enum HrFeature: string implements Feature
     case Shifts = 'shifts';     // rosters, open shifts, holidays
     case Tasks = 'tasks';       // tasks given to employees
     case Breaks = 'breaks';     // the live break board: grant, approve, end
+    case Offboarding = 'offboarding'; // resignations, terminations and the exit checklist
+    case Violations = 'violations';   // the disciplinary record
 
     public static function group(): string
     {
@@ -52,6 +54,7 @@ enum HrFeature: string implements Feature
             self::Reports => [FeatureAction::View, FeatureAction::Export],
             self::Shifts, self::Tasks => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Breaks => [FeatureAction::View, FeatureAction::Approve],
+            self::Offboarding, self::Violations => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve],
         };
     }
 

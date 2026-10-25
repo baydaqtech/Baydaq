@@ -23,7 +23,7 @@ class Customer extends Model
      */
     protected function casts(): array
     {
-        return ['wallet_balance' => 'decimal:2', 'birth_date' => 'date'];
+        return ['wallet_balance' => 'decimal:2', 'birth_date' => 'date', 'erased_at' => 'datetime'];
     }
 
     /**

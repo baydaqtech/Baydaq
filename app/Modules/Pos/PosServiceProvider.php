@@ -5,8 +5,10 @@ namespace App\Modules\Pos;
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Ports\BoardSignals;
 use App\Modules\Platform\Ports\CustomerActivity;
+use App\Modules\Platform\Ports\CustomerData;
 use App\Modules\Pos\Adapters\PosBoardSignals;
 use App\Modules\Pos\Adapters\PosCustomerActivity;
+use App\Modules\Pos\Adapters\PosCustomerData;
 use App\Modules\Pos\Enums\PosFeature;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +22,7 @@ class PosServiceProvider extends ServiceProvider
     {
         $this->app->tag([PosBoardSignals::class], BoardSignals::TAG);
         $this->app->tag([PosCustomerActivity::class], CustomerActivity::TAG);
+        $this->app->tag([PosCustomerData::class], CustomerData::TAG);
     }
 
     public function boot(): void

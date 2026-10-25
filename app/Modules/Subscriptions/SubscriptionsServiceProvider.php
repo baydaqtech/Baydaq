@@ -6,7 +6,9 @@ use App\Modules\Hr\Events\EmployeeHired;
 use App\Modules\Hr\Events\EmployeeTerminated;
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Ports\CustomerActivity;
+use App\Modules\Platform\Ports\CustomerData;
 use App\Modules\Platform\Ports\SuiteSearch;
+use App\Modules\Subscriptions\Adapters\MemberCustomerData;
 use App\Modules\Subscriptions\Adapters\MembershipCustomerActivity;
 use App\Modules\Subscriptions\Adapters\MemberSuiteSearch;
 use App\Modules\Subscriptions\Console\ExpireMemberships;
@@ -25,6 +27,7 @@ class SubscriptionsServiceProvider extends ServiceProvider
     {
         $this->app->tag([MemberSuiteSearch::class], SuiteSearch::TAG);
         $this->app->tag([MembershipCustomerActivity::class], CustomerActivity::TAG);
+        $this->app->tag([MemberCustomerData::class], CustomerData::TAG);
     }
 
     public function boot(): void

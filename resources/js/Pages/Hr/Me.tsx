@@ -5,6 +5,7 @@ import AdvanceCalculator, { type AdvanceData } from '@/components/hr/AdvanceCalc
 import LeaveBalanceCard, { type LeaveBalance } from '@/components/hr/LeaveBalanceCard';
 import MyBreak, { type BreakState } from '@/components/hr/MyBreak';
 import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
+import MyRecord, { type RecordData } from '@/components/hr/MyRecord';
 import MyTasks, { type MyTask } from '@/components/hr/MyTasks';
 import PinCard from '@/components/hr/PinCard';
 import BrandMark from '@/components/platform/BrandMark';
@@ -32,11 +33,12 @@ interface Props {
   has_pin: boolean;
   tasks: MyTask[];
   break_state: BreakState;
+  record: RecordData;
   features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, features }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -91,6 +93,7 @@ export default function Me({ employee, balances, requests, types, advance, shift
         {features.includes('hr.shifts') && <MyShifts data={shifts} />}
 
         {features.includes('hr.advances') && <AdvanceCalculator data={advance} />}
+        <MyRecord data={record} canResign={features.includes('hr.offboarding')} />
 
         <PinCard hasPin={hasPin} />
 

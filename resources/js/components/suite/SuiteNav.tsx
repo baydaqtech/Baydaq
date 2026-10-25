@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Coffee, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { Coffee, Gavel, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ export const NAV = [
   { path: '/board', feature: 'suite.board', label: 'suite.nav.board', icon: Crown, exact: true, keys: ['suite.structure.view', 'suite.structure.update'] },
   { path: '/settings/theme', label: 'suite.nav.theme', icon: Palette, exact: true, feature: 'suite.theme', keys: ['suite.structure.update'] },
   { path: '/gov', feature: 'suite.gov', label: 'suite.nav.gov', icon: Landmark, exact: true, keys: ['suite.structure.view', 'suite.structure.update', 'hr.employees.view', 'hr.payroll.view', 'invoicing.invoices.view'] },
+  { path: '/privacy', feature: 'suite.privacy', label: 'suite.nav.privacy', icon: ShieldCheck, exact: true, keys: ['suite.customers.update'] },
   { path: '/customers', feature: 'suite.customers', label: 'suite.nav.customers', icon: Contact, keys: ['suite.customers.view', 'suite.customers.create', 'suite.customers.update'] },
   { path: '/structure/locations', label: 'suite.structure.locations', icon: MapPin, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
   { path: '/structure/brands', label: 'suite.structure.brands', icon: Tags, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
@@ -26,6 +27,8 @@ export const NAV = [
   { path: '/hr/tasks', feature: 'hr.tasks', label: 'suite.module_nav.hr.tasks', icon: ListTodo, module: 'hr', keys: ['hr.tasks.view', 'hr.tasks.create'] },
   { path: '/hr/breaks', feature: 'hr.breaks', label: 'suite.module_nav.hr.breaks', icon: Coffee, module: 'hr', keys: ['hr.breaks.view', 'hr.breaks.approve'] },
   { path: '/hr/shifts', feature: 'hr.shifts', label: 'suite.module_nav.hr.shifts', icon: CalendarClock, module: 'hr', keys: ['hr.shifts.view', 'hr.shifts.create'] },
+  { path: '/hr/separations', feature: 'hr.offboarding', label: 'suite.module_nav.hr.separations', icon: DoorOpen, module: 'hr', keys: ['hr.offboarding.view', 'hr.offboarding.approve'] },
+  { path: '/hr/violations', feature: 'hr.violations', label: 'suite.module_nav.hr.violations', icon: Gavel, module: 'hr', keys: ['hr.violations.view', 'hr.violations.create', 'hr.violations.approve'] },
   { path: '/hr/leave', label: 'suite.module_nav.hr.leave', icon: CalendarDays, module: 'hr', keys: ['hr.leave.view', 'hr.leave.approve'] },
   { path: '/hr/payroll', label: 'suite.module_nav.hr.payroll', icon: Banknote, module: 'hr', keys: ['hr.payroll.view'] },
   { path: '/hr/assistant', label: 'suite.module_nav.hr.assistant', icon: Sparkles, module: 'hr', ai: true, keys: ['hr.employees.view', 'hr.documents.view', 'hr.leave.view', 'hr.attendance.view'] },
