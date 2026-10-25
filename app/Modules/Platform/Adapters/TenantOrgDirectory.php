@@ -67,7 +67,8 @@ class TenantOrgDirectory implements OrgDirectory
     private function companyRef(Company $company): CompanyRef
     {
         return new CompanyRef($company->id, $company->organization_id, $company->slug, $company->localized('name'), $company->name_ar, $company->name_en, $company->timezone, $company->status === 'active',
-            $company->vat_number, $company->cr_number, ['street' => $company->street, 'building_number' => $company->building_number, 'district' => $company->district, 'city' => $company->city, 'postal_code' => $company->postal_code]);
+            $company->vat_number, $company->cr_number, ['street' => $company->street, 'building_number' => $company->building_number, 'district' => $company->district, 'city' => $company->city, 'postal_code' => $company->postal_code],
+            $company->unified_number, $company->gosi_number, $company->qiwa_id);
     }
 
     private function branchRef(Branch $branch): BranchRef

@@ -95,7 +95,7 @@ class BuildPayrollRun
                     $breakdown[] = ['kind' => 'unpaid_leave', 'label_ar' => "إجازة بدون راتب ({$unpaidDays} يوم)", 'label_en' => "Unpaid leave ({$unpaidDays} days)", 'amount' => '-'.$unpaid];
                 }
 
-                $gosi = $this->gosi->handle($employee, $contract);
+                $gosi = $this->gosi->handle($employee, $contract, $payMonth);
 
                 if ($gosi['employee']->isPositive()) {
                     $breakdown[] = ['kind' => 'gosi', 'label_ar' => 'التأمينات الاجتماعية', 'label_en' => 'GOSI', 'amount' => '-'.$gosi['employee']];

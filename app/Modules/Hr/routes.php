@@ -9,6 +9,7 @@ use App\Modules\Hr\Http\Controllers\ComplianceController;
 use App\Modules\Hr\Http\Controllers\ContractController;
 use App\Modules\Hr\Http\Controllers\EmployeeController;
 use App\Modules\Hr\Http\Controllers\EmployeeDocumentController;
+use App\Modules\Hr\Http\Controllers\GovernmentController;
 use App\Modules\Hr\Http\Controllers\HeadcountReportController;
 use App\Modules\Hr\Http\Controllers\LeaveController;
 use App\Modules\Hr\Http\Controllers\LetterController;
@@ -128,6 +129,15 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::get('/shifts', [ShiftController::class, 'index'])->middleware('access:hr.shifts.view|hr.shifts.create')->middleware('feature:hr.shifts')->name('shifts.index');
         Route::post('/bonus-batch', [PayController::class, 'bonusBatch'])->middleware('access:hr.pay.create')->name('pay.bonus_batch');
 
+        // Government trackers (Qiwa contracts, Muqeem visas, GOSI schemes).
+        Route::middleware('feature:suite.gov')->group(function (): void {
+            Route::get('/gov/qiwa', [GovernmentController::class, 'qiwa'])->middleware('access:hr.contracts.view')->name('gov.qiwa');
+            Route::put('/gov/qiwa/{contract}', [GovernmentController::class, 'updateQiwa'])->middleware('access:hr.contracts.update')->name('gov.qiwa.update');
+            Route::get('/gov/muqeem', [GovernmentController::class, 'muqeem'])->middleware('access:hr.documents.view')->name('gov.muqeem');
+            Route::post('/employees/{employee}/visas', [GovernmentController::class, 'storeVisa'])->middleware('access:hr.documents.update')->name('gov.visas.store');
+            Route::put('/gov/visas/{visa}', [GovernmentController::class, 'updateVisa'])->middleware('access:hr.documents.update')->name('gov.visas.update');
+            Route::get('/gov/gosi', [GovernmentController::class, 'gosi'])->middleware('access:hr.employees.view_salaries')->name('gov.gosi');
+        });
         Route::get('/org-chart', OrgChartController::class)->middleware('access:hr.employees.view')->name('org_chart');
         Route::get('/reports/nitaqat', [ComplianceController::class, 'nitaqat'])->middleware('access:hr.reports.view')->middleware('feature:hr.compliance')->name('reports.nitaqat');
         Route::put('/reports/nitaqat', [ComplianceController::class, 'saveTarget'])->middleware('access:hr.reports.view')->middleware('feature:hr.compliance')->name('reports.nitaqat.target');

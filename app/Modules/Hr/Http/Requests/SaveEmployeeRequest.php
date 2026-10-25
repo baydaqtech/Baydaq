@@ -47,6 +47,7 @@ class SaveEmployeeRequest extends FormRequest
             'gender' => ['nullable', Rule::enum(Gender::class)],
             'birth_date' => ['nullable', 'date', 'before:today'],
             'hired_on' => ['nullable', 'date'],
+            'gosi_registered_on' => ['nullable', 'date', 'before_or_equal:today'],
             'status' => ['required', Rule::enum(EmployeeStatus::class)],
             'iban' => ['nullable', 'string', 'max:34', 'regex:/^[A-Z]{2}[0-9A-Z]{13,32}$/'],
             'notes' => ['nullable', 'string', 'max:5000'],

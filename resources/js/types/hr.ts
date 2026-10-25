@@ -43,6 +43,7 @@ export interface EmployeeResource {
   gender: string | null;
   birth_date: string | null;
   hired_on: string | null;
+  gosi_registered_on: string | null;
   terminated_on: string | null;
   status: string;
   iban: string | null;

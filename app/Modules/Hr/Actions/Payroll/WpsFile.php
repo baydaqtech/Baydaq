@@ -38,7 +38,7 @@ class WpsFile
                 (string) $line->net,
                 $run->pay_month->format('Y-m'),
                 $company?->nameEn ?? '',
-                '',
+                $company?->gosiNumber ?? '',
             ];
         }
 

@@ -53,6 +53,7 @@ class EmployeeResource extends JsonResource
             'gender' => $this->gender?->value,
             'birth_date' => $this->birth_date?->toDateString(),
             'hired_on' => $this->hired_on?->toDateString(),
+            'gosi_registered_on' => $this->gosi_registered_on?->toDateString(),
             'terminated_on' => $this->terminated_on?->toDateString(),
             'status' => $this->status->value,
             'iban' => ($this->can['view_iban'] ?? false) ? $this->iban : $this->maskedIban(),

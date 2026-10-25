@@ -45,7 +45,24 @@ class Contract extends Model
             'ends_on' => 'date',
             'probation_days' => 'integer',
             'basic_salary' => 'decimal:2',
+            'qiwa_documented_on' => 'date',
         ];
+    }
+
+    /**
+     * The Qiwa tracker's status and the contract form's "authenticated on Qiwa" tick are one fact:
+     * whichever changed sets the other.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Contract $contract): void {
+            if ($contract->isDirty('qiwa_status')) {
+                $contract->qiwa_authenticated = $contract->qiwa_status === 'documented';
+            } elseif ($contract->isDirty('qiwa_authenticated')) {
+                $contract->qiwa_status = $contract->qiwa_authenticated ? 'documented' : 'not_started';
+                $contract->qiwa_documented_on = $contract->qiwa_authenticated ? ($contract->qiwa_documented_on ?? today()) : null;
+            }
+        });
     }
 
     /**

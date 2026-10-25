@@ -44,6 +44,7 @@ export default function EmployeeForm({ employee, companies, branches, sections, 
     gender: employee?.gender ?? '',
     birth_date: employee?.birth_date ?? '',
     hired_on: employee?.hired_on ?? '',
+    gosi_registered_on: employee?.gosi_registered_on ?? '',
     status: employee?.status ?? 'draft',
     iban: employee?.iban ?? '',
     notes: employee?.notes ?? '',
@@ -109,6 +110,7 @@ export default function EmployeeForm({ employee, companies, branches, sections, 
             {text('nationality', { dir: 'ltr', maxLength: 2 })}
             {select('gender', genders, { emptyLabel: '—' })}
             {text('birth_date', { type: 'date', dir: 'ltr' })}
+            {text('gosi_registered_on', { type: 'date', dir: 'ltr' })}
             {canSeeIban && text('iban', { dir: 'ltr' })}
             <FormField label={f('notes')} htmlFor="notes" error={errors.notes} className="sm:col-span-2">
               <Textarea id="notes" rows={3} value={data.notes} onChange={(event) => setData('notes', event.target.value)} />

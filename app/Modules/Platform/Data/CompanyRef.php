@@ -20,5 +20,8 @@ final readonly class CompanyRef
         public ?string $crNumber = null,
         /** @var array{street: ?string, building_number: ?string, district: ?string, city: ?string, postal_code: ?string} */
         public array $address = ['street' => null, 'building_number' => null, 'district' => null, 'city' => null, 'postal_code' => null],
+        public ?string $unifiedNumber = null,
+        public ?string $gosiNumber = null,
+        public ?string $qiwaId = null,
     ) {}
 }

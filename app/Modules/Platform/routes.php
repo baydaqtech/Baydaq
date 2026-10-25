@@ -6,6 +6,7 @@ use App\Modules\Platform\Http\Controllers\BranchController;
 use App\Modules\Platform\Http\Controllers\BrandController;
 use App\Modules\Platform\Http\Controllers\CompanyController;
 use App\Modules\Platform\Http\Controllers\CustomerController;
+use App\Modules\Platform\Http\Controllers\GovController;
 use App\Modules\Platform\Http\Controllers\HomeController;
 use App\Modules\Platform\Http\Controllers\JoinController;
 use App\Modules\Platform\Http\Controllers\MemberController;
@@ -43,6 +44,7 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
         Route::get('/customers/{customer}', [CustomerController::class, 'show'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.show');
         Route::post('/customers', [CustomerController::class, 'store'])->middleware('access:suite.customers.create')->middleware('feature:suite.customers')->name('customers.store');
         Route::get('/customers', [CustomerController::class, 'index'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.index');
+        Route::get('/gov', GovController::class)->middleware('access:'.implode('|', GovController::KEYS))->middleware('feature:suite.gov')->name('gov');
         Route::get('/settings/theme', [ThemeController::class, 'edit'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.edit');
         Route::post('/settings/theme', [ThemeController::class, 'update'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.update');
         Route::delete('/settings/theme', [ThemeController::class, 'reset'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.reset');

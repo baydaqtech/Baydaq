@@ -73,6 +73,43 @@ return [
         'done_hint' => 'Give your phone number at the counter and they will find you.',
     ],
 
+    'gov' => [
+        'title' => 'Government',
+        'lede' => 'Your official numbers, the portals they are used on, and Baydaq\'s trackers and files for each.',
+        'numbers' => 'Official numbers',
+        'missing' => 'Not set',
+        'edit' => 'Add numbers',
+        'copy' => 'Copy',
+        'copied' => 'Copied.',
+        'portals' => 'Government portals',
+        'tools' => 'Baydaq tools',
+        'areas' => ['hr' => 'People', 'finance' => 'Tax and invoicing', 'company' => 'Company'],
+        'portal' => [
+            'qiwa' => ['name' => 'Qiwa', 'hint' => 'Work permits, contracts, Saudization, visas'],
+            'gosi' => ['name' => 'GOSI', 'hint' => 'Social insurance registration and monthly bills'],
+            'mudad' => ['name' => 'Mudad', 'hint' => 'Wage Protection: upload the salary file'],
+            'muqeem' => ['name' => 'Muqeem', 'hint' => 'Iqamas, exit/re-entry and final exit visas'],
+            'absher' => ['name' => 'Absher Business', 'hint' => 'Establishment services from Passports'],
+            'hrsd' => ['name' => 'Ministry of Human Resources', 'hint' => 'Labour rules and work regulations'],
+            'zatca' => ['name' => 'ZATCA', 'hint' => 'VAT returns, zakat and tax'],
+            'fatoora' => ['name' => 'Fatoora', 'hint' => 'E-invoicing onboarding (CSIDs)'],
+            'mc' => ['name' => 'Ministry of Commerce', 'hint' => 'Commercial registration'],
+            'business' => ['name' => 'Saudi Business Center', 'hint' => 'Licences and company services in one place'],
+            'balady' => ['name' => 'Balady', 'hint' => 'Municipal licences for each shop'],
+            'address' => ['name' => 'National Address', 'hint' => 'The short address on invoices and contracts'],
+        ],
+        'tool' => [
+            'qiwa' => 'Qiwa contract tracker',
+            'muqeem' => 'Exit and re-entry tracker',
+            'gosi' => 'GOSI contributions (old and new law)',
+            'wps' => 'Mudad salary file (from a payroll run)',
+            'check' => 'Compare wages with GOSI, Qiwa or Mudad',
+            'nitaqat' => 'Nitaqat meter',
+            'documents' => 'Expiring iqamas and documents',
+            'einvoicing' => 'ZATCA e-invoicing units',
+        ],
+    ],
+
     'board' => [
         'title' => 'Board',
         'lede' => 'Every branch as a piece, coloured by its health right now. Pick a piece to open that branch.',
@@ -202,6 +239,7 @@ return [
         'board' => 'Board',
         'customers' => 'Customers',
         'theme' => 'Branding',
+        'gov' => 'Government',
     ],
 
     'structure' => [

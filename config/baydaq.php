@@ -53,19 +53,50 @@ return [
     |
     */
 
+    // Government portals for the hub (suite.gov). None offers a public API to businesses, so
+    // Baydaq prepares the files and numbers and links straight to the portal.
+    'gov' => [
+        'portals' => [
+            'qiwa' => ['url' => 'https://qiwa.sa', 'area' => 'hr', 'number' => 'qiwa_id'],
+            'gosi' => ['url' => 'https://www.gosi.gov.sa', 'area' => 'hr', 'number' => 'gosi_number'],
+            'mudad' => ['url' => 'https://mudad.com.sa', 'area' => 'hr', 'number' => 'qiwa_id'],
+            'muqeem' => ['url' => 'https://muqeem.sa', 'area' => 'hr', 'number' => 'unified_number'],
+            'absher' => ['url' => 'https://www.absher.sa', 'area' => 'hr', 'number' => 'unified_number'],
+            'hrsd' => ['url' => 'https://hrsd.gov.sa', 'area' => 'hr', 'number' => 'qiwa_id'],
+            'zatca' => ['url' => 'https://zatca.gov.sa', 'area' => 'finance', 'number' => 'vat_number'],
+            'fatoora' => ['url' => 'https://fatoora.zatca.gov.sa', 'area' => 'finance', 'number' => 'vat_number'],
+            'mc' => ['url' => 'https://mc.gov.sa', 'area' => 'company', 'number' => 'cr_number'],
+            'business' => ['url' => 'https://business.sa', 'area' => 'company', 'number' => 'unified_number'],
+            'balady' => ['url' => 'https://balady.gov.sa', 'area' => 'company', 'number' => 'cr_number'],
+            'address' => ['url' => 'https://splonline.com.sa', 'area' => 'company', 'number' => null],
+        ],
+    ],
+
     'hr' => [
         'disk' => env('HR_DISK', 'hr'),
         'blind_index_key' => env('HR_BLIND_INDEX_KEY', env('APP_KEY')),
 
         // GOSI rates (share of basic + GOSI-counted allowances, capped). Saudi employees: pension +
         // unemployment (SANED) split between employee and employer, plus occupational hazards paid
-        // by the employer; non-Saudi: occupational hazards only. Review every July.
+        // by the employer; non-Saudi: occupational hazards only. Under the 2024 Social Insurance Law,
+        // Saudis first registered on or after `new_system_from` pay a pension rate that rises each
+        // July (each side pays the rate shown); those registered before keep the legacy rate.
+        // Review every July.
         'gosi' => [
-            'saudi_employee' => '0.0975',
-            'saudi_employer' => '0.1175',
-            'non_saudi_employer' => '0.02',
-            'wage_cap' => '45000',
             'nationality' => 'SA',
+            'wage_cap' => '45000',
+            'wage_floor' => '1500',
+            'new_system_from' => '2024-07-03',
+            'pension_legacy' => '0.09',
+            'pension_new' => [
+                '2024-07-03' => '0.09',
+                '2025-07-01' => '0.095',
+                '2026-07-01' => '0.10',
+                '2027-07-01' => '0.105',
+                '2028-07-01' => '0.11',
+            ],
+            'saned' => '0.0075',
+            'hazards' => '0.02',
         ],
 
         // Labor Law caps and rules used by deductions, leave and end-of-service.

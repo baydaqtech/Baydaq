@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Table('hr__employees')]
 #[Fillable([
     'section_id', 'job_id', 'manager_id', 'employee_number', 'name_ar', 'name_en', 'email', 'phone',
-    'id_type', 'national_id', 'nationality', 'gender', 'birth_date', 'hired_on', 'iban', 'notes',
+    'id_type', 'national_id', 'nationality', 'gender', 'birth_date', 'hired_on', 'iban', 'notes', 'gosi_registered_on',
 ])]
 #[Hidden(['national_id', 'iban', 'national_id_hash'])]
 class Employee extends Model
@@ -57,6 +57,7 @@ class Employee extends Model
             'birth_date' => 'date',
             'hired_on' => 'date',
             'terminated_on' => 'date',
+            'gosi_registered_on' => 'date',
         ];
     }
 
