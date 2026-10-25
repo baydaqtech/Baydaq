@@ -6,10 +6,10 @@ use App\Modules\Platform\Access\BranchSet;
 use Closure;
 
 /**
- * What a search may look at: the branches each permission key reaches in the current scope,
- * already narrowed by the branch filter.
+ * What a cross-module read (search, the board) may look at: the branches each permission key
+ * reaches in the current scope, already narrowed by the branch filter.
  */
-final readonly class SearchContext
+final readonly class ScopeContext
 {
     /**
      * @param  Closure(string): BranchSet  $reach

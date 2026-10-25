@@ -608,4 +608,6 @@ return [
         'installments' => 'عدد أشهر السداد',
         'first_month' => 'أول قسط',
     ],
+
+    'board' => ['attendance' => 'الحضور اليوم', 'documents' => 'وثائق تنتهي خلال 30 يوماً'],
 ];

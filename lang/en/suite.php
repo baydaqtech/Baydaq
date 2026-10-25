@@ -9,6 +9,14 @@ return [
         'no_modules' => 'No modules are active yet. Contact Baydaq to activate HR.',
     ],
 
+    'board' => [
+        'title' => 'Board',
+        'lede' => 'Every branch as a piece, coloured by its health right now. Pick a piece to open that branch.',
+        'health' => ['good' => 'Healthy', 'warn' => 'Needs a look', 'bad' => 'Act now', 'none' => 'No readings'],
+        'head_office' => 'Head office',
+        'empty' => 'No branches in this view.',
+    ],
+
     'palette' => [
         'open' => 'Search',
         'placeholder' => 'Pages, companies, branches, employees, members…',
@@ -52,6 +60,7 @@ return [
         'members' => 'Members',
         'audit' => 'Audit log',
         'build' => 'My projects',
+        'board' => 'Board',
     ],
 
     'structure' => [

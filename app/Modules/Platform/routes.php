@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Platform\Http\Controllers\AccessRoleController;
+use App\Modules\Platform\Http\Controllers\BoardController;
 use App\Modules\Platform\Http\Controllers\BranchController;
 use App\Modules\Platform\Http\Controllers\BrandController;
 use App\Modules\Platform\Http\Controllers\CompanyController;
@@ -26,6 +27,7 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
 
     Route::prefix('{scope}')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->middleware('suite.scope')->group(function (): void {
         Route::get('/', HomeController::class)->name('home');
+        Route::get('/board', BoardController::class)->middleware('access:suite.structure.view|suite.structure.update')->name('board');
         Route::get('/search', SearchController::class)->middleware('throttle:60,1')->name('search');
         Route::post('/shortcuts', [ScopeShortcutController::class, 'store'])->name('shortcuts.store');
         Route::delete('/shortcuts/{shortcut}', [ScopeShortcutController::class, 'destroy'])->name('shortcuts.destroy');

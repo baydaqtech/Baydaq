@@ -2,7 +2,7 @@
 
 namespace App\Modules\Platform\Ports;
 
-use App\Modules\Platform\Data\SearchContext;
+use App\Modules\Platform\Data\ScopeContext;
 use App\Modules\Platform\Data\SearchHit;
 
 /**
@@ -14,5 +14,5 @@ interface SuiteSearch
     public const TAG = 'suite.search';
 
     /** @return list<SearchHit> at most $limit hits */
-    public function search(string $term, SearchContext $context, int $limit = 5): array;
+    public function search(string $term, ScopeContext $context, int $limit = 5): array;
 }

@@ -3,7 +3,7 @@
 namespace App\Modules\Platform\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Platform\Data\SearchContext;
+use App\Modules\Platform\Data\ScopeContext;
 use App\Modules\Platform\Data\SearchHit;
 use App\Modules\Platform\Http\Controllers\Concerns\AuthorizesSuite;
 use App\Modules\Platform\Ports\SuiteSearch;
@@ -27,7 +27,7 @@ class SearchController extends Controller
 
         $access = $this->access();
         $scope = $this->scope();
-        $context = new SearchContext(fn (string $key) => $scope->branchesFor($key, $access), $scope->branchCompanies);
+        $context = new ScopeContext(fn (string $key) => $scope->branchesFor($key, $access), $scope->branchCompanies);
 
         $hits = collect(app()->tagged(SuiteSearch::TAG))
             ->flatMap(fn (SuiteSearch $search): array => $search->search($term, $context))

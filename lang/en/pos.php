@@ -169,4 +169,6 @@ return [
     'order_status' => ['open' => 'Open', 'paid' => 'Paid', 'void' => 'Void'],
     'kitchen_status' => ['new' => 'New', 'preparing' => 'Preparing', 'ready' => 'Ready', 'served' => 'Served'],
     'payment_method' => ['cash' => 'Cash', 'mada' => 'mada', 'card' => 'Card', 'stc_pay' => 'STC Pay', 'transfer' => 'Transfer', 'staff_account' => 'Staff meal (payroll)'],
+
+    'board' => ['sales' => 'Sales today · orders'],
 ];

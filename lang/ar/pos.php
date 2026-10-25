@@ -169,4 +169,6 @@ return [
     'order_status' => ['open' => 'مفتوح', 'paid' => 'مدفوع', 'void' => 'ملغى'],
     'kitchen_status' => ['new' => 'جديد', 'preparing' => 'قيد التحضير', 'ready' => 'جاهز', 'served' => 'قُدِّم'],
     'payment_method' => ['cash' => 'نقداً', 'mada' => 'مدى', 'card' => 'بطاقة', 'stc_pay' => 'STC Pay', 'transfer' => 'تحويل', 'staff_account' => 'وجبة موظف (من الراتب)'],
+
+    'board' => ['sales' => 'مبيعات اليوم · الطلبات'],
 ];

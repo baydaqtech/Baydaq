@@ -3,6 +3,8 @@
 namespace App\Modules\Pos;
 
 use App\Modules\Platform\Access\FeatureRegistry;
+use App\Modules\Platform\Ports\BoardSignals;
+use App\Modules\Pos\Adapters\PosBoardSignals;
 use App\Modules\Pos\Enums\PosFeature;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,6 +14,11 @@ use Illuminate\Support\ServiceProvider;
  */
 class PosServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->tag([PosBoardSignals::class], BoardSignals::TAG);
+    }
+
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');

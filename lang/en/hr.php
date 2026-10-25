@@ -608,4 +608,6 @@ return [
         'installments' => 'Months to repay',
         'first_month' => 'First installment',
     ],
+
+    'board' => ['attendance' => 'Attendance today', 'documents' => 'Documents expiring in 30 days'],
 ];
