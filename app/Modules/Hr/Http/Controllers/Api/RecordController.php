@@ -4,11 +4,14 @@ namespace App\Modules\Hr\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
+use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
+use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
 use App\Modules\Hr\Http\Controllers\ViolationController;
+use App\Modules\Hr\Models\Review;
 use App\Modules\Hr\Models\Separation;
 use App\Modules\Hr\Models\Violation;
 use Illuminate\Http\JsonResponse;
@@ -24,6 +27,19 @@ class RecordController extends Controller
     public function show(Request $request): JsonResponse
     {
         return response()->json(SelfServiceController::record($this->employee($request)));
+    }
+
+    public function reviews(Request $request): JsonResponse
+    {
+        return response()->json(SelfServiceController::reviews($this->employee($request)));
+    }
+
+    public function selfReview(Request $request, Review $review, ReviewFlow $flow): JsonResponse
+    {
+        abort_unless($review->employee_id === $this->employee($request)->id, 404);
+        $data = $request->validate(['scores' => ['required', 'array'], 'comment' => ['nullable', 'string', 'max:3000']]);
+
+        return response()->json(ReviewController::reviewArray($flow->selfAssess($review, $data['scores'], $data['comment'] ?? null)));
     }
 
     public function resign(Request $request, SeparationFlow $flow): JsonResponse

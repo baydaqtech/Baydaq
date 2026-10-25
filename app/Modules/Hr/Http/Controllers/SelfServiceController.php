@@ -9,6 +9,7 @@ use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
+use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
 use App\Modules\Hr\Actions\Tasks\TaskFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
@@ -17,6 +18,7 @@ use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\Review;
 use App\Modules\Hr\Models\Separation;
 use App\Modules\Hr\Models\Shift;
 use App\Modules\Hr\Models\Task;
@@ -64,6 +66,7 @@ class SelfServiceController extends Controller
                 ->map(fn (Task $task): array => TaskController::taskArray($task, $directory->branch($task->branch_id)?->name))->all(),
             'break_state' => self::breakState($employee),
             'record' => self::record($employee),
+            'reviews' => self::reviews($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
@@ -239,6 +242,32 @@ class SelfServiceController extends Controller
                 ->latest('occurred_on')->limit(20)->get()->map(fn (Violation $violation): array => ViolationController::violationArray($violation))->all(),
             'notice_days' => (int) config('baydaq.hr.labor.notice_days_employee'),
         ];
+    }
+
+    /**
+     * My reviews in open cycles: scoring myself, and the manager's verdict once given.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function reviews(Employee $employee): array
+    {
+        return Review::query()->with('cycle')->where('employee_id', $employee->id)
+            ->where(fn ($query) => $query->whereHas('cycle', fn ($query) => $query->where('status', 'open'))->orWhereNotNull('reviewed_at'))
+            ->latest('id')->limit(5)->get()->map(fn (Review $review): array => [
+                ...ReviewController::reviewArray($review),
+                'cycle' => $review->cycle->name, 'due_on' => $review->cycle->due_on->toDateString(), 'open' => $review->cycle->status === 'open',
+                'criteria' => array_map(fn (array $criterion): array => ['key' => $criterion['key'], 'label' => app()->getLocale() === 'ar' ? $criterion['label_ar'] : $criterion['label_en']], $review->cycle->criteria),
+            ])->all();
+    }
+
+    public function selfReview(Request $request, Review $review, ReviewFlow $flow): RedirectResponse
+    {
+        abort_unless($review->employee_id === $this->employee($request)->id, 404);
+        $data = $request->validate(['scores' => ['required', 'array'], 'comment' => ['nullable', 'string', 'max:3000']]);
+        $flow->selfAssess($review, $data['scores'], $data['comment'] ?? null);
+        $this->toast(__('hr.reviews.saved'));
+
+        return back();
     }
 
     public function resign(Request $request, SeparationFlow $flow): RedirectResponse

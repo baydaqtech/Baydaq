@@ -21,6 +21,7 @@ class HrSettings
         'break_minutes' => 30,            // default break; Labor Law Art. 101 asks for at least 30 minutes
         'break_max_concurrent' => 0,      // per branch, how many may be on break at once; 0 = no limit
         'break_self_start' => true,       // employees start their own break from the app; off = ask a manager
+        'onboarding_tasks' => ['documents', 'qiwa', 'gosi', 'bank', 'app', 'policies', 'team'], // tasks a new hire gets
     ];
 
     public function __construct(private CurrentTenant $tenant) {}

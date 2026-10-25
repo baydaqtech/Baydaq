@@ -3,6 +3,7 @@
 use App\Modules\Hr\Http\Controllers\AssistantController;
 use App\Modules\Hr\Http\Controllers\AttendanceController;
 use App\Modules\Hr\Http\Controllers\BreakController;
+use App\Modules\Hr\Http\Controllers\CareersController;
 use App\Modules\Hr\Http\Controllers\CatalogController;
 use App\Modules\Hr\Http\Controllers\ChangeRequestController;
 use App\Modules\Hr\Http\Controllers\ComplianceController;
@@ -17,6 +18,8 @@ use App\Modules\Hr\Http\Controllers\MovementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
+use App\Modules\Hr\Http\Controllers\RecruitmentController;
+use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
 use App\Modules\Hr\Http\Controllers\ShiftController;
@@ -26,6 +29,12 @@ use Illuminate\Support\Facades\Route;
 
 // The public check behind the QR code printed on a salary or experience letter (H12).
 Route::middleware(['web', 'throttle:30,1'])->get('/verify/letters/{token}', [LetterController::class, 'verify'])->where('token', '[A-Za-z0-9]{40}')->name('hr.letters.verify');
+
+// An opening's public careers page (hiring).
+Route::middleware(['web', 'throttle:20,1'])->where(['token' => '[A-Za-z0-9]{32}'])->group(function (): void {
+    Route::get('/careers/{token}', [CareersController::class, 'show'])->name('hr.careers.show');
+    Route::post('/careers/{token}', [CareersController::class, 'apply'])->name('hr.careers.apply');
+});
 
 // An employee's own page (with or without a role in the suite).
 Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
@@ -37,6 +46,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->middleware('feature:hr.tasks')->name('tasks.move');
     Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.store');
     Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.end');
+    Route::post('/reviews/{review}', [SelfServiceController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:hr.performance'])->name('reviews.self');
     Route::post('/resignation', [SelfServiceController::class, 'resign'])->middleware(['throttle:5,1', 'feature:hr.offboarding'])->name('resignation.store');
     Route::post('/resignation/{separation}/withdraw', [SelfServiceController::class, 'withdrawResignation'])->middleware('throttle:5,1')->name('resignation.withdraw');
     Route::post('/violations/{violation}/response', [SelfServiceController::class, 'respondToViolation'])->middleware('throttle:10,1')->name('violations.respond');
@@ -133,6 +143,23 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         });
         Route::get('/shifts', [ShiftController::class, 'index'])->middleware('access:hr.shifts.view|hr.shifts.create')->middleware('feature:hr.shifts')->name('shifts.index');
         Route::post('/bonus-batch', [PayController::class, 'bonusBatch'])->middleware('access:hr.pay.create')->name('pay.bonus_batch');
+
+        // Hiring and performance reviews.
+        Route::middleware('feature:hr.recruitment')->group(function (): void {
+            Route::post('/recruitment/openings', [RecruitmentController::class, 'storeOpening'])->middleware('access:hr.recruitment.create')->name('recruitment.openings.store');
+            Route::put('/recruitment/openings/{opening}', [RecruitmentController::class, 'updateOpening'])->middleware('access:hr.recruitment.update')->name('recruitment.openings.update');
+            Route::post('/recruitment/openings/{opening}/candidates', [RecruitmentController::class, 'storeCandidate'])->middleware('access:hr.recruitment.create')->name('recruitment.candidates.store');
+            Route::put('/recruitment/candidates/{candidate}', [RecruitmentController::class, 'updateCandidate'])->middleware('access:hr.recruitment.update')->name('recruitment.candidates.update');
+            Route::post('/recruitment/candidates/{candidate}/hire', [RecruitmentController::class, 'hire'])->middleware('access:hr.recruitment.approve')->name('recruitment.candidates.hire');
+            Route::get('/recruitment/candidates/{candidate}/cv', [RecruitmentController::class, 'cv'])->middleware('access:hr.recruitment.view')->name('recruitment.candidates.cv');
+            Route::get('/recruitment', [RecruitmentController::class, 'index'])->middleware('access:hr.recruitment.view')->name('recruitment.index');
+        });
+        Route::middleware('feature:hr.performance')->group(function (): void {
+            Route::post('/reviews', [ReviewController::class, 'store'])->middleware('access:hr.reviews.create')->name('reviews.store');
+            Route::put('/reviews/{review}', [ReviewController::class, 'update'])->middleware('access:hr.reviews.approve')->name('reviews.update');
+            Route::put('/reviews/cycles/{cycle}/close', [ReviewController::class, 'close'])->middleware('access:hr.reviews.approve')->name('reviews.close');
+            Route::get('/reviews', [ReviewController::class, 'index'])->middleware('access:hr.reviews.view|hr.reviews.approve')->name('reviews.index');
+        });
 
         // Leaving and the disciplinary record.
         Route::middleware('feature:hr.offboarding')->group(function (): void {

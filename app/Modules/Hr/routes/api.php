@@ -37,6 +37,8 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('throttle:20,1')->middleware('feature:mobile.breaks')->name('breaks.end');
     Route::get('/shifts', [ShiftController::class, 'index'])->middleware('feature:mobile.shifts')->name('shifts.index');
     Route::post('/shifts/{shift}/claim', [ShiftController::class, 'claim'])->middleware('throttle:10,1')->middleware('feature:mobile.shifts')->name('shifts.claim');
+    Route::get('/reviews', [RecordController::class, 'reviews'])->middleware('feature:mobile.reviews')->name('reviews.index');
+    Route::post('/reviews/{review}', [RecordController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:mobile.reviews'])->name('reviews.self');
     Route::get('/record', [RecordController::class, 'show'])->middleware('feature:mobile.resignation')->name('record.show');
     Route::post('/resignation', [RecordController::class, 'resign'])->middleware(['throttle:5,1', 'feature:mobile.resignation', 'feature:hr.offboarding'])->name('resignation.store');
     Route::post('/resignation/{separation}/withdraw', [RecordController::class, 'withdraw'])->middleware(['throttle:5,1', 'feature:mobile.resignation'])->name('resignation.withdraw');

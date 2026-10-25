@@ -6,6 +6,7 @@ import LeaveBalanceCard, { type LeaveBalance } from '@/components/hr/LeaveBalanc
 import MyBreak, { type BreakState } from '@/components/hr/MyBreak';
 import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
 import MyRecord, { type RecordData } from '@/components/hr/MyRecord';
+import MyReviews, { type MyReview } from '@/components/hr/MyReviews';
 import MyTasks, { type MyTask } from '@/components/hr/MyTasks';
 import PinCard from '@/components/hr/PinCard';
 import BrandMark from '@/components/platform/BrandMark';
@@ -34,11 +35,12 @@ interface Props {
   tasks: MyTask[];
   break_state: BreakState;
   record: RecordData;
+  reviews: MyReview[];
   features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, features }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -93,6 +95,7 @@ export default function Me({ employee, balances, requests, types, advance, shift
         {features.includes('hr.shifts') && <MyShifts data={shifts} />}
 
         {features.includes('hr.advances') && <AdvanceCalculator data={advance} />}
+        {features.includes('hr.performance') && <MyReviews reviews={reviews} />}
         <MyRecord data={record} canResign={features.includes('hr.offboarding')} />
 
         <PinCard hasPin={hasPin} />

@@ -25,7 +25,7 @@ final class FeatureCatalog
     /** Screens of the employee app that a package can show or hide. */
     public const MOBILE = [
         'mobile.attendance', 'mobile.selfie', 'mobile.leave', 'mobile.tasks', 'mobile.breaks', 'mobile.shifts',
-        'mobile.advances', 'mobile.payslips', 'mobile.letters', 'mobile.expenses', 'mobile.remote', 'mobile.assets_audit', 'mobile.resignation',
+        'mobile.advances', 'mobile.payslips', 'mobile.letters', 'mobile.expenses', 'mobile.remote', 'mobile.assets_audit', 'mobile.resignation', 'mobile.reviews',
     ];
 
     /** @return list<string> */

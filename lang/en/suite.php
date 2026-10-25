@@ -224,6 +224,7 @@ return [
         'mobile_payslips' => 'Payslips',
         'mobile_letters' => 'Letters',
         'mobile_resignation' => 'Resignation and my record',
+        'mobile_reviews' => 'My performance reviews',
         'mobile_expenses' => 'Expense claims',
         'mobile_remote' => 'Work from home',
         'mobile_assets_audit' => 'Asset stock-takes',
@@ -262,7 +263,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'tasks' => 'Tasks', 'breaks' => 'Breaks', 'separations' => 'Leavers', 'violations' => 'Violations', 'catalog' => 'HR settings'],
+        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'tasks' => 'Tasks', 'breaks' => 'Breaks', 'separations' => 'Leavers', 'violations' => 'Violations', 'recruitment' => 'Hiring', 'reviews' => 'Reviews', 'catalog' => 'HR settings'],
         'invoicing' => ['invoices' => 'Invoices', 'customers' => 'Customers', 'einvoicing' => 'E-invoicing'],
         'pos' => ['sell' => 'Sell', 'orders' => 'Orders', 'kitchen' => 'Kitchen', 'catalog' => 'Catalog', 'registers' => 'Registers'],
         'reservations' => ['calendar' => 'Calendar', 'bookings' => 'Bookings', 'catalog' => 'Services'],
