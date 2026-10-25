@@ -11,13 +11,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from '@/components/ui/input';
 import { formatMoney } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
-import { useSuiteUrl } from '@/lib/suite';
+import { useSuite, useSuiteUrl } from '@/lib/suite';
 import type { EmployeeCan } from '@/types/hr';
 import type { Option } from '@/types/resources';
 
 interface Adjustment { id: number; type: string; amount: string; pay_month: string; status: string; reason: string | null; origin?: string }
 interface Advance {
-  id: number; amount: string; installments: number; status: string; balance: string; first_installment_month: string; reason: string | null;
+  id: number; kind: string; amount: string; installments: number; status: string; balance: string; first_installment_month: string; reason: string | null;
   schedule: { due_month: string; amount: string; paid: string; status: string }[];
   repayments: { paid_on: string; amount: string; method: string }[];
 }
@@ -56,8 +56,9 @@ function AdvanceDialog({ employeeId }: { employeeId: number }) {
   const { dir } = useLocale();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
-  const form = useForm({ amount: '', installments: 3, first_installment_month: thisMonth(), reason: '' });
+  const form = useForm({ kind: 'advance', amount: '', installments: 3, first_installment_month: thisMonth(), reason: '' });
   const f = (field: string) => t(`hr.pay.fields.${field}`);
+  const { features } = useSuite();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -65,8 +66,9 @@ function AdvanceDialog({ employeeId }: { employeeId: number }) {
       <DialogContent dir={dir}>
         <form onSubmit={(event) => { event.preventDefault(); form.post(url(`/hr/employees/${employeeId}/advances`), { preserveScroll: true, onSuccess: () => setOpen(false) }); }} className="flex flex-col gap-4">
           <DialogHeader><DialogTitle>{t('hr.pay.new_advance')}</DialogTitle></DialogHeader>
+          {features.includes('hr.loans') && <FormField label={t('hr.me.loan')} error={form.errors.kind}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={['advance', 'loan'].map((kind) => ({ value: kind, label: t(`hr.me.kinds.${kind}`) }))} /></FormField>}
           <FormField label={f('amount')} error={form.errors.amount}><Input type="number" step="0.01" dir="ltr" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>
-          <FormField label={f('installments')} error={form.errors.installments}><Input type="number" min={1} max={24} dir="ltr" value={form.data.installments} onChange={(event) => form.setData('installments', Number(event.target.value))} /></FormField>
+          <FormField label={f('installments')} error={form.errors.installments}><Input type="number" min={1} max={120} dir="ltr" value={form.data.installments} onChange={(event) => form.setData('installments', Number(event.target.value))} /></FormField>
           <FormField label={f('first_installment_month')} error={form.errors.first_installment_month}><Input type="date" dir="ltr" value={form.data.first_installment_month} onChange={(event) => form.setData('first_installment_month', event.target.value)} /></FormField>
           <FormField label={f('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
@@ -137,7 +139,7 @@ export default function PayTab({ employeeId, pay, can }: { employeeId: number; p
           {pay.advances.map((advance) => (
             <div key={advance.id} className="rounded-lg border p-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="flex items-center gap-2 font-medium">{formatMoney(advance.amount, locale)} · {advance.installments} × <StatusBadge group="advance_status" value={advance.status} file="hr" /></span>
+                <span className="flex items-center gap-2 font-medium">{advance.kind === 'loan' && t('hr.me.kinds.loan')} {formatMoney(advance.amount, locale)} · {advance.installments} × <StatusBadge group="advance_status" value={advance.status} file="hr" /></span>
                 <span className="flex items-center gap-1.5">
                   <span className="text-muted-foreground">{t('hr.pay.balance')}: {formatMoney(advance.balance, locale)}</span>
                   {advance.status === 'pending' && can.approve_pay && (

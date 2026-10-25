@@ -17,6 +17,7 @@ use App\Modules\Hr\Http\Controllers\LeaveController;
 use App\Modules\Hr\Http\Controllers\LetterController;
 use App\Modules\Hr\Http\Controllers\MovementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
+use App\Modules\Hr\Http\Controllers\OvertimeController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
 use App\Modules\Hr\Http\Controllers\RecruitmentController;
@@ -49,6 +50,8 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.store');
     Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.end');
     Route::post('/expenses', [SelfServiceController::class, 'claimExpense'])->middleware(['throttle:20,1', 'feature:hr.expenses'])->name('expenses.store');
+    Route::post('/overtime', [SelfServiceController::class, 'requestOvertime'])->middleware(['throttle:10,1', 'feature:hr.overtime'])->name('overtime.store');
+    Route::post('/overtime/{overtime}/cancel', [SelfServiceController::class, 'cancelOvertime'])->middleware(['throttle:10,1', 'feature:hr.overtime'])->name('overtime.cancel');
     Route::post('/remote', [SelfServiceController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:hr.remote'])->name('remote.store');
     Route::post('/reviews/{review}', [SelfServiceController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:hr.performance'])->name('reviews.self');
     Route::post('/resignation', [SelfServiceController::class, 'resign'])->middleware(['throttle:5,1', 'feature:hr.offboarding'])->name('resignation.store');
@@ -175,6 +178,12 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::put('/employees/{employee}/work-pattern', [RemoteController::class, 'pattern'])->middleware('access:hr.remote.update')->name('remote.pattern');
             Route::put('/remote/{remoteRequest}', [RemoteController::class, 'decide'])->middleware('access:hr.remote.approve')->name('remote.decide');
             Route::get('/remote', [RemoteController::class, 'index'])->middleware('access:hr.remote.view|hr.remote.update|hr.remote.approve')->name('remote.index');
+        });
+
+        Route::middleware('feature:hr.overtime')->group(function (): void {
+            Route::post('/overtime', [OvertimeController::class, 'store'])->middleware('access:hr.overtime.create')->name('overtime.store');
+            Route::put('/overtime/{overtime}', [OvertimeController::class, 'decide'])->middleware('access:hr.overtime.approve')->name('overtime.decide');
+            Route::get('/overtime', [OvertimeController::class, 'index'])->middleware('access:hr.overtime.view|hr.overtime.create|hr.overtime.approve')->name('overtime.index');
         });
 
         // Leaving and the disciplinary record.

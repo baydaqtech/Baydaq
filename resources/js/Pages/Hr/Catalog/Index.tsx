@@ -214,26 +214,39 @@ function RulesCard({ settings }: { settings: HrRules }) {
   const t = useT();
   const url = useSuiteUrl();
   const { can } = useAccess();
-  const form = useForm({ dual_control: settings.dual_control, attendance_selfie: settings.attendance_selfie, whatsapp_notifications: settings.whatsapp_notifications, ramadan_hours: String(settings.ramadan_hours) });
+  const numbers = ['loan_max_months', 'loan_max_installments', 'loan_max_installment_percent', 'work_hours_per_day', 'overtime_extra_percent', 'overtime_max_hours_year'] as const;
+  const form = useForm<Record<string, string | boolean>>({
+    dual_control: settings.dual_control, attendance_selfie: settings.attendance_selfie, whatsapp_notifications: settings.whatsapp_notifications, ramadan_hours: String(settings.ramadan_hours),
+    ...Object.fromEntries(numbers.map((key) => [key, String(settings[key] ?? '')])),
+  });
+  const errors = form.errors as Record<string, string>;
 
   return (
     <Card><CardContent>
       <form onSubmit={(event) => { event.preventDefault(); form.put(url('/hr/settings'), { preserveScroll: true }); }} className="flex flex-col gap-4">
         <label className="flex items-start gap-2 text-sm">
-          <Checkbox checked={form.data.dual_control} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('dual_control', state === true)} />
+          <Checkbox checked={form.data.dual_control === true} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('dual_control', state === true)} />
           <span><span className="font-medium">{t('hr.changes.dual_control')}</span><span className="block text-muted-foreground">{t('hr.changes.dual_control_hint')}</span></span>
         </label>
         <label className="flex items-start gap-2 text-sm">
-          <Checkbox checked={form.data.attendance_selfie} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('attendance_selfie', state === true)} />
+          <Checkbox checked={form.data.attendance_selfie === true} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('attendance_selfie', state === true)} />
           <span><span className="font-medium">{t('hr.changes.attendance_selfie')}</span><span className="block text-muted-foreground">{t('hr.changes.attendance_selfie_hint')}</span></span>
         </label>
         <label className="flex items-start gap-2 text-sm">
-          <Checkbox checked={form.data.whatsapp_notifications} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('whatsapp_notifications', state === true)} />
+          <Checkbox checked={form.data.whatsapp_notifications === true} disabled={!can('hr.catalog.update')} onCheckedChange={(state) => form.setData('whatsapp_notifications', state === true)} />
           <span><span className="font-medium">{t('hr.changes.whatsapp_notifications')}</span><span className="block text-muted-foreground">{t('hr.changes.whatsapp_notifications_hint')}</span></span>
         </label>
-        <FormField label={t('hr.changes.ramadan_hours')} hint={t('hr.changes.ramadan_hours_hint')} error={form.errors.ramadan_hours} className="max-w-xs">
-          <Input type="number" min="0" max="12" dir="ltr" value={form.data.ramadan_hours} disabled={!can('hr.catalog.update')} onChange={(event) => form.setData('ramadan_hours', event.target.value)} />
+        <FormField label={t('hr.changes.ramadan_hours')} hint={t('hr.changes.ramadan_hours_hint')} error={errors.ramadan_hours} className="max-w-xs">
+          <Input type="number" min="0" max="12" dir="ltr" value={String(form.data.ramadan_hours)} disabled={!can('hr.catalog.update')} onChange={(event) => form.setData('ramadan_hours', event.target.value)} />
         </FormField>
+        <h3 className="text-sm font-semibold">{t('hr.changes.pay_rules')}</h3>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {numbers.map((key) => (
+            <FormField key={key} label={t(`hr.changes.${key}`)} hint={key === 'overtime_extra_percent' ? t('hr.changes.overtime_extra_percent_hint') : undefined} error={errors[key]}>
+              <Input type="number" min="0" dir="ltr" value={String(form.data[key])} disabled={!can('hr.catalog.update')} onChange={(event) => form.setData(key, event.target.value)} />
+            </FormField>
+          ))}
+        </div>
         {can('hr.catalog.update') && <div className="flex justify-end"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></div>}
       </form>
     </CardContent></Card>

@@ -7,6 +7,7 @@ import MyBreak, { type BreakState } from '@/components/hr/MyBreak';
 import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
 import MyExpenses, { type ExpensesData } from '@/components/hr/MyExpenses';
 import MyRecord, { type RecordData } from '@/components/hr/MyRecord';
+import MyOvertime, { type OvertimeData } from '@/components/hr/MyOvertime';
 import MyRemote, { type RemoteData } from '@/components/hr/MyRemote';
 import MyReviews, { type MyReview } from '@/components/hr/MyReviews';
 import MyTasks, { type MyTask } from '@/components/hr/MyTasks';
@@ -40,11 +41,12 @@ interface Props {
   reviews: MyReview[];
   remote: RemoteData;
   expenses: ExpensesData;
+  overtime: OvertimeData;
   features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, features }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -99,6 +101,8 @@ export default function Me({ employee, balances, requests, types, advance, shift
         {features.includes('hr.shifts') && <MyShifts data={shifts} />}
 
         {features.includes('hr.advances') && <AdvanceCalculator data={advance} />}
+        {features.includes('hr.advances') && features.includes('hr.loans') && <AdvanceCalculator data={advance.loan} kind="loan" />}
+        {features.includes('hr.overtime') && <MyOvertime data={overtime} />}
         {features.includes('hr.expenses') && <MyExpenses data={expenses} />}
         {features.includes('hr.remote') && <MyRemote data={remote} />}
         {features.includes('hr.performance') && <MyReviews reviews={reviews} />}

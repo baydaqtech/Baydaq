@@ -8,6 +8,7 @@ use App\Modules\Hr\Actions\Expenses\ExpenseFlow;
 use App\Modules\Hr\Actions\Leave\LeaveBalance;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
+use App\Modules\Hr\Actions\Overtime\OvertimeFlow;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
 use App\Modules\Hr\Actions\Remote\RemoteWork;
@@ -21,6 +22,7 @@ use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\ExpenseClaim;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\Overtime;
 use App\Modules\Hr\Models\RemoteRequest;
 use App\Modules\Hr\Models\Review;
 use App\Modules\Hr\Models\Separation;
@@ -73,6 +75,7 @@ class SelfServiceController extends Controller
             'reviews' => self::reviews($employee),
             'remote' => self::remote($employee),
             'expenses' => self::expenses($employee),
+            'overtime' => self::overtime($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
@@ -186,9 +189,13 @@ class SelfServiceController extends Controller
      */
     public static function validateAdvance(Request $request): array
     {
+        // Loans are their own package feature on top of advances.
+        abort_if($request->input('kind') === 'loan' && ! app(Entitlements::class)->hasFeature('hr.loans'), 403, __('suite.plans.feature_off'));
+
         return $request->validate([
             'amount' => ['required', 'numeric', 'min:1'],
-            'installments' => ['required', 'integer', 'min:1', 'max:'.RequestAdvance::MAX_INSTALLMENTS],
+            'installments' => ['required', 'integer', 'min:1', 'max:120'],
+            'kind' => ['nullable', Rule::in(RequestAdvance::KINDS)],
             'first_installment_month' => ['required', 'date', 'after_or_equal:'.today()->startOfMonth()->toDateString()],
             'reason' => ['nullable', 'string', 'max:255'],
         ]);
@@ -203,8 +210,9 @@ class SelfServiceController extends Controller
     {
         return [
             ...app(AdvanceCalculator::class)->limits($employee),
+            'loan' => app(AdvanceCalculator::class)->limits($employee, 'loan'),
             'items' => Advance::query()->where('employee_id', $employee->id)->latest()->limit(10)->get()->map(fn (Advance $advance): array => [
-                'id' => $advance->id, 'amount' => (string) $advance->amount, 'installments' => $advance->installments, 'status' => $advance->status->value,
+                'id' => $advance->id, 'kind' => $advance->kind, 'amount' => (string) $advance->amount, 'installments' => $advance->installments, 'status' => $advance->status->value,
                 'balance' => $advance->balance(), 'first_installment_month' => $advance->first_installment_month->format('Y-m'),
             ])->all(),
         ];
@@ -298,6 +306,38 @@ class SelfServiceController extends Controller
         $this->toast(__('hr.expenses.submitted'));
 
         return back();
+    }
+
+    /** Ask to be paid for hours worked beyond the normal day. */
+    public function requestOvertime(Request $request, OvertimeFlow $flow): RedirectResponse
+    {
+        $flow->request($this->employee($request), OvertimeController::validateOvertime($request), 'employee', $request->user());
+        $this->toast(__('hr.overtime.requested'));
+
+        return back();
+    }
+
+    public function cancelOvertime(Request $request, Overtime $overtime, OvertimeFlow $flow): RedirectResponse
+    {
+        abort_unless($overtime->employee_id === $this->employee($request)->id, 404);
+        $flow->cancel($overtime);
+
+        return back();
+    }
+
+    /**
+     * My overtime this year and the latest requests.
+     *
+     * @return array<string, mixed>
+     */
+    public static function overtime(Employee $employee): array
+    {
+        return [
+            'hours_this_year' => app(OvertimeFlow::class)->hoursThisYear($employee, today()->year),
+            'max_hours_year' => (int) app(HrSettings::class)->get('overtime_max_hours_year'),
+            'items' => Overtime::query()->where('employee_id', $employee->id)->latest('work_date')->limit(20)->get()
+                ->map(fn (Overtime $overtime): array => OvertimeController::overtimeArray($overtime))->all(),
+        ];
     }
 
     public function requestRemote(Request $request, RemoteWork $remote): RedirectResponse

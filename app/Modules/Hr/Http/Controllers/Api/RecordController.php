@@ -5,16 +5,19 @@ namespace App\Modules\Hr\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Expenses\ExpenseFlow;
 use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
+use App\Modules\Hr\Actions\Overtime\OvertimeFlow;
 use App\Modules\Hr\Actions\Remote\RemoteWork;
 use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Modules\Hr\Http\Controllers\ExpenseController;
+use App\Modules\Hr\Http\Controllers\OvertimeController;
 use App\Modules\Hr\Http\Controllers\RemoteController;
 use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
 use App\Modules\Hr\Http\Controllers\ViolationController;
+use App\Modules\Hr\Models\Overtime;
 use App\Modules\Hr\Models\Review;
 use App\Modules\Hr\Models\Separation;
 use App\Modules\Hr\Models\Violation;
@@ -43,6 +46,25 @@ class RecordController extends Controller
         $claim = $flow->submit($this->employee($request), ExpenseController::validateClaim($request), $request->file('receipt'));
 
         return response()->json(ExpenseController::claimArray($claim), 201);
+    }
+
+    public function overtime(Request $request): JsonResponse
+    {
+        return response()->json(SelfServiceController::overtime($this->employee($request)));
+    }
+
+    public function requestOvertime(Request $request, OvertimeFlow $flow): JsonResponse
+    {
+        $overtime = $flow->request($this->employee($request), OvertimeController::validateOvertime($request), 'employee', $request->user());
+
+        return response()->json(OvertimeController::overtimeArray($overtime), 201);
+    }
+
+    public function cancelOvertime(Request $request, Overtime $overtime, OvertimeFlow $flow): JsonResponse
+    {
+        abort_unless($overtime->employee_id === $this->employee($request)->id, 404);
+
+        return response()->json(OvertimeController::overtimeArray($flow->cancel($overtime)));
     }
 
     public function remote(Request $request): JsonResponse

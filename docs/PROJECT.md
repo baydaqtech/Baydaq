@@ -52,7 +52,7 @@ migrations (table prefix), models, actions, controllers, routes and a service pr
 | Module | Table prefix | Owns |
 |---|---|---|
 | Platform (kernel) | `platform__` | Tenancy, organizations/companies/branches, work locations, access roles, packages and plans, module subscriptions, customers and wallet, theme, privacy requests, audit |
-| Hr | `hr__` | Employees, contracts, documents, attendance, shifts, breaks, leave, pay adjustments, advances, payroll, letters, tasks, separations, violations, hiring, reviews, remote work, expense claims, government trackers |
+| Hr | `hr__` | Employees, contracts, documents, attendance, shifts, breaks, leave, pay adjustments, advances and loans, overtime, payroll, letters, tasks, separations, violations, hiring, reviews, remote work, expense claims, government trackers |
 | Pos | `pos__` | Catalog, registers, cashiers, shifts, orders, payments, kitchen, QR menus |
 | Invoicing | `inv__` | Invoices, credit/debit notes, customers (B2B buyers), ZATCA units and submissions |
 | Reservations | `res__` | Services, resources, bookings, online booking pages |
@@ -123,9 +123,10 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 | `hr.remote` | Remote and hybrid work |
 | `hr.recruitment`, `hr.performance` | Hiring with careers page; performance reviews |
 | `hr.expenses`, `hr.violations`, `hr.offboarding` | Expense claims; disciplinary record; resignations and exit |
+| `hr.overtime`, `hr.loans` | Overtime paid through payroll; employee loans (advances of the `loan` kind) |
 | `finance.accounting` | Ledger, chart of accounts, reports, VAT return |
 | `finance.purchasing` | Suppliers, purchase orders, bills, payments |
-| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews) |
+| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime) |
 
 ### 3.5 One shared concept per idea
 
@@ -166,7 +167,9 @@ These are deliberately single, shared across modules — never add a second one:
   option, device binding, PIN; **remote/hybrid days accepted away from the branch**.
 - Shifts and open shifts, holidays, Ramadan hours; breaks (scheduled/granted/requested, live board, Art. 101).
 - Leave with balances and accrual; movements (transfers, secondments with monthly recharge invoices).
-- Pay: bonuses, deductions (capped), advances with schedules; payroll runs with GOSI (legacy and 2024-law rates),
+- Pay: bonuses, deductions (capped), advances and **loans** (same installment engine, `kind` column; loans have
+  owner-set limits and an installment cap, default 10 % of wage); **overtime** (request/record → approve → an approved
+  bonus of the system "Overtime" type, paid at hourly wage + 50 % of basic hourly wage, yearly hour cap); payroll runs with GOSI (legacy and 2024-law rates),
   WPS/Mudad file, end-of-service award, final settlement.
 - Letters (salary/experience) with QR verification page.
 - Tasks (web board + mobile) with photo proof; onboarding tasks for new hires.
@@ -182,8 +185,8 @@ These are deliberately single, shared across modules — never add a second one:
 - **Remote work**: on-site / remote / hybrid weekdays, work-from-home requests.
 - **Expense claims** with receipt and input VAT, approval and payback.
 - AI HR assistant (read-only tools over the user's reach).
-- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, tasks, breaks, shifts, punches, expenses,
-  remote, reviews, resignation, violations).
+- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, tasks, breaks, shifts, punches,
+  expenses, remote, reviews, resignation, violations).
 
 ### Point of sale
 - Catalog with modifiers and branch prices, registers, cashiers (linked to HR staff), shifts with cash counts

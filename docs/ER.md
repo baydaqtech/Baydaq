@@ -11,7 +11,7 @@
 ## Tables per module
 
 - Platform (kernel: tenants, structure, access, packages, customers): 23 tables
-- HR: 48 tables
+- HR: 49 tables
 - Point of sale: 12 tables
 - Invoicing (ZATCA): 5 tables
 - Reservations: 6 tables
@@ -379,6 +379,7 @@ erDiagram
         bigint id PK
         bigint client_id FK
         bigint employee_id FK
+        varchar kind
         decimal amount
         smallint installments
         date first_installment_month
@@ -450,6 +451,7 @@ erDiagram
         smallint sort_order
         timestamp created_at
         timestamp updated_at
+        varchar system_key
     }
     hr_bonuses {
         bigint id PK
@@ -835,6 +837,25 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    hr_overtime {
+        bigint id PK
+        bigint client_id FK
+        bigint employee_id FK
+        bigint company_id
+        bigint branch_id
+        date work_date
+        decimal hours
+        varchar reason
+        varchar source
+        varchar status
+        decimal amount
+        bigint bonus_id FK
+        bigint requested_by FK
+        bigint decided_by FK
+        timestamp decided_at
+        timestamp created_at
+        timestamp updated_at
+    }
     hr_payroll_lines {
         bigint id PK
         bigint payroll_run_id FK
@@ -1069,6 +1090,7 @@ erDiagram
     hr_advances ||--o{ hr_advance_repayments : "advance_id"
     hr_allowance_types ||--o{ hr_contract_allowances : "allowance_type_id"
     hr_bonus_types ||--o{ hr_bonuses : "bonus_type_id"
+    hr_bonuses ||--o{ hr_overtime : "bonus_id"
     hr_contracts ||--o{ hr_change_requests : "contract_id"
     hr_contracts ||--o{ hr_contract_allowances : "contract_id"
     hr_deduction_types ||--o{ hr_deductions : "deduction_type_id"
@@ -1097,6 +1119,7 @@ erDiagram
     hr_employees ||--o{ hr_leave_adjustments : "employee_id"
     hr_employees ||--o{ hr_leave_requests : "employee_id"
     hr_employees ||--o{ hr_letters : "employee_id"
+    hr_employees ||--o{ hr_overtime : "employee_id"
     hr_employees ||--o{ hr_payroll_lines : "employee_id"
     hr_employees ||--o{ hr_remote_requests : "employee_id"
     hr_employees ||--o{ hr_reviews : "employee_id"
@@ -1130,6 +1153,7 @@ erDiagram
     platform_branches ||..o{ hr_breaks : "branch_id"
     platform_branches ||..o{ hr_expense_claims : "branch_id"
     platform_branches ||..o{ hr_job_openings : "branch_id"
+    platform_branches ||..o{ hr_overtime : "branch_id"
     platform_branches ||..o{ hr_payroll_lines : "branch_id"
     platform_branches ||..o{ hr_tasks : "branch_id"
     platform_companies ||--o{ hr_employees : "client_id,company_id"
@@ -1141,6 +1165,7 @@ erDiagram
     platform_companies ||..o{ hr_expense_claims : "company_id"
     platform_companies ||..o{ hr_job_openings : "company_id"
     platform_companies ||..o{ hr_letters : "company_id"
+    platform_companies ||..o{ hr_overtime : "company_id"
     platform_companies ||..o{ hr_review_cycles : "company_id"
     platform_companies ||..o{ hr_tasks : "company_id"
     platform_work_locations ||--o{ hr_attendance_punches : "work_location_id"
@@ -1165,6 +1190,8 @@ erDiagram
     users ||--o{ hr_leave_requests : "decided_by"
     users ||--o{ hr_leave_requests : "requested_by"
     users ||--o{ hr_letters : "issued_by"
+    users ||--o{ hr_overtime : "decided_by"
+    users ||--o{ hr_overtime : "requested_by"
     users ||--o{ hr_payroll_runs : "approved_by"
     users ||--o{ hr_remote_requests : "decided_by"
     users ||--o{ hr_review_cycles : "created_by"

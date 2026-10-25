@@ -126,7 +126,8 @@ route-bound model (it may be stale). MySQL runs REPEATABLE READ: a plain read be
 | R12 | Booking double-booking of the same slot | ⚠️ high | A plain read happens before the lock in `BookAppointment`. Fix: lock first (or READ COMMITTED). |
 | R13 | Seat limit when hiring | ⚠️ medium | Count after lock can miss a concurrent activation inside the hire transaction. Make the count a locking read. |
 | R14 | Rebuilding a payroll run while it is approved | ⚠️ medium | Lock the run in `BuildPayrollRun`. |
-| R15 | Two open advances; repayment overpay | ⚠️ medium | Lock the employee / advance. |
+| R15 | Two open advances / loans; repayment overpay | 🔧 / ⚠️ | Request locks the employee and checks one open request per kind (advance, loan). Open: repayments still need an advance lock. |
+| R25 | Overtime approved twice; yearly cap passed by two approvals | 🔧 | Overtime row locked and status re-checked; employee row locked before the cap sum. |
 | R16 | Break limit per branch exceeded by two approvals | ⚠️ medium | Wrap `BreakFlow::decide` in a transaction with a lock. |
 | R17 | Plan limits (companies, branches, users) exceeded by concurrent creates | ⚠️ low | Lock the client plan row before counting. |
 | R18 | Booking checkout twice (two ZATCA receipts) | ⚠️ medium | Lock the booking. |

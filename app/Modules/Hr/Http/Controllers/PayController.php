@@ -92,7 +92,8 @@ class PayController extends Controller
     {
         $this->authorizeEmployee($employee, HrFeature::Pay, FeatureAction::Create);
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1'], 'installments' => ['required', 'integer', 'min:1', 'max:24'],
+            'amount' => ['required', 'numeric', 'min:1'], 'installments' => ['required', 'integer', 'min:1', 'max:120'],
+            'kind' => ['nullable', Rule::in(RequestAdvance::KINDS)],
             'first_installment_month' => ['required', 'date'], 'reason' => ['nullable', 'string', 'max:255'],
         ]);
 

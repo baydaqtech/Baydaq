@@ -33,6 +33,7 @@ enum HrFeature: string implements Feature
     case Reviews = 'reviews';         // performance review cycles
     case Remote = 'remote';           // work-from-home patterns and requests
     case Expenses = 'expenses';       // expense claims: approve, pay back
+    case Overtime = 'overtime';       // overtime hours: record, approve (paid through payroll)
 
     public static function group(): string
     {
@@ -58,7 +59,7 @@ enum HrFeature: string implements Feature
             self::Reports => [FeatureAction::View, FeatureAction::Export],
             self::Shifts, self::Tasks => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Breaks => [FeatureAction::View, FeatureAction::Approve],
-            self::Offboarding, self::Violations, self::Reviews => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve],
+            self::Offboarding, self::Violations, self::Reviews, self::Overtime => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve],
             self::Remote => [FeatureAction::View, FeatureAction::Update, FeatureAction::Approve],
             self::Expenses => [FeatureAction::View, FeatureAction::Approve],
             self::Recruitment => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Approve],

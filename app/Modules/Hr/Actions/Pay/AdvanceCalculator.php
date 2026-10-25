@@ -18,18 +18,21 @@ class AdvanceCalculator
     public function __construct(private DailyWage $wage) {}
 
     /**
-     * @return array{monthly_wage: string, max_amount: string, max_months: int, max_installments: int, open: bool, first_month: string}
+     * @return array{kind: string, monthly_wage: string, max_amount: string, max_months: int, max_installments: int, max_installment: ?string, open: bool, first_month: string}
      */
-    public function limits(Employee $employee): array
+    public function limits(Employee $employee, string $kind = 'advance'): array
     {
         $monthly = $this->wage->monthly($this->wage->contractOf($employee));
+        $policy = RequestAdvance::policy($kind);
 
         return [
+            'kind' => $kind,
             'monthly_wage' => (string) $monthly,
-            'max_amount' => (string) $monthly->multipliedBy(RequestAdvance::MAX_MONTHS)->toScale(2),
-            'max_months' => RequestAdvance::MAX_MONTHS,
-            'max_installments' => RequestAdvance::MAX_INSTALLMENTS,
-            'open' => Advance::query()->where('employee_id', $employee->id)->whereIn('status', [AdvanceStatus::Pending, AdvanceStatus::Approved, AdvanceStatus::Disbursed])->exists(),
+            'max_amount' => (string) $monthly->multipliedBy($policy['max_months'])->toScale(2),
+            'max_months' => $policy['max_months'],
+            'max_installments' => $policy['max_installments'],
+            'max_installment' => $policy['max_installment_percent'] !== null ? (string) $monthly->multipliedBy($policy['max_installment_percent'])->dividedBy(100, 2, RoundingMode::Down) : null,
+            'open' => Advance::query()->where('employee_id', $employee->id)->where('kind', $kind)->whereIn('status', [AdvanceStatus::Pending, AdvanceStatus::Approved, AdvanceStatus::Disbursed])->exists(),
             'first_month' => today()->addMonthNoOverflow()->startOfMonth()->format('Y-m'),
         ];
     }

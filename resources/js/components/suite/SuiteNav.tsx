@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Briefcase, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { BookOpen, Briefcase, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Timer, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,7 @@ export const NAV = [
   { path: '/hr/shifts', feature: 'hr.shifts', label: 'suite.module_nav.hr.shifts', icon: CalendarClock, module: 'hr', keys: ['hr.shifts.view', 'hr.shifts.create'] },
   { path: '/hr/expenses', feature: 'hr.expenses', label: 'suite.module_nav.hr.expenses', icon: ReceiptText, module: 'hr', keys: ['hr.expenses.view', 'hr.expenses.approve', 'hr.expenses.pay'] },
   { path: '/hr/remote', feature: 'hr.remote', label: 'suite.module_nav.hr.remote', icon: House, module: 'hr', keys: ['hr.remote.view', 'hr.remote.update', 'hr.remote.approve'] },
+  { path: '/hr/overtime', feature: 'hr.overtime', label: 'suite.module_nav.hr.overtime', icon: Timer, module: 'hr', keys: ['hr.overtime.view', 'hr.overtime.create', 'hr.overtime.approve'] },
   { path: '/hr/recruitment', feature: 'hr.recruitment', label: 'suite.module_nav.hr.recruitment', icon: Briefcase, module: 'hr', keys: ['hr.recruitment.view'] },
   { path: '/hr/reviews', feature: 'hr.performance', label: 'suite.module_nav.hr.reviews', icon: Star, module: 'hr', keys: ['hr.reviews.view', 'hr.reviews.approve'] },
   { path: '/hr/separations', feature: 'hr.offboarding', label: 'suite.module_nav.hr.separations', icon: DoorOpen, module: 'hr', keys: ['hr.offboarding.view', 'hr.offboarding.approve'] },
