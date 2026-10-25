@@ -52,7 +52,7 @@ migrations (table prefix), models, actions, controllers, routes and a service pr
 | Module | Table prefix | Owns |
 |---|---|---|
 | Platform (kernel) | `platform__` | Tenancy, organizations/companies/branches, work locations, access roles, packages and plans, module subscriptions, customers and wallet, theme, privacy requests, audit |
-| Hr | `hr__` | Employees, contracts, documents, attendance, shifts, breaks, leave, pay adjustments, advances and loans, overtime, payroll, letters, tasks, separations, violations, hiring, reviews, remote work, expense claims, government trackers |
+| Hr | `hr__` | Employees, contracts, documents, attendance, shifts, breaks, leave, pay adjustments, advances and loans, overtime, insurance, training, payroll, letters, tasks, separations, violations, hiring, reviews, remote work, expense claims, government trackers |
 | Pos | `pos__` | Catalog, registers, cashiers, shifts, orders, payments, kitchen, QR menus |
 | Invoicing | `inv__` | Invoices, credit/debit notes, customers (B2B buyers), ZATCA units and submissions |
 | Reservations | `res__` | Services, resources, bookings, online booking pages |
@@ -124,9 +124,10 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 | `hr.recruitment`, `hr.performance` | Hiring with careers page; performance reviews |
 | `hr.expenses`, `hr.violations`, `hr.offboarding` | Expense claims; disciplinary record; resignations and exit |
 | `hr.overtime`, `hr.loans` | Overtime paid through payroll; employee loans (advances of the `loan` kind) |
+| `hr.insurance`, `hr.training` | Medical insurance (policies, members, uninsured list); training and certificates |
 | `finance.accounting` | Ledger, chart of accounts, reports, VAT return |
 | `finance.purchasing` | Suppliers, purchase orders, bills, payments |
-| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime) |
+| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime, insurance, training) |
 
 ### 3.5 One shared concept per idea
 
@@ -184,8 +185,11 @@ These are deliberately single, shared across modules — never add a second one:
 - **Performance reviews**: rounds with weighted criteria, self and manager scores, goals, probation endings.
 - **Remote work**: on-site / remote / hybrid weekdays, work-from-home requests.
 - **Expense claims** with receipt and input VAT, approval and payback.
+- **Medical insurance**: policies per company, employees and dependants by class and card, renewals due in 60 days,
+  employees without cover (CCHI).
+- **Training**: sessions per company, enrolment, attendance, certificates with expiry and a renewal list.
 - AI HR assistant (read-only tools over the user's reach).
-- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, tasks, breaks, shifts, punches,
+- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, insurance, training, tasks, breaks, shifts, punches,
   expenses, remote, reviews, resignation, violations).
 
 ### Point of sale

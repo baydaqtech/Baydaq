@@ -11,7 +11,7 @@
 ## Tables per module
 
 - Platform (kernel: tenants, structure, access, packages, customers): 23 tables
-- HR: 49 tables
+- HR: 53 tables
 - Point of sale: 12 tables
 - Invoicing (ZATCA): 5 tables
 - Reservations: 6 tables
@@ -734,6 +734,34 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    hr_insurance_members {
+        bigint id PK
+        bigint client_id FK
+        bigint policy_id FK
+        bigint employee_id FK
+        varchar relation
+        varchar name
+        varchar class
+        varchar card_number
+        date starts_on
+        date ends_on
+        decimal premium
+        varchar status
+        timestamp created_at
+        timestamp updated_at
+    }
+    hr_insurance_policies {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id
+        varchar insurer
+        varchar policy_number
+        date starts_on
+        date ends_on
+        varchar notes
+        timestamp created_at
+        timestamp updated_at
+    }
     hr_job_company_blocks {
         bigint job_id FK
         bigint company_id FK
@@ -1042,6 +1070,34 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    hr_training_attendees {
+        bigint id PK
+        bigint client_id FK
+        bigint training_id FK
+        bigint employee_id FK
+        varchar status
+        varchar certificate_number
+        date certificate_expires_on
+        timestamp created_at
+        timestamp updated_at
+    }
+    hr_trainings {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id
+        varchar title
+        varchar provider
+        varchar location
+        date starts_on
+        date ends_on
+        decimal hours
+        decimal cost
+        smallint certificate_months
+        varchar status
+        bigint created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
     hr_travel_visas {
         bigint id PK
         bigint client_id FK
@@ -1116,6 +1172,7 @@ erDiagram
     hr_employees ||--o{ hr_employees : "manager_id"
     hr_employees ||--o{ hr_expense_claims : "employee_id"
     hr_employees ||--o{ hr_final_settlements : "employee_id"
+    hr_employees ||--o{ hr_insurance_members : "employee_id"
     hr_employees ||--o{ hr_leave_adjustments : "employee_id"
     hr_employees ||--o{ hr_leave_requests : "employee_id"
     hr_employees ||--o{ hr_letters : "employee_id"
@@ -1126,8 +1183,10 @@ erDiagram
     hr_employees ||--o{ hr_separations : "employee_id"
     hr_employees ||--o{ hr_shifts : "employee_id"
     hr_employees ||--o{ hr_tasks : "assignee_id"
+    hr_employees ||--o{ hr_training_attendees : "employee_id"
     hr_employees ||--o{ hr_travel_visas : "employee_id"
     hr_employees ||--o{ hr_violations : "employee_id"
+    hr_insurance_policies ||--o{ hr_insurance_members : "policy_id"
     hr_job_openings ||--o{ hr_candidates : "opening_id"
     hr_jobs ||--o{ hr_employees : "job_id"
     hr_jobs ||--o{ hr_job_company_blocks : "job_id"
@@ -1142,6 +1201,7 @@ erDiagram
     hr_sections ||--o{ hr_job_section : "section_id"
     hr_sections ||--o{ hr_section_company_blocks : "section_id"
     hr_tasks ||--o{ hr_task_comments : "task_id"
+    hr_trainings ||--o{ hr_training_attendees : "training_id"
     platform_access_roles ||--o{ hr_jobs : "default_role_id"
     platform_branches ||--o{ hr_attendance_punches : "branch_id"
     platform_branches ||--o{ hr_employee_movements : "from_branch_id"
@@ -1163,11 +1223,13 @@ erDiagram
     platform_companies ||--o{ hr_shifts : "client_id,company_id"
     platform_companies ||..o{ hr_breaks : "company_id"
     platform_companies ||..o{ hr_expense_claims : "company_id"
+    platform_companies ||..o{ hr_insurance_policies : "company_id"
     platform_companies ||..o{ hr_job_openings : "company_id"
     platform_companies ||..o{ hr_letters : "company_id"
     platform_companies ||..o{ hr_overtime : "company_id"
     platform_companies ||..o{ hr_review_cycles : "company_id"
     platform_companies ||..o{ hr_tasks : "company_id"
+    platform_companies ||..o{ hr_trainings : "company_id"
     platform_work_locations ||--o{ hr_attendance_punches : "work_location_id"
     users ||--o{ hr_advance_repayments : "recorded_by"
     users ||--o{ hr_advances : "approved_by"
@@ -1200,6 +1262,7 @@ erDiagram
     users ||--o{ hr_separations : "submitted_by"
     users ||--o{ hr_task_comments : "user_id"
     users ||--o{ hr_tasks : "created_by"
+    users ||--o{ hr_trainings : "created_by"
     users ||--o{ hr_travel_visas : "created_by"
     users ||--o{ hr_violations : "recorded_by"
 ```

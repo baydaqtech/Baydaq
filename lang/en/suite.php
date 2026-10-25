@@ -214,6 +214,8 @@ return [
         'hr_offboarding' => 'Resignations and offboarding',
         'hr_overtime' => 'Overtime',
         'hr_loans' => 'Employee loans',
+        'hr_insurance' => 'Medical insurance',
+        'hr_training' => 'Training and certificates',
         'finance_accounting' => 'Accounting',
         'finance_purchasing' => 'Purchasing',
         'mobile_attendance' => 'Attendance (check in/out)',
@@ -228,6 +230,8 @@ return [
         'mobile_resignation' => 'Resignation and my record',
         'mobile_reviews' => 'My performance reviews',
         'mobile_overtime' => 'Overtime requests',
+        'mobile_insurance' => 'My medical insurance',
+        'mobile_training' => 'My training',
         'mobile_expenses' => 'Expense claims',
         'mobile_remote' => 'Work from home',
         'mobile_assets_audit' => 'Asset stock-takes',
@@ -266,7 +270,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'tasks' => 'Tasks', 'breaks' => 'Breaks', 'separations' => 'Leavers', 'violations' => 'Violations', 'recruitment' => 'Hiring', 'reviews' => 'Reviews', 'remote' => 'Remote work', 'expenses' => 'Expenses', 'overtime' => 'Overtime', 'catalog' => 'HR settings'],
+        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'tasks' => 'Tasks', 'breaks' => 'Breaks', 'separations' => 'Leavers', 'violations' => 'Violations', 'recruitment' => 'Hiring', 'reviews' => 'Reviews', 'remote' => 'Remote work', 'expenses' => 'Expenses', 'overtime' => 'Overtime', 'insurance' => 'Insurance', 'training' => 'Training', 'catalog' => 'HR settings'],
         'invoicing' => ['invoices' => 'Invoices', 'customers' => 'Customers', 'einvoicing' => 'E-invoicing'],
         'finance' => ['ledger' => 'Ledger', 'reports' => 'Financial reports', 'purchasing' => 'Purchasing'],
         'pos' => ['sell' => 'Sell', 'orders' => 'Orders', 'kitchen' => 'Kitchen', 'catalog' => 'Catalog', 'registers' => 'Registers'],

@@ -214,6 +214,8 @@ return [
         'hr_offboarding' => 'الاستقالات وإنهاء الخدمة',
         'hr_overtime' => 'العمل الإضافي',
         'hr_loans' => 'قروض الموظفين',
+        'hr_insurance' => 'التأمين الطبي',
+        'hr_training' => 'التدريب والشهادات',
         'finance_accounting' => 'المحاسبة',
         'finance_purchasing' => 'المشتريات',
         'mobile_attendance' => 'الحضور والانصراف',
@@ -228,6 +230,8 @@ return [
         'mobile_resignation' => 'الاستقالة وسجلّي',
         'mobile_reviews' => 'تقييم أدائي',
         'mobile_overtime' => 'طلبات العمل الإضافي',
+        'mobile_insurance' => 'تأميني الطبي',
+        'mobile_training' => 'تدريبي',
         'mobile_expenses' => 'المطالبات المالية',
         'mobile_remote' => 'العمل من المنزل',
         'mobile_assets_audit' => 'جرد الأصول',
@@ -266,7 +270,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'tasks' => 'المهام', 'breaks' => 'الاستراحات', 'separations' => 'المغادرون', 'violations' => 'المخالفات', 'recruitment' => 'التوظيف', 'reviews' => 'تقييم الأداء', 'remote' => 'العمل عن بُعد', 'expenses' => 'المصروفات', 'overtime' => 'العمل الإضافي', 'catalog' => 'إعدادات الموارد البشرية'],
+        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'tasks' => 'المهام', 'breaks' => 'الاستراحات', 'separations' => 'المغادرون', 'violations' => 'المخالفات', 'recruitment' => 'التوظيف', 'reviews' => 'تقييم الأداء', 'remote' => 'العمل عن بُعد', 'expenses' => 'المصروفات', 'overtime' => 'العمل الإضافي', 'insurance' => 'التأمين', 'training' => 'التدريب', 'catalog' => 'إعدادات الموارد البشرية'],
         'invoicing' => ['invoices' => 'الفواتير', 'customers' => 'العملاء', 'einvoicing' => 'الفوترة الإلكترونية'],
         'finance' => ['ledger' => 'دفتر الأستاذ', 'reports' => 'التقارير المالية', 'purchasing' => 'المشتريات'],
         'pos' => ['sell' => 'البيع', 'orders' => 'الطلبات', 'kitchen' => 'المطبخ', 'catalog' => 'القائمة', 'registers' => 'أجهزة الكاشير'],

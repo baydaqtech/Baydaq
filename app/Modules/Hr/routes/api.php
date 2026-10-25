@@ -42,6 +42,8 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::get('/overtime', [RecordController::class, 'overtime'])->middleware(['feature:mobile.overtime', 'feature:hr.overtime'])->name('overtime.index');
     Route::post('/overtime', [RecordController::class, 'requestOvertime'])->middleware(['throttle:10,1', 'feature:mobile.overtime', 'feature:hr.overtime'])->name('overtime.store');
     Route::post('/overtime/{overtime}/cancel', [RecordController::class, 'cancelOvertime'])->middleware(['throttle:10,1', 'feature:mobile.overtime', 'feature:hr.overtime'])->name('overtime.cancel');
+    Route::get('/insurance', [RecordController::class, 'insurance'])->middleware(['feature:mobile.insurance', 'feature:hr.insurance'])->name('insurance.index');
+    Route::get('/trainings', [RecordController::class, 'trainings'])->middleware(['feature:mobile.training', 'feature:hr.training'])->name('trainings.index');
     Route::get('/remote', [RecordController::class, 'remote'])->middleware('feature:mobile.remote')->name('remote.show');
     Route::post('/remote/requests', [RecordController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:mobile.remote', 'feature:hr.remote'])->name('remote.requests.store');
     Route::get('/reviews', [RecordController::class, 'reviews'])->middleware(['feature:mobile.reviews', 'feature:hr.performance'])->name('reviews.index');

@@ -13,6 +13,7 @@ use App\Modules\Hr\Http\Controllers\EmployeeDocumentController;
 use App\Modules\Hr\Http\Controllers\ExpenseController;
 use App\Modules\Hr\Http\Controllers\GovernmentController;
 use App\Modules\Hr\Http\Controllers\HeadcountReportController;
+use App\Modules\Hr\Http\Controllers\InsuranceController;
 use App\Modules\Hr\Http\Controllers\LeaveController;
 use App\Modules\Hr\Http\Controllers\LetterController;
 use App\Modules\Hr\Http\Controllers\MovementController;
@@ -27,6 +28,7 @@ use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
 use App\Modules\Hr\Http\Controllers\ShiftController;
 use App\Modules\Hr\Http\Controllers\TaskController;
+use App\Modules\Hr\Http\Controllers\TrainingController;
 use App\Modules\Hr\Http\Controllers\ViolationController;
 use Illuminate\Support\Facades\Route;
 
@@ -184,6 +186,21 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::post('/overtime', [OvertimeController::class, 'store'])->middleware('access:hr.overtime.create')->name('overtime.store');
             Route::put('/overtime/{overtime}', [OvertimeController::class, 'decide'])->middleware('access:hr.overtime.approve')->name('overtime.decide');
             Route::get('/overtime', [OvertimeController::class, 'index'])->middleware('access:hr.overtime.view|hr.overtime.create|hr.overtime.approve')->name('overtime.index');
+        });
+
+        Route::middleware('feature:hr.insurance')->group(function (): void {
+            Route::post('/insurance', [InsuranceController::class, 'storePolicy'])->middleware('access:hr.insurance.create')->name('insurance.store');
+            Route::put('/insurance/{policy}', [InsuranceController::class, 'updatePolicy'])->middleware('access:hr.insurance.update')->name('insurance.update');
+            Route::post('/insurance/{policy}/members', [InsuranceController::class, 'storeMember'])->middleware('access:hr.insurance.create')->name('insurance.members.store');
+            Route::delete('/insurance/members/{member}', [InsuranceController::class, 'removeMember'])->middleware('access:hr.insurance.update')->name('insurance.members.destroy');
+            Route::get('/insurance', [InsuranceController::class, 'index'])->middleware('access:hr.insurance.view|hr.insurance.create|hr.insurance.update')->name('insurance.index');
+        });
+        Route::middleware('feature:hr.training')->group(function (): void {
+            Route::post('/training', [TrainingController::class, 'store'])->middleware('access:hr.training.create')->name('training.store');
+            Route::put('/training/{training}', [TrainingController::class, 'update'])->middleware('access:hr.training.update')->name('training.update');
+            Route::post('/training/{training}/attendees', [TrainingController::class, 'enrol'])->middleware('access:hr.training.create')->name('training.enrol');
+            Route::put('/training/attendees/{attendee}', [TrainingController::class, 'mark'])->middleware('access:hr.training.update')->name('training.mark');
+            Route::get('/training', [TrainingController::class, 'index'])->middleware('access:hr.training.view|hr.training.create|hr.training.update')->name('training.index');
         });
 
         // Leaving and the disciplinary record.

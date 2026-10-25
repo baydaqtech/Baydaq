@@ -67,6 +67,16 @@ class RecordController extends Controller
         return response()->json(OvertimeController::overtimeArray($flow->cancel($overtime)));
     }
 
+    public function insurance(Request $request): JsonResponse
+    {
+        return response()->json(['members' => SelfServiceController::insurance($this->employee($request))]);
+    }
+
+    public function trainings(Request $request): JsonResponse
+    {
+        return response()->json(['trainings' => SelfServiceController::trainings($this->employee($request))]);
+    }
+
     public function remote(Request $request): JsonResponse
     {
         return response()->json(SelfServiceController::remote($this->employee($request)));

@@ -21,6 +21,7 @@ use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\ExpenseClaim;
+use App\Modules\Hr\Models\InsuranceMember;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\Overtime;
 use App\Modules\Hr\Models\RemoteRequest;
@@ -28,6 +29,7 @@ use App\Modules\Hr\Models\Review;
 use App\Modules\Hr\Models\Separation;
 use App\Modules\Hr\Models\Shift;
 use App\Modules\Hr\Models\Task;
+use App\Modules\Hr\Models\TrainingAttendee;
 use App\Modules\Hr\Models\Violation;
 use App\Modules\Hr\Models\WorkBreak;
 use App\Modules\Hr\Support\HrSettings;
@@ -76,6 +78,8 @@ class SelfServiceController extends Controller
             'remote' => self::remote($employee),
             'expenses' => self::expenses($employee),
             'overtime' => self::overtime($employee),
+            'insurance' => self::insurance($employee),
+            'trainings' => self::trainings($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
@@ -306,6 +310,29 @@ class SelfServiceController extends Controller
         $this->toast(__('hr.expenses.submitted'));
 
         return back();
+    }
+
+    /**
+     * My medical cover and my dependants'.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function insurance(Employee $employee): array
+    {
+        return InsuranceMember::query()->with('policy')->where('employee_id', $employee->id)->where('status', 'active')->orderByRaw("relation = 'self' desc")->get()
+            ->map(fn (InsuranceMember $member): array => [...InsuranceController::memberArray($member), 'insurer' => $member->policy->insurer, 'policy_number' => $member->policy->policy_number, 'policy_ends_on' => $member->policy->ends_on->toDateString()])->all();
+    }
+
+    /**
+     * My trainings and certificates.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function trainings(Employee $employee): array
+    {
+        return TrainingAttendee::query()->with('training')->where('employee_id', $employee->id)
+            ->whereHas('training', fn ($query) => $query->where('status', '!=', 'cancelled'))->latest('id')->limit(30)->get()
+            ->map(fn (TrainingAttendee $attendee): array => [...TrainingController::trainingArray($attendee->training), 'attendance' => TrainingController::attendeeArray($attendee)])->all();
     }
 
     /** Ask to be paid for hours worked beyond the normal day. */
