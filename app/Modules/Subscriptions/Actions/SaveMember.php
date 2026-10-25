@@ -2,6 +2,7 @@
 
 namespace App\Modules\Subscriptions\Actions;
 
+use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use App\Modules\Subscriptions\Models\Member;
 use Illuminate\Support\Str;
@@ -9,11 +10,12 @@ use Illuminate\Validation\ValidationException;
 
 class SaveMember
 {
-    public function __construct(private CurrentTenant $tenant) {}
+    public function __construct(private CurrentTenant $tenant, private Customers $customers) {}
 
     /**
      * Create or update a member. A new member gets the company's next number (M-00001) and a
-     * card code for the door. Phones are unique per company.
+     * card code for the door. Phones are unique per company, and each phone is linked to the
+     * account-wide customer record (X2).
      *
      * @param  array<string, mixed>  $data
      */
@@ -36,6 +38,10 @@ class SaveMember
                 'number' => 'M-'.str_pad((string) $next, 5, '0', STR_PAD_LEFT),
                 'card_token' => Str::random(32),
             ]);
+        }
+
+        if ($phone !== '' && ($member->isDirty('phone') || $member->platform_customer_id === null)) {
+            $member->forceFill(['platform_customer_id' => $this->customers->identify((string) $member->name, $phone, $member->email)?->id]);
         }
 
         $member->save();

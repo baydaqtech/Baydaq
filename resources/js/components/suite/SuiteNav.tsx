@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 export const NAV = [
   { path: '/', label: 'suite.nav.home', icon: Home, exact: true },
   { path: '/board', label: 'suite.nav.board', icon: Crown, exact: true, keys: ['suite.structure.view', 'suite.structure.update'] },
+  { path: '/customers', label: 'suite.nav.customers', icon: Contact, keys: ['suite.customers.view', 'suite.customers.create', 'suite.customers.update'] },
   { path: '/structure/locations', label: 'suite.structure.locations', icon: MapPin, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
   { path: '/structure/brands', label: 'suite.structure.brands', icon: Tags, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
   { path: '/structure', label: 'suite.nav.structure', icon: Network, exact: true, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update', 'suite.structure.delete'] },

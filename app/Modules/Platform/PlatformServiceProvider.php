@@ -4,20 +4,24 @@ namespace App\Modules\Platform;
 
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Adapters\AuditTrail;
+use App\Modules\Platform\Adapters\CustomerSuiteSearch;
 use App\Modules\Platform\Adapters\HostedPayments;
 use App\Modules\Platform\Adapters\ResolvedAccess;
 use App\Modules\Platform\Adapters\SubscriptionEntitlements;
 use App\Modules\Platform\Adapters\TenantAccounts;
 use App\Modules\Platform\Adapters\TenantOrgDirectory;
+use App\Modules\Platform\Adapters\WalletCustomers;
 use App\Modules\Platform\Adapters\WhatsAppMessaging;
 use App\Modules\Platform\Enums\SuiteFeature;
 use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\Messaging;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Ports\Payments;
+use App\Modules\Platform\Ports\SuiteSearch;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -36,6 +40,8 @@ class PlatformServiceProvider extends ServiceProvider
         $this->app->bind(Audit::class, AuditTrail::class);
         $this->app->bind(Messaging::class, WhatsAppMessaging::class);
         $this->app->bind(Payments::class, HostedPayments::class);
+        $this->app->bind(Customers::class, WalletCustomers::class);
+        $this->app->tag([CustomerSuiteSearch::class], SuiteSearch::TAG);
     }
 
     public function boot(): void

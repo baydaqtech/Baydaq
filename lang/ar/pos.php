@@ -151,6 +151,7 @@ return [
     ],
 
     'errors' => [
+        'wallet_needs_customer' => 'أضف جوال العميل للدفع من محفظته.',
         'not_checked_in' => 'سجّل حضورك في هذا الفرع من تطبيق الحضور قبل فتح الدرج.',
         'staff_needed' => 'اختر موظفاً نشطاً في هذه الشركة لوجبة الموظف.',
         'bad_pin' => 'الرمز السري غير صحيح.',
@@ -168,7 +169,7 @@ return [
     'order_type' => ['dine_in' => 'محلي', 'takeaway' => 'سفري', 'delivery' => 'توصيل'],
     'order_status' => ['open' => 'مفتوح', 'paid' => 'مدفوع', 'void' => 'ملغى'],
     'kitchen_status' => ['new' => 'جديد', 'preparing' => 'قيد التحضير', 'ready' => 'جاهز', 'served' => 'قُدِّم'],
-    'payment_method' => ['cash' => 'نقداً', 'mada' => 'مدى', 'card' => 'بطاقة', 'stc_pay' => 'STC Pay', 'transfer' => 'تحويل', 'staff_account' => 'وجبة موظف (من الراتب)'],
+    'payment_method' => ['cash' => 'نقداً', 'mada' => 'مدى', 'card' => 'بطاقة', 'stc_pay' => 'STC Pay', 'transfer' => 'تحويل', 'staff_account' => 'وجبة موظف (من الراتب)', 'wallet' => 'محفظة العميل'],
 
-    'board' => ['sales' => 'مبيعات اليوم · الطلبات'],
+    'board' => ['sales' => 'مبيعات اليوم · الطلبات', 'order' => 'طلب رقم :number'],
 ];

@@ -15,7 +15,7 @@ interface InvoiceIssuer
      * ZATCA rejected it (status "rejected") so the caller can keep the sale and retry later.
      *
      * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price_incl_vat: numeric-string|float|int, vat_rate?: numeric-string|float|int, discount_incl_vat?: numeric-string|float|int}>  $lines
-     * @param  '10'|'30'|'42'|'48'  $paymentMeans
+     * @param  '1'|'10'|'30'|'42'|'48'  $paymentMeans
      */
     public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null): IssuedInvoice;
 

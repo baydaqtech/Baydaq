@@ -3,6 +3,7 @@
 namespace App\Modules\Reservations\Actions;
 
 use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use App\Modules\Reservations\Enums\BookingChannel;
@@ -20,7 +21,7 @@ use Illuminate\Validation\ValidationException;
 
 class BookAppointment
 {
-    public function __construct(private FindSlots $slots, private CurrentTenant $tenant, private Audit $audit, private OrgDirectory $directory) {}
+    public function __construct(private FindSlots $slots, private CurrentTenant $tenant, private Audit $audit, private OrgDirectory $directory, private Customers $customers) {}
 
     /**
      * Book a service at a branch. Bookings at one branch are serialised (the branch's settings row
@@ -64,6 +65,7 @@ class BookAppointment
                 'ends_at' => CarbonImmutable::parse($local['ends_at'])->utc(),
                 'blocks_until' => CarbonImmutable::parse($local['ends_at'])->addMinutes($service->buffer_minutes)->utc(),
                 'nights' => $nights,
+                'platform_customer_id' => $this->tenant->runFor($clientId, fn () => $this->customers->identify($data['customer_name'], $data['customer_phone'], $data['customer_email'] ?? null))?->id,
                 'status' => ((float) $deposit > 0 ? BookingStatus::Pending : BookingStatus::Confirmed)->value,
                 'channel' => $channel->value,
                 'party_size' => $partySize,

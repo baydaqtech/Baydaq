@@ -16,6 +16,7 @@ enum PaymentMethod: string
     case StcPay = 'stc_pay';
     case Transfer = 'transfer';
     case StaffAccount = 'staff_account'; // a staff meal taken from the employee's pay (P3)
+    case Wallet = 'wallet';              // the customer's account-wide wallet (X2)
 
     /** UN/ECE 4461 code for the e-invoice. */
     public function zatcaCode(): string
@@ -24,6 +25,7 @@ enum PaymentMethod: string
             self::Cash => '10',
             self::Transfer => '42',
             self::StaffAccount => '30',
+            self::Wallet => '1',
             default => '48',
         };
     }

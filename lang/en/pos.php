@@ -151,6 +151,7 @@ return [
     ],
 
     'errors' => [
+        'wallet_needs_customer' => 'Add the customer\'s phone to pay from their wallet.',
         'not_checked_in' => 'Check in at this branch on the attendance app before opening the drawer.',
         'staff_needed' => 'Choose an active employee of this company for the staff meal.',
         'bad_pin' => 'Wrong PIN.',
@@ -168,7 +169,7 @@ return [
     'order_type' => ['dine_in' => 'Dine in', 'takeaway' => 'Takeaway', 'delivery' => 'Delivery'],
     'order_status' => ['open' => 'Open', 'paid' => 'Paid', 'void' => 'Void'],
     'kitchen_status' => ['new' => 'New', 'preparing' => 'Preparing', 'ready' => 'Ready', 'served' => 'Served'],
-    'payment_method' => ['cash' => 'Cash', 'mada' => 'mada', 'card' => 'Card', 'stc_pay' => 'STC Pay', 'transfer' => 'Transfer', 'staff_account' => 'Staff meal (payroll)'],
+    'payment_method' => ['cash' => 'Cash', 'mada' => 'mada', 'card' => 'Card', 'stc_pay' => 'STC Pay', 'transfer' => 'Transfer', 'staff_account' => 'Staff meal (payroll)', 'wallet' => 'Customer wallet'],
 
-    'board' => ['sales' => 'Sales today · orders'],
+    'board' => ['sales' => 'Sales today · orders', 'order' => 'Order #:number'],
 ];

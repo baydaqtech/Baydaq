@@ -84,6 +84,14 @@ class BookingTest extends TestCase
         return app(BookAppointment::class)->handle($this->haircut->fresh(), $this->headOffice->id, self::DAY."T{$time}:00+03:00", ['customer_name' => 'Fahad', 'customer_phone' => '0500000000', ...$data], $channel);
     }
 
+    public function test_a_booking_is_linked_to_the_account_wide_customer(): void
+    {
+        $booking = $this->book('11:30');
+
+        $this->assertNotNull($booking->platform_customer_id);
+        $this->assertSame($booking->platform_customer_id, $this->book('12:30')->platform_customer_id);
+    }
+
     public function test_slots_follow_opening_hours_notice_and_duration(): void
     {
         $staff = $this->times();

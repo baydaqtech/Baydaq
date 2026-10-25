@@ -40,6 +40,7 @@ class SaveCompanyRequest extends FormRequest
             'city' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['nullable', 'digits:5'],
             'timezone' => ['required', 'timezone:all'],
+            'loyalty_percent' => ['nullable', 'numeric', 'min:0', 'max:50'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ];
     }

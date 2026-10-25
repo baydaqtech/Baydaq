@@ -38,7 +38,7 @@ class AccessPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Suite/Access/Roles/Form')
-                ->has('matrix.suite', 3)
+                ->has('matrix.suite', 4)
                 ->where('matrix.suite.0.feature', 'structure'));
     }
 

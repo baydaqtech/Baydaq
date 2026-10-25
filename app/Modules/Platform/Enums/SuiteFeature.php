@@ -15,6 +15,7 @@ enum SuiteFeature: string implements Feature
     case Structure = 'structure';
     case Access = 'access';
     case Audit = 'audit';
+    case Customers = 'customers';
 
     public static function group(): string
     {
@@ -31,6 +32,7 @@ enum SuiteFeature: string implements Feature
         return match ($this) {
             self::Structure, self::Access => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Audit => [FeatureAction::View],
+            self::Customers => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update],
         };
     }
 

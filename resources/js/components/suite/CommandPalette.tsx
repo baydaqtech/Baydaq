@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { router, useForm } from '@inertiajs/react';
-import { Building2, CornerDownLeft, History, MapPin, Pin, Search, Star, UserRound, X } from 'lucide-react';
+import { Building2, Contact, CornerDownLeft, History, MapPin, Pin, Search, Star, UserRound, X } from 'lucide-react';
 import { NAV } from '@/components/suite/SuiteNav';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -22,7 +22,7 @@ interface Item {
 
 interface Hit { type: string; label: string; detail: string | null; path: string }
 
-const HIT_ICONS: Record<string, LucideIcon> = { employee: UserRound, member: UserRound };
+const HIT_ICONS: Record<string, LucideIcon> = { employee: UserRound, member: UserRound, customer: Contact };
 
 /** Lowercase, without Arabic diacritics or tatweel, so "محمد" matches "مُحَمَّد". */
 function normalize(text: string): string {

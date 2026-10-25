@@ -7,6 +7,7 @@ use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Invoicing\Ports\InvoiceIssuer;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Pos\Enums\OrderStatus;
 use App\Modules\Pos\Enums\PaymentMethod;
@@ -21,7 +22,7 @@ use Illuminate\Validation\ValidationException;
 
 class PayOrder
 {
-    public function __construct(private InvoiceIssuer $invoices, private Entitlements $entitlements, private Audit $audit, private PayrollAdjustments $payroll, private StaffDirectory $staff) {}
+    public function __construct(private InvoiceIssuer $invoices, private Entitlements $entitlements, private Audit $audit, private PayrollAdjustments $payroll, private StaffDirectory $staff, private Customers $customers) {}
 
     /**
      * Take the payments (they must add up to the total), mark the order paid, and, when the
@@ -29,7 +30,8 @@ class PayOrder
      * ZATCA rejection does not undo the sale: the order stays paid and the invoice is retried later.
      *
      * A staff meal is paid with "staff account": the amount is taken from that employee's pay
-     * through HR (P3).
+     * through HR (P3). A customer known by phone can pay from the account-wide wallet and earns the
+     * company's loyalty credit on the rest (X2).
      *
      * @param  list<array{method: string, amount: numeric-string|float|int, reference?: ?string}>  $payments
      */
@@ -55,12 +57,30 @@ class PayOrder
             }
         }
 
-        return DB::transaction(function () use ($order, $payments, $actor, $staffCharge, $staffEmployeeId): Order {
+        $walletCharge = array_reduce($payments, fn (BigDecimal $sum, array $payment) => $payment['method'] === PaymentMethod::Wallet->value ? $sum->plus((string) $payment['amount']) : $sum, BigDecimal::zero());
+        $customer = $order->customer_phone ? $this->customers->identify((string) $order->customer_name, $order->customer_phone) : null;
+
+        if ($walletCharge->isPositive() && $customer === null) {
+            throw ValidationException::withMessages(['customer_phone' => __('pos.errors.wallet_needs_customer')]);
+        }
+
+        return DB::transaction(function () use ($order, $payments, $actor, $staffCharge, $staffEmployeeId, $walletCharge, $customer): Order {
+            if ($walletCharge->isPositive()) {
+                $this->customers->debit($customer->id, (string) $walletCharge->toScale(2), 'spend', 'pos.order', (string) $order->id, $order->company_id, null, $actor);
+            }
+
             foreach ($payments as $payment) {
                 $order->payments()->make()->forceFill(['method' => PaymentMethod::from($payment['method'])->value, 'amount' => (string) $payment['amount'], 'reference' => $payment['reference'] ?? null, 'paid_at' => now()])->save();
             }
 
-            $order->forceFill(['status' => OrderStatus::Paid->value, 'paid_at' => now(), 'staff_employee_id' => $staffCharge->isPositive() ? $staffEmployeeId : null])->save();
+            $order->forceFill(['status' => OrderStatus::Paid->value, 'paid_at' => now(), 'staff_employee_id' => $staffCharge->isPositive() ? $staffEmployeeId : null, 'platform_customer_id' => $customer?->id])->save();
+
+            // Loyalty credit on what the customer paid with money, not with the wallet or a staff account.
+            $earning = BigDecimal::of((string) $order->total)->minus($walletCharge)->minus($staffCharge);
+
+            if ($customer !== null && $earning->isPositive()) {
+                $this->customers->reward($customer->id, $order->company_id, (string) $earning->toScale(2), 'pos.order', (string) $order->id);
+            }
 
             if ($staffCharge->isPositive()) {
                 $this->payroll->requestDeduction($staffEmployeeId, (string) $staffCharge->toScale(2), __('pos.staff_meal_reason', ['number' => $order->number, 'date' => $order->order_date->toDateString()]), "pos:order:{$order->id}", 'staff_meal');

@@ -98,6 +98,7 @@ export interface CompanyResource {
   city: string | null;
   postal_code: string | null;
   timezone: string;
+  loyalty_percent: string | null;
   status: string;
   branches?: BranchResource[];
 }
