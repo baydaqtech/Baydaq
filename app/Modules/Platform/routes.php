@@ -4,6 +4,7 @@ use App\Modules\Platform\Http\Controllers\AccessRoleController;
 use App\Modules\Platform\Http\Controllers\BoardController;
 use App\Modules\Platform\Http\Controllers\BranchController;
 use App\Modules\Platform\Http\Controllers\BrandController;
+use App\Modules\Platform\Http\Controllers\CalendarController;
 use App\Modules\Platform\Http\Controllers\CompanyController;
 use App\Modules\Platform\Http\Controllers\CustomerController;
 use App\Modules\Platform\Http\Controllers\GovController;
@@ -38,6 +39,7 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
 
     Route::prefix('{scope}')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->middleware('suite.scope')->group(function (): void {
         Route::get('/', HomeController::class)->name('home');
+        Route::get('/calendar', CalendarController::class)->middleware('feature:suite.calendar')->name('calendar');
         Route::get('/board', BoardController::class)->middleware('access:suite.structure.view|suite.structure.update')->middleware('feature:suite.board')->name('board');
         // Customers and their wallet (X2).
         Route::post('/customers/{customer}/wallet', [CustomerController::class, 'wallet'])->middleware('access:suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.wallet');

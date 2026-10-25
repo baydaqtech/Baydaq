@@ -23,6 +23,8 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 | 2026-10-25 | **H2** Medical insurance (policies, employees and dependants, renewals, uninsured list) and training (sessions, attendance, certificates with expiry). |
 | 2026-10-25 | **H3** Policies and circulars with acknowledgement, staff surveys (anonymous, eNPS), recognition wall with rewards through payroll. |
 | 2026-10-25 | **H4** Message builder: templates with placeholders, weekly/monthly/event triggers, inbox + email + WhatsApp, sent once per occasion. |
+| 2026-10-25 | **H5** One calendar of all events through the tagged `CalendarSource` port (HR dates, government deadlines, supplier bills due), "coming up" on `/me`, calendar in the app API. |
+| 2026-10-25 | Direction: Baydaq is a general HR and company system. Branches can be any business (café, gym, shop, office); no more industry-specific features — POS, reservations and memberships stay as optional add-ons. |
 
 ## 2. Planned — fixes from the review (do these first)
 
@@ -64,24 +66,20 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 | Pri | Idea |
 |---|---|
 | P0 | Payslip screen in the app (`mobile.payslips`) and letter requests (`mobile.letters`). |
-| P0 | Leave calendar for managers (who's off, remote, on shift), with conflicts. |
-| P1 | Overtime: request → approve → paid at 150% (Art. 107) in payroll. |
-| P1 | Loans vs advances distinction; end-of-service provision posted monthly to the ledger. |
-| P1 | Training records and certificates with expiry (food safety, health cards for cafés). |
-| P1 | Medical insurance tracker (CCHI class, dependants, renewals). |
-| P1 | Employee surveys / eNPS and anonymous suggestions. |
-| P2 | Org-wide announcements and acknowledgements (policies read & signed). |
+| P0 | Approvals inbox across HR (leave, advances, loans, overtime, expenses, remote days, resignations). |
+| P1 | Leave/remote/shift conflict check on the calendar (AUDIT B2). |
+| P1 | End-of-service provision posted monthly to the ledger. |
+| P1 | Message builder: more occasions (probation ending, document expiring) and WhatsApp template approval flow. |
+| P1 | Calendar export (iCal feed per user) and company events (meetings, inventory days) added by hand. |
 | P2 | Succession and skills matrix; internal job postings. |
+| P2 | Org-wide policy library with versions (re-acknowledge on a new version). |
 
-### Point of sale
+### Point of sale (optional add-on)
 | Pri | Idea |
 |---|---|
 | P0 | Refunds and returns (credit note + reverse cash/wallet/loyalty + ledger). |
-| P0 | Offline mode for the register (queue and sync). |
-| P1 | Inventory deduction per sale with recipes (coffee = beans + milk + cup). |
-| P1 | Promotions engine (happy hour, combo, buy-X-get-Y, branch-specific). |
-| P1 | Delivery apps integration (HungerStation, Jahez) orders into the kitchen screen. |
-| P2 | Customer-facing display and tipping. |
+| P1 | Offline mode for the register (queue and sync). |
+| P1 | Stock deduction per sale from Assets inventory. |
 
 ### Customers and loyalty
 | Pri | Idea |
@@ -98,19 +96,11 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 | P1 | Customer statements and payment reminders (automatic). |
 | P2 | Credit limits and collections board. |
 
-### Reservations
+### Reservations and memberships (optional add-ons)
 | Pri | Idea |
 |---|---|
-| P1 | Waitlist and no-show fees; packages of sessions. |
-| P1 | Google/Apple calendar sync for staff. |
-| P2 | Table reservations for restaurants linked to POS. |
-
-### Subscriptions (memberships)
-| Pri | Idea |
-|---|---|
-| P1 | Auto-renew with saved card (Moyasar tokenization); dunning. |
-| P1 | Class schedules with capacity and booking from the member card. |
-| P2 | Body metrics / progress for gyms. |
+| P1 | Waitlist and no-show fees; auto-renew with a saved card. |
+| P2 | Bookings and membership renewals on the shared calendar. |
 
 ### Assets and inventory
 | Pri | Idea |
@@ -145,11 +135,12 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 
 ## 5. MVP scope suggestion
 
-For the first paying clients (cafés/restaurants and small companies with 5–100 staff):
+For the first paying clients (any company with 5–200 staff and one or more branches, whatever the branch does):
 
 1. Platform: onboarding wizard, approvals inbox, notifications, packages (done), theming (done).
 2. HR: employees, attendance, leave, shifts, payroll with GOSI/WPS, offboarding, letters, mobile app (done), payslips (to build).
-3. POS + customers + loyalty points (points to build), refunds (to build).
-4. Invoicing with ZATCA (done).
-5. Finance: ledger, VAT return, expenses, bills (done); opening balances (to build).
-6. All P0 fixes in section 2.
+3. HR engagement: policies, surveys, recognition, message builder, calendar (done).
+4. Optional add-ons: POS + customers + loyalty, refunds (to build).
+5. Invoicing with ZATCA (done).
+6. Finance: ledger, VAT return, expenses, bills (done); opening balances (to build).
+7. All P0 fixes in section 2.

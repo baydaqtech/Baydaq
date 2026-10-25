@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Hr\Actions\Engagement\AnnouncementFlow;
 use App\Modules\Hr\Actions\Engagement\RecognitionFlow;
 use App\Modules\Hr\Actions\Engagement\SurveyFlow;
+use App\Modules\Hr\Adapters\HrCalendar;
 use App\Modules\Hr\Http\Controllers\AnnouncementController;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Modules\Hr\Http\Controllers\MessageController;
@@ -14,6 +15,7 @@ use App\Modules\Hr\Http\Controllers\SurveyController;
 use App\Modules\Hr\Models\Announcement;
 use App\Modules\Hr\Models\EmployeeMessage;
 use App\Modules\Hr\Models\Survey;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -58,6 +60,17 @@ class EngagementController extends Controller
     public function readMessage(Request $request, EmployeeMessage $message): JsonResponse
     {
         return response()->json(['read_at' => MyEngagementController::markRead($message, $this->employee($request))->read_at?->toIso8601String()]);
+    }
+
+    /** My dates between ?from and ?to (default: the next 30 days, at most 92 days). */
+    public function calendar(Request $request): JsonResponse
+    {
+        $data = $request->validate(['from' => ['nullable', 'date'], 'to' => ['nullable', 'date', 'after_or_equal:from']]);
+        $from = CarbonImmutable::parse($data['from'] ?? CarbonImmutable::today('Asia/Riyadh'));
+        $to = CarbonImmutable::parse($data['to'] ?? $from->addDays(30));
+        abort_if($from->diffInDays($to) > 92, 422, __('validation.max.numeric', ['attribute' => 'days', 'max' => 92]));
+
+        return response()->json(['events' => array_map(fn ($event): array => (array) $event, HrCalendar::forEmployee($this->employee($request), $from, $to))]);
     }
 
     public function recognition(Request $request): JsonResponse

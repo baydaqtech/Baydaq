@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import type { AnnouncementItem } from '@/Pages/Hr/Announcements/Index';
 import { Wall, type RecognitionWall } from '@/Pages/Hr/Recognition/Index';
 import type { SurveyItem } from '@/Pages/Hr/Surveys/Index';
+import { TONES, type CalendarEvent } from '@/Pages/Suite/Calendar';
 import type { Option } from '@/types/resources';
 
 export type MyAnnouncement = AnnouncementItem & { read: boolean; acknowledged_at: string | null };
@@ -156,6 +157,31 @@ export function MyMessages({ messages }: { messages: MyMessage[] }) {
               <span className="text-xs text-muted-foreground">{formatDate(message.sent_at, locale)}</span>
             </button>
             {open === message.id && <p className="mt-2 whitespace-pre-line">{message.body}</p>}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+/** My next 30 days: holidays, my leave, trainings, surveys closing. */
+export function MyUpcoming({ events }: { events: CalendarEvent[] }) {
+  const t = useT();
+  const { locale } = useLocale();
+
+  if (events.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-base">{t('suite.calendar.upcoming')}</CardTitle></CardHeader>
+      <CardContent className="flex flex-col gap-1 text-sm">
+        {events.map((event) => (
+          <div key={event.key} className="flex items-center gap-2">
+            <span className="w-24 shrink-0 text-xs text-muted-foreground">{formatDate(event.date, locale)}</span>
+            <span className={cn('rounded px-1.5 py-0.5 text-xs', TONES[event.tone])}>{t(`suite.calendar.categories.${event.category}`)}</span>
+            <span className="truncate">{event.title}</span>
           </div>
         ))}
       </CardContent>

@@ -75,7 +75,7 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 | `Ledger` | Post a business event to the books once | Finance (`GeneralLedger`); `NullLedger` when Finance is absent |
 | `Accounts` | Logins of the tenant (invite, sign out everywhere) | Platform |
 | `Payments`, `Messaging`, `PdfRenderer`, `QrCodes`, `Intelligence`, `Branding`, `Audit` | Shared services | Platform |
-| Tagged: `SuiteSearch`, `BoardSignals`, `CustomerActivity`, `CustomerData` | Each module contributes search results, board health, customer timeline, personal-data export/erase | Modules |
+| Tagged: `SuiteSearch`, `BoardSignals`, `CalendarSource`, `CustomerActivity`, `CustomerData` | Each module contributes search results, board health, calendar dates, customer timeline, personal-data export/erase | Modules |
 | `Hr\Ports\StaffDirectory`, `PayrollAdjustments`, `StaffAvailability`, `OffboardingClearance` | HR services other modules use (cashiers, deductions, bookable staff, custody clearance) | Hr |
 | `Invoicing\Ports\InvoiceIssuer` | Issue simplified/standard invoices for POS, bookings, memberships, recharges | Invoicing |
 
@@ -114,6 +114,7 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 | Feature key | Turns on |
 |---|---|
 | `suite.board` | Board of branch health |
+| `suite.calendar` | One calendar of all events from every module |
 | `suite.customers` | Customers, wallet, client registration, branch QR sign-up |
 | `suite.theme` | Owner branding (colours, logo, name, radius, dark mode) |
 | `suite.ai` | AI HR assistant and document scanning |
@@ -129,7 +130,7 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 | `hr.messages` | Message builder: templates sent by hand, weekly, monthly or on employee events |
 | `finance.accounting` | Ledger, chart of accounts, reports, VAT return |
 | `finance.purchasing` | Suppliers, purchase orders, bills, payments |
-| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime, insurance, training, announcements, surveys, recognition, messages) |
+| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime, insurance, training, announcements, surveys, recognition, messages, calendar) |
 
 ### 3.5 One shared concept per idea
 
@@ -153,6 +154,10 @@ These are deliberately single, shared across modules — never add a second one:
   client scope), branches (codes, cities, head office), brands, work locations (geofence + Wi-Fi).
 - Access: roles, members, invitations, assignments at any node; audit log.
 - Home, ⌘K search across modules, saved/recent views, board (2D) of branch health.
+- **Calendar** (`/calendar`): month view of every module's dates through `CalendarSource` (HR: holidays, leave,
+  remote days, birthdays, work anniversaries, contract and probation endings, document expiries, trainings, insurance
+  renewals, surveys closing; Platform: GOSI and VAT deadlines; Finance: bills due), filtered by the user's reach.
+  Nothing is stored twice.
 - Customers: one per phone, wallet (top-up, adjust, spend, loyalty), activity across modules, **client
   registration** by staff, at POS checkout, from bookings, or **self sign-up via a branch QR code** (`/join/{token}`)
   with marketing consent.
@@ -200,7 +205,7 @@ These are deliberately single, shared across modules — never add a second one:
   contract ending. `hr:send-messages` runs daily at 08:00 Riyadh; a unique (template, employee, occurrence) key sends
   each occasion once.
 - AI HR assistant (read-only tools over the user's reach).
-- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, insurance, training, announcements, surveys, recognition, messages, tasks, breaks, shifts, punches,
+- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, insurance, training, announcements, surveys, recognition, messages, calendar, tasks, breaks, shifts, punches,
   expenses, remote, reviews, resignation, violations).
 
 ### Point of sale

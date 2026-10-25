@@ -7,6 +7,7 @@ use App\Modules\Platform\Adapters\AuditTrail;
 use App\Modules\Platform\Adapters\ChillerlanQrCodes;
 use App\Modules\Platform\Adapters\ClaudeIntelligence;
 use App\Modules\Platform\Adapters\CustomerSuiteSearch;
+use App\Modules\Platform\Adapters\GovernmentCalendar;
 use App\Modules\Platform\Adapters\HostedPayments;
 use App\Modules\Platform\Adapters\MpdfRenderer;
 use App\Modules\Platform\Adapters\NullLedger;
@@ -22,6 +23,7 @@ use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Ports\Audit;
 use App\Modules\Platform\Ports\Branding;
+use App\Modules\Platform\Ports\CalendarSource;
 use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\Intelligence;
@@ -57,6 +59,7 @@ class PlatformServiceProvider extends ServiceProvider
         $this->app->bindIf(Ledger::class, NullLedger::class);
         $this->app->bind(Intelligence::class, fn (): Intelligence => new ClaudeIntelligence(config('baydaq.ai.api_key'), (string) config('baydaq.ai.model')));
         $this->app->tag([CustomerSuiteSearch::class], SuiteSearch::TAG);
+        $this->app->tag([GovernmentCalendar::class], CalendarSource::TAG);
     }
 
     public function boot(): void

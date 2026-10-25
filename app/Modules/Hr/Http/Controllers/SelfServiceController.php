@@ -16,6 +16,7 @@ use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
 use App\Modules\Hr\Actions\Tasks\TaskFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
+use App\Modules\Hr\Adapters\HrCalendar;
 use App\Modules\Hr\Enums\TaskStatus;
 use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
@@ -38,6 +39,7 @@ use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
 use App\Modules\Platform\Ports\Branding;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\OrgDirectory;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -84,9 +86,10 @@ class SelfServiceController extends Controller
             'surveys' => SurveyController::openFor($employee),
             'recognition' => MyEngagementController::recognition($employee),
             'messages' => MessageController::inbox($employee),
+            'upcoming' => array_map(fn ($event): array => (array) $event, HrCalendar::forEmployee($employee, CarbonImmutable::today('Asia/Riyadh'), CarbonImmutable::today('Asia/Riyadh')->addDays(30))),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
-            'copy' => ['hr' => trans('hr')],
+            'copy' => ['hr' => trans('hr'), 'suite' => ['calendar' => trans('suite.calendar')]],
         ]);
     }
 

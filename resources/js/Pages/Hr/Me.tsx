@@ -8,9 +8,10 @@ import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
 import MyExpenses, { type ExpensesData } from '@/components/hr/MyExpenses';
 import MyRecord, { type RecordData } from '@/components/hr/MyRecord';
 import { MyInsuranceCard, MyTrainingCard, type MyInsurance, type MyTrainings } from '@/components/hr/MyBenefits';
-import { MyAnnouncements, MyMessages, MyRecognitionCard, MySurveys, type MyAnnouncement, type MyMessage, type MyRecognition } from '@/components/hr/MyEngagement';
+import { MyAnnouncements, MyMessages, MyUpcoming, MyRecognitionCard, MySurveys, type MyAnnouncement, type MyMessage, type MyRecognition } from '@/components/hr/MyEngagement';
 import MyOvertime, { type OvertimeData } from '@/components/hr/MyOvertime';
 import type { SurveyItem } from '@/Pages/Hr/Surveys/Index';
+import type { CalendarEvent } from '@/Pages/Suite/Calendar';
 import MyRemote, { type RemoteData } from '@/components/hr/MyRemote';
 import MyReviews, { type MyReview } from '@/components/hr/MyReviews';
 import MyTasks, { type MyTask } from '@/components/hr/MyTasks';
@@ -51,11 +52,12 @@ interface Props {
   surveys: SurveyItem[];
   recognition: MyRecognition;
   messages: MyMessage[];
+  upcoming: CalendarEvent[];
   features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, insurance, trainings, announcements, surveys, recognition, messages, features }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, insurance, trainings, announcements, surveys, recognition, messages, upcoming, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -103,6 +105,7 @@ export default function Me({ employee, balances, requests, types, advance, shift
           )}
         </section>
 
+        <MyUpcoming events={upcoming} />
         {features.includes('hr.messages') && <MyMessages messages={messages} />}
         {features.includes('hr.announcements') && <MyAnnouncements items={announcements} />}
         {features.includes('hr.surveys') && <MySurveys surveys={surveys} />}
