@@ -3,7 +3,9 @@ import { Head, useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import AdvanceCalculator, { type AdvanceData } from '@/components/hr/AdvanceCalculator';
 import LeaveBalanceCard, { type LeaveBalance } from '@/components/hr/LeaveBalanceCard';
+import MyBreak, { type BreakState } from '@/components/hr/MyBreak';
 import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
+import MyTasks, { type MyTask } from '@/components/hr/MyTasks';
 import PinCard from '@/components/hr/PinCard';
 import BrandMark from '@/components/platform/BrandMark';
 import FormField from '@/components/platform/FormField';
@@ -28,10 +30,12 @@ interface Props {
   advance: AdvanceData;
   shifts: ShiftsData;
   has_pin: boolean;
+  tasks: MyTask[];
+  break_state: BreakState;
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -78,6 +82,10 @@ export default function Me({ employee, balances, requests, types, advance, shift
             </Card>
           )}
         </section>
+
+        <MyBreak state={breakState} />
+
+        <MyTasks tasks={tasks} />
 
         <MyShifts data={shifts} />
 

@@ -3,15 +3,22 @@
 namespace App\Modules\Hr\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Hr\Actions\Breaks\BreakFlow;
 use App\Modules\Hr\Actions\Leave\LeaveBalance;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
 use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
+use App\Modules\Hr\Actions\Tasks\TaskFlow;
+use App\Modules\Hr\Enums\TaskStatus;
+use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\Shift;
+use App\Modules\Hr\Models\Task;
+use App\Modules\Hr\Models\WorkBreak;
+use App\Modules\Hr\Support\HrSettings;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
 use App\Modules\Platform\Ports\Entitlements;
@@ -47,8 +54,59 @@ class SelfServiceController extends Controller
             'advance' => self::advances($employee),
             'shifts' => self::shifts($employee),
             'has_pin' => $employee->pin_hash !== null,
+            'tasks' => Task::query()->with('comments')->where('assignee_id', $employee->id)->whereIn('status', [TaskStatus::Todo, TaskStatus::InProgress])
+                ->orderByRaw('due_at is null')->orderBy('due_at')->limit(50)->get()
+                ->map(fn (Task $task): array => TaskController::taskArray($task, $directory->branch($task->branch_id)?->name))->all(),
+            'break_state' => self::breakState($employee),
             'copy' => ['hr' => trans('hr')],
         ]);
+    }
+
+    /** Start or finish one of my tasks, with a photo when the task asks for one. */
+    public function moveTask(Request $request, Task $task, TaskFlow $flow): RedirectResponse
+    {
+        abort_unless($task->assignee_id === $this->employee($request)->id, 404);
+        $data = $request->validate([
+            'status' => ['required', Rule::in([TaskStatus::InProgress->value, TaskStatus::Done->value])],
+            'checked' => ['nullable', 'array'], 'checked.*' => ['integer', 'min:0'],
+            'photo' => ['nullable', 'image', 'max:8192'], 'note' => ['nullable', 'string', 'max:2000'],
+        ]);
+        $flow->move($task, TaskStatus::from($data['status']), $request->user(), $request->file('photo'), isset($data['checked']) ? array_map('intval', $data['checked']) : null, $data['note'] ?? null);
+
+        return back();
+    }
+
+    public function takeBreak(Request $request, BreakFlow $flow): RedirectResponse
+    {
+        $flow->take($this->employee($request), $request->integer('minutes') ?: null, null, $request->user());
+
+        return back();
+    }
+
+    public function endBreak(Request $request, WorkBreak $break, BreakFlow $flow): RedirectResponse
+    {
+        abort_unless($break->employee_id === $this->employee($request)->id, 404);
+        $flow->end($break);
+
+        return back();
+    }
+
+    /**
+     * Today's planned break and the break in progress or waiting.
+     *
+     * @return array<string, mixed>
+     */
+    public static function breakState(Employee $employee): array
+    {
+        $flow = app(BreakFlow::class);
+        $shift = $flow->shiftToday($employee);
+        $active = $flow->active($employee);
+
+        return [
+            'scheduled' => $shift?->break_at ? ['at' => substr($shift->break_at, 0, 5), 'minutes' => $shift->break_minutes] : null,
+            'current' => $active ? ApiBreakController::present($active) : null,
+            'self_start' => (bool) app(HrSettings::class)->get('break_self_start'),
+        ];
     }
 
     /** Ask for a salary advance after seeing the ceiling and the plan (H18). */

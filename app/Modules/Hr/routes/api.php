@@ -2,12 +2,14 @@
 
 use App\Modules\Hr\Http\Controllers\Api\AdvanceController;
 use App\Modules\Hr\Http\Controllers\Api\AuthController;
+use App\Modules\Hr\Http\Controllers\Api\BreakController;
 use App\Modules\Hr\Http\Controllers\Api\LeaveController;
 use App\Modules\Hr\Http\Controllers\Api\LocationController;
 use App\Modules\Hr\Http\Controllers\Api\MeController;
 use App\Modules\Hr\Http\Controllers\Api\PinController;
 use App\Modules\Hr\Http\Controllers\Api\PunchController;
 use App\Modules\Hr\Http\Controllers\Api\ShiftController;
+use App\Modules\Hr\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +26,14 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/advances/preview', [AdvanceController::class, 'preview'])->middleware('throttle:30,1')->name('advances.preview');
     Route::post('/advances', [AdvanceController::class, 'store'])->middleware('throttle:5,1')->name('advances.store');
     Route::put('/me/pin', PinController::class)->middleware('throttle:5,1')->name('me.pin');
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::post('/tasks', [TaskController::class, 'store'])->middleware('throttle:30,1')->name('tasks.store');
+    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
+    Route::post('/tasks/{task}/status', [TaskController::class, 'move'])->middleware('throttle:60,1')->name('tasks.move');
+    Route::post('/tasks/{task}/comments', [TaskController::class, 'comment'])->middleware('throttle:60,1')->name('tasks.comments');
+    Route::get('/breaks', [BreakController::class, 'show'])->name('breaks.show');
+    Route::post('/breaks', [BreakController::class, 'store'])->middleware('throttle:20,1')->name('breaks.store');
+    Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('throttle:20,1')->name('breaks.end');
     Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.index');
     Route::post('/shifts/{shift}/claim', [ShiftController::class, 'claim'])->middleware('throttle:10,1')->name('shifts.claim');
     Route::get('/attendance/locations', [LocationController::class, 'index'])->name('attendance.locations');

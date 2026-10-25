@@ -20,7 +20,7 @@ import type { Option } from '@/types/resources';
 
 interface ShiftRow {
   id: number; date: string; branch_id: number; branch: string; starts_at: string; ends_at: string; minutes: number;
-  employee: string | null; employee_id: number | null; away: boolean; job: string | null; is_open: boolean; on_holiday: boolean; ramadan_hours: boolean; notes: string | null;
+  employee: string | null; employee_id: number | null; away: boolean; job: string | null; is_open: boolean; on_holiday: boolean; ramadan_hours: boolean; notes: string | null; break_at: string | null; break_minutes: number | null;
 }
 
 interface HolidayRow { id: number; name: string; kind: 'public' | 'ramadan'; starts_on: string; ends_on: string }
@@ -53,11 +53,13 @@ function ShiftDialog({ shift, date, branches, employees, jobs }: { shift?: Shift
     allow_holiday: shift?.on_holiday ?? false,
     repeat_days: '1',
     notes: shift?.notes ?? '',
+    break_at: shift?.break_at ?? '',
+    break_minutes: String(shift?.break_minutes ?? 30),
   });
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
-    form.transform((data) => ({ ...data, employee_id: data.employee_id || null, job_id: data.job_id || null, is_open: data.employee_id === '' }));
+    form.transform((data) => ({ ...data, employee_id: data.employee_id || null, job_id: data.job_id || null, is_open: data.employee_id === '', break_at: data.break_at || null, break_minutes: data.break_at ? Number(data.break_minutes) : null }));
     const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
     shift ? form.put(url(`/hr/shifts/${shift.id}`), options) : form.post(url('/hr/shifts'), options);
   }
@@ -77,6 +79,8 @@ function ShiftDialog({ shift, date, branches, employees, jobs }: { shift?: Shift
           <FormField label={f('employee')} error={form.errors.employee_id}><SelectInput value={form.data.employee_id} onChange={(value) => form.setData('employee_id', value)} options={employees} emptyLabel={t('hr.shifts.nobody')} /></FormField>
           {form.data.employee_id === '' && <FormField label={t('hr.shifts.only_job')} error={form.errors.job_id}><SelectInput value={form.data.job_id} onChange={(value) => form.setData('job_id', value)} options={jobs} emptyLabel={t('hr.shifts.any_job')} /></FormField>}
           {!shift && <FormField label={t('hr.shifts.repeat_days')} error={form.errors.repeat_days}><Input type="number" min="1" max="14" dir="ltr" value={form.data.repeat_days} onChange={(event) => form.setData('repeat_days', event.target.value)} /></FormField>}
+          <FormField label={t('hr.breaks.shift_break_at')} hint={t('hr.breaks.shift_break_hint')} error={form.errors.break_at}><Input type="time" dir="ltr" value={form.data.break_at} onChange={(event) => form.setData('break_at', event.target.value)} /></FormField>
+          <FormField label={t('hr.breaks.minutes')} error={form.errors.break_minutes}><Input type="number" min="5" max="120" dir="ltr" value={form.data.break_minutes} disabled={!form.data.break_at} onChange={(event) => form.setData('break_minutes', event.target.value)} /></FormField>
           <FormField label={f('notes')} error={form.errors.notes} className="sm:col-span-2"><Input value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} /></FormField>
           <label className="flex items-center gap-2 text-sm sm:col-span-2"><Checkbox checked={form.data.allow_holiday} onCheckedChange={(state) => form.setData('allow_holiday', state === true)} />{t('hr.shifts.allow_holiday')}</label>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
@@ -160,7 +164,7 @@ export default function ShiftsIndex({ week, days, shifts, branches, employees, j
               {shifts.filter((row) => row.date === day.date).map((row) => (
                 <div key={row.id} className={cn('rounded-md border p-2', row.is_open && 'border-dashed border-brass bg-brass/5')}>
                   <div className="flex items-center justify-between gap-1">
-                    <span dir="ltr" className="font-medium">{row.starts_at}–{row.ends_at}</span>
+                    <span dir="ltr" className="font-medium">{row.starts_at}–{row.ends_at}{row.break_at && <span className="ms-1 text-xs font-normal text-muted-foreground">☕ {row.break_at}</span>}</span>
                     {can('hr.shifts.delete') && <ConfirmAction href={url(`/hr/shifts/${row.id}`)} method="delete" size="icon-sm" variant="ghost" title={t('common.actions.remove')}><Trash2 /></ConfirmAction>}
                   </div>
                   <div>{row.employee ?? <span className="text-brass">{t('hr.shifts.open')}{row.job && ` · ${row.job}`}</span>}</div>

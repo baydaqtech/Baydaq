@@ -25,6 +25,8 @@ enum HrFeature: string implements Feature
     case Catalog = 'catalog';   // sections, jobs, allowance types, document types
     case Reports = 'reports';
     case Shifts = 'shifts';     // rosters, open shifts, holidays
+    case Tasks = 'tasks';       // tasks given to employees
+    case Breaks = 'breaks';     // the live break board: grant, approve, end
 
     public static function group(): string
     {
@@ -48,7 +50,8 @@ enum HrFeature: string implements Feature
             self::Payroll => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve, FeatureAction::Export],
             self::Catalog => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Reports => [FeatureAction::View, FeatureAction::Export],
-            self::Shifts => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
+            self::Shifts, self::Tasks => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
+            self::Breaks => [FeatureAction::View, FeatureAction::Approve],
         };
     }
 

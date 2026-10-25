@@ -2,6 +2,7 @@
 
 use App\Modules\Hr\Http\Controllers\AssistantController;
 use App\Modules\Hr\Http\Controllers\AttendanceController;
+use App\Modules\Hr\Http\Controllers\BreakController;
 use App\Modules\Hr\Http\Controllers\CatalogController;
 use App\Modules\Hr\Http\Controllers\ChangeRequestController;
 use App\Modules\Hr\Http\Controllers\ComplianceController;
@@ -17,6 +18,7 @@ use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\ShiftController;
+use App\Modules\Hr\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 // The public check behind the QR code printed on a salary or experience letter (H12).
@@ -29,6 +31,9 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->name('advance.store');
     Route::post('/shifts/{shift}/claim', [SelfServiceController::class, 'claimShift'])->middleware('throttle:10,1')->name('shifts.claim');
     Route::put('/pin', [SelfServiceController::class, 'setPin'])->middleware('throttle:5,1')->name('pin.update');
+    Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->name('tasks.move');
+    Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->name('breaks.store');
+    Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->name('breaks.end');
 });
 
 /*
@@ -129,6 +134,18 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::match(['get', 'post'], '/reports/government', [ComplianceController::class, 'government'])->middleware('access:hr.employees.view_salaries')->name('reports.government');
         Route::post('/assistant', [AssistantController::class, 'ask'])->middleware(['access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view', 'throttle:20,1'])->name('assistant.ask');
         Route::get('/assistant', [AssistantController::class, 'show'])->middleware('access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view')->name('assistant');
+        Route::post('/tasks', [TaskController::class, 'store'])->middleware('access:hr.tasks.create')->name('tasks.store');
+        Route::put('/tasks/{task}', [TaskController::class, 'update'])->middleware('access:hr.tasks.update')->name('tasks.update');
+        Route::post('/tasks/{task}/status', [TaskController::class, 'move'])->middleware('access:hr.tasks.update')->name('tasks.move');
+        Route::post('/tasks/{task}/comments', [TaskController::class, 'comment'])->middleware('access:hr.tasks.view')->name('tasks.comments');
+        Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->middleware('access:hr.tasks.delete')->name('tasks.destroy');
+        Route::get('/tasks/{task}/photo', [TaskController::class, 'photo'])->middleware('access:hr.tasks.view')->name('tasks.photo');
+        Route::get('/tasks', [TaskController::class, 'index'])->middleware('access:hr.tasks.view|hr.tasks.create')->name('tasks.index');
+        Route::post('/breaks/settings', [BreakController::class, 'settings'])->middleware('access:hr.breaks.approve')->name('breaks.settings');
+        Route::post('/breaks/employees/{employee}', [BreakController::class, 'grant'])->middleware('access:hr.breaks.approve')->name('breaks.grant');
+        Route::post('/breaks/{break}/decide', [BreakController::class, 'decide'])->middleware('access:hr.breaks.approve')->name('breaks.decide');
+        Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('access:hr.breaks.approve')->name('breaks.end');
+        Route::get('/breaks', [BreakController::class, 'index'])->middleware('access:hr.breaks.view|hr.breaks.approve')->name('breaks.index');
         Route::get('/reports/headcount', HeadcountReportController::class)->middleware('access:hr.reports.view')->name('reports.headcount');
 
         Route::middleware('access:hr.employees.view|hr.employees.create|hr.employees.update')->group(function (): void {

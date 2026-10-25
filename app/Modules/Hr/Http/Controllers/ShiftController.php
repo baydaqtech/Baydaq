@@ -53,6 +53,7 @@ class ShiftController extends Controller
                 ->map(fn (Shift $shift): array => [
                     'id' => $shift->id, 'date' => $shift->shift_date->toDateString(), 'branch_id' => $shift->branch_id, 'branch' => $branchNames[$shift->branch_id] ?? '—',
                     'starts_at' => substr($shift->starts_at, 0, 5), 'ends_at' => substr($shift->ends_at, 0, 5), 'minutes' => $shift->minutes,
+                    'break_at' => $shift->break_at ? substr($shift->break_at, 0, 5) : null, 'break_minutes' => $shift->break_minutes,
                     'employee' => $shift->employee?->localized('name'), 'employee_id' => $shift->employee_id, 'away' => $shift->employee && $shift->employee->branch_id !== $shift->branch_id,
                     'job' => $shift->job?->localized('name'), 'is_open' => $shift->is_open, 'on_holiday' => $shift->on_holiday, 'ramadan_hours' => $shift->ramadan_hours, 'notes' => $shift->notes,
                 ])->all(),
@@ -148,6 +149,8 @@ class ShiftController extends Controller
             'allow_holiday' => ['boolean'],
             'repeat_days' => ['nullable', 'integer', 'min:1', 'max:14'],
             'notes' => ['nullable', 'string', 'max:255'],
+            'break_at' => ['nullable', 'date_format:H:i'],
+            'break_minutes' => ['nullable', 'integer', 'min:5', 'max:120'],
         ]);
     }
 

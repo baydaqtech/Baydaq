@@ -22,7 +22,7 @@ class SaveShift
     public function __construct(private OrgDirectory $directory, private HrSettings $settings, private CurrentTenant $tenant) {}
 
     /**
-     * @param  array{branch_id: int, shift_date: string, starts_at: string, ends_at: string, employee_id?: ?int, job_id?: ?int, is_open?: bool, notes?: ?string, allow_holiday?: bool}  $data
+     * @param  array{branch_id: int, shift_date: string, starts_at: string, ends_at: string, employee_id?: ?int, job_id?: ?int, is_open?: bool, notes?: ?string, allow_holiday?: bool, break_at?: ?string, break_minutes?: ?int}  $data
      */
     public function handle(Shift $shift, array $data): Shift
     {
@@ -72,6 +72,8 @@ class SaveShift
             'on_holiday' => $holiday !== null,
             'ramadan_hours' => $inRamadan,
             'notes' => $data['notes'] ?? null,
+            'break_at' => ($data['break_at'] ?? null) ?: null,
+            'break_minutes' => ($data['break_at'] ?? null) ? (int) ($data['break_minutes'] ?? 30) : null,
         ]);
         $newlyAssigned = $shift->isDirty('employee_id') && $employeeId !== null;
         $shift->save();

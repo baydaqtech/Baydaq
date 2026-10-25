@@ -18,6 +18,9 @@ class HrSettings
         'attendance_selfie' => false,     // ask for a selfie with each punch; off by default under PDPL (H8)
         'whatsapp_notifications' => false, // WhatsApp employees about their leave, advances, pay, documents, shifts (H14)
         'nitaqat_targets' => [],          // company id => Saudization % needed for the company's band (H4)
+        'break_minutes' => 30,            // default break; Labor Law Art. 101 asks for at least 30 minutes
+        'break_max_concurrent' => 0,      // per branch, how many may be on break at once; 0 = no limit
+        'break_self_start' => true,       // employees start their own break from the app; off = ask a manager
     ];
 
     public function __construct(private CurrentTenant $tenant) {}
