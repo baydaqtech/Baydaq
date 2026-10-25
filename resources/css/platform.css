@@ -18,6 +18,10 @@
 @source "../js/components/suite";
 @source "../js/components/ui";
 @source "../js/components/platform";
+@source "../js/components/hr";
+@source "../js/components/admin";
+@source "../js/components/assets";
+@source "../js/components/pos";
 @source "../js/layouts";
 
 @theme inline {

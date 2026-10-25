@@ -2,6 +2,7 @@
 
 namespace App\Modules\Platform\Actions\Suite;
 
+use App\Modules\Platform\Access\EnsureWithinLimit;
 use App\Modules\Platform\Actions\Audit\RecordAuditEvent;
 use App\Modules\Platform\Models\Branch;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,10 @@ class SaveBranch
     public function handle(Branch $branch, array $data): Branch
     {
         return DB::transaction(function () use ($branch, $data): Branch {
+            if (! $branch->exists) {
+                app(EnsureWithinLimit::class)->handle('branches', Branch::query()->count());
+            }
+
             $branch->fill($data)->save();
             $this->audit->handle($branch, $branch->wasRecentlyCreated ? 'created' : 'updated');
 

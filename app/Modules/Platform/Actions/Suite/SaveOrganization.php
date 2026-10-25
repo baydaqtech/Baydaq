@@ -2,6 +2,7 @@
 
 namespace App\Modules\Platform\Actions\Suite;
 
+use App\Modules\Platform\Access\EnsureWithinLimit;
 use App\Modules\Platform\Actions\Audit\RecordAuditEvent;
 use App\Modules\Platform\Models\Organization;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,10 @@ class SaveOrganization
     public function handle(Organization $organization, array $data): Organization
     {
         return DB::transaction(function () use ($organization, $data): Organization {
+            if (! $organization->exists) {
+                app(EnsureWithinLimit::class)->handle('organizations', Organization::query()->count());
+            }
+
             $organization->fill([
                 ...$data,
                 'slug' => ($data['slug'] ?? null) ?: Str::slug($data['name_en']),

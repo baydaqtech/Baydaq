@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Admin\ChangeRequestController as AdminChangeRequestController;
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
+use App\Http\Controllers\Admin\ClientPlanController;
 use App\Http\Controllers\Admin\ClientSubscriptionController;
 use App\Http\Controllers\Admin\ClientSuiteController;
 use App\Http\Controllers\Admin\ClientUserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
+use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\ProjectItemsController;
@@ -154,6 +156,15 @@ Route::prefix('admin')
             Route::put('/team/{member}', [TeamController::class, 'update'])->name('team.update');
             Route::post('/team/{member}/invite', [TeamController::class, 'resendInvite'])->name('team.invite');
         });
+
+        Route::middleware('permission:packages.manage')->group(function () {
+            Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
+            Route::get('/packages/create', [PackageController::class, 'create'])->name('packages.create');
+            Route::post('/packages/{kind}', [PackageController::class, 'store'])->whereIn('kind', ['package', 'addon'])->name('packages.store');
+            Route::get('/packages/{kind}/{id}/edit', [PackageController::class, 'edit'])->whereIn('kind', ['package', 'addon'])->whereNumber('id')->name('packages.edit');
+            Route::put('/packages/{kind}/{id}', [PackageController::class, 'update'])->whereIn('kind', ['package', 'addon'])->whereNumber('id')->name('packages.update');
+        });
+        Route::post('/clients/{client}/plan', [ClientPlanController::class, 'store'])->middleware('permission:clients.manage')->name('clients.plan.store');
 
         Route::middleware('permission:settings.manage')->group(function () {
             Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

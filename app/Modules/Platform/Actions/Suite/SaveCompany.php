@@ -2,6 +2,7 @@
 
 namespace App\Modules\Platform\Actions\Suite;
 
+use App\Modules\Platform\Access\EnsureWithinLimit;
 use App\Modules\Platform\Actions\Audit\RecordAuditEvent;
 use App\Modules\Platform\Models\Company;
 use App\Modules\Platform\Models\Organization;
@@ -21,6 +22,10 @@ class SaveCompany
     public function handle(Company $company, array $data): Company
     {
         return DB::transaction(function () use ($company, $data): Company {
+            if (! $company->exists) {
+                app(EnsureWithinLimit::class)->handle('companies', Company::query()->count());
+            }
+
             $company->fill([
                 ...$data,
                 'slug' => ($data['slug'] ?? null) ?: Str::slug($data['name_en']),

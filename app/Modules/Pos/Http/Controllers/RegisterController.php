@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Assets\Ports\AssetDirectory;
 use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Invoicing\Ports\InvoiceIssuer;
+use App\Modules\Platform\Access\EnsureWithinLimit;
 use App\Modules\Platform\Data\BranchRef;
 use App\Modules\Platform\Enums\FeatureAction;
 use App\Modules\Platform\Enums\Module;
@@ -60,6 +61,7 @@ class RegisterController extends Controller
         $data = $request->validate(['branch_id' => ['required', 'integer'], 'name' => ['required', 'string', 'max:60'], 'einvoice_unit_id' => ['nullable', 'integer'], 'asset_id' => ['nullable', 'integer'], 'require_check_in' => ['boolean'], 'is_active' => ['boolean']]);
         $branch = $this->branchesFor(PosFeature::Registers, FeatureAction::Create)->first(fn (BranchRef $branch): bool => $branch->id === (int) $data['branch_id']) ?? abort(403);
 
+        app(EnsureWithinLimit::class)->handle('registers', Register::query()->count(), 'name');
         (new Register(collect($data)->except('branch_id')->all()))->forceFill(['client_id' => $tenant->client()->id, 'company_id' => $branch->companyId, 'branch_id' => $branch->id, 'menu_token' => Str::random(32)])->save();
         $this->toast(__('pos.registers.saved'));
 

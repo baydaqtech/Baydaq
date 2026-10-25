@@ -5,6 +5,7 @@ namespace App\Modules\Platform\Actions\Access;
 use App\Actions\Users\SendAccountInvite;
 use App\Models\Client;
 use App\Models\User;
+use App\Modules\Platform\Access\EnsureWithinLimit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,6 +21,8 @@ class InviteSuiteMember
      */
     public function handle(Client $client, array $details): User
     {
+        app(EnsureWithinLimit::class)->handle('users', User::query()->where('client_id', $client->id)->count(), 'email');
+
         $user = DB::transaction(function () use ($client, $details): User {
             $user = new User([...$details, 'password' => Str::password(32)]);
             $user->forceFill(['client_id' => $client->id, 'must_change_password' => true])->save();

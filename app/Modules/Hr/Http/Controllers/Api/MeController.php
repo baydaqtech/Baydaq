@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Modules\Hr\Http\Resources\Api\PunchResource;
 use App\Modules\Hr\Models\AttendancePunch;
+use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\OrgDirectory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,13 +18,15 @@ class MeController extends Controller
     /**
      * Self-service: who I am, where I work, my contract outline, my documents, and today's punches.
      */
-    public function __invoke(Request $request, OrgDirectory $directory): JsonResponse
+    public function __invoke(Request $request, OrgDirectory $directory, Entitlements $entitlements): JsonResponse
     {
         $employee = $this->employee($request)->load(['activeContract', 'documents.type']);
         $branch = $directory->branch($employee->branch_id);
         $company = $directory->company($employee->company_id);
 
         return response()->json([
+            // The app shows only the screens in the client's package (feature flags).
+            'features' => $entitlements->mobileFeatures(),
             'employee' => [
                 'id' => $employee->id,
                 'employee_number' => $employee->employee_number,

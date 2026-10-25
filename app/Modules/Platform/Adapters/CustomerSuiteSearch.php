@@ -6,6 +6,7 @@ use App\Modules\Platform\Data\ScopeContext;
 use App\Modules\Platform\Data\SearchHit;
 use App\Modules\Platform\Enums\SuiteFeature;
 use App\Modules\Platform\Models\Customer;
+use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\SuiteSearch;
 
 /**
@@ -15,7 +16,7 @@ class CustomerSuiteSearch implements SuiteSearch
 {
     public function search(string $term, ScopeContext $context, int $limit = 5): array
     {
-        if ($context->reach(SuiteFeature::Customers->key('view'))->isEmpty()) {
+        if (! app(Entitlements::class)->hasFeature('suite.customers') || $context->reach(SuiteFeature::Customers->key('view'))->isEmpty()) {
             return [];
         }
 

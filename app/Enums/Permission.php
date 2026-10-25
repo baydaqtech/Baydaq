@@ -14,6 +14,7 @@ enum Permission: string
     case RequestsManage = 'requests.manage';
     case AdminsManage = 'admins.manage';
     case SettingsManage = 'settings.manage';
+    case PackagesManage = 'packages.manage';
 
     /**
      * @return list<string>

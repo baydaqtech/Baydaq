@@ -43,6 +43,8 @@ export interface SuiteProp {
   shortcuts: SuiteShortcut[];
   /** Whether AI features (document capture, the HR assistant) are configured. */
   ai: boolean;
+  /** Web features the client's package includes (e.g. hr.tasks). */
+  features: string[];
   tree: SuiteOrganization[];
   can: string[];
   is_owner: boolean;

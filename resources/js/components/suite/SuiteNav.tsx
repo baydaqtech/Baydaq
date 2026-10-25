@@ -10,8 +10,8 @@ import { cn } from '@/lib/utils';
  */
 export const NAV = [
   { path: '/', label: 'suite.nav.home', icon: Home, exact: true },
-  { path: '/board', label: 'suite.nav.board', icon: Crown, exact: true, keys: ['suite.structure.view', 'suite.structure.update'] },
-  { path: '/customers', label: 'suite.nav.customers', icon: Contact, keys: ['suite.customers.view', 'suite.customers.create', 'suite.customers.update'] },
+  { path: '/board', feature: 'suite.board', label: 'suite.nav.board', icon: Crown, exact: true, keys: ['suite.structure.view', 'suite.structure.update'] },
+  { path: '/customers', feature: 'suite.customers', label: 'suite.nav.customers', icon: Contact, keys: ['suite.customers.view', 'suite.customers.create', 'suite.customers.update'] },
   { path: '/structure/locations', label: 'suite.structure.locations', icon: MapPin, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
   { path: '/structure/brands', label: 'suite.structure.brands', icon: Tags, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
   { path: '/structure', label: 'suite.nav.structure', icon: Network, exact: true, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update', 'suite.structure.delete'] },
@@ -21,9 +21,9 @@ export const NAV = [
   { path: '/hr/attendance', label: 'suite.module_nav.hr.attendance', icon: Fingerprint, module: 'hr', keys: ['hr.attendance.view'] },
   { path: '/hr/movements', label: 'suite.module_nav.hr.movements', icon: ArrowLeftRight, module: 'hr', keys: ['hr.movements.view', 'hr.movements.create'] },
   { path: '/hr/documents/radar', label: 'suite.module_nav.hr.documents', icon: FileText, module: 'hr', keys: ['hr.documents.view'] },
-  { path: '/hr/tasks', label: 'suite.module_nav.hr.tasks', icon: ListTodo, module: 'hr', keys: ['hr.tasks.view', 'hr.tasks.create'] },
-  { path: '/hr/breaks', label: 'suite.module_nav.hr.breaks', icon: Coffee, module: 'hr', keys: ['hr.breaks.view', 'hr.breaks.approve'] },
-  { path: '/hr/shifts', label: 'suite.module_nav.hr.shifts', icon: CalendarClock, module: 'hr', keys: ['hr.shifts.view', 'hr.shifts.create'] },
+  { path: '/hr/tasks', feature: 'hr.tasks', label: 'suite.module_nav.hr.tasks', icon: ListTodo, module: 'hr', keys: ['hr.tasks.view', 'hr.tasks.create'] },
+  { path: '/hr/breaks', feature: 'hr.breaks', label: 'suite.module_nav.hr.breaks', icon: Coffee, module: 'hr', keys: ['hr.breaks.view', 'hr.breaks.approve'] },
+  { path: '/hr/shifts', feature: 'hr.shifts', label: 'suite.module_nav.hr.shifts', icon: CalendarClock, module: 'hr', keys: ['hr.shifts.view', 'hr.shifts.create'] },
   { path: '/hr/leave', label: 'suite.module_nav.hr.leave', icon: CalendarDays, module: 'hr', keys: ['hr.leave.view', 'hr.leave.approve'] },
   { path: '/hr/payroll', label: 'suite.module_nav.hr.payroll', icon: Banknote, module: 'hr', keys: ['hr.payroll.view'] },
   { path: '/hr/assistant', label: 'suite.module_nav.hr.assistant', icon: Sparkles, module: 'hr', ai: true, keys: ['hr.employees.view', 'hr.documents.view', 'hr.leave.view', 'hr.attendance.view'] },
@@ -54,10 +54,10 @@ export const NAV = [
 export default function SuiteNav() {
   const t = useT();
   const { can } = useAccess();
-  const { modules, ai } = useSuite();
+  const { modules, ai, features } = useSuite();
   const url = useSuiteUrl();
   const current = window.location.pathname.replace(/^\/suite\/[^/]+/, '') || '/';
-  const visible = NAV.filter((item) => (!item.module || modules.includes(item.module)) && (!('ai' in item) || ai) && (!item.keys || can(...item.keys)));
+  const visible = NAV.filter((item) => (!item.module || modules.includes(item.module)) && (!('ai' in item) || ai) && (!('feature' in item) || features.includes(item.feature as string)) && (!item.keys || can(...item.keys)));
   // The most specific matching tab wins, so /assets/audits lights "Stock-takes", not "Assets".
   const matches = (item: (typeof NAV)[number]) => (item.exact ? current === item.path : current === item.path || current.startsWith(`${item.path}/`));
 

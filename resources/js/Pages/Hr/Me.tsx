@@ -32,10 +32,11 @@ interface Props {
   has_pin: boolean;
   tasks: MyTask[];
   break_state: BreakState;
+  features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -83,13 +84,13 @@ export default function Me({ employee, balances, requests, types, advance, shift
           )}
         </section>
 
-        <MyBreak state={breakState} />
+        {features.includes('hr.breaks') && <MyBreak state={breakState} />}
 
-        <MyTasks tasks={tasks} />
+        {features.includes('hr.tasks') && <MyTasks tasks={tasks} />}
 
-        <MyShifts data={shifts} />
+        {features.includes('hr.shifts') && <MyShifts data={shifts} />}
 
-        <AdvanceCalculator data={advance} />
+        {features.includes('hr.advances') && <AdvanceCalculator data={advance} />}
 
         <PinCard hasPin={hasPin} />
 

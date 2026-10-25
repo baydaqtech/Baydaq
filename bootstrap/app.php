@@ -5,6 +5,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use App\Modules\Platform\Http\Middleware\EnsureModuleIsActive;
 use App\Modules\Platform\Http\Middleware\EnsureSuiteAccess;
+use App\Modules\Platform\Http\Middleware\RequireFeature;
 use App\Modules\Platform\Http\Middleware\ResolveApiTenant;
 use App\Modules\Platform\Http\Middleware\ResolveSuiteScope;
 use Illuminate\Foundation\Application;
@@ -41,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.tenant' => ResolveApiTenant::class,
             'module' => EnsureModuleIsActive::class,
             'access' => EnsureSuiteAccess::class,
+            'feature' => RequireFeature::class,
         ]);
 
         // The tenant and scope must exist before suite models are bound from the route.

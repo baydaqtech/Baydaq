@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Boxes, Building2, FileText, FolderKanban, Inbox, LayoutDashboard, Layers, Menu, Settings, Users } from 'lucide-react';
+import { Boxes, Building2, FileText, FolderKanban, Inbox, Layers, LayoutDashboard, Menu, Package, Settings, Users } from 'lucide-react';
 import BrandMark from '@/components/platform/BrandMark';
 import UserMenu from '@/components/platform/UserMenu';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ const NAV = [
   { href: '/admin/clients', label: 'admin.nav.clients', icon: Building2, permissions: ['clients.view', 'clients.manage'] },
   { href: '/admin/projects', label: 'admin.nav.projects', icon: FolderKanban, permissions: ['projects.view', 'projects.manage'] },
   { href: '/admin/invoices', label: 'admin.nav.invoices', icon: FileText, permissions: ['invoices.view', 'invoices.manage'] },
+  { href: '/admin/packages', label: 'admin.nav.packages', icon: Package, permissions: ['packages.manage'] },
   { href: '/admin/services', label: 'admin.nav.services', icon: Layers, permissions: ['services.manage'] },
   { href: '/admin/products', label: 'admin.nav.products', icon: Boxes, permissions: ['services.manage'] },
   { href: '/admin/team', label: 'admin.nav.team', icon: Users, permissions: ['admins.manage'] },

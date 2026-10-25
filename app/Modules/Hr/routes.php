@@ -28,12 +28,12 @@ Route::middleware(['web', 'throttle:30,1'])->get('/verify/letters/{token}', [Let
 Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
     Route::get('/', [SelfServiceController::class, 'show'])->name('home');
     Route::post('/leave', [SelfServiceController::class, 'requestLeave'])->middleware('throttle:10,1')->name('leave.store');
-    Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->name('advance.store');
-    Route::post('/shifts/{shift}/claim', [SelfServiceController::class, 'claimShift'])->middleware('throttle:10,1')->name('shifts.claim');
+    Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->middleware('feature:hr.advances')->name('advance.store');
+    Route::post('/shifts/{shift}/claim', [SelfServiceController::class, 'claimShift'])->middleware('throttle:10,1')->middleware('feature:hr.shifts')->name('shifts.claim');
     Route::put('/pin', [SelfServiceController::class, 'setPin'])->middleware('throttle:5,1')->name('pin.update');
-    Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->name('tasks.move');
-    Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->name('breaks.store');
-    Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->name('breaks.end');
+    Route::post('/tasks/{task}/status', [SelfServiceController::class, 'moveTask'])->middleware('throttle:60,1')->middleware('feature:hr.tasks')->name('tasks.move');
+    Route::post('/breaks', [SelfServiceController::class, 'takeBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.store');
+    Route::post('/breaks/{break}/end', [SelfServiceController::class, 'endBreak'])->middleware('throttle:20,1')->middleware('feature:hr.breaks')->name('breaks.end');
 });
 
 /*
@@ -62,15 +62,15 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         });
 
         Route::middleware('access:hr.documents.create|hr.documents.update')->group(function (): void {
-            Route::post('/employees/{employee}/documents/scan', [EmployeeDocumentController::class, 'scan'])->middleware('throttle:20,1')->name('documents.scan');
+            Route::post('/employees/{employee}/documents/scan', [EmployeeDocumentController::class, 'scan'])->middleware('throttle:20,1')->middleware('feature:suite.ai')->name('documents.scan');
             Route::post('/employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
             Route::post('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'update'])->name('documents.update');
             Route::delete('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'deleteFile'])->name('documents.files.destroy');
         });
         Route::delete('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'destroy'])->middleware('access:hr.documents.delete')->name('documents.destroy');
-        Route::post('/employees/{employee}/letters', [LetterController::class, 'store'])->middleware('access:hr.documents.create')->name('letters.store');
-        Route::post('/employees/{employee}/letters/{letter}/revoke', [LetterController::class, 'revoke'])->middleware('access:hr.documents.update')->name('letters.revoke');
-        Route::get('/employees/{employee}/letters/{letter}/pdf', [LetterController::class, 'pdf'])->middleware('access:hr.documents.view')->name('letters.pdf');
+        Route::post('/employees/{employee}/letters', [LetterController::class, 'store'])->middleware('access:hr.documents.create')->middleware('feature:hr.letters')->name('letters.store');
+        Route::post('/employees/{employee}/letters/{letter}/revoke', [LetterController::class, 'revoke'])->middleware('access:hr.documents.update')->middleware('feature:hr.letters')->name('letters.revoke');
+        Route::get('/employees/{employee}/letters/{letter}/pdf', [LetterController::class, 'pdf'])->middleware('access:hr.documents.view')->middleware('feature:hr.letters')->name('letters.pdf');
         Route::get('/documents/radar', [EmployeeDocumentController::class, 'radar'])->middleware('access:hr.documents.view')->name('documents.radar');
         Route::put('/renewals/{renewal}', [EmployeeDocumentController::class, 'renewal'])->middleware('access:hr.documents.update')->name('documents.renewals.update');
         Route::get('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'file'])->middleware('access:hr.documents.view')->name('documents.files.show');
@@ -117,35 +117,35 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::get('/reports/eosb', [PayrollController::class, 'liability'])->middleware('access:hr.payroll.view_eosb')->name('reports.eosb');
 
         // Shifts, open shifts and holidays.
-        Route::post('/shifts', [ShiftController::class, 'store'])->middleware('access:hr.shifts.create')->name('shifts.store');
-        Route::put('/shifts/{shift}', [ShiftController::class, 'update'])->middleware('access:hr.shifts.update')->name('shifts.update');
-        Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])->middleware('access:hr.shifts.delete')->name('shifts.destroy');
+        Route::post('/shifts', [ShiftController::class, 'store'])->middleware('access:hr.shifts.create')->middleware('feature:hr.shifts')->name('shifts.store');
+        Route::put('/shifts/{shift}', [ShiftController::class, 'update'])->middleware('access:hr.shifts.update')->middleware('feature:hr.shifts')->name('shifts.update');
+        Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])->middleware('access:hr.shifts.delete')->middleware('feature:hr.shifts')->name('shifts.destroy');
         Route::middleware('access:hr.shifts.update')->group(function (): void {
-            Route::post('/holidays', [ShiftController::class, 'storeHoliday'])->name('holidays.store');
-            Route::post('/holidays/load', [ShiftController::class, 'loadHolidays'])->name('holidays.load');
-            Route::delete('/holidays/{holiday}', [ShiftController::class, 'destroyHoliday'])->name('holidays.destroy');
+            Route::post('/holidays', [ShiftController::class, 'storeHoliday'])->middleware('feature:hr.shifts')->name('holidays.store');
+            Route::post('/holidays/load', [ShiftController::class, 'loadHolidays'])->middleware('feature:hr.shifts')->name('holidays.load');
+            Route::delete('/holidays/{holiday}', [ShiftController::class, 'destroyHoliday'])->middleware('feature:hr.shifts')->name('holidays.destroy');
         });
-        Route::get('/shifts', [ShiftController::class, 'index'])->middleware('access:hr.shifts.view|hr.shifts.create')->name('shifts.index');
+        Route::get('/shifts', [ShiftController::class, 'index'])->middleware('access:hr.shifts.view|hr.shifts.create')->middleware('feature:hr.shifts')->name('shifts.index');
         Route::post('/bonus-batch', [PayController::class, 'bonusBatch'])->middleware('access:hr.pay.create')->name('pay.bonus_batch');
 
         Route::get('/org-chart', OrgChartController::class)->middleware('access:hr.employees.view')->name('org_chart');
-        Route::get('/reports/nitaqat', [ComplianceController::class, 'nitaqat'])->middleware('access:hr.reports.view')->name('reports.nitaqat');
-        Route::put('/reports/nitaqat', [ComplianceController::class, 'saveTarget'])->middleware('access:hr.reports.view')->name('reports.nitaqat.target');
-        Route::match(['get', 'post'], '/reports/government', [ComplianceController::class, 'government'])->middleware('access:hr.employees.view_salaries')->name('reports.government');
-        Route::post('/assistant', [AssistantController::class, 'ask'])->middleware(['access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view', 'throttle:20,1'])->name('assistant.ask');
-        Route::get('/assistant', [AssistantController::class, 'show'])->middleware('access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view')->name('assistant');
-        Route::post('/tasks', [TaskController::class, 'store'])->middleware('access:hr.tasks.create')->name('tasks.store');
-        Route::put('/tasks/{task}', [TaskController::class, 'update'])->middleware('access:hr.tasks.update')->name('tasks.update');
-        Route::post('/tasks/{task}/status', [TaskController::class, 'move'])->middleware('access:hr.tasks.update')->name('tasks.move');
-        Route::post('/tasks/{task}/comments', [TaskController::class, 'comment'])->middleware('access:hr.tasks.view')->name('tasks.comments');
-        Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->middleware('access:hr.tasks.delete')->name('tasks.destroy');
-        Route::get('/tasks/{task}/photo', [TaskController::class, 'photo'])->middleware('access:hr.tasks.view')->name('tasks.photo');
-        Route::get('/tasks', [TaskController::class, 'index'])->middleware('access:hr.tasks.view|hr.tasks.create')->name('tasks.index');
-        Route::post('/breaks/settings', [BreakController::class, 'settings'])->middleware('access:hr.breaks.approve')->name('breaks.settings');
-        Route::post('/breaks/employees/{employee}', [BreakController::class, 'grant'])->middleware('access:hr.breaks.approve')->name('breaks.grant');
-        Route::post('/breaks/{break}/decide', [BreakController::class, 'decide'])->middleware('access:hr.breaks.approve')->name('breaks.decide');
-        Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('access:hr.breaks.approve')->name('breaks.end');
-        Route::get('/breaks', [BreakController::class, 'index'])->middleware('access:hr.breaks.view|hr.breaks.approve')->name('breaks.index');
+        Route::get('/reports/nitaqat', [ComplianceController::class, 'nitaqat'])->middleware('access:hr.reports.view')->middleware('feature:hr.compliance')->name('reports.nitaqat');
+        Route::put('/reports/nitaqat', [ComplianceController::class, 'saveTarget'])->middleware('access:hr.reports.view')->middleware('feature:hr.compliance')->name('reports.nitaqat.target');
+        Route::match(['get', 'post'], '/reports/government', [ComplianceController::class, 'government'])->middleware('access:hr.employees.view_salaries')->middleware('feature:hr.compliance')->name('reports.government');
+        Route::post('/assistant', [AssistantController::class, 'ask'])->middleware(['access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view', 'throttle:20,1'])->middleware('feature:suite.ai')->name('assistant.ask');
+        Route::get('/assistant', [AssistantController::class, 'show'])->middleware('access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view')->middleware('feature:suite.ai')->name('assistant');
+        Route::post('/tasks', [TaskController::class, 'store'])->middleware('access:hr.tasks.create')->middleware('feature:hr.tasks')->name('tasks.store');
+        Route::put('/tasks/{task}', [TaskController::class, 'update'])->middleware('access:hr.tasks.update')->middleware('feature:hr.tasks')->name('tasks.update');
+        Route::post('/tasks/{task}/status', [TaskController::class, 'move'])->middleware('access:hr.tasks.update')->middleware('feature:hr.tasks')->name('tasks.move');
+        Route::post('/tasks/{task}/comments', [TaskController::class, 'comment'])->middleware('access:hr.tasks.view')->middleware('feature:hr.tasks')->name('tasks.comments');
+        Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->middleware('access:hr.tasks.delete')->middleware('feature:hr.tasks')->name('tasks.destroy');
+        Route::get('/tasks/{task}/photo', [TaskController::class, 'photo'])->middleware('access:hr.tasks.view')->middleware('feature:hr.tasks')->name('tasks.photo');
+        Route::get('/tasks', [TaskController::class, 'index'])->middleware('access:hr.tasks.view|hr.tasks.create')->middleware('feature:hr.tasks')->name('tasks.index');
+        Route::post('/breaks/settings', [BreakController::class, 'settings'])->middleware('access:hr.breaks.approve')->middleware('feature:hr.breaks')->name('breaks.settings');
+        Route::post('/breaks/employees/{employee}', [BreakController::class, 'grant'])->middleware('access:hr.breaks.approve')->middleware('feature:hr.breaks')->name('breaks.grant');
+        Route::post('/breaks/{break}/decide', [BreakController::class, 'decide'])->middleware('access:hr.breaks.approve')->middleware('feature:hr.breaks')->name('breaks.decide');
+        Route::post('/breaks/{break}/end', [BreakController::class, 'end'])->middleware('access:hr.breaks.approve')->middleware('feature:hr.breaks')->name('breaks.end');
+        Route::get('/breaks', [BreakController::class, 'index'])->middleware('access:hr.breaks.view|hr.breaks.approve')->middleware('feature:hr.breaks')->name('breaks.index');
         Route::get('/reports/headcount', HeadcountReportController::class)->middleware('access:hr.reports.view')->name('reports.headcount');
 
         Route::middleware('access:hr.employees.view|hr.employees.create|hr.employees.update')->group(function (): void {

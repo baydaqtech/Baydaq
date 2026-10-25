@@ -425,6 +425,7 @@ export default function EmployeeShow({ employee, company, branch, login, suggest
   const { locale } = useLocale();
   const url = useSuiteUrl();
   const f = (field: string) => t(`hr.employees.fields.${field}`);
+  const { features } = useSuite();
   const can = employee.can;
 
   return (
@@ -559,7 +560,7 @@ export default function EmployeeShow({ employee, company, branch, login, suggest
                 </Card>
               ))}
             </div>
-            <LettersCard employee={employee} letters={letters} canIssue={Boolean(can.manage_documents)} canRevoke={Boolean(can.manage_documents)} canSalary={canSalaryLetter} />
+            {features.includes('hr.letters') && <LettersCard employee={employee} letters={letters} canIssue={Boolean(can.manage_documents)} canRevoke={Boolean(can.manage_documents)} canSalary={canSalaryLetter} />}
           </TabsContent>
         )}
 

@@ -58,6 +58,7 @@ class SelfServiceController extends Controller
                 ->orderByRaw('due_at is null')->orderBy('due_at')->limit(50)->get()
                 ->map(fn (Task $task): array => TaskController::taskArray($task, $directory->branch($task->branch_id)?->name))->all(),
             'break_state' => self::breakState($employee),
+            'features' => app(Entitlements::class)->features(),
             'copy' => ['hr' => trans('hr')],
         ]);
     }

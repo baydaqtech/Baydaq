@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import PlanCard from '@/components/admin/PlanCard';
 import AdminLayout from '@/layouts/AdminLayout';
 import { useCan } from '@/lib/auth';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -178,7 +179,7 @@ function SuiteCard({ client, subscriptions, suite, canManage }) {
   );
 }
 
-export default function ClientShow({ client, users, projects, invoices, subscriptions, suite }) {
+export default function ClientShow({ client, users, projects, invoices, subscriptions, suite, plan }) {
   const t = useT();
   const can = useCan();
   const { locale } = useLocale();
@@ -247,6 +248,7 @@ export default function ClientShow({ client, users, projects, invoices, subscrip
       </div>
 
       <div className="mt-6">
+        <PlanCard client={client} plan={plan} canManage={can('clients.manage')} />
         <SuiteCard client={client} subscriptions={subscriptions} suite={suite} canManage={can('clients.manage')} />
       </div>
 
