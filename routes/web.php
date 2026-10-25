@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ChangeRequestController as AdminChangeRequestController;
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
 use App\Http\Controllers\Admin\ClientSubscriptionController;
 use App\Http\Controllers\Admin\ClientSuiteController;
@@ -19,9 +20,11 @@ use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Portal\ChangeRequestController as PortalChangeRequestController;
 use App\Http\Controllers\Portal\HomeController;
 use App\Http\Controllers\Portal\InvoicePaymentController;
 use App\Http\Controllers\Portal\ProjectController as PortalProjectController;
+use App\Http\Controllers\Portal\SpendCapController;
 use App\Http\Controllers\Portal\StatementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RequestController;
@@ -94,6 +97,8 @@ Route::prefix('admin')
             Route::put('/projects/{project}/milestones', [ProjectItemsController::class, 'milestones'])->name('projects.milestones');
             Route::put('/projects/{project}/resources', [ProjectItemsController::class, 'resources'])->name('projects.resources');
             Route::put('/projects/{project}/files', [ProjectItemsController::class, 'files'])->name('projects.files');
+            Route::put('/projects/{project}/releases', [ProjectItemsController::class, 'releases'])->name('projects.releases');
+            Route::post('/projects/{project}/changes/{changeRequest}/quote', [AdminChangeRequestController::class, 'quote'])->name('projects.changes.quote');
             Route::post('/projects/{project}/services', [ProjectServiceController::class, 'store'])->name('projects.services.store');
             Route::put('/projects/{project}/services/{projectService}', [ProjectServiceController::class, 'update'])->name('projects.services.update');
             Route::post('/projects/{project}/services/{projectService}/key', [ProjectServiceController::class, 'issueKey'])->name('projects.services.key');
@@ -162,6 +167,10 @@ Route::prefix('app')
     ->group(function () {
         Route::get('/', HomeController::class)->name('home');
         Route::get('/projects/{project}', [PortalProjectController::class, 'show'])->name('projects.show');
+        Route::post('/projects/{project}/changes', [PortalChangeRequestController::class, 'store'])->middleware('throttle:20,1')->name('projects.changes.store');
+        Route::post('/projects/{project}/changes/{changeRequest}/decide', [PortalChangeRequestController::class, 'decide'])->name('projects.changes.decide');
+        Route::post('/projects/{project}/changes/{changeRequest}/withdraw', [PortalChangeRequestController::class, 'withdraw'])->name('projects.changes.withdraw');
+        Route::put('/projects/{project}/services/{projectService}/cap', SpendCapController::class)->name('projects.services.cap');
         Route::get('/statement', StatementController::class)->name('statement');
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
         Route::post('/invoices/{invoice}/pay', InvoicePaymentController::class)->middleware('throttle:10,1')->name('invoices.pay');

@@ -55,6 +55,28 @@ class ProjectResource extends JsonResource
                 'url' => $file->url,
                 'category' => $file->category->value,
             ])),
+            'releases' => $this->whenLoaded('releases', fn () => $this->releases->map(fn ($release) => [
+                'id' => $release->id,
+                'version' => $release->version,
+                'platform' => $release->platform->value,
+                'channel' => $release->channel->value,
+                'url' => $release->url,
+                'notes' => $release->notes,
+                'released_at' => $release->released_at->toDateString(),
+            ])),
+            'change_requests' => $this->whenLoaded('changeRequests', fn () => $this->changeRequests->map(fn ($changeRequest) => [
+                'id' => $changeRequest->id,
+                'title' => $changeRequest->title,
+                'description' => $changeRequest->description,
+                'status' => $changeRequest->status->value,
+                'quote_amount' => $changeRequest->quote_amount,
+                'quote_days' => $changeRequest->quote_days,
+                'quote_note' => $changeRequest->quote_note,
+                'created_at' => $changeRequest->created_at->toIso8601String(),
+                'decided_at' => $changeRequest->decided_at?->toIso8601String(),
+                'requested_by' => $changeRequest->user?->name,
+                'invoice_id' => $changeRequest->invoice_id,
+            ])),
             'services' => ProjectServiceResource::collection($this->whenLoaded('projectServices')),
         ];
     }

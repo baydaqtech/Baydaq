@@ -50,4 +50,8 @@ return [
         'approved' => 'Approved',
         'rejected' => 'Rejected',
     ],
+
+    'release_platform' => ['ios' => 'iOS', 'android' => 'Android', 'web' => 'Web'],
+    'release_channel' => ['testflight' => 'TestFlight', 'play_internal' => 'Play internal testing', 'staging' => 'Staging', 'store' => 'Store review', 'production' => 'Live'],
+    'change_request_status' => ['submitted' => 'Waiting for quote', 'quoted' => 'Quote ready', 'approved' => 'Approved', 'rejected' => 'Rejected', 'withdrawn' => 'Withdrawn'],
 ];

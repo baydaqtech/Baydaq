@@ -4,12 +4,9 @@ namespace App\Actions\Requests;
 
 use App\Enums\Permission;
 use App\Enums\RequestType;
-use App\Enums\Role;
 use App\Models\ClientRequest;
 use App\Models\User;
 use App\Notifications\NewRequestReceived;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Notification;
 
 class SubmitRequest
@@ -23,24 +20,8 @@ class SubmitRequest
     {
         $request = ClientRequest::create([...$data, 'type' => $type]);
 
-        Notification::send($this->teamWhoHandlesRequests(), new NewRequestReceived($request));
+        Notification::send(User::teamHolding(Permission::RequestsManage), new NewRequestReceived($request));
 
         return $request;
-    }
-
-    /**
-     * System admins plus anyone with the requests.manage permission (directly or through a role).
-     *
-     * @return Collection<int, User>
-     */
-    private function teamWhoHandlesRequests(): Collection
-    {
-        $canManage = fn (Builder $query) => $query->where('name', Permission::RequestsManage->value);
-
-        return User::query()
-            ->whereHas('roles', fn (Builder $query) => $query->where('name', Role::SystemAdmin->value))
-            ->orWhereHas('permissions', $canManage)
-            ->orWhereHas('roles.permissions', $canManage)
-            ->get();
     }
 }

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * A catalog service turned on for one project, with its own plan and price.
  */
-#[Fillable(['service_id', 'status', 'plan', 'price', 'pricing_model', 'started_at', 'notes'])]
+#[Fillable(['service_id', 'status', 'plan', 'price', 'monthly_cap', 'pricing_model', 'started_at', 'notes'])]
 #[Hidden(['api_key'])]
 class ProjectService extends Model
 {
@@ -40,6 +40,7 @@ class ProjectService extends Model
             'status' => ProjectServiceStatus::class,
             'pricing_model' => PricingModel::class,
             'price' => 'decimal:2',
+            'monthly_cap' => 'decimal:2',
             'api_key' => 'encrypted',
             'started_at' => 'date',
             'api_key_issued_at' => 'datetime',

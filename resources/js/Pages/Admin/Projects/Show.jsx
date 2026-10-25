@@ -58,11 +58,12 @@ function ServiceDialog({ project, options, availableServices, existing }) {
   const form = useForm(existing ? {
     plan: existing.plan ?? '',
     price: existing.price ?? '',
+    monthly_cap: existing.monthly_cap ?? '',
     pricing_model: existing.pricing_model,
     started_at: existing.started_at ?? '',
     notes: existing.notes ?? '',
     status: existing.status,
-  } : { service_id: '', plan: '', price: '', pricing_model: 'monthly', started_at: new Date().toISOString().slice(0, 10), notes: '' });
+  } : { service_id: '', plan: '', price: '', monthly_cap: '', pricing_model: 'monthly', started_at: new Date().toISOString().slice(0, 10), notes: '' });
 
   function pickService(value) {
     const service = availableServices.find((option) => String(option.value) === value);
@@ -98,6 +99,9 @@ function ServiceDialog({ project, options, availableServices, existing }) {
             </FormField>
             <FormField label={s('price')} htmlFor="price" error={form.errors.price}>
               <Input id="price" type="number" min="0" step="0.01" dir="ltr" value={form.data.price} onChange={(event) => form.setData('price', event.target.value)} />
+            </FormField>
+            <FormField label={s('monthly_cap')} htmlFor="monthly_cap" error={form.errors.monthly_cap}>
+              <Input id="monthly_cap" type="number" min="0" step="0.01" dir="ltr" value={form.data.monthly_cap} onChange={(event) => form.setData('monthly_cap', event.target.value)} />
             </FormField>
             <FormField label={s('pricing_model')} htmlFor="pricing_model" error={form.errors.pricing_model}>
               <SelectInput id="pricing_model" value={form.data.pricing_model} onChange={(value) => form.setData('pricing_model', value)} options={options.pricingModels} />
@@ -149,6 +153,37 @@ function UsageDialog({ project, projectService }) {
   );
 }
 
+function QuoteDialog({ project, change }) {
+  const t = useT();
+  const { dir } = useLocale();
+  const [open, setOpen] = useState(false);
+  const c = (field) => t(`admin.projects.changes.${field}`);
+  const form = useForm({ quote_amount: change.quote_amount ?? '', quote_days: change.quote_days ?? '', quote_note: change.quote_note ?? '' });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button size="xs" variant="outline">{c('quote')}</Button></DialogTrigger>
+      <DialogContent dir={dir}>
+        <form onSubmit={(event) => { event.preventDefault(); form.post(`/admin/projects/${project.slug}/changes/${change.id}/quote`, { preserveScroll: true, onSuccess: () => setOpen(false) }); }} className="flex flex-col gap-4">
+          <DialogHeader><DialogTitle>{change.title}</DialogTitle></DialogHeader>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label={c('amount')} htmlFor="quote_amount" error={form.errors.quote_amount}>
+              <Input id="quote_amount" type="number" min="0" step="0.01" dir="ltr" value={form.data.quote_amount} onChange={(event) => form.setData('quote_amount', event.target.value)} />
+            </FormField>
+            <FormField label={c('days')} htmlFor="quote_days" error={form.errors.quote_days}>
+              <Input id="quote_days" type="number" min="1" dir="ltr" value={form.data.quote_days} onChange={(event) => form.setData('quote_days', event.target.value)} />
+            </FormField>
+          </div>
+          <FormField label={c('note')} htmlFor="quote_note" error={form.errors.quote_note}>
+            <Textarea id="quote_note" rows={3} value={form.data.quote_note} onChange={(event) => form.setData('quote_note', event.target.value)} />
+          </FormField>
+          <DialogFooter><Button type="submit" disabled={form.processing}>{c('quote')}</Button></DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ProjectShow({ project, tab, availableServices, options }) {
   const t = useT();
   const can = useCan();
@@ -159,12 +194,15 @@ export default function ProjectShow({ project, tab, availableServices, options }
   const r = (field) => t(`admin.projects.resources.${field}`);
   const fl = (field) => t(`admin.projects.files.${field}`);
   const s = (field) => t(`admin.projects.services.${field}`);
+  const rl = (field) => t(`admin.projects.releases.${field}`);
+  const c = (field) => t(`admin.projects.changes.${field}`);
   const link = (url) => url && <a href={url} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-walnut underline-offset-4 hover:underline" dir="ltr">{url}<ExternalLink className="size-3" /></a>;
 
   function toggleService(projectService) {
     router.put(`/admin/projects/${project.slug}/services/${projectService.id}`, {
       plan: projectService.plan,
       price: projectService.price,
+      monthly_cap: projectService.monthly_cap,
       pricing_model: projectService.pricing_model,
       started_at: projectService.started_at,
       notes: projectService.notes,
@@ -199,7 +237,7 @@ export default function ProjectShow({ project, tab, availableServices, options }
         onValueChange={(value) => window.history.replaceState(window.history.state, '', `?tab=${value}`)}
       >
         <TabsList className="mb-4 flex-wrap">
-          {['overview', 'milestones', 'resources', 'files', 'services'].map((key) => (
+          {['overview', 'milestones', 'releases', 'changes', 'resources', 'files', 'services'].map((key) => (
             <TabsTrigger key={key} value={key}>{t(`admin.projects.tabs.${key}`)}</TabsTrigger>
           ))}
         </TabsList>
@@ -253,6 +291,66 @@ export default function ProjectShow({ project, tab, availableServices, options }
               </div>
             )}
           />
+        </TabsContent>
+
+        <TabsContent value="releases">
+          <ItemsForm
+            project={project}
+            kind="releases"
+            readOnly={!manage}
+            initial={project.releases}
+            blank={{ version: '', platform: 'ios', channel: 'testflight', url: '', notes: '', released_at: new Date().toISOString().slice(0, 10) }}
+            addLabel={rl('add')}
+            renderRow={(item, update, error) => (
+              <div className="grid gap-3 sm:grid-cols-4">
+                <FormField label={rl('version')} error={error('version')}>
+                  <Input dir="ltr" value={item.version} onChange={(event) => update('version', event.target.value)} />
+                </FormField>
+                <FormField label={rl('platform')} error={error('platform')}>
+                  <SelectInput value={item.platform} onChange={(value) => update('platform', value)} options={options.releasePlatforms} />
+                </FormField>
+                <FormField label={rl('channel')} error={error('channel')}>
+                  <SelectInput value={item.channel} onChange={(value) => update('channel', value)} options={options.releaseChannels} />
+                </FormField>
+                <FormField label={rl('released_at')} error={error('released_at')}>
+                  <Input type="date" value={item.released_at ?? ''} onChange={(event) => update('released_at', event.target.value)} />
+                </FormField>
+                <FormField label={rl('url')} error={error('url')} className="sm:col-span-2">
+                  <Input type="url" dir="ltr" value={item.url ?? ''} onChange={(event) => update('url', event.target.value)} />
+                </FormField>
+                <FormField label={rl('notes')} error={error('notes')} className="sm:col-span-2">
+                  <Input value={item.notes ?? ''} onChange={(event) => update('notes', event.target.value)} />
+                </FormField>
+              </div>
+            )}
+          />
+        </TabsContent>
+
+        <TabsContent value="changes">
+          <Card>
+            <CardContent>
+              {project.change_requests.length === 0 && <p className="text-sm text-muted-foreground">{c('none')}</p>}
+              <ul className="divide-y">
+                {project.change_requests.map((change) => (
+                  <li key={change.id} className="flex flex-col gap-2 py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-medium">{change.title}</div>
+                        <div className="text-xs text-muted-foreground">{change.requested_by && c('requested_by').replace(':name', change.requested_by)} · {formatDate(change.created_at, locale)}</div>
+                      </div>
+                      <StatusBadge group="change_request_status" value={change.status} />
+                    </div>
+                    <p className="whitespace-pre-line text-sm text-muted-foreground">{change.description}</p>
+                    {change.quote_amount !== null && <p className="text-sm">{formatMoney(change.quote_amount, locale)}{change.quote_days ? ` · ${change.quote_days}d` : ''}</p>}
+                    <div className="flex flex-wrap gap-1">
+                      {manage && ['submitted', 'quoted'].includes(change.status) && <QuoteDialog project={project} change={change} />}
+                      {change.invoice_id && <Button asChild size="xs" variant="ghost"><Link href={`/admin/invoices/${change.invoice_id}`}>{c('invoice')}</Link></Button>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="resources">

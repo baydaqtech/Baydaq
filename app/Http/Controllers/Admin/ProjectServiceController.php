@@ -82,6 +82,7 @@ class ProjectServiceController extends Controller
         return [
             'plan' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],
+            'monthly_cap' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],
             'pricing_model' => ['required', Rule::enum(PricingModel::class)],
             'started_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:2000'],

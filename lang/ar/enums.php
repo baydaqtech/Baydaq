@@ -50,4 +50,8 @@ return [
         'approved' => 'مقبول',
         'rejected' => 'مرفوض',
     ],
+
+    'release_platform' => ['ios' => 'iOS', 'android' => 'أندرويد', 'web' => 'الويب'],
+    'release_channel' => ['testflight' => 'TestFlight', 'play_internal' => 'اختبار Play الداخلي', 'staging' => 'بيئة الاختبار', 'store' => 'مراجعة المتجر', 'production' => 'منشور'],
+    'change_request_status' => ['submitted' => 'بانتظار عرض السعر', 'quoted' => 'العرض جاهز', 'approved' => 'تمت الموافقة', 'rejected' => 'مرفوض', 'withdrawn' => 'مسحوب'],
 ];

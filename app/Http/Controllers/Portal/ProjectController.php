@@ -23,7 +23,7 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
-        $project->load(['resources', 'files', 'milestones', 'projectServices.service']);
+        $project->load(['resources', 'files', 'milestones', 'releases', 'changeRequests', 'projectServices.service']);
         $invoices = $project->invoices()->issued()->latest('issue_date')->get();
 
         return Inertia::render('Portal/Project', [

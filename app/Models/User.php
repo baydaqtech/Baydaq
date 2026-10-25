@@ -10,7 +10,9 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -109,6 +111,35 @@ class User extends Authenticatable implements HasLocalePreference
         }
 
         return false;
+    }
+
+    /**
+     * Team members holding any of the given permissions, the system admin included.
+     *
+     * @return Collection<int, User>
+     */
+    public static function teamHolding(Permission ...$permissions): Collection
+    {
+        $names = array_map(fn (Permission $permission): string => $permission->value, $permissions);
+        $holds = fn (Builder $query) => $query->whereIn('name', $names);
+
+        return static::query()
+            ->whereHas('roles', fn (Builder $query) => $query->where('name', Role::SystemAdmin->value))
+            ->orWhereHas('permissions', $holds)
+            ->orWhereHas('roles.permissions', $holds)
+            ->get();
+    }
+
+    /**
+     * The client accounts (not suite employees) of a client.
+     *
+     * @return Collection<int, User>
+     */
+    public static function clientAccountsOf(int $clientId): Collection
+    {
+        return static::query()->where('client_id', $clientId)
+            ->whereHas('roles', fn (Builder $query) => $query->where('name', Role::Client->value))
+            ->get();
     }
 
     public function isSystemAdmin(): bool

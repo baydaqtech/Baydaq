@@ -9,6 +9,8 @@ use App\Enums\ProjectRelationship;
 use App\Enums\ProjectServiceStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\ProjectType;
+use App\Enums\ReleaseChannel;
+use App\Enums\ReleasePlatform;
 use App\Http\Controllers\Concerns\RendersAdminPages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SaveProjectRequest;
@@ -73,7 +75,7 @@ class ProjectController extends Controller
 
     public function show(Request $request, Project $project): Response
     {
-        $project->load(['client', 'milestones', 'resources', 'files', 'projectServices.service']);
+        $project->load(['client', 'milestones', 'resources', 'files', 'releases', 'changeRequests.user', 'projectServices.service']);
         $attached = $project->projectServices->pluck('service_id');
 
         return $this->adminPage('Admin/Projects/Show', [
@@ -94,6 +96,8 @@ class ProjectController extends Controller
                 'fileCategories' => FileCategory::options(),
                 'pricingModels' => PricingModel::options(),
                 'serviceStatuses' => ProjectServiceStatus::options(),
+                'releasePlatforms' => ReleasePlatform::options(),
+                'releaseChannels' => ReleaseChannel::options(),
             ],
         ]);
     }

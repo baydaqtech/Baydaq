@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Projects\SyncProjectItems;
 use App\Enums\FileCategory;
+use App\Enums\ReleaseChannel;
+use App\Enums\ReleasePlatform;
 use App\Http\Controllers\Concerns\RendersAdminPages;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
@@ -12,7 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 /**
- * Saves a project's milestones, team and file links, each as one list.
+ * Saves a project's milestones, team, file links and releases, each as one list.
  */
 class ProjectItemsController extends Controller
 {
@@ -68,6 +70,24 @@ class ProjectItemsController extends Controller
         ])['items'];
 
         $this->syncProjectItems->handle($project->files(), $rows, ['title', 'url', 'category']);
+
+        return $this->saved();
+    }
+
+    public function releases(Request $request, Project $project): RedirectResponse
+    {
+        $rows = $request->validate([
+            'items' => ['present', 'array', 'max:200'],
+            'items.*.id' => ['nullable', 'integer'],
+            'items.*.version' => ['required', 'string', 'max:40'],
+            'items.*.platform' => ['required', Rule::enum(ReleasePlatform::class)],
+            'items.*.channel' => ['required', Rule::enum(ReleaseChannel::class)],
+            'items.*.url' => ['nullable', 'url', 'max:2048'],
+            'items.*.notes' => ['nullable', 'string', 'max:2000'],
+            'items.*.released_at' => ['required', 'date'],
+        ])['items'];
+
+        $this->syncProjectItems->handle($project->releases(), $rows, ['version', 'platform', 'channel', 'url', 'notes', 'released_at']);
 
         return $this->saved();
     }

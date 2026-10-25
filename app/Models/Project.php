@@ -75,6 +75,22 @@ class Project extends Model
     /**
      * @return HasMany<Milestone, $this>
      */
+    /**
+     * @return HasMany<Release, $this>
+     */
+    public function releases(): HasMany
+    {
+        return $this->hasMany(Release::class)->latest('released_at')->latest('id');
+    }
+
+    /**
+     * @return HasMany<ChangeRequest, $this>
+     */
+    public function changeRequests(): HasMany
+    {
+        return $this->hasMany(ChangeRequest::class)->latest('id');
+    }
+
     public function milestones(): HasMany
     {
         return $this->hasMany(Milestone::class)->orderBy('sort_order')->orderBy('id');
