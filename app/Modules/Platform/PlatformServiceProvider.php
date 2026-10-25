@@ -13,12 +13,14 @@ use App\Modules\Platform\Adapters\ResolvedAccess;
 use App\Modules\Platform\Adapters\SubscriptionEntitlements;
 use App\Modules\Platform\Adapters\TenantAccounts;
 use App\Modules\Platform\Adapters\TenantOrgDirectory;
+use App\Modules\Platform\Adapters\ThemeBranding;
 use App\Modules\Platform\Adapters\WalletCustomers;
 use App\Modules\Platform\Adapters\WhatsAppMessaging;
 use App\Modules\Platform\Enums\SuiteFeature;
 use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\Branding;
 use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\Intelligence;
@@ -49,6 +51,7 @@ class PlatformServiceProvider extends ServiceProvider
         $this->app->bind(Customers::class, WalletCustomers::class);
         $this->app->bind(QrCodes::class, ChillerlanQrCodes::class);
         $this->app->bind(PdfRenderer::class, MpdfRenderer::class);
+        $this->app->bind(Branding::class, ThemeBranding::class);
         $this->app->bind(Intelligence::class, fn (): Intelligence => new ClaudeIntelligence(config('baydaq.ai.api_key'), (string) config('baydaq.ai.model')));
         $this->app->tag([CustomerSuiteSearch::class], SuiteSearch::TAG);
     }

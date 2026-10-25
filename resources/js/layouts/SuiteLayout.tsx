@@ -7,7 +7,7 @@ import ScopeBar from '@/components/suite/ScopeBar';
 import SuiteNav from '@/components/suite/SuiteNav';
 import PlatformShell from '@/layouts/PlatformShell';
 import { useT } from '@/lib/i18n';
-import { useSuiteUrl } from '@/lib/suite';
+import { useSuite, useSuiteUrl } from '@/lib/suite';
 
 interface Props {
   title: string;
@@ -19,6 +19,7 @@ interface Props {
 export default function SuiteLayout({ title, actions, children }: Props) {
   const t = useT();
   const url = useSuiteUrl();
+  const { theme } = useSuite();
 
   return (
     <PlatformShell>
@@ -27,8 +28,8 @@ export default function SuiteLayout({ title, actions, children }: Props) {
         <header className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
           <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
             <Link href={url('/')} className="flex items-center gap-2 text-walnut">
-              <BrandMark className="size-7" />
-              <span className="hidden font-semibold sm:inline">{t('suite.title')}</span>
+              {theme?.logo_url ? <img src={theme.logo_url} alt="" className="h-7 max-w-28 object-contain" /> : <BrandMark className="size-7" />}
+              <span className="hidden font-semibold sm:inline">{theme?.app_name || t('suite.title')}</span>
             </Link>
             <ScopeBar />
             <div className="ms-auto flex items-center gap-2">

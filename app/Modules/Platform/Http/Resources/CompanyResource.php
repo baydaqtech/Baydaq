@@ -35,6 +35,7 @@ class CompanyResource extends JsonResource
             'postal_code' => $this->postal_code,
             'timezone' => $this->timezone,
             'loyalty_percent' => $this->loyalty_percent,
+            'client_scope' => $this->client_scope,
             'status' => $this->status,
             'branches' => BranchResource::collection($this->whenLoaded('branches')),
         ];

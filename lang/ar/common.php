@@ -34,6 +34,8 @@ return [
     ],
 
     // Shared by the platform components (tables, forms, dialogs) in every area.
+    'mode' => ['light' => 'فاتح', 'dark' => 'داكن', 'system' => 'حسب الجهاز'],
+
     'scanner' => [
         'start' => 'المسح بالكاميرا',
         'stop' => 'إيقاف الكاميرا',

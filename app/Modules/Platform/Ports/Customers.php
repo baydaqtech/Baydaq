@@ -20,6 +20,14 @@ interface Customers
     public function find(int $customerId): ?CustomerRef;
 
     /**
+     * Register the customer as a client where they are served: the branch, its company or its
+     * organization, as the company chooses. Repeat visits change nothing; consent is only added.
+     *
+     * @param  'staff'|'pos'|'self'|'booking'|'membership'  $source
+     */
+    public function register(int $customerId, int $branchId, string $source, ?Authenticatable $actor = null, bool $marketingConsent = false): void;
+
+    /**
      * Add to the wallet (top-up, refund, reward). Idempotent per source + reference + kind.
      *
      * @param  'top_up'|'refund'|'reward'|'adjustment'  $kind

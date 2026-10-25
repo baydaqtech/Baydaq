@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { Wallet } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
+import SelectInput from '@/components/platform/SelectInput';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,8 @@ import { useSuiteUrl } from '@/lib/suite';
 import { Link } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 
-interface Customer { id: number; name: string; phone: string; email: string | null; notes: string | null; wallet_balance: string; created_at: string }
+interface Customer { id: number; name: string; phone: string; email: string | null; notes: string | null; wallet_balance: string; created_at: string; birth_date: string | null; gender: string | null }
+interface Registration { id: number; scope_type: string; source: string; branch: string | null; marketing_consent: boolean; created_at: string }
 interface Entry { id: number; amount: string; balance_after: string; kind: string; source: string; note: string | null; created_at: string }
 interface Activity { module: string; label: string; detail: string | null; date: string; amount: string | null; path: string | null }
 
@@ -22,6 +24,7 @@ interface Props {
   customer: Customer;
   entries: Entry[];
   activity: Activity[];
+  registrations: Registration[];
   can_top_up: boolean;
   can_update: boolean;
 }
@@ -51,12 +54,12 @@ function WalletForm({ customer, kind }: { customer: Customer; kind: 'top_up' | '
   );
 }
 
-export default function CustomerShow({ customer, entries, activity, can_top_up: canTopUp, can_update: canUpdate }: Props) {
+export default function CustomerShow({ customer, entries, activity, registrations, can_top_up: canTopUp, can_update: canUpdate }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
   const c = (field: string) => t(`suite.customers.${field}`);
-  const form = useForm({ name: customer.name, email: customer.email ?? '', notes: customer.notes ?? '' });
+  const form = useForm({ name: customer.name, email: customer.email ?? '', notes: customer.notes ?? '', birth_date: customer.birth_date ?? '', gender: customer.gender ?? '' });
 
   return (
     <SuiteLayout title={customer.name}>
@@ -76,6 +79,12 @@ export default function CustomerShow({ customer, entries, activity, can_top_up: 
               <form className="flex flex-col gap-3" onSubmit={(event) => { event.preventDefault(); form.put(url(`/customers/${customer.id}`), { preserveScroll: true }); }}>
                 <FormField label={c('name')} error={form.errors.name}><Input value={form.data.name} disabled={!canUpdate} onChange={(event) => form.setData('name', event.target.value)} /></FormField>
                 <FormField label={c('email')} error={form.errors.email}><Input type="email" dir="ltr" value={form.data.email} disabled={!canUpdate} onChange={(event) => form.setData('email', event.target.value)} /></FormField>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField label={c('birth_date')} error={form.errors.birth_date}><Input type="date" dir="ltr" value={form.data.birth_date} disabled={!canUpdate} onChange={(event) => form.setData('birth_date', event.target.value)} /></FormField>
+                  <FormField label={c('gender')} error={form.errors.gender}>
+                    <SelectInput value={form.data.gender} onChange={(value) => form.setData('gender', value)} emptyLabel="—" options={['male', 'female'].map((value) => ({ value, label: c(`genders.${value}`) }))} />
+                  </FormField>
+                </div>
                 <FormField label={c('notes')} error={form.errors.notes}><Textarea rows={3} value={form.data.notes} disabled={!canUpdate} onChange={(event) => form.setData('notes', event.target.value)} /></FormField>
                 <p className="text-xs text-muted-foreground">{c('since')}: {formatDate(customer.created_at, locale)}</p>
                 {canUpdate && <Button type="submit" className="self-start" disabled={form.processing || !form.isDirty}>{c('save')}</Button>}
@@ -84,6 +93,23 @@ export default function CustomerShow({ customer, entries, activity, can_top_up: 
           </Card>
         </div>
         <div className="flex flex-col gap-4">
+          <Card>
+            <CardHeader><CardTitle>{c('registrations')}</CardTitle></CardHeader>
+            <CardContent>
+              {registrations.length === 0 && <p className="text-sm text-muted-foreground">{c('no_registrations')}</p>}
+              <ul className="divide-y">
+                {registrations.map((registration) => (
+                  <li key={registration.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 font-medium"><Badge variant="outline">{c(`scopes.${registration.scope_type}`)}</Badge><span className="truncate">{registration.branch}</span></div>
+                      <div className="text-xs text-muted-foreground">{formatDate(registration.created_at, locale)} · {c(`sources.${registration.source}`)}</div>
+                    </div>
+                    {registration.marketing_consent && <Badge variant="secondary">{c('consented')}</Badge>}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader><CardTitle>{c('activity')}</CardTitle></CardHeader>
             <CardContent>

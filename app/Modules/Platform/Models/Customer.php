@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * The wallet balance changes only through WalletCustomers.
  */
 #[Table('platform__customers')]
-#[Fillable(['name', 'email', 'notes'])]
+#[Fillable(['name', 'email', 'birth_date', 'gender', 'notes'])]
 class Customer extends Model
 {
     use BelongsToClient;
@@ -23,7 +23,7 @@ class Customer extends Model
      */
     protected function casts(): array
     {
-        return ['wallet_balance' => 'decimal:2'];
+        return ['wallet_balance' => 'decimal:2', 'birth_date' => 'date'];
     }
 
     /**
@@ -32,6 +32,14 @@ class Customer extends Model
     public function walletEntries(): HasMany
     {
         return $this->hasMany(WalletEntry::class)->latest('id');
+    }
+
+    /**
+     * @return HasMany<CustomerRegistration, $this>
+     */
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(CustomerRegistration::class);
     }
 
     /**

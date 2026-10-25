@@ -65,7 +65,15 @@ class BookAppointment
                 'ends_at' => CarbonImmutable::parse($local['ends_at'])->utc(),
                 'blocks_until' => CarbonImmutable::parse($local['ends_at'])->addMinutes($service->buffer_minutes)->utc(),
                 'nights' => $nights,
-                'platform_customer_id' => $this->tenant->runFor($clientId, fn () => $this->customers->identify($data['customer_name'], $data['customer_phone'], $data['customer_email'] ?? null))?->id,
+                'platform_customer_id' => $this->tenant->runFor($clientId, function () use ($data, $branchId): ?int {
+                    $customer = $this->customers->identify($data['customer_name'], $data['customer_phone'], $data['customer_email'] ?? null);
+
+                    if ($customer !== null) {
+                        $this->customers->register($customer->id, $branchId, 'booking', null, (bool) ($data['marketing_consent'] ?? false));
+                    }
+
+                    return $customer?->id;
+                }),
                 'status' => ((float) $deposit > 0 ? BookingStatus::Pending : BookingStatus::Confirmed)->value,
                 'channel' => $channel->value,
                 'party_size' => $partySize,

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ChevronDown, Languages, LogOut } from 'lucide-react';
+import { ChevronDown, Languages, LogOut, Monitor, Moon, Sun } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLocale, useT } from '@/lib/i18n';
+import { useColorMode } from '@/lib/theme';
 
 function initials(name) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('');
@@ -22,6 +23,8 @@ export default function UserMenu() {
   const { locale, dir, localeUrls } = useLocale();
   const { user } = usePage().props.auth;
   const other = locale === 'ar' ? 'en' : 'ar';
+  const { suite, theme } = usePage().props;
+  const [mode, setMode] = useColorMode((suite?.theme ?? theme)?.mode ?? 'light');
 
   return (
     <DropdownMenu dir={dir}>
@@ -46,6 +49,12 @@ export default function UserMenu() {
             {t(`common.language.${other}`)}
           </a>
         </DropdownMenuItem>
+        <div className="flex items-center justify-between gap-1 px-2 py-1.5">
+          {[['light', Sun], ['dark', Moon], ['system', Monitor]].map(([value, Icon]) => (
+            <Button key={value} type="button" size="icon-sm" variant={mode === value ? 'secondary' : 'ghost'} aria-label={t(`common.mode.${value}`)} title={t(`common.mode.${value}`)} onClick={() => setMode(value)}><Icon /></Button>
+          ))}
+        </div>
+        <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/logout" method="post" as="button" className="w-full">
             <LogOut />

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Modules\Hr\Http\Resources\Api\PunchResource;
 use App\Modules\Hr\Models\AttendancePunch;
+use App\Modules\Platform\Ports\Branding;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\OrgDirectory;
 use Illuminate\Http\JsonResponse;
@@ -27,6 +28,7 @@ class MeController extends Controller
         return response()->json([
             // The app shows only the screens in the client's package (feature flags).
             'features' => $entitlements->mobileFeatures(),
+            'theme' => app(Branding::class)->theme(),
             'employee' => [
                 'id' => $employee->id,
                 'employee_number' => $employee->employee_number,

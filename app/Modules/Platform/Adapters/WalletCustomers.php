@@ -3,8 +3,10 @@
 namespace App\Modules\Platform\Adapters;
 
 use App\Modules\Platform\Data\CustomerRef;
+use App\Modules\Platform\Models\Branch;
 use App\Modules\Platform\Models\Company;
 use App\Modules\Platform\Models\Customer;
+use App\Modules\Platform\Models\CustomerRegistration;
 use App\Modules\Platform\Models\WalletEntry;
 use App\Modules\Platform\Ports\Customers;
 use Brick\Math\BigDecimal;
@@ -38,6 +40,32 @@ class WalletCustomers implements Customers
         $customer = Customer::query()->find($customerId);
 
         return $customer ? $this->ref($customer) : null;
+    }
+
+    public function register(int $customerId, int $branchId, string $source, ?Authenticatable $actor = null, bool $marketingConsent = false): void
+    {
+        $branch = Branch::query()->with('company')->find($branchId);
+
+        if ($branch === null) {
+            return;
+        }
+
+        [$scopeType, $scopeId] = match ($branch->company->client_scope) {
+            'organization' => ['organization', $branch->company->organization_id],
+            'branch' => ['branch', $branch->id],
+            default => ['company', $branch->company_id],
+        };
+
+        $registration = CustomerRegistration::query()->where(['customer_id' => $customerId, 'scope_type' => $scopeType, 'scope_id' => $scopeId])->first();
+
+        if ($registration === null) {
+            (new CustomerRegistration)->forceFill([
+                'customer_id' => $customerId, 'scope_type' => $scopeType, 'scope_id' => $scopeId, 'branch_id' => $branch->id,
+                'source' => $source, 'registered_by' => $actor?->getAuthIdentifier(), 'marketing_consent_at' => $marketingConsent ? now() : null,
+            ])->save();
+        } elseif ($marketingConsent && $registration->marketing_consent_at === null) {
+            $registration->forceFill(['marketing_consent_at' => now()])->save();
+        }
     }
 
     public function credit(int $customerId, string $amount, string $kind, string $source, ?string $reference = null, ?int $companyId = null, ?string $note = null, ?Authenticatable $actor = null): string

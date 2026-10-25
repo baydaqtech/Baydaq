@@ -7,6 +7,7 @@ use App\Modules\Platform\Http\Controllers\BrandController;
 use App\Modules\Platform\Http\Controllers\CompanyController;
 use App\Modules\Platform\Http\Controllers\CustomerController;
 use App\Modules\Platform\Http\Controllers\HomeController;
+use App\Modules\Platform\Http\Controllers\JoinController;
 use App\Modules\Platform\Http\Controllers\MemberController;
 use App\Modules\Platform\Http\Controllers\OrganizationController;
 use App\Modules\Platform\Http\Controllers\PaymentController;
@@ -14,6 +15,7 @@ use App\Modules\Platform\Http\Controllers\ScopeShortcutController;
 use App\Modules\Platform\Http\Controllers\SearchController;
 use App\Modules\Platform\Http\Controllers\StructureController;
 use App\Modules\Platform\Http\Controllers\SuiteEntryController;
+use App\Modules\Platform\Http\Controllers\ThemeController;
 use App\Modules\Platform\Http\Controllers\WorkLocationController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +25,12 @@ use Illuminate\Support\Facades\Route;
 | same prefix from their routes.php with the same middleware plus module:{name}.
 | Within a feature, the change routes come before the view routes.
 */
+// A branch's client sign-up QR code opens this public page.
+Route::middleware(['web', 'throttle:30,1'])->where(['token' => '[A-Za-z0-9]{32}'])->group(function (): void {
+    Route::get('/join/{token}', [JoinController::class, 'show'])->name('platform.join.show');
+    Route::post('/join/{token}', [JoinController::class, 'store'])->name('platform.join.store');
+});
+
 Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('suite.')->group(function (): void {
     Route::get('/', SuiteEntryController::class)->name('entry');
 
@@ -33,7 +41,11 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
         Route::post('/customers/{customer}/wallet', [CustomerController::class, 'wallet'])->middleware('access:suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.wallet');
         Route::put('/customers/{customer}', [CustomerController::class, 'update'])->middleware('access:suite.customers.update')->middleware('feature:suite.customers')->name('customers.update');
         Route::get('/customers/{customer}', [CustomerController::class, 'show'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.show');
+        Route::post('/customers', [CustomerController::class, 'store'])->middleware('access:suite.customers.create')->middleware('feature:suite.customers')->name('customers.store');
         Route::get('/customers', [CustomerController::class, 'index'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.index');
+        Route::get('/settings/theme', [ThemeController::class, 'edit'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.edit');
+        Route::post('/settings/theme', [ThemeController::class, 'update'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.update');
+        Route::delete('/settings/theme', [ThemeController::class, 'reset'])->middleware(['access:suite.structure.update', 'feature:suite.theme'])->name('theme.reset');
         Route::get('/search', SearchController::class)->middleware('throttle:60,1')->name('search');
         Route::post('/shortcuts', [ScopeShortcutController::class, 'store'])->name('shortcuts.store');
         Route::delete('/shortcuts/{shortcut}', [ScopeShortcutController::class, 'destroy'])->name('shortcuts.destroy');

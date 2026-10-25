@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { DirectionProvider } from '@/components/ui/direction';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
+import { useClientTheme } from '@/lib/theme';
 
 /**
  * Wraps every platform page (auth, portal, admin): reading direction for the
@@ -12,7 +13,8 @@ import { Toaster } from '@/components/ui/sonner';
  * Controllers flash a toast with Inertia::flash('toast', ['type' => 'success', 'message' => '...']).
  */
 export default function PlatformShell({ children }) {
-  const { dir } = usePage().props;
+  const { dir, suite, theme } = usePage().props;
+  useClientTheme(suite?.theme ?? theme);
 
   useEffect(() => router.on('flash', (event) => {
     const flashed = event.detail.flash?.toast;

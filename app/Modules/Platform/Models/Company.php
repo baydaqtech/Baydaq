@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Table('platform__companies')]
 #[Fillable([
     'organization_id', 'slug', 'name_ar', 'name_en', 'cr_number', 'vat_number', 'unified_number',
-    'gosi_number', 'qiwa_id', 'street', 'building_number', 'district', 'city', 'postal_code', 'timezone', 'loyalty_percent', 'status',
+    'gosi_number', 'qiwa_id', 'street', 'building_number', 'district', 'city', 'postal_code', 'timezone', 'loyalty_percent', 'client_scope', 'status',
 ])]
 class Company extends Model
 {

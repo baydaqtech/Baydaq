@@ -34,6 +34,8 @@ return [
     ],
 
     // Shared by the platform components (tables, forms, dialogs) in every area.
+    'mode' => ['light' => 'Light', 'dark' => 'Dark', 'system' => 'Like the device'],
+
     'scanner' => [
         'start' => 'Scan with camera',
         'stop' => 'Stop camera',

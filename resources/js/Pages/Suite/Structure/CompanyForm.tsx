@@ -37,6 +37,7 @@ export default function CompanyForm({ company, organizations, timezones }: Props
     postal_code: company?.postal_code ?? '',
     timezone: company?.timezone ?? 'Asia/Riyadh',
     loyalty_percent: company?.loyalty_percent ?? '',
+    client_scope: company?.client_scope ?? 'company',
     status: company?.status ?? 'active',
   });
   const { data, setData, errors, processing } = form;
@@ -83,6 +84,9 @@ export default function CompanyForm({ company, organizations, timezones }: Props
               <SelectInput id="timezone" value={data.timezone} onChange={(value) => setData('timezone', value)} options={timezones} />
             </FormField>
             {text('loyalty_percent', { dir: 'ltr', inputMode: 'decimal' })}
+            <FormField label={f('client_scope')} htmlFor="client_scope" error={errors.client_scope}>
+              <SelectInput id="client_scope" value={data.client_scope} onChange={(value) => setData('client_scope', value)} options={['branch', 'company', 'organization'].map((value) => ({ value, label: t(`suite.customers.scopes.${value}`) }))} />
+            </FormField>
             <FormField label={f('status')} htmlFor="status" error={errors.status}>
               <SelectInput
                 id="status"

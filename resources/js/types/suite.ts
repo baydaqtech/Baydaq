@@ -45,6 +45,8 @@ export interface SuiteProp {
   ai: boolean;
   /** Web features the client's package includes (e.g. hr.tasks). */
   features: string[];
+  /** The client's own look, when its package has custom branding. */
+  theme: import('@/lib/theme').ClientTheme | null;
   tree: SuiteOrganization[];
   can: string[];
   is_owner: boolean;
@@ -103,6 +105,7 @@ export interface CompanyResource {
   postal_code: string | null;
   timezone: string;
   loyalty_percent: string | null;
+  client_scope: string;
   status: string;
   branches?: BranchResource[];
 }

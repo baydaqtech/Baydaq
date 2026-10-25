@@ -65,6 +65,10 @@ class PayOrder
         }
 
         return DB::transaction(function () use ($order, $payments, $actor, $staffCharge, $staffEmployeeId, $walletCharge, $customer): Order {
+            if ($customer !== null) {
+                $this->customers->register($customer->id, $order->branch_id, 'pos', $actor);
+            }
+
             if ($walletCharge->isPositive()) {
                 $this->customers->debit($customer->id, (string) $walletCharge->toScale(2), 'spend', 'pos.order', (string) $order->id, $order->company_id, null, $actor);
             }

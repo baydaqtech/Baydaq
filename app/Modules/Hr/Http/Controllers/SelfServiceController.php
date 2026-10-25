@@ -21,6 +21,7 @@ use App\Modules\Hr\Models\WorkBreak;
 use App\Modules\Hr\Support\HrSettings;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
+use App\Modules\Platform\Ports\Branding;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\OrgDirectory;
 use Illuminate\Http\RedirectResponse;
@@ -59,6 +60,7 @@ class SelfServiceController extends Controller
                 ->map(fn (Task $task): array => TaskController::taskArray($task, $directory->branch($task->branch_id)?->name))->all(),
             'break_state' => self::breakState($employee),
             'features' => app(Entitlements::class)->features(),
+            'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],
         ]);
     }

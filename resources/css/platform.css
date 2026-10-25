@@ -109,6 +109,33 @@
     --sidebar-ring: #D6A24E;
 }
 
+/* Dark mode: the same brand, walnut becomes the canvas. A client theme overrides primary/ring. */
+.dark {
+    --background: #1B120B;
+    --foreground: #F3E7D3;
+    --card: #241811;
+    --card-foreground: #F3E7D3;
+    --popover: #241811;
+    --popover-foreground: #F3E7D3;
+    --primary: #D6A24E;
+    --primary-foreground: #1B120B;
+    --secondary: #33231A;
+    --secondary-foreground: #F3E7D3;
+    --muted: #2E2017;
+    --muted-foreground: #C2AE92;
+    --accent: #3A291D;
+    --accent-foreground: #F3E7D3;
+    --destructive: #F0705F;
+    --border: #3D2C20;
+    --input: #4A3628;
+    --ring: #D6A24E;
+    --sidebar: #140D08;
+    --sidebar-foreground: #F3E7D3;
+    --sidebar-accent: #2A1C13;
+    --sidebar-border: #33231A;
+    color-scheme: dark;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

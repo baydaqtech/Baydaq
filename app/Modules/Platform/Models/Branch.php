@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * A place a company works from. Every company has exactly one head office branch,
@@ -46,6 +47,18 @@ class Branch extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * The token behind the branch's client sign-up QR code, made the first time it is asked for.
+     */
+    public function joinToken(): string
+    {
+        if ($this->join_token === null) {
+            $this->forceFill(['join_token' => Str::random(32)])->save();
+        }
+
+        return $this->join_token;
     }
 
     protected static function newFactory(): BranchFactory

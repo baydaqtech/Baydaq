@@ -41,6 +41,7 @@ class SaveCompanyRequest extends FormRequest
             'postal_code' => ['nullable', 'digits:5'],
             'timezone' => ['required', 'timezone:all'],
             'loyalty_percent' => ['nullable', 'numeric', 'min:0', 'max:50'],
+            'client_scope' => ['nullable', 'in:organization,company,branch'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ];
     }
