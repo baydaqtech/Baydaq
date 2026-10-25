@@ -11,7 +11,15 @@ interface PayrollAdjustments
 {
     /**
      * @param  string  $origin  where it came from, e.g. "assets:INC-00012"
+     * @param  'damage'|'cash_shortage'|'staff_meal'  $kind  which deduction type it is filed under
      * @return list<array{id: int, pay_month: string, amount: string}> the deductions created
      */
-    public function requestDeduction(int $employeeId, string $amount, string $reason, string $origin): array;
+    public function requestDeduction(int $employeeId, string $amount, string $reason, string $origin, string $kind = 'damage'): array;
+
+    /**
+     * Ask HR to pay an employee extra (a sales commission): a pending bonus for next month's payroll.
+     *
+     * @param  string  $origin  e.g. "pos:shift:41"
+     */
+    public function requestBonus(int $employeeId, string $amount, string $reason, string $origin): int;
 }

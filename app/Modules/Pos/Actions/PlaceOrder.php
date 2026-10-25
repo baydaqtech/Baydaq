@@ -36,7 +36,7 @@ class PlaceOrder
         }
 
         $companyId = $register?->company_id ?? $order->company_id;
-        $products = Product::query()->whereIn('id', array_column($lines, 'product_id'))->when($companyId, fn ($query, int $id) => $query->where('company_id', $id))->with('modifierGroups:id')->get()->keyBy('id');
+        $products = Product::query()->whereIn('id', array_column($lines, 'product_id'))->when($companyId, fn ($query, int $id) => $query->where('company_id', $id))->with(['modifierGroups:id', 'category:id,brand_id'])->get()->keyBy('id');
         $modifierIds = collect($lines)->flatMap(fn (array $line) => $line['modifier_ids'] ?? [])->unique()->all();
         $modifiers = Modifier::query()->whereIn('id', $modifierIds)->get()->keyBy('id');
 
@@ -57,6 +57,9 @@ class PlaceOrder
                 ]);
             }
 
+            // In a multi-brand kitchen an order belongs to the one brand all its items come from (P4).
+            $brands = $products->map(fn (Product $product) => $product->category?->brand_id)->unique()->values();
+            $order->brand_id = $brands->count() === 1 ? $brands->first() : null;
             $order->fill(collect($data)->only(['type', 'table_no', 'customer_name', 'customer_phone', 'note'])->all())->save();
             $order->lines()->delete();
 

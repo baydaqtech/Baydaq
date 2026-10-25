@@ -6,6 +6,7 @@ return [
     'abilities' => ['sell' => 'Sell at the register', 'void' => 'Void open orders', 'kitchen' => 'Kitchen display', 'discount' => 'Give discounts', 'open_shift' => 'Open shifts', 'close_shift' => 'Close shifts'],
 
     'catalog' => [
+        'cost_hint' => 'What one portion costs you; used by menu engineering.',
         'title' => 'Catalog',
         'categories' => 'Categories',
         'products' => 'Products',
@@ -20,6 +21,8 @@ return [
         'options_count' => ':count options',
         'uncategorised' => 'No category',
         'fields' => [
+            'cost' => 'Cost (excl. VAT)',
+            'salt_g' => 'Salt (g)',
             'name_ar' => 'Name (Arabic)', 'name_en' => 'Name (English)', 'description_ar' => 'Description (Arabic)', 'description_en' => 'Description (English)',
             'company' => 'Company', 'brand' => 'Brand', 'category' => 'Category', 'sku' => 'SKU', 'price' => 'Price (incl. VAT)', 'vat_rate' => 'VAT %',
             'calories' => 'Calories (kcal)', 'high_salt' => 'High salt', 'caffeine_mg' => 'Caffeine (mg)', 'allergens' => 'Allergens (comma separated)',
@@ -30,6 +33,8 @@ return [
     ],
 
     'registers' => [
+        'asset_hint' => 'The till\'s hardware in the asset register, so it shows up in stock-takes and maintenance.',
+        'commission_hint' => 'For cashiers who are employees: this share of each shift\'s sales goes to payroll as a bonus.',
         'title' => 'Registers',
         'new' => 'New register',
         'saved' => 'Register saved.',
@@ -51,12 +56,20 @@ return [
         'copied' => 'Link copied.',
         'no_employee' => 'Not linked to an employee',
         'fields' => [
+            'asset' => 'Hardware (asset tag)',
+            'require_check_in' => 'Cashier must be checked in to open the drawer',
+            'commission_rate' => 'Commission on sales (%)',
             'name' => 'Name', 'branch' => 'Branch', 'unit' => 'E-invoicing unit', 'is_active' => 'Active', 'employee' => 'Employee', 'pin' => 'PIN (4–6 digits)',
             'cashier' => 'Cashier', 'opening_cash' => 'Opening cash', 'counted_cash' => 'Counted cash', 'expected_cash' => 'Expected cash', 'difference' => 'Difference', 'opened_at' => 'Opened', 'sales' => 'Sales',
         ],
     ],
 
+    'shortage_reason' => 'Cash shortage at the till, shift of :date',
+    'commission_reason' => 'Sales commission, shift of :date',
+    'staff_meal_reason' => 'Staff meal, order :number on :date',
     'sell' => [
+        'staff_member' => 'Employee',
+        'staff_meal_hint' => 'The amount is taken from this employee\'s pay through HR.',
         'title' => 'Sell',
         'cart' => 'Order',
         'empty_cart' => 'Tap products to add them.',
@@ -87,7 +100,24 @@ return [
         'pay_order' => 'Pay order #:number',
     ],
 
+    'engineering' => [
+        'title' => 'Menu engineering',
+        'hint' => 'Each product\'s popularity and margin against the menu average. Set product costs in the catalog to see margins.',
+        'from' => 'From', 'to' => 'To', 'brand' => 'Brand',
+        'items_sold' => 'Items sold',
+        'average_margin' => 'Average margin per item',
+        'product' => 'Product', 'sold' => 'Sold (share)', 'net_each' => 'Net price', 'cost' => 'Cost', 'margin' => 'Margin', 'class_label' => 'Class',
+        'class' => ['star' => 'Star', 'plowhorse' => 'Plowhorse', 'puzzle' => 'Puzzle', 'dog' => 'Dog', 'unknown' => 'No cost set'],
+        'advice' => [
+            'star' => 'keep it prominent',
+            'plowhorse' => 'popular, thin margin: raise the price or cut the cost',
+            'puzzle' => 'good margin, few orders: promote it',
+            'dog' => 'rethink or remove',
+        ],
+        'empty' => 'No sales in this period.',
+    ],
     'orders' => [
+        'all_brands' => 'All brands',
         'title' => 'Orders',
         'kitchen' => 'Kitchen',
         'void' => 'Void',
@@ -104,6 +134,8 @@ return [
     ],
 
     'menu' => [
+        'burn' => '≈ :minutes min walking',
+        'salt' => 'Salt :grams g',
         'title' => 'Menu',
         'order' => 'Order',
         'table' => 'Your table',
@@ -119,6 +151,8 @@ return [
     ],
 
     'errors' => [
+        'not_checked_in' => 'Check in at this branch on the attendance app before opening the drawer.',
+        'staff_needed' => 'Choose an active employee of this company for the staff meal.',
         'bad_pin' => 'Wrong PIN.',
         'shift_open' => 'This register already has an open shift.',
         'shift_closed' => 'This shift is already closed.',
@@ -134,5 +168,5 @@ return [
     'order_type' => ['dine_in' => 'Dine in', 'takeaway' => 'Takeaway', 'delivery' => 'Delivery'],
     'order_status' => ['open' => 'Open', 'paid' => 'Paid', 'void' => 'Void'],
     'kitchen_status' => ['new' => 'New', 'preparing' => 'Preparing', 'ready' => 'Ready', 'served' => 'Served'],
-    'payment_method' => ['cash' => 'Cash', 'mada' => 'mada', 'card' => 'Card', 'stc_pay' => 'STC Pay', 'transfer' => 'Transfer'],
+    'payment_method' => ['cash' => 'Cash', 'mada' => 'mada', 'card' => 'Card', 'stc_pay' => 'STC Pay', 'transfer' => 'Transfer', 'staff_account' => 'Staff meal (payroll)'],
 ];

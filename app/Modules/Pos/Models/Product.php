@@ -18,8 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 #[Table('pos__products')]
 #[Fillable([
-    'company_id', 'category_id', 'sku', 'name_ar', 'name_en', 'description_ar', 'description_en', 'price', 'vat_rate', 'image',
-    'calories', 'high_salt', 'caffeine_mg', 'allergens', 'is_active', 'sold_by_weight', 'sort_order',
+    'company_id', 'category_id', 'sku', 'name_ar', 'name_en', 'description_ar', 'description_en', 'price', 'cost', 'vat_rate', 'image',
+    'calories', 'high_salt', 'salt_g', 'caffeine_mg', 'allergens', 'is_active', 'sold_by_weight', 'sort_order',
 ])]
 class Product extends Model
 {
@@ -35,7 +35,7 @@ class Product extends Model
      */
     protected function casts(): array
     {
-        return ['price' => 'decimal:2', 'vat_rate' => 'decimal:2', 'calories' => 'integer', 'high_salt' => 'boolean', 'caffeine_mg' => 'integer', 'allergens' => 'array', 'is_active' => 'boolean', 'sold_by_weight' => 'boolean'];
+        return ['price' => 'decimal:2', 'cost' => 'decimal:2', 'salt_g' => 'decimal:2', 'vat_rate' => 'decimal:2', 'calories' => 'integer', 'high_salt' => 'boolean', 'caffeine_mg' => 'integer', 'allergens' => 'array', 'is_active' => 'boolean', 'sold_by_weight' => 'boolean'];
     }
 
     /**
@@ -60,5 +60,14 @@ class Product extends Model
         $override = $this->getConnection()->table('pos__branch_products')->where('product_id', $this->id)->where('branch_id', $branchId)->first();
 
         return ['price' => (string) ($override?->price ?? $this->price), 'available' => $this->is_active && ($override === null || (bool) $override->is_available)];
+    }
+
+    /**
+     * Roughly how many minutes of brisk walking burn this item's calories (about 4 kcal a
+     * minute for an average adult), shown next to calories on menus (MN1).
+     */
+    public function burnMinutes(): ?int
+    {
+        return $this->calories ? (int) max(1, round($this->calories / 4)) : null;
     }
 }

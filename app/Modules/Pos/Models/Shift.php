@@ -21,7 +21,7 @@ class Shift extends Model
      */
     protected function casts(): array
     {
-        return ['opened_at' => 'datetime', 'closed_at' => 'datetime', 'opening_cash' => 'decimal:2', 'expected_cash' => 'decimal:2', 'counted_cash' => 'decimal:2', 'difference' => 'decimal:2', 'sales_total' => 'decimal:2'];
+        return ['opened_at' => 'datetime', 'closed_at' => 'datetime', 'opening_cash' => 'decimal:2', 'expected_cash' => 'decimal:2', 'counted_cash' => 'decimal:2', 'difference' => 'decimal:2', 'sales_total' => 'decimal:2', 'shortage_sent' => 'boolean'];
     }
 
     /**

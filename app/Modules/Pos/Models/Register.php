@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * QR menu token customers scan.
  */
 #[Table('pos__registers')]
-#[Fillable(['name', 'einvoice_unit_id', 'is_active'])]
+#[Fillable(['name', 'einvoice_unit_id', 'asset_id', 'require_check_in', 'is_active'])]
 class Register extends Model
 {
     use BelongsToClient;
@@ -21,14 +21,15 @@ class Register extends Model
     /**
      * @var array<string, mixed>
      */
-    protected $attributes = ['is_active' => true];
+    protected $attributes = [
+        'require_check_in' => true, 'is_active' => true];
 
     /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'require_check_in' => 'boolean'];
     }
 
     /**

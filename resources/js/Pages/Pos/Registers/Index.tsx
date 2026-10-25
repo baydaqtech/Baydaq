@@ -20,10 +20,10 @@ import { useAccess, useSuiteUrl } from '@/lib/suite';
 import type { ScopedOption } from '@/types/pos';
 
 interface Register {
-  id: number; name: string; branch_id: number; branch: string | null; einvoice_unit_id: number | null; is_active: boolean; menu_url: string;
+  id: number; name: string; branch_id: number; branch: string | null; einvoice_unit_id: number | null; asset_id: number | null; asset: string | null; require_check_in: boolean; is_active: boolean; menu_url: string;
   open_shift: { id: number; cashier: string; opened_at: string; opening_cash: string } | null;
 }
-interface Cashier { id: number; company_id: number; employee_id: number | null; name: string; is_active: boolean; [key: string]: unknown }
+interface Cashier { id: number; company_id: number; employee_id: number | null; name: string; commission_rate: string; is_active: boolean; [key: string]: unknown }
 interface ShiftRow { id: number; register: string; cashier: string; opened_at: string; closed_at: string; expected_cash: string; counted_cash: string; difference: string; orders_count: number; sales_total: string; [key: string]: unknown }
 
 interface Props {
@@ -33,23 +33,24 @@ interface Props {
   companies: { value: number; label: string }[];
   units: ScopedOption[];
   staff: ScopedOption[];
+  assets: (ScopedOption & { branch_id: number })[];
   recent_shifts: ShiftRow[];
 }
 
 const f = (t: ReturnType<typeof useT>, field: string) => t(`pos.registers.fields.${field}`);
 
-function RegisterDialog({ register, branches, units }: { register?: Register; branches: ScopedOption[]; units: ScopedOption[] }) {
+function RegisterDialog({ register, branches, units, assets }: { register?: Register; branches: ScopedOption[]; units: ScopedOption[]; assets: (ScopedOption & { branch_id: number })[] }) {
   const t = useT();
   const { dir } = useLocale();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
-  const form = useForm({ branch_id: register?.branch_id ?? branches[0]?.value ?? '', name: register?.name ?? '', einvoice_unit_id: register?.einvoice_unit_id ?? '', is_active: register?.is_active ?? true });
+  const form = useForm({ branch_id: register?.branch_id ?? branches[0]?.value ?? '', name: register?.name ?? '', einvoice_unit_id: register?.einvoice_unit_id ?? '', asset_id: register?.asset_id ?? '', require_check_in: register?.require_check_in ?? true, is_active: register?.is_active ?? true });
   const companyId = branches.find((branch) => branch.value === Number(form.data.branch_id))?.company_id;
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
     const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
-    form.transform((data) => ({ ...data, einvoice_unit_id: data.einvoice_unit_id || null }));
+    form.transform((data) => ({ ...data, einvoice_unit_id: data.einvoice_unit_id || null, asset_id: data.asset_id || null }));
     register ? form.put(url(`/pos/registers/${register.id}`), options) : form.post(url('/pos/registers'), options);
   }
 
@@ -64,6 +65,12 @@ function RegisterDialog({ register, branches, units }: { register?: Register; br
           <FormField label={f(t, 'unit')} error={form.errors.einvoice_unit_id} hint={!form.data.einvoice_unit_id ? t('pos.registers.no_unit') : undefined}>
             <SelectInput value={form.data.einvoice_unit_id} onChange={(value) => form.setData('einvoice_unit_id', value === '' ? '' : Number(value))} options={units.filter((unit) => unit.company_id === companyId)} emptyLabel="—" />
           </FormField>
+          {assets.length > 0 && (
+            <FormField label={f(t, 'asset')} hint={t('pos.registers.asset_hint')} error={form.errors.asset_id}>
+              <SelectInput value={form.data.asset_id} onChange={(value) => form.setData('asset_id', value === '' ? '' : Number(value))} options={assets.filter((asset) => asset.branch_id === (register?.branch_id ?? Number(form.data.branch_id)))} emptyLabel="—" />
+            </FormField>
+          )}
+          <SwitchField id="register-check-in" label={f(t, 'require_check_in')} checked={form.data.require_check_in} onChange={(value: boolean) => form.setData('require_check_in', value)} />
           <SwitchField id="register-active" label={f(t, 'is_active')} checked={form.data.is_active} onChange={(value: boolean) => form.setData('is_active', value)} />
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>
@@ -77,7 +84,7 @@ function CashierDialog({ cashier, companies, staff }: { cashier?: Cashier; compa
   const { dir } = useLocale();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
-  const form = useForm({ company_id: cashier?.company_id ?? companies[0]?.value ?? '', employee_id: cashier?.employee_id ?? '', name: cashier?.name ?? '', pin: '', is_active: cashier?.is_active ?? true });
+  const form = useForm({ company_id: cashier?.company_id ?? companies[0]?.value ?? '', employee_id: cashier?.employee_id ?? '', name: cashier?.name ?? '', pin: '', commission_rate: cashier?.commission_rate ?? '0', is_active: cashier?.is_active ?? true });
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -106,6 +113,7 @@ function CashierDialog({ cashier, companies, staff }: { cashier?: Cashier; compa
           </FormField>
           <FormField label={f(t, 'name')} error={form.errors.name}><Input value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} /></FormField>
           <FormField label={f(t, 'pin')} error={form.errors.pin}><Input dir="ltr" type="password" inputMode="numeric" autoComplete="new-password" value={form.data.pin} onChange={(event) => form.setData('pin', event.target.value)} /></FormField>
+          <FormField label={f(t, 'commission_rate')} hint={t('pos.registers.commission_hint')} error={form.errors.commission_rate}><Input type="number" step="0.01" min="0" max="50" dir="ltr" value={form.data.commission_rate} onChange={(event) => form.setData('commission_rate', event.target.value)} /></FormField>
           <SwitchField id="cashier-active" label={f(t, 'is_active')} checked={form.data.is_active} onChange={(value: boolean) => form.setData('is_active', value)} />
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>
@@ -168,7 +176,7 @@ function CloseShiftDialog({ register }: { register: Register }) {
   );
 }
 
-export default function RegistersIndex({ registers, cashiers, branches, companies, units, staff, recent_shifts: shifts }: Props) {
+export default function RegistersIndex({ registers, cashiers, branches, companies, units, staff, assets, recent_shifts: shifts }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -181,7 +189,7 @@ export default function RegistersIndex({ registers, cashiers, branches, companie
 
   return (
     <SuiteLayout title={t('pos.registers.title')}>
-      <PageHeader title={t('pos.registers.title')} actions={can('pos.registers.create') && <RegisterDialog branches={branches} units={units} />} />
+      <PageHeader title={t('pos.registers.title')} actions={can('pos.registers.create') && <RegisterDialog branches={branches} units={units} assets={assets} />} />
       {registers.length === 0 ? <StatusMessage>{t('pos.registers.none')}</StatusMessage> : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {registers.map((register) => (
@@ -189,7 +197,7 @@ export default function RegistersIndex({ registers, cashiers, branches, companie
               <CardHeader>
                 <CardTitle className="flex items-center justify-between gap-2 text-base">
                   <span>{register.name} <span className="text-xs font-normal text-muted-foreground">{register.branch}</span></span>
-                  {can('pos.registers.update') && <RegisterDialog register={register} branches={branches} units={units} />}
+                  {can('pos.registers.update') && <RegisterDialog register={register} branches={branches} units={units} assets={assets} />}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2 text-sm">

@@ -25,16 +25,18 @@ interface Props {
   open_orders: OrderResource[];
   types: Option[];
   methods: Option[];
+  staff: Option[];
   can_discount: boolean;
 }
 
 interface PaymentRow { method: string; amount: string; reference: string }
 
-function PayDialog({ order, registerId, methods, onClose }: { order: OrderResource; registerId: number; methods: Option[]; onClose: () => void }) {
+function PayDialog({ order, registerId, methods, staff, onClose }: { order: OrderResource; registerId: number; methods: Option[]; staff: Option[]; onClose: () => void }) {
   const t = useT();
   const { dir, locale } = useLocale();
   const url = useSuiteUrl();
-  const form = useForm<{ payments: PaymentRow[] }>({ payments: [{ method: 'cash', amount: order.total, reference: '' }] });
+  const form = useForm<{ payments: PaymentRow[]; staff_employee_id: string }>({ payments: [{ method: 'cash', amount: order.total, reference: '' }], staff_employee_id: '' });
+  const staffMeal = form.data.payments.some((payment) => payment.method === 'staff_account');
   const [tendered, setTendered] = useState('');
   const paid = form.data.payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
   const remaining = Math.round((Number(order.total) - paid) * 100) / 100;
@@ -71,6 +73,7 @@ function PayDialog({ order, registerId, methods, onClose }: { order: OrderResour
             </FormField>
           )}
           {remaining !== 0 && <p className="text-sm text-destructive">{t('pos.sell.remaining')}: {formatMoney(remaining, locale)}</p>}
+          {staffMeal && <FormField label={t('pos.sell.staff_member')} hint={t('pos.sell.staff_meal_hint')} error={(form.errors as Record<string, string>).staff_employee_id}><SelectInput value={form.data.staff_employee_id} onChange={(value) => form.setData('staff_employee_id', value)} options={staff} /></FormField>}
           {form.errors.payments && <p className="text-sm text-destructive">{form.errors.payments}</p>}
           <DialogFooter><Button type="submit" disabled={form.processing || remaining !== 0}>{t('pos.sell.pay')}</Button></DialogFooter>
         </form>
@@ -79,7 +82,7 @@ function PayDialog({ order, registerId, methods, onClose }: { order: OrderResour
   );
 }
 
-export default function Sell({ register, categories, products, open_orders: openOrders, types, methods, can_discount: canDiscount }: Props) {
+export default function Sell({ register, categories, products, open_orders: openOrders, types, methods, staff, can_discount: canDiscount }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -226,7 +229,7 @@ export default function Sell({ register, categories, products, open_orders: open
       </div>
 
       <ModifierPicker product={picking} onClose={() => setPicking(null)} onAdd={add} />
-      {paying && <PayDialog order={paying} registerId={register.id} methods={methods} onClose={() => setPayingId(null)} />}
+      {paying && <PayDialog order={paying} registerId={register.id} methods={methods} staff={staff} onClose={() => setPayingId(null)} />}
     </SuiteLayout>
   );
 }

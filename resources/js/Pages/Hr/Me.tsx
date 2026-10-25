@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import AdvanceCalculator, { type AdvanceData } from '@/components/hr/AdvanceCalculator';
 import LeaveBalanceCard, { type LeaveBalance } from '@/components/hr/LeaveBalanceCard';
 import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
+import PinCard from '@/components/hr/PinCard';
 import BrandMark from '@/components/platform/BrandMark';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
@@ -26,10 +27,11 @@ interface Props {
   types: Option[];
   advance: AdvanceData;
   shifts: ShiftsData;
+  has_pin: boolean;
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -80,6 +82,8 @@ export default function Me({ employee, balances, requests, types, advance, shift
         <MyShifts data={shifts} />
 
         <AdvanceCalculator data={advance} />
+
+        <PinCard hasPin={hasPin} />
 
         <Card>
           <CardHeader><CardTitle className="text-base">{t('hr.leave.title')}</CardTitle></CardHeader>

@@ -1,5 +1,6 @@
 import { router, usePoll } from '@inertiajs/react';
 import PageHeader from '@/components/platform/PageHeader';
+import SelectInput from '@/components/platform/SelectInput';
 import StatusMessage from '@/components/platform/StatusMessage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { useLocale, useT } from '@/lib/i18n';
 import { useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
 import type { OrderResource } from '@/types/pos';
+import type { Option } from '@/types/resources';
 
 const COLUMNS = ['new', 'preparing', 'ready'] as const;
 const NEXT: Record<string, string> = { new: 'preparing', preparing: 'ready', ready: 'served' };
@@ -17,7 +19,7 @@ function minutesSince(iso: string): number {
 }
 
 /** Kitchen display: today's orders by preparation stage, refreshed every ten seconds. */
-export default function Kitchen({ orders }: { orders: OrderResource[] }) {
+export default function Kitchen({ orders, brands, brand }: { orders: (OrderResource & { brand?: string | null })[]; brands: Option[]; brand: number | null }) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -29,7 +31,9 @@ export default function Kitchen({ orders }: { orders: OrderResource[] }) {
 
   return (
     <SuiteLayout title={t('pos.orders.kitchen')}>
-      <PageHeader title={t('pos.orders.kitchen')} />
+      <PageHeader title={t('pos.orders.kitchen')} actions={brands.length > 1 && (
+        <div className="w-48"><SelectInput value={brand ?? ''} onChange={(value) => router.get(url('/pos/kitchen'), value ? { brand: value } : {}, { preserveState: true, replace: true })} options={brands} emptyLabel={t('pos.orders.all_brands')} /></div>
+      )} />
       {orders.length === 0 ? <StatusMessage>{t('pos.orders.kitchen_empty')}</StatusMessage> : (
         <div className="grid gap-4 md:grid-cols-3">
           {COLUMNS.map((column) => (
@@ -55,7 +59,7 @@ export default function Kitchen({ orders }: { orders: OrderResource[] }) {
                         ))}
                       </ul>
                       {order.note && <p className="mt-2 text-xs text-amber-700">{order.note}</p>}
-                      {order.branch && <p className="mt-2 text-xs text-muted-foreground">{order.branch}</p>}
+                      {(order.branch || order.brand) && <p className="mt-2 text-xs text-muted-foreground">{[order.brand, order.branch].filter(Boolean).join(' · ')}</p>}
                     </CardContent>
                     <CardFooter><Button size="sm" className="w-full" onClick={() => advance(order)}>{t(`pos.orders.advance.${column}`)}</Button></CardFooter>
                   </Card>

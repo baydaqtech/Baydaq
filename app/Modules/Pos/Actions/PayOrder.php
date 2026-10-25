@@ -2,6 +2,8 @@
 
 namespace App\Modules\Pos\Actions;
 
+use App\Modules\Hr\Ports\PayrollAdjustments;
+use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Invoicing\Ports\InvoiceIssuer;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Ports\Audit;
@@ -19,16 +21,19 @@ use Illuminate\Validation\ValidationException;
 
 class PayOrder
 {
-    public function __construct(private InvoiceIssuer $invoices, private Entitlements $entitlements, private Audit $audit) {}
+    public function __construct(private InvoiceIssuer $invoices, private Entitlements $entitlements, private Audit $audit, private PayrollAdjustments $payroll, private StaffDirectory $staff) {}
 
     /**
      * Take the payments (they must add up to the total), mark the order paid, and, when the
      * tenant has Invoicing and the register has a unit, issue the simplified tax invoice. A
      * ZATCA rejection does not undo the sale: the order stays paid and the invoice is retried later.
      *
+     * A staff meal is paid with "staff account": the amount is taken from that employee's pay
+     * through HR (P3).
+     *
      * @param  list<array{method: string, amount: numeric-string|float|int, reference?: ?string}>  $payments
      */
-    public function handle(Order $order, array $payments, ?Authenticatable $actor = null): Order
+    public function handle(Order $order, array $payments, ?Authenticatable $actor = null, ?int $staffEmployeeId = null): Order
     {
         if ($order->status !== OrderStatus::Open) {
             throw ValidationException::withMessages(['status' => __('pos.errors.not_open')]);
@@ -40,12 +45,26 @@ class PayOrder
             throw ValidationException::withMessages(['payments' => __('pos.errors.payments_mismatch', ['total' => (string) $order->total, 'paid' => (string) $paid->toScale(2)])]);
         }
 
-        return DB::transaction(function () use ($order, $payments, $actor): Order {
+        $staffCharge = array_reduce($payments, fn (BigDecimal $sum, array $payment) => $payment['method'] === PaymentMethod::StaffAccount->value ? $sum->plus((string) $payment['amount']) : $sum, BigDecimal::zero());
+
+        if ($staffCharge->isPositive()) {
+            $employee = $staffEmployeeId && $this->entitlements->isActive(Module::Hr) ? $this->staff->employee($staffEmployeeId) : null;
+
+            if ($employee === null || $employee->companyId !== $order->company_id || $employee->status !== 'active') {
+                throw ValidationException::withMessages(['staff_employee_id' => __('pos.errors.staff_needed')]);
+            }
+        }
+
+        return DB::transaction(function () use ($order, $payments, $actor, $staffCharge, $staffEmployeeId): Order {
             foreach ($payments as $payment) {
                 $order->payments()->make()->forceFill(['method' => PaymentMethod::from($payment['method'])->value, 'amount' => (string) $payment['amount'], 'reference' => $payment['reference'] ?? null, 'paid_at' => now()])->save();
             }
 
-            $order->forceFill(['status' => OrderStatus::Paid->value, 'paid_at' => now()])->save();
+            $order->forceFill(['status' => OrderStatus::Paid->value, 'paid_at' => now(), 'staff_employee_id' => $staffCharge->isPositive() ? $staffEmployeeId : null])->save();
+
+            if ($staffCharge->isPositive()) {
+                $this->payroll->requestDeduction($staffEmployeeId, (string) $staffCharge->toScale(2), __('pos.staff_meal_reason', ['number' => $order->number, 'date' => $order->order_date->toDateString()]), "pos:order:{$order->id}", 'staff_meal');
+            }
 
             $register = $order->register_id ? Register::query()->find($order->register_id) : null;
             $unitId = $register?->einvoice_unit_id ?? ($this->entitlements->isActive(Module::Invoicing) ? $this->invoices->readyUnitFor($order->company_id) : null);

@@ -88,7 +88,8 @@ export default function Menu({ token, place, categories, products }: Props) {
                       <p className="font-medium">{product.name}</p>
                       {product.description && <p className="text-sm text-muted-foreground">{product.description}</p>}
                       <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        {product.calories !== null && <span className="flex items-center gap-1"><Flame className="size-3" />{product.calories.toLocaleString(locale)} {t('pos.sell.kcal')}</span>}
+                        {product.calories !== null && <span className="flex items-center gap-1"><Flame className="size-3" />{product.calories.toLocaleString(locale)} {t('pos.sell.kcal')}{product.burn_minutes ? ` · ${t('pos.menu.burn', { minutes: product.burn_minutes.toLocaleString(locale) })}` : ''}</span>}
+                        {product.salt_g && <span>{t('pos.menu.salt', { grams: Number(product.salt_g).toLocaleString(locale) })}</span>}
                         {product.caffeine_mg !== null && <span className="flex items-center gap-1"><Coffee className="size-3" />{t('pos.menu.caffeine', { mg: product.caffeine_mg.toLocaleString(locale) })}</span>}
                         {product.high_salt && <span className="rounded bg-amber-100 px-1.5 text-amber-800">🧂 {t('pos.menu.high_salt')}</span>}
                         {product.allergens.length > 0 && <span>{product.allergens.join('، ')}</span>}

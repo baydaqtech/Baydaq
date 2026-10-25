@@ -3,8 +3,10 @@
 namespace App\Modules\Hr\Adapters;
 
 use App\Modules\Hr\Actions\Pay\DailyWage;
+use App\Modules\Hr\Actions\Pay\SaveBonus;
 use App\Modules\Hr\Actions\Pay\SaveDeduction;
 use App\Modules\Hr\Enums\AdjustmentStatus;
+use App\Modules\Hr\Models\BonusType;
 use App\Modules\Hr\Models\Deduction;
 use App\Modules\Hr\Models\DeductionType;
 use App\Modules\Hr\Models\Employee;
@@ -19,12 +21,20 @@ class EmployeePayrollAdjustments implements PayrollAdjustments
     /** How far ahead a large amount may be spread. */
     private const MAX_MONTHS = 12;
 
-    public function __construct(private SaveDeduction $save, private DailyWage $wage) {}
+    /** Deduction types other modules file under, created on first use. */
+    private const KINDS = [
+        'damage' => ['Damage or loss', 'تلف أو فقد'],
+        'cash_shortage' => ['Cash shortage', 'عجز نقدية'],
+        'staff_meal' => ['Staff meals', 'وجبات الموظفين'],
+    ];
 
-    public function requestDeduction(int $employeeId, string $amount, string $reason, string $origin): array
+    public function __construct(private SaveDeduction $save, private DailyWage $wage, private SaveBonus $saveBonus) {}
+
+    public function requestDeduction(int $employeeId, string $amount, string $reason, string $origin, string $kind = 'damage'): array
     {
         $employee = Employee::query()->findOrFail($employeeId);
-        $type = DeductionType::query()->firstOrCreate(['name_en' => 'Damage or loss'], ['name_ar' => 'تلف أو فقد']);
+        [$nameEn, $nameAr] = self::KINDS[$kind] ?? self::KINDS['damage'];
+        $type = DeductionType::query()->firstOrCreate(['name_en' => $nameEn], ['name_ar' => $nameAr]);
         $daily = $this->wage->daily($this->wage->contractOf($employee));
         $monthlyCap = $daily->multipliedBy((string) config('baydaq.hr.labor.max_deduction_days_per_month'));
         $remaining = BigDecimal::of($amount);
@@ -53,5 +63,14 @@ class EmployeePayrollAdjustments implements PayrollAdjustments
 
             return $created;
         });
+    }
+
+    public function requestBonus(int $employeeId, string $amount, string $reason, string $origin): int
+    {
+        $type = BonusType::query()->firstOrCreate(['name_en' => 'Sales commission'], ['name_ar' => 'عمولة مبيعات']);
+
+        return $this->saveBonus->handle(Employee::query()->findOrFail($employeeId), $type, [
+            'amount' => (string) BigDecimal::of($amount)->toScale(2), 'pay_month' => Carbon::today()->addMonthNoOverflow()->startOfMonth()->toDateString(), 'reason' => "{$reason} ({$origin})",
+        ])->id;
     }
 }

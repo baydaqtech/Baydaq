@@ -3,8 +3,12 @@
 namespace App\Modules\Pos\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Hr\Data\EmployeeSummary;
+use App\Modules\Hr\Ports\StaffDirectory;
+use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Http\Controllers\Concerns\ReachesBranches;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
+use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Pos\Actions\PayOrder;
 use App\Modules\Pos\Actions\PlaceOrder;
 use App\Modules\Pos\Actions\VoidOrder;
@@ -41,7 +45,8 @@ class SellController extends Controller
             'products' => self::menuProducts($register->company_id, $register->branch_id),
             'open_orders' => Order::query()->where('register_id', $register->id)->where('status', OrderStatus::Open)->with('lines')->latest()->get()->map(fn (Order $order) => self::orderArray($order))->all(),
             'types' => OrderType::options(),
-            'methods' => PaymentMethod::options(),
+            'methods' => collect(PaymentMethod::options())->reject(fn (array $option): bool => $option['value'] === PaymentMethod::StaffAccount->value && ! app(Entitlements::class)->isActive(Module::Hr))->values()->all(),
+            'staff' => app(Entitlements::class)->isActive(Module::Hr) ? collect(app(StaffDirectory::class)->staffAt($register->branch_id))->map(fn (EmployeeSummary $employee): array => ['value' => $employee->id, 'label' => $employee->name])->values()->all() : [],
             'can_discount' => $this->access()->allowsBranch(PosFeature::Orders->key('discount'), $register->branch_id, $register->company_id),
         ], ['pos']);
     }
@@ -66,9 +71,9 @@ class SellController extends Controller
     public function pay(Request $request, Register $register, Order $order, PayOrder $pay): RedirectResponse
     {
         abort_unless($order->register_id === $register->id && $this->access()->allowsBranch(PosFeature::Orders->key('sell'), $register->branch_id, $register->company_id), 403);
-        $data = $request->validate(['payments' => ['required', 'array', 'min:1'], 'payments.*.method' => ['required', Rule::enum(PaymentMethod::class)], 'payments.*.amount' => ['required', 'numeric', 'min:0.01'], 'payments.*.reference' => ['nullable', 'string', 'max:60']]);
+        $data = $request->validate(['payments' => ['required', 'array', 'min:1'], 'payments.*.method' => ['required', Rule::enum(PaymentMethod::class)], 'payments.*.amount' => ['required', 'numeric', 'min:0.01'], 'payments.*.reference' => ['nullable', 'string', 'max:60'], 'staff_employee_id' => ['nullable', 'integer']]);
 
-        $order = $pay->handle($order, $data['payments'], $request->user());
+        $order = $pay->handle($order, $data['payments'], $request->user(), $data['staff_employee_id'] ?? null);
         $this->toast(__('pos.sell.paid', ['number' => $order->number]));
 
         return back();
@@ -120,7 +125,7 @@ class SellController extends Controller
             ->map(fn (Product $product): array => [
                 'id' => $product->id, 'category_id' => $product->category_id, 'name' => $product->localized('name'), 'description' => $product->localized('description'),
                 'price' => (string) ($overrides[$product->id]->price ?? $product->price), 'vat_rate' => (string) $product->vat_rate, 'image' => $product->image,
-                'calories' => $product->calories, 'high_salt' => $product->high_salt, 'caffeine_mg' => $product->caffeine_mg, 'allergens' => $product->allergens ?? [],
+                'calories' => $product->calories, 'burn_minutes' => $product->burnMinutes(), 'salt_g' => $product->salt_g !== null ? (string) $product->salt_g : null, 'high_salt' => $product->high_salt, 'caffeine_mg' => $product->caffeine_mg, 'allergens' => $product->allergens ?? [],
                 'modifier_groups' => $product->modifierGroups->map(fn ($group) => ['id' => $group->id, 'name' => $group->localized('name'), 'min' => $group->min, 'max' => $group->max, 'modifiers' => $group->modifiers->where('is_active', true)->map(fn ($modifier) => ['id' => $modifier->id, 'name' => $modifier->localized('name'), 'price' => (string) $modifier->price])->values()->all()])->all(),
             ])->values()->all();
     }

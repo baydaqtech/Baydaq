@@ -18,6 +18,7 @@ use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Ports\OrgDirectory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -45,6 +46,7 @@ class SelfServiceController extends Controller
             'types' => LeaveType::query()->where('is_active', true)->orderBy('sort_order')->get()->map(fn (LeaveType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
             'advance' => self::advances($employee),
             'shifts' => self::shifts($employee),
+            'has_pin' => $employee->pin_hash !== null,
             'copy' => ['hr' => trans('hr')],
         ]);
     }
@@ -56,6 +58,21 @@ class SelfServiceController extends Controller
         $this->toast(__('hr.pay.advance_requested'));
 
         return back();
+    }
+
+    /** Set or change my till PIN (4–6 digits), used to open cash drawers (P1). */
+    public function setPin(Request $request): RedirectResponse
+    {
+        self::savePin($this->employee($request), $request);
+        $this->toast(__('hr.me.pin_saved'));
+
+        return back();
+    }
+
+    public static function savePin(Employee $employee, Request $request): void
+    {
+        $data = $request->validate(['pin' => ['required', 'digits_between:4,6', 'confirmed']]);
+        $employee->forceFill(['pin_hash' => Hash::make($data['pin'])])->save();
     }
 
     /** Pick up an open shift; away from home this makes a one-day secondment (H2). */

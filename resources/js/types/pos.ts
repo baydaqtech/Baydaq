@@ -28,6 +28,8 @@ export interface MenuProduct {
   vat_rate: string;
   image: string | null;
   calories: number | null;
+  burn_minutes?: number | null;
+  salt_g?: string | null;
   high_salt: boolean;
   caffeine_mg: number | null;
   allergens: string[];

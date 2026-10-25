@@ -587,6 +587,13 @@ return [
     'leave_year_basis' => ['calendar' => 'Calendar year (1 Jan)', 'hire_date' => 'From the hire date'],
 
     'me' => [
+        'pin' => 'Till PIN',
+        'pin_hint' => 'A 4–6 digit PIN you use to open a cash drawer. Keep it to yourself.',
+        'pin_set' => 'Your PIN is set.',
+        'pin_none' => 'No PIN yet.',
+        'pin_new' => 'New PIN',
+        'pin_confirm' => 'Repeat the PIN',
+        'pin_saved' => 'PIN saved.',
         'title' => 'My page',
         'since' => 'With us since :date',
         'balance' => 'My leave balance',

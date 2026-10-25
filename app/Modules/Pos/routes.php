@@ -44,5 +44,6 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:pos
         Route::post('/sell/{register}/orders/{order}/void', [SellController::class, 'void'])->middleware('access:pos.orders.void')->name('sell.orders.void');
         Route::put('/orders/{order}/kitchen', [SellController::class, 'kitchen'])->middleware('access:pos.orders.kitchen')->name('orders.kitchen');
         Route::get('/kitchen', [OrderController::class, 'kitchen'])->middleware('access:pos.orders.kitchen')->name('kitchen');
+        Route::get('/reports/menu-engineering', [OrderController::class, 'menuEngineering'])->middleware('access:pos.orders.view')->name('reports.menu_engineering');
         Route::get('/orders', [OrderController::class, 'index'])->middleware('access:pos.orders.view|pos.orders.sell')->name('orders.index');
     });

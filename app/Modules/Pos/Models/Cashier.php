@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * an HR employee (by id, through the StaffDirectory port).
  */
 #[Table('pos__cashiers')]
-#[Fillable(['company_id', 'employee_id', 'name', 'is_active'])]
+#[Fillable(['company_id', 'employee_id', 'name', 'commission_rate', 'is_active'])]
 #[Hidden(['pin_hash'])]
 class Cashier extends Model
 {
@@ -29,6 +29,6 @@ class Cashier extends Model
      */
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'commission_rate' => 'decimal:2'];
     }
 }

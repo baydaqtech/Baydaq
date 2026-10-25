@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import DataTable from '@/components/platform/DataTable';
 import FormField from '@/components/platform/FormField';
@@ -25,7 +25,7 @@ interface Group { id: number; company_id: number; name: string; name_ar: string;
 interface Override { branch_id: number; price: string | null; is_available: boolean }
 interface Product {
   id: number; company_id: number; category_id: number | null; category: string | null; sku: string | null; name: string; name_ar: string; name_en: string;
-  description_ar: string | null; description_en: string | null; price: string; vat_rate: string; calories: number | null; high_salt: boolean; caffeine_mg: number | null;
+  description_ar: string | null; description_en: string | null; price: string; cost: string | null; vat_rate: string; calories: number | null; high_salt: boolean; salt_g: string | null; caffeine_mg: number | null;
   allergens: string[] | null; is_active: boolean; sold_by_weight: boolean; sort_order: number; modifier_group_ids: number[]; branch_overrides: Override[];
   [key: string]: unknown;
 }
@@ -154,7 +154,7 @@ function ProductDialog({ product, companies, categories, groups, branches }: { p
     company_id: product?.company_id ?? companies[0]?.value ?? '', category_id: product?.category_id ?? '', sku: product?.sku ?? '',
     name_ar: product?.name_ar ?? '', name_en: product?.name_en ?? '', description_ar: product?.description_ar ?? '', description_en: product?.description_en ?? '',
     price: product?.price ?? '', vat_rate: product ? String(Number(product.vat_rate)) : '15',
-    calories: product?.calories ?? '', high_salt: product?.high_salt ?? false, caffeine_mg: product?.caffeine_mg ?? '', allergens: (product?.allergens ?? []).join(', '),
+    cost: product?.cost ?? '', salt_g: product?.salt_g ?? '', calories: product?.calories ?? '', high_salt: product?.high_salt ?? false, caffeine_mg: product?.caffeine_mg ?? '', allergens: (product?.allergens ?? []).join(', '),
     is_active: product?.is_active ?? true, sold_by_weight: product?.sold_by_weight ?? false, sort_order: product?.sort_order ?? 0,
     modifier_group_ids: product?.modifier_group_ids ?? [],
     branch_overrides: product?.branch_overrides ?? [],
@@ -175,7 +175,7 @@ function ProductDialog({ product, companies, categories, groups, branches }: { p
     event.preventDefault();
     form.transform((data) => ({
       ...data,
-      category_id: data.category_id || null, sku: data.sku || null, calories: data.calories === '' ? null : data.calories, caffeine_mg: data.caffeine_mg === '' ? null : data.caffeine_mg,
+      category_id: data.category_id || null, sku: data.sku || null, cost: data.cost === '' ? null : data.cost, salt_g: data.salt_g === '' ? null : data.salt_g, calories: data.calories === '' ? null : data.calories, caffeine_mg: data.caffeine_mg === '' ? null : data.caffeine_mg,
       allergens: data.allergens.split(/[,،]/).map((item) => item.trim()).filter(Boolean),
       branch_overrides: data.branch_overrides.map((row) => ({ ...row, price: row.price || null })),
     }));
@@ -196,6 +196,8 @@ function ProductDialog({ product, companies, categories, groups, branches }: { p
           <FormField label={f('description_en')}><Textarea dir="ltr" rows={2} value={form.data.description_en} onChange={(event) => form.setData('description_en', event.target.value)} /></FormField>
           <FormField label={f('price')} error={form.errors.price}><Input dir="ltr" inputMode="decimal" value={form.data.price} onChange={(event) => form.setData('price', event.target.value)} /></FormField>
           <FormField label={f('vat_rate')} error={form.errors.vat_rate}><SelectInput value={form.data.vat_rate} onChange={(value) => form.setData('vat_rate', value)} options={VAT_RATES} /></FormField>
+          <FormField label={f('cost')} hint={t('pos.catalog.cost_hint')} error={form.errors.cost}><Input dir="ltr" inputMode="decimal" value={form.data.cost ?? ''} onChange={(event) => form.setData('cost', event.target.value)} /></FormField>
+          <FormField label={f('salt_g')} error={form.errors.salt_g}><Input dir="ltr" inputMode="decimal" value={form.data.salt_g ?? ''} onChange={(event) => form.setData('salt_g', event.target.value)} /></FormField>
           <FormField label={f('sku')} error={form.errors.sku}><Input dir="ltr" value={form.data.sku} onChange={(event) => form.setData('sku', event.target.value)} /></FormField>
           <FormField label={f('calories')} error={form.errors.calories}><Input dir="ltr" type="number" min={0} value={form.data.calories} onChange={(event) => form.setData('calories', event.target.value === '' ? '' : Number(event.target.value))} /></FormField>
           <FormField label={f('caffeine_mg')} error={form.errors.caffeine_mg}><Input dir="ltr" type="number" min={0} value={form.data.caffeine_mg} onChange={(event) => form.setData('caffeine_mg', event.target.value === '' ? '' : Number(event.target.value))} /></FormField>
@@ -243,12 +245,13 @@ export default function CatalogIndex({ companies, brands, branches, categories, 
   const f = useField();
   const { locale } = useLocale();
   const { can } = useAccess();
+  const url = useSuiteUrl();
   const canEdit = can('pos.catalog.create', 'pos.catalog.update');
   const companyName = (id: number) => (companies.length > 1 ? companies.find((company) => company.value === id)?.label : null);
 
   return (
     <SuiteLayout title={t('pos.catalog.title')}>
-      <PageHeader title={t('pos.catalog.title')} />
+      <PageHeader title={t('pos.catalog.title')} actions={can('pos.orders.view') && <Button asChild size="sm" variant="outline"><Link href={url('/pos/reports/menu-engineering')}>{t('pos.engineering.title')}</Link></Button>} />
       <Tabs defaultValue="products">
         <TabsList>
           <TabsTrigger value="products">{t('pos.catalog.products')}</TabsTrigger>

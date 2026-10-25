@@ -23,6 +23,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/leave', [SelfServiceController::class, 'requestLeave'])->middleware('throttle:10,1')->name('leave.store');
     Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->name('advance.store');
     Route::post('/shifts/{shift}/claim', [SelfServiceController::class, 'claimShift'])->middleware('throttle:10,1')->name('shifts.claim');
+    Route::put('/pin', [SelfServiceController::class, 'setPin'])->middleware('throttle:5,1')->name('pin.update');
 });
 
 /*

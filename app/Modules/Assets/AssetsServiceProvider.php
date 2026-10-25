@@ -3,7 +3,9 @@
 namespace App\Modules\Assets;
 
 use App\Modules\Assets\Adapters\CustodyClearance;
+use App\Modules\Assets\Adapters\RegisteredAssetDirectory;
 use App\Modules\Assets\Enums\AssetsFeature;
+use App\Modules\Assets\Ports\AssetDirectory;
 use App\Modules\Hr\Ports\OffboardingClearance;
 use App\Modules\Platform\Access\FeatureRegistry;
 use Illuminate\Support\ServiceProvider;
@@ -14,6 +16,11 @@ use Illuminate\Support\ServiceProvider;
  */
 class AssetsServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind(AssetDirectory::class, RegisteredAssetDirectory::class);
+    }
+
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
