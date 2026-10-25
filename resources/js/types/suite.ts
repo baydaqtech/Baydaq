@@ -29,8 +29,18 @@ export interface SuiteScopeProp {
   branches: number[];
 }
 
+export interface SuiteShortcut {
+  id: number;
+  name: string | null;
+  label: string;
+  segment: string;
+  branches: number[];
+  pinned: boolean;
+}
+
 export interface SuiteProp {
   scope: SuiteScopeProp;
+  shortcuts: SuiteShortcut[];
   tree: SuiteOrganization[];
   can: string[];
   is_owner: boolean;

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
  * Section tabs under the header. `keys` hides a tab from users holding none of them; the
  * server still checks each route. Modules append their own tabs here as they land.
  */
-const NAV = [
+export const NAV = [
   { path: '/', label: 'suite.nav.home', icon: Home, exact: true },
   { path: '/structure/locations', label: 'suite.structure.locations', icon: MapPin, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },
   { path: '/structure/brands', label: 'suite.structure.brands', icon: Tags, keys: ['suite.structure.view', 'suite.structure.create', 'suite.structure.update'] },

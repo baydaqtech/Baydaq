@@ -8,6 +8,8 @@ use App\Modules\Platform\Http\Controllers\HomeController;
 use App\Modules\Platform\Http\Controllers\MemberController;
 use App\Modules\Platform\Http\Controllers\OrganizationController;
 use App\Modules\Platform\Http\Controllers\PaymentController;
+use App\Modules\Platform\Http\Controllers\ScopeShortcutController;
+use App\Modules\Platform\Http\Controllers\SearchController;
 use App\Modules\Platform\Http\Controllers\StructureController;
 use App\Modules\Platform\Http\Controllers\SuiteEntryController;
 use App\Modules\Platform\Http\Controllers\WorkLocationController;
@@ -24,6 +26,9 @@ Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('s
 
     Route::prefix('{scope}')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->middleware('suite.scope')->group(function (): void {
         Route::get('/', HomeController::class)->name('home');
+        Route::get('/search', SearchController::class)->middleware('throttle:60,1')->name('search');
+        Route::post('/shortcuts', [ScopeShortcutController::class, 'store'])->name('shortcuts.store');
+        Route::delete('/shortcuts/{shortcut}', [ScopeShortcutController::class, 'destroy'])->name('shortcuts.destroy');
 
         // Structure: organizations, companies and branches.
         Route::middleware('access:suite.structure.create')->group(function (): void {

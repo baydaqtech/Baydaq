@@ -9,6 +9,17 @@ return [
         'no_modules' => 'No modules are active yet. Contact Baydaq to activate HR.',
     ],
 
+    'palette' => [
+        'open' => 'Search',
+        'placeholder' => 'Pages, companies, branches, employees, members…',
+        'empty' => 'Nothing found.',
+        'save' => 'Save view',
+        'save_placeholder' => 'Name this view, e.g. Jeddah branches',
+        'saved' => 'View saved. Find it with ⌘K.',
+        'remove' => 'Remove',
+        'groups' => ['saved' => 'Saved views', 'recent' => 'Recent', 'records' => 'Records', 'places' => 'Companies and branches', 'pages' => 'Pages'],
+    ],
+
     'scope' => [
         'all' => 'All organizations',
         'organization' => 'Organization',

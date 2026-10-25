@@ -6,6 +6,7 @@ use App\Modules\Hr\Adapters\EmployeePayrollAdjustments;
 use App\Modules\Hr\Adapters\EmployeeStaffAvailability;
 use App\Modules\Hr\Adapters\EmployeeStaffDirectory;
 use App\Modules\Hr\Adapters\EmployeeStaffPresence;
+use App\Modules\Hr\Adapters\EmployeeSuiteSearch;
 use App\Modules\Hr\Console\ApplyMovements;
 use App\Modules\Hr\Console\NotifyExpiringDocuments;
 use App\Modules\Hr\Console\RechargeSecondmentsCommand;
@@ -16,6 +17,7 @@ use App\Modules\Hr\Ports\StaffAvailability;
 use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Hr\Ports\StaffPresence;
 use App\Modules\Platform\Access\FeatureRegistry;
+use App\Modules\Platform\Ports\SuiteSearch;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -32,6 +34,7 @@ class HrServiceProvider extends ServiceProvider
         $this->app->singleton(OffboardingClearance::class);
         $this->app->bind(PayrollAdjustments::class, EmployeePayrollAdjustments::class);
         $this->app->bind(StaffPresence::class, EmployeeStaffPresence::class);
+        $this->app->tag([EmployeeSuiteSearch::class], SuiteSearch::TAG);
     }
 
     public function boot(): void

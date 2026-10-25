@@ -10,6 +10,7 @@ use App\Modules\Platform\Access\SuiteScope;
 use App\Modules\Platform\Models\Branch;
 use App\Modules\Platform\Models\Company;
 use App\Modules\Platform\Models\Organization;
+use App\Modules\Platform\Models\ScopeShortcut;
 use App\Modules\Platform\Models\Subscription;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use Closure;
@@ -54,6 +55,10 @@ class ResolveSuiteScope
         URL::defaults(['scope' => $segment]);
         $request->route()->forgetParameter('scope');
         $request->session()->put('suite.last_scope', $segment);
+
+        if ($request->isMethod('GET') && ! $request->expectsJson()) {
+            ScopeShortcut::visit($user->id, $scope->segment(), $scope->selectedBranchIds);
+        }
         app()->instance(SuiteScope::class, $scope);
 
         Inertia::share('suite', fn (): array => $this->props($scope, $organizations, $access));
@@ -132,9 +137,38 @@ class ResolveSuiteScope
                     ])->all(),
                 ])->all(),
             ])->all(),
+            'shortcuts' => $this->shortcuts($organizations),
             'can' => $access->keys(),
             'is_owner' => $access->isOwner(),
             'modules' => Subscription::query()->whereIn('status', ['active', 'lapsed'])->pluck('module')->map(fn ($module) => $module->value)->values()->all(),
         ];
+    }
+
+    /**
+     * Pinned scopes first, then the latest visited, each with a readable label. Shortcuts that
+     * point somewhere the user can no longer reach are left out.
+     *
+     * @param  Collection<int, Organization>  $organizations
+     * @return list<array{id: int, name: ?string, label: string, segment: string, branches: list<int>, pinned: bool}>
+     */
+    private function shortcuts($organizations): array
+    {
+        $companies = $organizations->flatMap->companies;
+        $branchNames = $companies->flatMap->branches->mapWithKeys(fn (Branch $branch): array => [$branch->id => $branch->localized('name')]);
+        $nodes = collect(['all' => __('suite.scope.all')])
+            ->merge($organizations->mapWithKeys(fn (Organization $organization): array => ['o-'.$organization->slug => $organization->localized('name')]))
+            ->merge($companies->mapWithKeys(fn (Company $company): array => ['c-'.$company->slug => $company->localized('name')]));
+
+        return ScopeShortcut::query()->where('user_id', request()->user()->id)
+            ->orderByDesc('pinned')->orderByDesc('last_used_at')->limit(30)->get()
+            ->filter(fn (ScopeShortcut $shortcut): bool => $nodes->has($shortcut->segment) && collect($shortcut->branchIds())->every(fn (int $id): bool => $branchNames->has($id)))
+            ->map(fn (ScopeShortcut $shortcut): array => [
+                'id' => $shortcut->id,
+                'name' => $shortcut->name,
+                'label' => collect([$nodes[$shortcut->segment], ...collect($shortcut->branchIds())->map(fn (int $id) => $branchNames[$id])])->implode(' › '),
+                'segment' => $shortcut->segment,
+                'branches' => $shortcut->branchIds(),
+                'pinned' => $shortcut->pinned,
+            ])->values()->all();
     }
 }
