@@ -11,7 +11,7 @@
 ## Tables per module
 
 - Platform (kernel: tenants, structure, access, packages, customers): 23 tables
-- HR: 58 tables
+- HR: 60 tables
 - Point of sale: 12 tables
 - Invoicing (ZATCA): 5 tables
 - Reservations: 6 tables
@@ -889,6 +889,38 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    hr_message_templates {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id
+        bigint branch_id
+        varchar name
+        varchar trigger
+        varchar event
+        tinyint weekday
+        tinyint month_day
+        smallint days_before
+        json channels
+        varchar subject
+        text body
+        tinyint is_active
+        date last_run_on
+        bigint created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    hr_messages {
+        bigint id PK
+        bigint client_id FK
+        bigint template_id FK
+        bigint employee_id FK
+        varchar occurrence
+        varchar subject
+        text body
+        json channels
+        timestamp sent_at
+        timestamp read_at
+    }
     hr_overtime {
         bigint id PK
         bigint client_id FK
@@ -1241,6 +1273,7 @@ erDiagram
     hr_employees ||--o{ hr_leave_adjustments : "employee_id"
     hr_employees ||--o{ hr_leave_requests : "employee_id"
     hr_employees ||--o{ hr_letters : "employee_id"
+    hr_employees ||--o{ hr_messages : "employee_id"
     hr_employees ||--o{ hr_overtime : "employee_id"
     hr_employees ||--o{ hr_payroll_lines : "employee_id"
     hr_employees ||--o{ hr_recognitions : "employee_id"
@@ -1263,6 +1296,7 @@ erDiagram
     hr_jobs ||--o{ hr_shifts : "job_id"
     hr_leave_types ||--o{ hr_leave_adjustments : "leave_type_id"
     hr_leave_types ||--o{ hr_leave_requests : "leave_type_id"
+    hr_message_templates ||--o{ hr_messages : "template_id"
     hr_payroll_runs ||--o{ hr_payroll_lines : "payroll_run_id"
     hr_review_cycles ||--o{ hr_reviews : "cycle_id"
     hr_sections ||--o{ hr_employees : "section_id"
@@ -1283,6 +1317,7 @@ erDiagram
     platform_branches ||..o{ hr_breaks : "branch_id"
     platform_branches ||..o{ hr_expense_claims : "branch_id"
     platform_branches ||..o{ hr_job_openings : "branch_id"
+    platform_branches ||..o{ hr_message_templates : "branch_id"
     platform_branches ||..o{ hr_overtime : "branch_id"
     platform_branches ||..o{ hr_payroll_lines : "branch_id"
     platform_branches ||..o{ hr_recognitions : "branch_id"
@@ -1299,6 +1334,7 @@ erDiagram
     platform_companies ||..o{ hr_insurance_policies : "company_id"
     platform_companies ||..o{ hr_job_openings : "company_id"
     platform_companies ||..o{ hr_letters : "company_id"
+    platform_companies ||..o{ hr_message_templates : "company_id"
     platform_companies ||..o{ hr_overtime : "company_id"
     platform_companies ||..o{ hr_recognitions : "company_id"
     platform_companies ||..o{ hr_review_cycles : "company_id"
@@ -1328,6 +1364,7 @@ erDiagram
     users ||--o{ hr_leave_requests : "decided_by"
     users ||--o{ hr_leave_requests : "requested_by"
     users ||--o{ hr_letters : "issued_by"
+    users ||--o{ hr_message_templates : "created_by"
     users ||--o{ hr_overtime : "decided_by"
     users ||--o{ hr_overtime : "requested_by"
     users ||--o{ hr_payroll_runs : "approved_by"

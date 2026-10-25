@@ -17,6 +17,7 @@ use App\Modules\Hr\Http\Controllers\HeadcountReportController;
 use App\Modules\Hr\Http\Controllers\InsuranceController;
 use App\Modules\Hr\Http\Controllers\LeaveController;
 use App\Modules\Hr\Http\Controllers\LetterController;
+use App\Modules\Hr\Http\Controllers\MessageController;
 use App\Modules\Hr\Http\Controllers\MovementController;
 use App\Modules\Hr\Http\Controllers\MyEngagementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
@@ -61,6 +62,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/announcements/{announcement}/read', [MyEngagementController::class, 'read'])->middleware(['throttle:30,1', 'feature:hr.announcements'])->name('announcements.read');
     Route::get('/announcements/{announcement}/file', [MyEngagementController::class, 'file'])->middleware('feature:hr.announcements')->name('announcements.file');
     Route::post('/surveys/{survey}', [MyEngagementController::class, 'answer'])->middleware(['throttle:10,1', 'feature:hr.surveys'])->name('surveys.answer');
+    Route::post('/messages/{message}/read', [MyEngagementController::class, 'readMessage'])->middleware('throttle:60,1')->name('messages.read');
     Route::post('/recognition', [MyEngagementController::class, 'recognise'])->middleware(['throttle:20,1', 'feature:hr.recognition'])->name('recognition.store');
     Route::post('/remote', [SelfServiceController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:hr.remote'])->name('remote.store');
     Route::post('/reviews/{review}', [SelfServiceController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:hr.performance'])->name('reviews.self');
@@ -225,6 +227,13 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::middleware('feature:hr.recognition')->group(function (): void {
             Route::post('/recognition', [RecognitionController::class, 'store'])->middleware('access:hr.recognition.create')->name('recognition.store');
             Route::get('/recognition', [RecognitionController::class, 'index'])->middleware('access:hr.recognition.view|hr.recognition.create')->name('recognition.index');
+        });
+
+        Route::middleware('feature:hr.messages')->group(function (): void {
+            Route::post('/messages', [MessageController::class, 'store'])->middleware('access:hr.messages.create')->name('messages.store');
+            Route::put('/messages/{template}', [MessageController::class, 'update'])->middleware('access:hr.messages.update')->name('messages.update');
+            Route::post('/messages/{template}/send', [MessageController::class, 'send'])->middleware(['access:hr.messages.create|hr.messages.update', 'throttle:10,1'])->name('messages.send');
+            Route::get('/messages', [MessageController::class, 'index'])->middleware('access:hr.messages.view|hr.messages.create|hr.messages.update')->name('messages.index');
         });
 
         // Leaving and the disciplinary record.

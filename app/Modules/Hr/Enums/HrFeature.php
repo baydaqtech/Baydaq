@@ -39,6 +39,7 @@ enum HrFeature: string implements Feature
     case Announcements = 'announcements'; // policies, circulars and news
     case Surveys = 'surveys';         // staff surveys and results
     case Recognition = 'recognition'; // thanks and rewards
+    case Messages = 'messages';       // the message builder
 
     public static function group(): string
     {
@@ -63,7 +64,7 @@ enum HrFeature: string implements Feature
             self::Catalog => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Reports => [FeatureAction::View, FeatureAction::Export],
             self::Announcements, self::Surveys, self::Recognition => [FeatureAction::View, FeatureAction::Create],
-            self::Insurance, self::Training => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update],
+            self::Insurance, self::Training, self::Messages => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update],
             self::Shifts, self::Tasks => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Breaks => [FeatureAction::View, FeatureAction::Approve],
             self::Offboarding, self::Violations, self::Reviews, self::Overtime => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve],

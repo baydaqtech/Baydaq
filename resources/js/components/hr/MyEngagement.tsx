@@ -132,3 +132,33 @@ export function MyRecognitionCard({ data }: { data: MyRecognition }) {
     </section>
   );
 }
+
+export interface MyMessage { id: number; subject: string; body: string; sent_at: string; read: boolean }
+
+/** My inbox from the message builder. */
+export function MyMessages({ messages }: { messages: MyMessage[] }) {
+  const t = useT();
+  const { locale } = useLocale();
+  const [open, setOpen] = useState<number | null>(null);
+
+  if (messages.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-base">{t('hr.messages.inbox')}</CardTitle></CardHeader>
+      <CardContent className="divide-y text-sm">
+        {messages.map((message) => (
+          <div key={message.id} className="py-2">
+            <button type="button" className="flex w-full items-center justify-between gap-2 text-start" onClick={() => { setOpen(open === message.id ? null : message.id); if (!message.read) router.post(`/me/messages/${message.id}/read`, {}, { preserveScroll: true }); }}>
+              <span className={cn(!message.read && 'font-semibold')}>{message.subject}</span>
+              <span className="text-xs text-muted-foreground">{formatDate(message.sent_at, locale)}</span>
+            </button>
+            {open === message.id && <p className="mt-2 whitespace-pre-line">{message.body}</p>}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}

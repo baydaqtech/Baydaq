@@ -83,6 +83,7 @@ class SelfServiceController extends Controller
             'announcements' => AnnouncementController::feed($employee),
             'surveys' => SurveyController::openFor($employee),
             'recognition' => MyEngagementController::recognition($employee),
+            'messages' => MessageController::inbox($employee),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
             'copy' => ['hr' => trans('hr')],

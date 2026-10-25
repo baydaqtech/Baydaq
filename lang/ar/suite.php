@@ -219,6 +219,7 @@ return [
         'hr_announcements' => 'السياسات والتعاميم',
         'hr_surveys' => 'استبيانات الموظفين',
         'hr_recognition' => 'التقدير والمكافآت',
+        'hr_messages' => 'منشئ الرسائل (مجدولة وعند الأحداث)',
         'finance_accounting' => 'المحاسبة',
         'finance_purchasing' => 'المشتريات',
         'mobile_attendance' => 'الحضور والانصراف',
@@ -238,6 +239,7 @@ return [
         'mobile_announcements' => 'السياسات والأخبار',
         'mobile_surveys' => 'الاستبيانات',
         'mobile_recognition' => 'لوحة التقدير',
+        'mobile_messages' => 'صندوق الرسائل',
         'mobile_expenses' => 'المطالبات المالية',
         'mobile_remote' => 'العمل من المنزل',
         'mobile_assets_audit' => 'جرد الأصول',
@@ -276,7 +278,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'tasks' => 'المهام', 'breaks' => 'الاستراحات', 'separations' => 'المغادرون', 'violations' => 'المخالفات', 'recruitment' => 'التوظيف', 'reviews' => 'تقييم الأداء', 'remote' => 'العمل عن بُعد', 'expenses' => 'المصروفات', 'overtime' => 'العمل الإضافي', 'insurance' => 'التأمين', 'training' => 'التدريب', 'announcements' => 'التعاميم', 'surveys' => 'الاستبيانات', 'recognition' => 'التقدير', 'catalog' => 'إعدادات الموارد البشرية'],
+        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'tasks' => 'المهام', 'breaks' => 'الاستراحات', 'separations' => 'المغادرون', 'violations' => 'المخالفات', 'recruitment' => 'التوظيف', 'reviews' => 'تقييم الأداء', 'remote' => 'العمل عن بُعد', 'expenses' => 'المصروفات', 'overtime' => 'العمل الإضافي', 'insurance' => 'التأمين', 'training' => 'التدريب', 'announcements' => 'التعاميم', 'surveys' => 'الاستبيانات', 'recognition' => 'التقدير', 'messages' => 'الرسائل', 'catalog' => 'إعدادات الموارد البشرية'],
         'invoicing' => ['invoices' => 'الفواتير', 'customers' => 'العملاء', 'einvoicing' => 'الفوترة الإلكترونية'],
         'finance' => ['ledger' => 'دفتر الأستاذ', 'reports' => 'التقارير المالية', 'purchasing' => 'المشتريات'],
         'pos' => ['sell' => 'البيع', 'orders' => 'الطلبات', 'kitchen' => 'المطبخ', 'catalog' => 'القائمة', 'registers' => 'أجهزة الكاشير'],

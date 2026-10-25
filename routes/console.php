@@ -15,6 +15,7 @@ Schedule::command('invoices:mark-overdue')->dailyAt('00:10')->withoutOverlapping
 Schedule::command('hr:apply-movements')->dailyAt('00:20')->withoutOverlapping()->onOneServer();
 Schedule::command('hr:accept-overdue-resignations')->dailyAt('00:25')->withoutOverlapping()->onOneServer();
 Schedule::command('hr:notify-expiring-documents')->dailyAt('07:00')->withoutOverlapping()->onOneServer();
+Schedule::command('hr:send-messages')->dailyAt('08:00')->timezone('Asia/Riyadh')->withoutOverlapping()->onOneServer();
 Schedule::command('hr:recharge-secondments')->monthlyOn(1, '03:00')->withoutOverlapping()->onOneServer();
 
 // Subscriptions: memberships past their last day expire just after midnight (Riyadh time).

@@ -8,9 +8,11 @@ use App\Modules\Hr\Actions\Engagement\RecognitionFlow;
 use App\Modules\Hr\Actions\Engagement\SurveyFlow;
 use App\Modules\Hr\Http\Controllers\AnnouncementController;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
+use App\Modules\Hr\Http\Controllers\MessageController;
 use App\Modules\Hr\Http\Controllers\MyEngagementController;
 use App\Modules\Hr\Http\Controllers\SurveyController;
 use App\Modules\Hr\Models\Announcement;
+use App\Modules\Hr\Models\EmployeeMessage;
 use App\Modules\Hr\Models\Survey;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,6 +48,16 @@ class EngagementController extends Controller
         $flow->answer(MyEngagementController::visibleSurvey($survey, $employee), $employee, MyEngagementController::validateAnswers($request));
 
         return response()->json(['answered' => true], 201);
+    }
+
+    public function messages(Request $request): JsonResponse
+    {
+        return response()->json(['messages' => MessageController::inbox($this->employee($request))]);
+    }
+
+    public function readMessage(Request $request, EmployeeMessage $message): JsonResponse
+    {
+        return response()->json(['read_at' => MyEngagementController::markRead($message, $this->employee($request))->read_at?->toIso8601String()]);
     }
 
     public function recognition(Request $request): JsonResponse

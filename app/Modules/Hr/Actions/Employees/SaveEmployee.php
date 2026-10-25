@@ -2,6 +2,7 @@
 
 namespace App\Modules\Hr\Actions\Employees;
 
+use App\Modules\Hr\Actions\Messages\MessageBuilder;
 use App\Modules\Hr\Adapters\EmployeeStaffDirectory;
 use App\Modules\Hr\Enums\EmployeeStatus;
 use App\Modules\Hr\Enums\PlacementKind;
@@ -95,8 +96,13 @@ class SaveEmployee
 
                 $this->audit->record($employee, 'created', null, $actor);
                 EmployeeHired::dispatch(EmployeeStaffDirectory::summary($employee));
+                MessageBuilder::afterCommit('hired', $employee, 'hired');
             } else {
                 $this->audit->record($employee, 'updated', $changes ?: null, $actor);
+
+                if ($employee->wasChanged('job_id') && $employee->job_id !== null) {
+                    MessageBuilder::afterCommit('job_changed', $employee, 'job:'.$employee->job_id.':'.now()->format('Ymd'));
+                }
             }
 
             return $employee;

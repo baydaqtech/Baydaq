@@ -10,6 +10,7 @@ use App\Modules\Hr\Enums\EmployeeStatus;
 use App\Modules\Hr\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Modules\Hr\Models\Announcement;
 use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\EmployeeMessage;
 use App\Modules\Hr\Models\Recognition;
 use App\Modules\Hr\Models\Survey;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
@@ -57,6 +58,24 @@ class MyEngagementController extends Controller
         $this->toast(__('hr.recognition.sent'));
 
         return back();
+    }
+
+    public function readMessage(Request $request, EmployeeMessage $message): RedirectResponse
+    {
+        self::markRead($message, $this->employee($request));
+
+        return back();
+    }
+
+    public static function markRead(EmployeeMessage $message, Employee $employee): EmployeeMessage
+    {
+        abort_unless($message->employee_id === $employee->id, 404);
+
+        if ($message->read_at === null) {
+            $message->forceFill(['read_at' => now()])->save();
+        }
+
+        return $message;
     }
 
     public static function visibleAnnouncement(Announcement $announcement, Employee $employee): Announcement

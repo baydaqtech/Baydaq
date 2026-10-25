@@ -12,6 +12,7 @@ use App\Modules\Hr\Console\AcceptOverdueResignations;
 use App\Modules\Hr\Console\ApplyMovements;
 use App\Modules\Hr\Console\NotifyExpiringDocuments;
 use App\Modules\Hr\Console\RechargeSecondmentsCommand;
+use App\Modules\Hr\Console\SendScheduledMessages;
 use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Ports\OffboardingClearance;
 use App\Modules\Hr\Ports\PayrollAdjustments;
@@ -51,7 +52,7 @@ class HrServiceProvider extends ServiceProvider
         }
 
         if ($this->app->runningInConsole()) {
-            $this->commands([AcceptOverdueResignations::class, ApplyMovements::class, NotifyExpiringDocuments::class, RechargeSecondmentsCommand::class]);
+            $this->commands([AcceptOverdueResignations::class, ApplyMovements::class, NotifyExpiringDocuments::class, RechargeSecondmentsCommand::class, SendScheduledMessages::class]);
         }
     }
 }

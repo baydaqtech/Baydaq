@@ -49,6 +49,8 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/announcements/{announcement}/read', [EngagementController::class, 'read'])->middleware(['throttle:30,1', 'feature:mobile.announcements', 'feature:hr.announcements'])->name('announcements.read');
     Route::get('/surveys', [EngagementController::class, 'surveys'])->middleware(['feature:mobile.surveys', 'feature:hr.surveys'])->name('surveys.index');
     Route::post('/surveys/{survey}', [EngagementController::class, 'answer'])->middleware(['throttle:10,1', 'feature:mobile.surveys', 'feature:hr.surveys'])->name('surveys.answer');
+    Route::get('/messages', [EngagementController::class, 'messages'])->middleware('feature:mobile.messages')->name('messages.index');
+    Route::post('/messages/{message}/read', [EngagementController::class, 'readMessage'])->middleware(['throttle:60,1', 'feature:mobile.messages'])->name('messages.read');
     Route::get('/recognition', [EngagementController::class, 'recognition'])->middleware(['feature:mobile.recognition', 'feature:hr.recognition'])->name('recognition.index');
     Route::post('/recognition', [EngagementController::class, 'recognise'])->middleware(['throttle:20,1', 'feature:mobile.recognition', 'feature:hr.recognition'])->name('recognition.store');
     Route::get('/remote', [RecordController::class, 'remote'])->middleware('feature:mobile.remote')->name('remote.show');

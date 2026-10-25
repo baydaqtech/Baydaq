@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Briefcase, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Timer, HeartPulse, Megaphone, MessageSquareText, Award, GraduationCap, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { BookOpen, Briefcase, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Timer, HeartPulse, Megaphone, MessageSquareText, Award, Mail, GraduationCap, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -35,6 +35,7 @@ export const NAV = [
   { path: '/hr/announcements', feature: 'hr.announcements', label: 'suite.module_nav.hr.announcements', icon: Megaphone, module: 'hr', keys: ['hr.announcements.view', 'hr.announcements.create'] },
   { path: '/hr/surveys', feature: 'hr.surveys', label: 'suite.module_nav.hr.surveys', icon: MessageSquareText, module: 'hr', keys: ['hr.surveys.view', 'hr.surveys.create'] },
   { path: '/hr/recognition', feature: 'hr.recognition', label: 'suite.module_nav.hr.recognition', icon: Award, module: 'hr', keys: ['hr.recognition.view', 'hr.recognition.create'] },
+  { path: '/hr/messages', feature: 'hr.messages', label: 'suite.module_nav.hr.messages', icon: Mail, module: 'hr', keys: ['hr.messages.view', 'hr.messages.create', 'hr.messages.update'] },
   { path: '/hr/recruitment', feature: 'hr.recruitment', label: 'suite.module_nav.hr.recruitment', icon: Briefcase, module: 'hr', keys: ['hr.recruitment.view'] },
   { path: '/hr/reviews', feature: 'hr.performance', label: 'suite.module_nav.hr.reviews', icon: Star, module: 'hr', keys: ['hr.reviews.view', 'hr.reviews.approve'] },
   { path: '/hr/separations', feature: 'hr.offboarding', label: 'suite.module_nav.hr.separations', icon: DoorOpen, module: 'hr', keys: ['hr.offboarding.view', 'hr.offboarding.approve'] },
