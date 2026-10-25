@@ -23,6 +23,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:sub
 
         Route::post('/members', [MemberController::class, 'store'])->middleware('access:subscriptions.members.create')->name('members.store');
         Route::put('/members/{member}', [MemberController::class, 'update'])->middleware('access:subscriptions.members.update')->name('members.update');
+        Route::post('/members/{member}/card', [MemberController::class, 'replaceCard'])->middleware('access:subscriptions.members.update')->name('members.card.replace');
         Route::post('/members/{member}/memberships', [MemberController::class, 'sell'])->middleware('access:subscriptions.members.sell')->name('members.sell');
         Route::post('/memberships/{membership}/freeze', [MemberController::class, 'freeze'])->middleware('access:subscriptions.members.freeze')->name('memberships.freeze');
         Route::post('/memberships/{membership}/dependents', [MemberController::class, 'addDependent'])->middleware('access:subscriptions.members.sell')->name('memberships.dependents.store');

@@ -34,6 +34,12 @@ return [
     ],
 
     // Shared by the platform components (tables, forms, dialogs) in every area.
+    'scanner' => [
+        'start' => 'المسح بالكاميرا',
+        'stop' => 'إيقاف الكاميرا',
+        'denied' => 'الكاميرا محجوبة. اسمح بها في المتصفح، أو اكتب الرمز.',
+    ],
+
     'actions' => [
         'search' => 'بحث…',
         'all' => 'الكل',

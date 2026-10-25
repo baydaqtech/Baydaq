@@ -22,6 +22,7 @@ use App\Modules\Subscriptions\Models\Plan;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
@@ -103,6 +104,18 @@ class MemberController extends Controller
         $this->authorizeCompanyFor(SubscriptionsFeature::Members, FeatureAction::Update, $member->company_id);
         $save->handle($member, $this->validated($request, creating: false));
         $this->toast(__('subscriptions.members.saved'));
+
+        return back();
+    }
+
+    /**
+     * A new card code: the old QR and card link stop working at once (a lost or shared card).
+     */
+    public function replaceCard(Member $member): RedirectResponse
+    {
+        $this->authorizeCompanyFor(SubscriptionsFeature::Members, FeatureAction::Update, $member->company_id);
+        $member->forceFill(['card_token' => Str::random(32)])->save();
+        $this->toast(__('subscriptions.members.card_replaced'));
 
         return back();
     }

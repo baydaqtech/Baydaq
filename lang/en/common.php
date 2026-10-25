@@ -34,6 +34,12 @@ return [
     ],
 
     // Shared by the platform components (tables, forms, dialogs) in every area.
+    'scanner' => [
+        'start' => 'Scan with camera',
+        'stop' => 'Stop camera',
+        'denied' => 'The camera is blocked. Allow it in the browser, or type the code.',
+    ],
+
     'actions' => [
         'search' => 'Search…',
         'all' => 'All',

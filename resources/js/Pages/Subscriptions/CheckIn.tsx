@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { CircleCheck, CircleX } from 'lucide-react';
 import DataTable from '@/components/platform/DataTable';
 import PageHeader from '@/components/platform/PageHeader';
+import QrScanner from '@/components/platform/QrScanner';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusMessage from '@/components/platform/StatusMessage';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,14 @@ export default function CheckIn({ branches, branch_id: branchId, zones, can_chec
     });
   }
 
+  /** A QR card read by the camera checks in straight away (S3). */
+  const checkInScanned = useCallback((code: string) => {
+    router.post(url('/subscriptions/check-in'), { ...form.data, code }, {
+      preserveScroll: true,
+      onSuccess: (page) => setOutcome((page.flash as typeof flash).check_in ?? null),
+    });
+  }, [form.data, url]);
+
   if (branchId === null) {
     return <SuiteLayout title={t('subscriptions.check_in.title')}><StatusMessage>{t('subscriptions.check_in.no_branch')}</StatusMessage></SuiteLayout>;
   }
@@ -52,6 +61,7 @@ export default function CheckIn({ branches, branch_id: branchId, zones, can_chec
               <Button type="submit" size="lg" className="h-12" disabled={form.processing || !form.data.code}>{t('subscriptions.check_in.submit')}</Button>
             </form>
           )}
+          {canCheckIn && <QrScanner onCode={checkInScanned} />}
           {outcome && (
             <Card className={cn('border-2', outcome.allowed ? 'border-emerald-500 bg-emerald-50' : 'border-red-500 bg-red-50')}>
               <CardContent className="flex items-center gap-4 py-6">

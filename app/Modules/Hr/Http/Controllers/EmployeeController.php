@@ -33,6 +33,7 @@ use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\FinalSettlement;
 use App\Modules\Hr\Models\Job;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\Letter;
 use App\Modules\Hr\Models\Section;
 use App\Modules\Platform\Data\BranchRef;
 use App\Modules\Platform\Data\CompanyRef;
@@ -138,6 +139,11 @@ class EmployeeController extends Controller
                 'types' => LeaveType::query()->where('is_active', true)->get()->map(fn (LeaveType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
             ] : null,
             'document_types' => CatalogResource::collection(DocumentType::query()->where('is_active', true)->orderBy('sort_order')->get()),
+            'letters' => $can['view_documents'] ? Letter::query()->where('employee_id', $employee->id)->latest('issued_at')->limit(20)->get()->map(fn (Letter $letter): array => [
+                'id' => $letter->id, 'reference' => $letter->reference, 'kind' => $letter->kind->value, 'language' => $letter->language,
+                'addressed_to' => $letter->addressed_to, 'issued_at' => $letter->issued_at->toDateString(), 'valid' => $letter->isValid(),
+            ])->all() : [],
+            'can_salary_letter' => $this->able($employee, HrFeature::Employees, 'view_salaries'),
             'end_of_service' => $can['view_eosb'] && $employee->hired_on ? $this->endOfService($employee) : null,
             'pending_changes' => ChangeRequest::query()->where('employee_id', $employee->id)->where('status', ChangeRequestStatus::Pending->value)->latest()->get()
                 ->map(fn (ChangeRequest $change): array => [

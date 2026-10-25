@@ -4,9 +4,11 @@ namespace App\Modules\Platform;
 
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Adapters\AuditTrail;
+use App\Modules\Platform\Adapters\ChillerlanQrCodes;
 use App\Modules\Platform\Adapters\ClaudeIntelligence;
 use App\Modules\Platform\Adapters\CustomerSuiteSearch;
 use App\Modules\Platform\Adapters\HostedPayments;
+use App\Modules\Platform\Adapters\MpdfRenderer;
 use App\Modules\Platform\Adapters\ResolvedAccess;
 use App\Modules\Platform\Adapters\SubscriptionEntitlements;
 use App\Modules\Platform\Adapters\TenantAccounts;
@@ -23,6 +25,8 @@ use App\Modules\Platform\Ports\Intelligence;
 use App\Modules\Platform\Ports\Messaging;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Ports\Payments;
+use App\Modules\Platform\Ports\PdfRenderer;
+use App\Modules\Platform\Ports\QrCodes;
 use App\Modules\Platform\Ports\SuiteSearch;
 use Illuminate\Support\ServiceProvider;
 
@@ -43,6 +47,8 @@ class PlatformServiceProvider extends ServiceProvider
         $this->app->bind(Messaging::class, WhatsAppMessaging::class);
         $this->app->bind(Payments::class, HostedPayments::class);
         $this->app->bind(Customers::class, WalletCustomers::class);
+        $this->app->bind(QrCodes::class, ChillerlanQrCodes::class);
+        $this->app->bind(PdfRenderer::class, MpdfRenderer::class);
         $this->app->bind(Intelligence::class, fn (): Intelligence => new ClaudeIntelligence(config('baydaq.ai.api_key'), (string) config('baydaq.ai.model')));
         $this->app->tag([CustomerSuiteSearch::class], SuiteSearch::TAG);
     }

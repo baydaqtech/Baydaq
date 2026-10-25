@@ -171,6 +171,7 @@ export default function MemberShow({ member, memberships, check_ins: checkIns, p
   const t = useT();
   const { locale } = useLocale();
   const { can } = useAccess();
+  const url = useSuiteUrl();
   const f = (field: string) => t(`subscriptions.members.fields.${field}`);
   const latestActive = memberships.find((membership) => membership.status === 'active');
 
@@ -182,6 +183,7 @@ export default function MemberShow({ member, memberships, check_ins: checkIns, p
         actions={
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="ghost" onClick={() => navigator.clipboard?.writeText(member.card_url).then(() => toast.success(t('subscriptions.members.copied')))}><Copy data-icon="inline-start" />{t('subscriptions.members.copy_card')}</Button>
+            {can('subscriptions.members.update') && <ConfirmAction href={url(`/subscriptions/members/${member.id}/card`)} size="sm" variant="ghost" title={t('subscriptions.members.replace_card')} description={t('subscriptions.members.replace_card_hint')}>{t('subscriptions.members.replace_card')}</ConfirmAction>}
             {can('subscriptions.members.sell') && plans.length > 0 && <SellDialog memberId={member.id} plans={plans} paymentMeans={paymentMeans} />}
           </div>
         }

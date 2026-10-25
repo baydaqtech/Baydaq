@@ -87,7 +87,23 @@ class SubscriptionPagesTest extends TestCase
         app(CurrentTenant::class)->clear();
 
         $this->get('/card/'.str_repeat('b', 32))->assertOk()->assertInertia(fn (Assert $page) => $page
-            ->component('Subscriptions/Card')->where('member.number', 'M-00007')->where('membership', null));
+            ->component('Subscriptions/Card')->where('member.number', 'M-00007')->where('membership', null)
+            ->where('member.qr', fn (string $qr) => str_starts_with($qr, 'data:image/svg+xml;base64,')));
         $this->get('/card/'.str_repeat('c', 32))->assertNotFound();
+    }
+
+    public function test_replacing_a_card_stops_the_old_qr_code_at_the_door(): void
+    {
+        $member = (new Member(['name' => 'Huda', 'phone' => '0522222222']))->forceFill(['client_id' => $this->client->id, 'company_id' => $this->company->id, 'number' => 'M-00007', 'card_token' => str_repeat('b', 32)]);
+        $member->save();
+
+        $this->actingAs($this->owner)->post($this->url("members/{$member->id}/card"))->assertRedirect();
+        $this->assertNotSame(str_repeat('b', 32), $member->fresh()->card_token);
+        $this->actingAs($this->owner)->post($this->url('check-in'), ['branch_id' => $this->headOffice->id, 'code' => str_repeat('b', 32)])
+            ->assertInertiaFlash('check_in.result', 'unknown_card');
+        $this->get('/card/'.str_repeat('b', 32))->assertNotFound();
+
+        $door = $this->memberWith(['subscriptions.check_ins.check_in'], ScopeLevel::Client);
+        $this->actingAs($door)->post($this->url("members/{$member->id}/card"))->assertForbidden();
     }
 }

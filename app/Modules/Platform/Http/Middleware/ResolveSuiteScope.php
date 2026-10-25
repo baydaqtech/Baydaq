@@ -62,7 +62,7 @@ class ResolveSuiteScope
         }
         app()->instance(SuiteScope::class, $scope);
 
-        Inertia::share('suite', fn (): array => $this->props($scope, $organizations, $access));
+        Inertia::share('suite', fn (): array => $this->props($scope, $organizations, $access, $user->id));
         Inertia::encryptHistory();
 
         return $next($request);
@@ -112,7 +112,7 @@ class ResolveSuiteScope
      * @param  Collection<int, Organization>  $organizations
      * @return array<string, mixed>
      */
-    private function props(SuiteScope $scope, $organizations, AccessMap $access): array
+    private function props(SuiteScope $scope, $organizations, AccessMap $access, int $userId): array
     {
         return [
             'scope' => [
@@ -138,7 +138,7 @@ class ResolveSuiteScope
                     ])->all(),
                 ])->all(),
             ])->all(),
-            'shortcuts' => $this->shortcuts($organizations),
+            'shortcuts' => $this->shortcuts($organizations, $userId),
             'ai' => app(Intelligence::class)->isEnabled(),
             'can' => $access->keys(),
             'is_owner' => $access->isOwner(),
@@ -153,7 +153,7 @@ class ResolveSuiteScope
      * @param  Collection<int, Organization>  $organizations
      * @return list<array{id: int, name: ?string, label: string, segment: string, branches: list<int>, pinned: bool}>
      */
-    private function shortcuts($organizations): array
+    private function shortcuts($organizations, int $userId): array
     {
         $companies = $organizations->flatMap->companies;
         $branchNames = $companies->flatMap->branches->mapWithKeys(fn (Branch $branch): array => [$branch->id => $branch->localized('name')]);
@@ -161,7 +161,7 @@ class ResolveSuiteScope
             ->merge($organizations->mapWithKeys(fn (Organization $organization): array => ['o-'.$organization->slug => $organization->localized('name')]))
             ->merge($companies->mapWithKeys(fn (Company $company): array => ['c-'.$company->slug => $company->localized('name')]));
 
-        return ScopeShortcut::query()->where('user_id', request()->user()->id)
+        return ScopeShortcut::query()->where('user_id', $userId)
             ->orderByDesc('pinned')->orderByDesc('last_used_at')->limit(30)->get()
             ->filter(fn (ScopeShortcut $shortcut): bool => $nodes->has($shortcut->segment) && collect($shortcut->branchIds())->every(fn (int $id): bool => $branchNames->has($id)))
             ->map(fn (ScopeShortcut $shortcut): array => [

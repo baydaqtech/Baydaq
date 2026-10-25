@@ -7,11 +7,11 @@ import { useT } from '@/lib/i18n';
 
 interface Props {
   company: string | null;
-  member: { name: string; number: string; code: string };
+  member: { name: string; number: string; code: string; qr: string };
   membership: { plan: string; starts_on: string; ends_on: string; sessions_left: number | null; is_frozen: boolean; has_started: boolean } | null;
 }
 
-/** The member's card on their phone. The front desk types or scans the member number or the code. */
+/** The member's card on their phone: a QR code the door scans (S3), with the member number as a fallback. */
 export default function MemberCard({ company, member, membership }: Props) {
   const t = useT();
 
@@ -27,8 +27,8 @@ export default function MemberCard({ company, member, membership }: Props) {
           </div>
           <CardContent className="flex flex-col items-center gap-3 py-6 text-center">
             <p className="text-sm text-muted-foreground">{t('subscriptions.card.show_at_door')}</p>
-            <p dir="ltr" className="font-mono text-4xl font-bold tracking-widest">{member.number}</p>
-            <p dir="ltr" className="break-all font-mono text-xs text-muted-foreground">{member.code}</p>
+            <img src={member.qr} alt={t('subscriptions.card.qr_alt')} className="size-56 rounded-lg bg-white p-2" />
+            <p dir="ltr" className="font-mono text-3xl font-bold tracking-widest">{member.number}</p>
             {membership ? (
               <div className="mt-2 flex flex-col gap-1">
                 <p className="font-medium">{membership.plan}</p>

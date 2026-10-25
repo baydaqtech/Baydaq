@@ -10,6 +10,7 @@ use App\Modules\Hr\Http\Controllers\EmployeeController;
 use App\Modules\Hr\Http\Controllers\EmployeeDocumentController;
 use App\Modules\Hr\Http\Controllers\HeadcountReportController;
 use App\Modules\Hr\Http\Controllers\LeaveController;
+use App\Modules\Hr\Http\Controllers\LetterController;
 use App\Modules\Hr\Http\Controllers\MovementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\PayController;
@@ -17,6 +18,9 @@ use App\Modules\Hr\Http\Controllers\PayrollController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\ShiftController;
 use Illuminate\Support\Facades\Route;
+
+// The public check behind the QR code printed on a salary or experience letter (H12).
+Route::middleware(['web', 'throttle:30,1'])->get('/verify/letters/{token}', [LetterController::class, 'verify'])->where('token', '[A-Za-z0-9]{40}')->name('hr.letters.verify');
 
 // An employee's own page (with or without a role in the suite).
 Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
@@ -59,6 +63,9 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::delete('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'deleteFile'])->name('documents.files.destroy');
         });
         Route::delete('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'destroy'])->middleware('access:hr.documents.delete')->name('documents.destroy');
+        Route::post('/employees/{employee}/letters', [LetterController::class, 'store'])->middleware('access:hr.documents.create')->name('letters.store');
+        Route::post('/employees/{employee}/letters/{letter}/revoke', [LetterController::class, 'revoke'])->middleware('access:hr.documents.update')->name('letters.revoke');
+        Route::get('/employees/{employee}/letters/{letter}/pdf', [LetterController::class, 'pdf'])->middleware('access:hr.documents.view')->name('letters.pdf');
         Route::get('/documents/radar', [EmployeeDocumentController::class, 'radar'])->middleware('access:hr.documents.view')->name('documents.radar');
         Route::put('/renewals/{renewal}', [EmployeeDocumentController::class, 'renewal'])->middleware('access:hr.documents.update')->name('documents.renewals.update');
         Route::get('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'file'])->middleware('access:hr.documents.view')->name('documents.files.show');

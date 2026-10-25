@@ -38,6 +38,9 @@ return [
     ],
 
     'members' => [
+        'replace_card' => 'Replace card',
+        'replace_card_hint' => 'The old QR code and card link stop working. Send the member the new link.',
+        'card_replaced' => 'New card issued. Copy the card link and send it to the member.',
         'bnpl_hint' => 'Record the provider when the member pays in instalments through Tamara or Tabby.',
         'paid_with' => 'Paid in instalments with :provider',
         'family' => 'Family: :count of :size',
@@ -87,6 +90,7 @@ return [
     ],
 
     'card' => [
+        'qr_alt' => 'Door QR code',
         'title' => 'Member card',
         'show_at_door' => 'Show this code at the front desk.',
         'valid_until' => 'Valid until :date',

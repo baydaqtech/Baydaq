@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
-import { ArrowLeftRight, FileText, KeyRound, Paperclip, Pencil, Plus, Smartphone, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, FileText, KeyRound, Paperclip, Pencil, Plus, QrCode, Smartphone, Sparkles, Trash2 } from 'lucide-react';
 import ConfirmAction from '@/components/platform/ConfirmAction';
 import DetailList from '@/components/platform/DetailList';
 import FormField from '@/components/platform/FormField';
@@ -45,6 +45,61 @@ interface Props {
   document_types: CatalogItem[];
   pay: PayData | null;
   leave: LeaveData | null;
+  letters: LetterRow[];
+  can_salary_letter: boolean;
+}
+
+interface LetterRow { id: number; reference: string; kind: 'salary' | 'experience'; language: 'ar' | 'en'; addressed_to: string | null; issued_at: string; valid: boolean }
+
+/** Salary and experience letters with a QR verification code (H12). */
+function LettersCard({ employee, letters, canIssue, canRevoke, canSalary }: { employee: EmployeeResource; letters: LetterRow[]; canIssue: boolean; canRevoke: boolean; canSalary: boolean }) {
+  const t = useT();
+  const { dir, locale } = useLocale();
+  const url = useSuiteUrl();
+  const [open, setOpen] = useState(false);
+  const l = (field: string) => t(`hr.letters.${field}`);
+  const form = useForm({ kind: canSalary ? 'salary' : 'experience', language: locale === 'en' ? 'en' : 'ar', addressed_to: '' });
+  const kinds = (['salary', 'experience'] as const).filter((kind) => kind !== 'salary' || canSalary).map((kind) => ({ value: kind, label: t(`hr.letter_kind.${kind}`) }));
+
+  return (
+    <Card className="mt-4">
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-semibold">{l('title')}</h3>
+          {canIssue && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild><Button size="sm" variant="outline"><QrCode data-icon="inline-start" />{l('issue')}</Button></DialogTrigger>
+              <DialogContent dir={dir}>
+                <form className="flex flex-col gap-4" onSubmit={(event) => { event.preventDefault(); form.post(url(`/hr/employees/${employee.id}/letters`), { preserveScroll: true, onSuccess: () => { setOpen(false); form.reset('addressed_to'); } }); }}>
+                  <DialogHeader><DialogTitle>{l('issue')}</DialogTitle></DialogHeader>
+                  <FormField label={l('kind')} error={form.errors.kind}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={kinds} /></FormField>
+                  <FormField label={l('language')} error={form.errors.language}><SelectInput value={form.data.language} onChange={(value) => form.setData('language', value)} options={[{ value: 'ar', label: 'العربية' }, { value: 'en', label: 'English' }]} /></FormField>
+                  <FormField label={l('addressed_to')} hint={l('addressed_to_hint')} error={form.errors.addressed_to}><Input value={form.data.addressed_to} onChange={(event) => form.setData('addressed_to', event.target.value)} /></FormField>
+                  <DialogFooter><Button type="submit" disabled={form.processing}>{l('issue')}</Button></DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+        {letters.length === 0 && <p className="text-sm text-muted-foreground">{l('none')}</p>}
+        <ul className="divide-y">
+          {letters.map((letter) => (
+            <li key={letter.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+              <div className="min-w-0">
+                <div className="font-medium">{t(`hr.letter_kind.${letter.kind}`)} <span dir="ltr" className="font-mono text-xs text-muted-foreground">{letter.reference}</span></div>
+                <div className="text-xs text-muted-foreground">{formatDate(letter.issued_at, locale)}{letter.addressed_to && ` · ${letter.addressed_to}`}</div>
+              </div>
+              <div className="flex items-center gap-1">
+                {!letter.valid && <Badge variant="destructive">{l('revoked_badge')}</Badge>}
+                <Button asChild size="xs" variant="ghost"><a href={url(`/hr/employees/${employee.id}/letters/${letter.id}/pdf`)} target="_blank" rel="noreferrer"><FileText data-icon="inline-start" />PDF</a></Button>
+                {canRevoke && letter.valid && <ConfirmAction href={url(`/hr/employees/${employee.id}/letters/${letter.id}/revoke`)} size="xs" variant="ghost" title={l('revoke')} description={l('revoke_hint')}>{l('revoke')}</ConfirmAction>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
 }
 
 function StatusDialog({ employee, statuses }: { employee: EmployeeResource; statuses: Option[] }) {
@@ -365,7 +420,7 @@ function MovementDialog({ employee, branches }: { employee: EmployeeResource; br
   );
 }
 
-export default function EmployeeShow({ employee, company, branch, login, suggested_role: suggestedRole, end_of_service: endOfService, pending_changes: pendingChanges, device, contracts, documents, movements, audit, statuses, branches, allowance_types: allowanceTypes, document_types: documentTypes, pay, leave }: Props) {
+export default function EmployeeShow({ employee, company, branch, login, suggested_role: suggestedRole, end_of_service: endOfService, pending_changes: pendingChanges, device, contracts, documents, movements, audit, statuses, branches, allowance_types: allowanceTypes, document_types: documentTypes, pay, leave, letters, can_salary_letter: canSalaryLetter }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const url = useSuiteUrl();
@@ -504,6 +559,7 @@ export default function EmployeeShow({ employee, company, branch, login, suggest
                 </Card>
               ))}
             </div>
+            <LettersCard employee={employee} letters={letters} canIssue={Boolean(can.manage_documents)} canRevoke={Boolean(can.manage_documents)} canSalary={canSalaryLetter} />
           </TabsContent>
         )}
 
