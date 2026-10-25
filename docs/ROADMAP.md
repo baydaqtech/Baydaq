@@ -21,6 +21,7 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 | 2026-10-25 | Security and race-condition hardening (see `SECURITY.md`), conflict fixes (see `AUDIT.md`), test account seeder, project documentation, generated ER diagram. |
 | 2026-10-25 | **H1** Overtime (request/record → approve → payroll bonus at the Art. 107 rate, yearly cap) and employee loans (advances of the `loan` kind, installment cap); owner-set loan/overtime rules in HR settings. |
 | 2026-10-25 | **H2** Medical insurance (policies, employees and dependants, renewals, uninsured list) and training (sessions, attendance, certificates with expiry). |
+| 2026-10-25 | **H3** Policies and circulars with acknowledgement, staff surveys (anonymous, eNPS), recognition wall with rewards through payroll. |
 
 ## 2. Planned — fixes from the review (do these first)
 

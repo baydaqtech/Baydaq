@@ -32,4 +32,17 @@ class BonusType extends Model
     {
         return ['is_active' => 'boolean'];
     }
+
+    /** The account's own bonus type for something the system pays (overtime, recognition), made on first use. */
+    public static function system(string $key, string $nameAr, string $nameEn, int $clientId): self
+    {
+        $type = self::query()->where('system_key', $key)->first();
+
+        if ($type === null) {
+            $type = new self(['name_ar' => $nameAr, 'name_en' => $nameEn, 'is_active' => true, 'sort_order' => 99]);
+            $type->forceFill(['client_id' => $clientId, 'system_key' => $key])->save();
+        }
+
+        return $type;
+    }
 }

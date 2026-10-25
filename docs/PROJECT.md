@@ -125,9 +125,10 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 | `hr.expenses`, `hr.violations`, `hr.offboarding` | Expense claims; disciplinary record; resignations and exit |
 | `hr.overtime`, `hr.loans` | Overtime paid through payroll; employee loans (advances of the `loan` kind) |
 | `hr.insurance`, `hr.training` | Medical insurance (policies, members, uninsured list); training and certificates |
+| `hr.announcements`, `hr.surveys`, `hr.recognition` | Policies and circulars with acknowledgement; staff surveys (anonymous, eNPS); recognition wall with optional reward |
 | `finance.accounting` | Ledger, chart of accounts, reports, VAT return |
 | `finance.purchasing` | Suppliers, purchase orders, bills, payments |
-| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime, insurance, training) |
+| `mobile.*` | Screens of the employee app (attendance, selfie, leave, tasks, breaks, shifts, advances, payslips, letters, expenses, remote, assets audit, resignation, reviews, overtime, insurance, training, announcements, surveys, recognition) |
 
 ### 3.5 One shared concept per idea
 
@@ -188,8 +189,13 @@ These are deliberately single, shared across modules — never add a second one:
 - **Medical insurance**: policies per company, employees and dependants by class and card, renewals due in 60 days,
   employees without cover (CCHI).
 - **Training**: sessions per company, enrolment, attendance, certificates with expiry and a renewal list.
+- **Policies and circulars**: posts to everyone / a company / a branch, optional attachment, read and acknowledgement
+  tracking with the list of who has not acknowledged.
+- **Surveys**: rating, eNPS, choice and comment questions; anonymous surveys store only a keyed hash (one answer per
+  person) and show results from 3 answers.
+- **Recognition**: colleagues thank each other; a manager's money reward becomes a pending "Recognition" bonus.
 - AI HR assistant (read-only tools over the user's reach).
-- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, insurance, training, tasks, breaks, shifts, punches,
+- Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, insurance, training, announcements, surveys, recognition, tasks, breaks, shifts, punches,
   expenses, remote, reviews, resignation, violations).
 
 ### Point of sale

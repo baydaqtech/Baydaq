@@ -84,7 +84,7 @@ class OvertimeFlow
             $amount = $this->amount($employee, (string) $overtime->hours);
             $bonus = new Bonus(['amount' => (string) $amount, 'reason' => __('hr.overtime.bonus_reason', ['hours' => (string) $overtime->hours, 'date' => $overtime->work_date->toDateString()]), 'pay_month' => now()->startOfMonth()->toDateString()]);
             $bonus->forceFill([
-                'client_id' => $employee->client_id, 'employee_id' => $employee->id, 'bonus_type_id' => $this->bonusType($employee->client_id)->id,
+                'client_id' => $employee->client_id, 'employee_id' => $employee->id, 'bonus_type_id' => BonusType::system('overtime', 'عمل إضافي', 'Overtime', $employee->client_id)->id,
                 'status' => AdjustmentStatus::Approved->value, 'requested_by' => $overtime->requested_by, 'approved_by' => $actor?->getAuthIdentifier(),
             ])->save();
 
@@ -139,18 +139,5 @@ class OvertimeFlow
         if ($max > 0 && BigDecimal::of($this->hoursThisYear($overtime->employee, $overtime->work_date->year))->plus((string) $overtime->hours)->isGreaterThan($max)) {
             throw ValidationException::withMessages(['hours' => __('hr.overtime.errors.yearly_cap', ['max' => $max])]);
         }
-    }
-
-    /** The account's own "Overtime" bonus type, created the first time it is needed. */
-    private function bonusType(int $clientId): BonusType
-    {
-        $type = BonusType::query()->where('system_key', 'overtime')->first();
-
-        if ($type === null) {
-            $type = new BonusType(['name_ar' => 'عمل إضافي', 'name_en' => 'Overtime', 'is_active' => true, 'sort_order' => 99]);
-            $type->forceFill(['client_id' => $clientId, 'system_key' => 'overtime'])->save();
-        }
-
-        return $type;
     }
 }

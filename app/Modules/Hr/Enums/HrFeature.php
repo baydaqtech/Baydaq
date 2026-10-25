@@ -36,6 +36,9 @@ enum HrFeature: string implements Feature
     case Overtime = 'overtime';       // overtime hours: record, approve (paid through payroll)
     case Insurance = 'insurance';     // medical insurance policies and members
     case Training = 'training';       // training sessions, attendance, certificates
+    case Announcements = 'announcements'; // policies, circulars and news
+    case Surveys = 'surveys';         // staff surveys and results
+    case Recognition = 'recognition'; // thanks and rewards
 
     public static function group(): string
     {
@@ -59,6 +62,7 @@ enum HrFeature: string implements Feature
             self::Payroll => [FeatureAction::View, FeatureAction::Create, FeatureAction::Approve, FeatureAction::Export],
             self::Catalog => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Reports => [FeatureAction::View, FeatureAction::Export],
+            self::Announcements, self::Surveys, self::Recognition => [FeatureAction::View, FeatureAction::Create],
             self::Insurance, self::Training => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update],
             self::Shifts, self::Tasks => [FeatureAction::View, FeatureAction::Create, FeatureAction::Update, FeatureAction::Delete],
             self::Breaks => [FeatureAction::View, FeatureAction::Approve],

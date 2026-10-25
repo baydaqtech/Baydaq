@@ -11,7 +11,7 @@
 ## Tables per module
 
 - Platform (kernel: tenants, structure, access, packages, customers): 23 tables
-- HR: 53 tables
+- HR: 58 tables
 - Point of sale: 12 tables
 - Invoicing (ZATCA): 5 tables
 - Reservations: 6 tables
@@ -402,6 +402,30 @@ erDiagram
         tinyint counts_for_gosi
         tinyint is_active
         smallint sort_order
+        timestamp created_at
+        timestamp updated_at
+    }
+    hr_announcement_reads {
+        bigint id PK
+        bigint client_id FK
+        bigint announcement_id FK
+        bigint employee_id FK
+        timestamp read_at
+        timestamp acknowledged_at
+    }
+    hr_announcements {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id
+        bigint branch_id
+        varchar kind
+        varchar title
+        text body
+        varchar file_path
+        varchar file_name
+        tinyint requires_ack
+        timestamp published_at
+        bigint created_by FK
         timestamp created_at
         timestamp updated_at
     }
@@ -935,6 +959,20 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    hr_recognitions {
+        bigint id PK
+        bigint client_id FK
+        bigint employee_id FK
+        bigint company_id
+        bigint branch_id
+        bigint given_by FK
+        bigint giver_employee_id FK
+        varchar badge
+        varchar message
+        bigint bonus_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
     hr_remote_requests {
         bigint id PK
         bigint client_id FK
@@ -1042,6 +1080,30 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    hr_survey_responses {
+        bigint id PK
+        bigint client_id FK
+        bigint survey_id FK
+        bigint employee_id FK
+        char respondent_key
+        json answers
+        timestamp created_at
+    }
+    hr_surveys {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id
+        bigint branch_id
+        varchar title
+        varchar description
+        json questions
+        tinyint anonymous
+        varchar status
+        date closes_on
+        bigint created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
     hr_task_comments {
         bigint id PK
         bigint client_id FK
@@ -1137,16 +1199,18 @@ erDiagram
         timestamp updated_at
     }
     users { }
+    platform_companies { }
     platform_branches { }
     platform_work_locations { }
-    platform_companies { }
     platform_access_roles { }
     hr_advance_installments ||--o{ hr_advance_repayments : "installment_id"
     hr_advances ||--o{ hr_advance_installments : "advance_id"
     hr_advances ||--o{ hr_advance_repayments : "advance_id"
     hr_allowance_types ||--o{ hr_contract_allowances : "allowance_type_id"
+    hr_announcements ||--o{ hr_announcement_reads : "announcement_id"
     hr_bonus_types ||--o{ hr_bonuses : "bonus_type_id"
     hr_bonuses ||--o{ hr_overtime : "bonus_id"
+    hr_bonuses ||--o{ hr_recognitions : "bonus_id"
     hr_contracts ||--o{ hr_change_requests : "contract_id"
     hr_contracts ||--o{ hr_contract_allowances : "contract_id"
     hr_deduction_types ||--o{ hr_deductions : "deduction_type_id"
@@ -1158,6 +1222,7 @@ erDiagram
     hr_employee_movements ||--o{ hr_recharges : "movement_id"
     hr_employee_movements ||--o{ hr_shifts : "movement_id"
     hr_employees ||--o{ hr_advances : "employee_id"
+    hr_employees ||--o{ hr_announcement_reads : "employee_id"
     hr_employees ||--o{ hr_attendance_devices : "employee_id"
     hr_employees ||--o{ hr_attendance_punches : "employee_id"
     hr_employees ||--o{ hr_bonuses : "employee_id"
@@ -1178,10 +1243,13 @@ erDiagram
     hr_employees ||--o{ hr_letters : "employee_id"
     hr_employees ||--o{ hr_overtime : "employee_id"
     hr_employees ||--o{ hr_payroll_lines : "employee_id"
+    hr_employees ||--o{ hr_recognitions : "employee_id"
+    hr_employees ||--o{ hr_recognitions : "giver_employee_id"
     hr_employees ||--o{ hr_remote_requests : "employee_id"
     hr_employees ||--o{ hr_reviews : "employee_id"
     hr_employees ||--o{ hr_separations : "employee_id"
     hr_employees ||--o{ hr_shifts : "employee_id"
+    hr_employees ||--o{ hr_survey_responses : "employee_id"
     hr_employees ||--o{ hr_tasks : "assignee_id"
     hr_employees ||--o{ hr_training_attendees : "employee_id"
     hr_employees ||--o{ hr_travel_visas : "employee_id"
@@ -1200,6 +1268,7 @@ erDiagram
     hr_sections ||--o{ hr_employees : "section_id"
     hr_sections ||--o{ hr_job_section : "section_id"
     hr_sections ||--o{ hr_section_company_blocks : "section_id"
+    hr_surveys ||--o{ hr_survey_responses : "survey_id"
     hr_tasks ||--o{ hr_task_comments : "task_id"
     hr_trainings ||--o{ hr_training_attendees : "training_id"
     platform_access_roles ||--o{ hr_jobs : "default_role_id"
@@ -1209,31 +1278,38 @@ erDiagram
     platform_branches ||--o{ hr_employee_placements : "company_id,branch_id"
     platform_branches ||--o{ hr_employees : "company_id,branch_id"
     platform_branches ||--o{ hr_shifts : "company_id,branch_id"
+    platform_branches ||..o{ hr_announcements : "branch_id"
     platform_branches ||..o{ hr_attendance_punches : "home_branch_id"
     platform_branches ||..o{ hr_breaks : "branch_id"
     platform_branches ||..o{ hr_expense_claims : "branch_id"
     platform_branches ||..o{ hr_job_openings : "branch_id"
     platform_branches ||..o{ hr_overtime : "branch_id"
     platform_branches ||..o{ hr_payroll_lines : "branch_id"
+    platform_branches ||..o{ hr_recognitions : "branch_id"
+    platform_branches ||..o{ hr_surveys : "branch_id"
     platform_branches ||..o{ hr_tasks : "branch_id"
     platform_companies ||--o{ hr_employees : "client_id,company_id"
     platform_companies ||--o{ hr_job_company_blocks : "company_id"
     platform_companies ||--o{ hr_payroll_runs : "client_id,company_id"
     platform_companies ||--o{ hr_section_company_blocks : "company_id"
     platform_companies ||--o{ hr_shifts : "client_id,company_id"
+    platform_companies ||..o{ hr_announcements : "company_id"
     platform_companies ||..o{ hr_breaks : "company_id"
     platform_companies ||..o{ hr_expense_claims : "company_id"
     platform_companies ||..o{ hr_insurance_policies : "company_id"
     platform_companies ||..o{ hr_job_openings : "company_id"
     platform_companies ||..o{ hr_letters : "company_id"
     platform_companies ||..o{ hr_overtime : "company_id"
+    platform_companies ||..o{ hr_recognitions : "company_id"
     platform_companies ||..o{ hr_review_cycles : "company_id"
+    platform_companies ||..o{ hr_surveys : "company_id"
     platform_companies ||..o{ hr_tasks : "company_id"
     platform_companies ||..o{ hr_trainings : "company_id"
     platform_work_locations ||--o{ hr_attendance_punches : "work_location_id"
     users ||--o{ hr_advance_repayments : "recorded_by"
     users ||--o{ hr_advances : "approved_by"
     users ||--o{ hr_advances : "requested_by"
+    users ||--o{ hr_announcements : "created_by"
     users ||--o{ hr_attendance_punches : "resolved_by"
     users ||--o{ hr_bonuses : "approved_by"
     users ||--o{ hr_bonuses : "requested_by"
@@ -1255,11 +1331,13 @@ erDiagram
     users ||--o{ hr_overtime : "decided_by"
     users ||--o{ hr_overtime : "requested_by"
     users ||--o{ hr_payroll_runs : "approved_by"
+    users ||--o{ hr_recognitions : "given_by"
     users ||--o{ hr_remote_requests : "decided_by"
     users ||--o{ hr_review_cycles : "created_by"
     users ||--o{ hr_reviews : "reviewed_by"
     users ||--o{ hr_separations : "decided_by"
     users ||--o{ hr_separations : "submitted_by"
+    users ||--o{ hr_surveys : "created_by"
     users ||--o{ hr_task_comments : "user_id"
     users ||--o{ hr_tasks : "created_by"
     users ||--o{ hr_trainings : "created_by"

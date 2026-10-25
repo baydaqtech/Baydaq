@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Hr\Http\Controllers\AnnouncementController;
 use App\Modules\Hr\Http\Controllers\AssistantController;
 use App\Modules\Hr\Http\Controllers\AttendanceController;
 use App\Modules\Hr\Http\Controllers\BreakController;
@@ -17,16 +18,19 @@ use App\Modules\Hr\Http\Controllers\InsuranceController;
 use App\Modules\Hr\Http\Controllers\LeaveController;
 use App\Modules\Hr\Http\Controllers\LetterController;
 use App\Modules\Hr\Http\Controllers\MovementController;
+use App\Modules\Hr\Http\Controllers\MyEngagementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\OvertimeController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
+use App\Modules\Hr\Http\Controllers\RecognitionController;
 use App\Modules\Hr\Http\Controllers\RecruitmentController;
 use App\Modules\Hr\Http\Controllers\RemoteController;
 use App\Modules\Hr\Http\Controllers\ReviewController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
 use App\Modules\Hr\Http\Controllers\SeparationController;
 use App\Modules\Hr\Http\Controllers\ShiftController;
+use App\Modules\Hr\Http\Controllers\SurveyController;
 use App\Modules\Hr\Http\Controllers\TaskController;
 use App\Modules\Hr\Http\Controllers\TrainingController;
 use App\Modules\Hr\Http\Controllers\ViolationController;
@@ -54,6 +58,10 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::post('/expenses', [SelfServiceController::class, 'claimExpense'])->middleware(['throttle:20,1', 'feature:hr.expenses'])->name('expenses.store');
     Route::post('/overtime', [SelfServiceController::class, 'requestOvertime'])->middleware(['throttle:10,1', 'feature:hr.overtime'])->name('overtime.store');
     Route::post('/overtime/{overtime}/cancel', [SelfServiceController::class, 'cancelOvertime'])->middleware(['throttle:10,1', 'feature:hr.overtime'])->name('overtime.cancel');
+    Route::post('/announcements/{announcement}/read', [MyEngagementController::class, 'read'])->middleware(['throttle:30,1', 'feature:hr.announcements'])->name('announcements.read');
+    Route::get('/announcements/{announcement}/file', [MyEngagementController::class, 'file'])->middleware('feature:hr.announcements')->name('announcements.file');
+    Route::post('/surveys/{survey}', [MyEngagementController::class, 'answer'])->middleware(['throttle:10,1', 'feature:hr.surveys'])->name('surveys.answer');
+    Route::post('/recognition', [MyEngagementController::class, 'recognise'])->middleware(['throttle:20,1', 'feature:hr.recognition'])->name('recognition.store');
     Route::post('/remote', [SelfServiceController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:hr.remote'])->name('remote.store');
     Route::post('/reviews/{review}', [SelfServiceController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:hr.performance'])->name('reviews.self');
     Route::post('/resignation', [SelfServiceController::class, 'resign'])->middleware(['throttle:5,1', 'feature:hr.offboarding'])->name('resignation.store');
@@ -201,6 +209,22 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
             Route::post('/training/{training}/attendees', [TrainingController::class, 'enrol'])->middleware('access:hr.training.create')->name('training.enrol');
             Route::put('/training/attendees/{attendee}', [TrainingController::class, 'mark'])->middleware('access:hr.training.update')->name('training.mark');
             Route::get('/training', [TrainingController::class, 'index'])->middleware('access:hr.training.view|hr.training.create|hr.training.update')->name('training.index');
+        });
+
+        // Engagement: posts, surveys, recognition.
+        Route::middleware('feature:hr.announcements')->group(function (): void {
+            Route::post('/announcements', [AnnouncementController::class, 'store'])->middleware('access:hr.announcements.create')->name('announcements.store');
+            Route::get('/announcements/{announcement}/file', [AnnouncementController::class, 'file'])->middleware('access:hr.announcements.view|hr.announcements.create')->name('announcements.file');
+            Route::get('/announcements', [AnnouncementController::class, 'index'])->middleware('access:hr.announcements.view|hr.announcements.create')->name('announcements.index');
+        });
+        Route::middleware('feature:hr.surveys')->group(function (): void {
+            Route::post('/surveys', [SurveyController::class, 'store'])->middleware('access:hr.surveys.create')->name('surveys.store');
+            Route::put('/surveys/{survey}/close', [SurveyController::class, 'close'])->middleware('access:hr.surveys.create')->name('surveys.close');
+            Route::get('/surveys', [SurveyController::class, 'index'])->middleware('access:hr.surveys.view|hr.surveys.create')->name('surveys.index');
+        });
+        Route::middleware('feature:hr.recognition')->group(function (): void {
+            Route::post('/recognition', [RecognitionController::class, 'store'])->middleware('access:hr.recognition.create')->name('recognition.store');
+            Route::get('/recognition', [RecognitionController::class, 'index'])->middleware('access:hr.recognition.view|hr.recognition.create')->name('recognition.index');
         });
 
         // Leaving and the disciplinary record.

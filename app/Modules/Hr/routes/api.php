@@ -3,6 +3,7 @@
 use App\Modules\Hr\Http\Controllers\Api\AdvanceController;
 use App\Modules\Hr\Http\Controllers\Api\AuthController;
 use App\Modules\Hr\Http\Controllers\Api\BreakController;
+use App\Modules\Hr\Http\Controllers\Api\EngagementController;
 use App\Modules\Hr\Http\Controllers\Api\LeaveController;
 use App\Modules\Hr\Http\Controllers\Api\LocationController;
 use App\Modules\Hr\Http\Controllers\Api\MeController;
@@ -44,6 +45,12 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/overtime/{overtime}/cancel', [RecordController::class, 'cancelOvertime'])->middleware(['throttle:10,1', 'feature:mobile.overtime', 'feature:hr.overtime'])->name('overtime.cancel');
     Route::get('/insurance', [RecordController::class, 'insurance'])->middleware(['feature:mobile.insurance', 'feature:hr.insurance'])->name('insurance.index');
     Route::get('/trainings', [RecordController::class, 'trainings'])->middleware(['feature:mobile.training', 'feature:hr.training'])->name('trainings.index');
+    Route::get('/announcements', [EngagementController::class, 'announcements'])->middleware(['feature:mobile.announcements', 'feature:hr.announcements'])->name('announcements.index');
+    Route::post('/announcements/{announcement}/read', [EngagementController::class, 'read'])->middleware(['throttle:30,1', 'feature:mobile.announcements', 'feature:hr.announcements'])->name('announcements.read');
+    Route::get('/surveys', [EngagementController::class, 'surveys'])->middleware(['feature:mobile.surveys', 'feature:hr.surveys'])->name('surveys.index');
+    Route::post('/surveys/{survey}', [EngagementController::class, 'answer'])->middleware(['throttle:10,1', 'feature:mobile.surveys', 'feature:hr.surveys'])->name('surveys.answer');
+    Route::get('/recognition', [EngagementController::class, 'recognition'])->middleware(['feature:mobile.recognition', 'feature:hr.recognition'])->name('recognition.index');
+    Route::post('/recognition', [EngagementController::class, 'recognise'])->middleware(['throttle:20,1', 'feature:mobile.recognition', 'feature:hr.recognition'])->name('recognition.store');
     Route::get('/remote', [RecordController::class, 'remote'])->middleware('feature:mobile.remote')->name('remote.show');
     Route::post('/remote/requests', [RecordController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:mobile.remote', 'feature:hr.remote'])->name('remote.requests.store');
     Route::get('/reviews', [RecordController::class, 'reviews'])->middleware(['feature:mobile.reviews', 'feature:hr.performance'])->name('reviews.index');

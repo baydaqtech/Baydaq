@@ -8,7 +8,9 @@ import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
 import MyExpenses, { type ExpensesData } from '@/components/hr/MyExpenses';
 import MyRecord, { type RecordData } from '@/components/hr/MyRecord';
 import { MyInsuranceCard, MyTrainingCard, type MyInsurance, type MyTrainings } from '@/components/hr/MyBenefits';
+import { MyAnnouncements, MyRecognitionCard, MySurveys, type MyAnnouncement, type MyRecognition } from '@/components/hr/MyEngagement';
 import MyOvertime, { type OvertimeData } from '@/components/hr/MyOvertime';
+import type { SurveyItem } from '@/Pages/Hr/Surveys/Index';
 import MyRemote, { type RemoteData } from '@/components/hr/MyRemote';
 import MyReviews, { type MyReview } from '@/components/hr/MyReviews';
 import MyTasks, { type MyTask } from '@/components/hr/MyTasks';
@@ -45,11 +47,14 @@ interface Props {
   overtime: OvertimeData;
   insurance: MyInsurance;
   trainings: MyTrainings;
+  announcements: MyAnnouncement[];
+  surveys: SurveyItem[];
+  recognition: MyRecognition;
   features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, insurance, trainings, features }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, insurance, trainings, announcements, surveys, recognition, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -97,6 +102,9 @@ export default function Me({ employee, balances, requests, types, advance, shift
           )}
         </section>
 
+        {features.includes('hr.announcements') && <MyAnnouncements items={announcements} />}
+        {features.includes('hr.surveys') && <MySurveys surveys={surveys} />}
+
         {features.includes('hr.breaks') && <MyBreak state={breakState} />}
 
         {features.includes('hr.tasks') && <MyTasks tasks={tasks} />}
@@ -108,6 +116,7 @@ export default function Me({ employee, balances, requests, types, advance, shift
         {features.includes('hr.overtime') && <MyOvertime data={overtime} />}
         {features.includes('hr.insurance') && <MyInsuranceCard members={insurance} />}
         {features.includes('hr.training') && <MyTrainingCard trainings={trainings} />}
+        {features.includes('hr.recognition') && <MyRecognitionCard data={recognition} />}
         {features.includes('hr.expenses') && <MyExpenses data={expenses} />}
         {features.includes('hr.remote') && <MyRemote data={remote} />}
         {features.includes('hr.performance') && <MyReviews reviews={reviews} />}
