@@ -6,15 +6,18 @@ use App\Modules\Invoicing\Actions\IssueInvoice;
 use App\Modules\Invoicing\Actions\SaveInvoice;
 use App\Modules\Invoicing\Data\IssuedInvoice;
 use App\Modules\Invoicing\Enums\UnitStatus;
+use App\Modules\Invoicing\Models\Customer;
 use App\Modules\Invoicing\Models\EinvoiceUnit;
 use App\Modules\Invoicing\Models\Invoice;
 use App\Modules\Invoicing\Ports\InvoiceIssuer;
+use App\Modules\Platform\Ports\OrgDirectory;
+use App\Modules\Platform\Tenancy\CurrentTenant;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 
 class ZatcaInvoiceIssuer implements InvoiceIssuer
 {
-    public function __construct(private SaveInvoice $save, private IssueInvoice $issue) {}
+    public function __construct(private SaveInvoice $save, private IssueInvoice $issue, private OrgDirectory $directory, private CurrentTenant $tenant) {}
 
     public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null): IssuedInvoice
     {
@@ -43,6 +46,23 @@ class ZatcaInvoiceIssuer implements InvoiceIssuer
         $invoice = $this->issue->handle($invoice, EinvoiceUnit::query()->findOrFail($unitId), auth()->user());
 
         return new IssuedInvoice($invoice->id, $invoice->number, $invoice->status->value, $invoice->qr, $invoice->payableAmount(), (string) $invoice->vat);
+    }
+
+    public function draftIntercompany(int $sellerCompanyId, int $buyerCompanyId, array $lines, string $source, ?string $note = null): int
+    {
+        $buyer = $this->directory->company($buyerCompanyId) ?? throw new \InvalidArgumentException("Unknown company {$buyerCompanyId}.");
+        $customer = Customer::query()->where('company_id', $buyer->id)->first() ?? tap((new Customer([
+            'name_ar' => $buyer->nameAr, 'name_en' => $buyer->nameEn, 'vat_number' => $buyer->vatNumber, 'cr_number' => $buyer->crNumber, ...$buyer->address,
+        ]))->forceFill(['client_id' => $this->tenant->client()->id, 'company_id' => $buyer->id]))->save();
+        $standard = $customer->isVatRegistered() && $customer->city;
+
+        $invoice = $this->save->handle(new Invoice, $sellerCompanyId, [
+            'type' => $standard ? 'standard' : 'simplified', 'kind' => 'invoice', 'customer_id' => $customer->id,
+            'issue_date' => today()->toDateString(), 'payment_means' => '42', 'note' => $note,
+        ], $lines);
+        $invoice->forceFill(['intercompany' => true, 'source' => $source])->save();
+
+        return $invoice->id;
     }
 
     public function readyUnitFor(int $companyId): ?int

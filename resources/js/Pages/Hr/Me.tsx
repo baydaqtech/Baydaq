@@ -3,6 +3,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import AdvanceCalculator, { type AdvanceData } from '@/components/hr/AdvanceCalculator';
 import LeaveBalanceCard, { type LeaveBalance } from '@/components/hr/LeaveBalanceCard';
+import MyShifts, { type ShiftsData } from '@/components/hr/MyShifts';
 import BrandMark from '@/components/platform/BrandMark';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
@@ -24,10 +25,11 @@ interface Props {
   requests: LeaveItem[];
   types: Option[];
   advance: AdvanceData;
+  shifts: ShiftsData;
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -74,6 +76,8 @@ export default function Me({ employee, balances, requests, types, advance }: Pro
             </Card>
           )}
         </section>
+
+        <MyShifts data={shifts} />
 
         <AdvanceCalculator data={advance} />
 

@@ -34,6 +34,7 @@ class ContractResource extends JsonResource
             'ends_on' => $this->ends_on?->toDateString(),
             'probation_days' => $this->probation_days,
             'basic_salary' => (string) $this->basic_salary,
+            'qiwa_authenticated' => (bool) $this->qiwa_authenticated,
             'total' => $this->relationLoaded('allowances') ? (string) $this->allowances->sum(fn (ContractAllowance $line) => (float) $line->amount) + (float) $this->basic_salary : null,
             'notes' => $this->notes,
             'allowances' => $allowances,

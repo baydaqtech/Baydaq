@@ -45,7 +45,13 @@ export default function Headcount({ by_branch: byBranch, by_section: bySection, 
 
   return (
     <SuiteLayout title={t('hr.reports.headcount')}>
-      <PageHeader title={t('hr.reports.headcount')} actions={can('hr.payroll.view_eosb') && <Button asChild size="sm" variant="outline"><Link href={url('/hr/reports/eosb')}>{t('hr.reports.eosb')}</Link></Button>} />
+      <PageHeader title={t('hr.reports.headcount')} actions={(
+        <>
+          <Button asChild size="sm" variant="outline"><Link href={url('/hr/reports/nitaqat')}>{t('hr.compliance.nitaqat')}</Link></Button>
+          {can('hr.employees.view_salaries') && <Button asChild size="sm" variant="outline"><Link href={url('/hr/reports/government')}>{t('hr.compliance.government')}</Link></Button>}
+          {can('hr.payroll.view_eosb') && <Button asChild size="sm" variant="outline"><Link href={url('/hr/reports/eosb')}>{t('hr.reports.eosb')}</Link></Button>}
+        </>
+      )} />
       <div className="mb-4 max-w-xs"><StatCard label={t('hr.reports.total')} value={formatNumber(total, locale)} /></div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Bars label={t('hr.reports.by_branch')} rows={byBranch.map((row) => ({ label: row.branch, total: row.total }))} />

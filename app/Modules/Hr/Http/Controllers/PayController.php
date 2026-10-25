@@ -8,6 +8,7 @@ use App\Modules\Hr\Actions\Pay\DecideAdvance;
 use App\Modules\Hr\Actions\Pay\RecordRepayment;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
 use App\Modules\Hr\Actions\Pay\SaveBonus;
+use App\Modules\Hr\Actions\Pay\SaveBonusBatch;
 use App\Modules\Hr\Actions\Pay\SaveDeduction;
 use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Enums\RepaymentMethod;
@@ -42,6 +43,21 @@ class PayController extends Controller
 
         $save->handle($employee, BonusType::query()->findOrFail($data['bonus_type_id']), $data, $request->user());
         $this->toast(__('hr.pay.saved'));
+
+        return back();
+    }
+
+    /** The same bonus for every active employee in reach (an Eid bonus, H9). */
+    public function bonusBatch(Request $request, SaveBonusBatch $save, CurrentTenant $tenant): RedirectResponse
+    {
+        $data = $request->validate([
+            'bonus_type_id' => ['required', Rule::exists('hr__bonus_types', 'id')->where('client_id', $tenant->id())],
+            'calculation' => ['required', Rule::in(['fixed', 'percent_of_basic'])], 'value' => ['required', 'numeric', 'min:0.01'],
+            'pay_month' => ['required', 'date'], 'reason' => ['nullable', 'string', 'max:255'], 'company_id' => ['nullable', 'integer'],
+        ]);
+
+        $count = $save->handle($this->reach(HrFeature::Pay, FeatureAction::Create), BonusType::query()->findOrFail($data['bonus_type_id']), $data, $request->user());
+        $this->toast(__('hr.pay.batch_saved', ['count' => $count]));
 
         return back();
     }

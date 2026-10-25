@@ -7,9 +7,11 @@ use App\Modules\Hr\Actions\Leave\LeaveBalance;
 use App\Modules\Hr\Actions\Leave\RequestLeave;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
+use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\Shift;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
 use App\Modules\Platform\Ports\Entitlements;
@@ -42,6 +44,7 @@ class SelfServiceController extends Controller
             'requests' => $employee->leaveRequests()->with('type')->latest('starts_on')->limit(30)->get()->map(fn ($leave): array => LeaveController::leaveArray($leave))->all(),
             'types' => LeaveType::query()->where('is_active', true)->orderBy('sort_order')->get()->map(fn (LeaveType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
             'advance' => self::advances($employee),
+            'shifts' => self::shifts($employee),
             'copy' => ['hr' => trans('hr')],
         ]);
     }
@@ -53,6 +56,37 @@ class SelfServiceController extends Controller
         $this->toast(__('hr.pay.advance_requested'));
 
         return back();
+    }
+
+    /** Pick up an open shift; away from home this makes a one-day secondment (H2). */
+    public function claimShift(Request $request, Shift $shift, ClaimOpenShift $claim): RedirectResponse
+    {
+        $claim->handle($shift, $this->employee($request), $request->user());
+        $this->toast(__('hr.shifts.claimed'));
+
+        return back();
+    }
+
+    /**
+     * The employee's coming shifts and the open shifts they may pick up.
+     *
+     * @return array{mine: list<array<string, mixed>>, open: list<array<string, mixed>>}
+     */
+    public static function shifts(Employee $employee): array
+    {
+        $branches = collect(app(OrgDirectory::class)->branches())->mapWithKeys(fn ($branch): array => [$branch->id => $branch->name]);
+        $row = fn (Shift $shift): array => [
+            'id' => $shift->id, 'date' => $shift->shift_date->toDateString(), 'starts_at' => substr($shift->starts_at, 0, 5), 'ends_at' => substr($shift->ends_at, 0, 5),
+            'branch' => $branches[$shift->branch_id] ?? '—', 'ramadan_hours' => $shift->ramadan_hours, 'on_holiday' => $shift->on_holiday,
+        ];
+
+        return [
+            'mine' => Shift::query()->where('employee_id', $employee->id)->whereDate('shift_date', '>=', today())->orderBy('shift_date')->limit(14)->get()->map($row)->all(),
+            'open' => Shift::query()->where('is_open', true)->whereNull('employee_id')->whereDate('shift_date', '>=', today())
+                ->where(fn ($query) => $query->whereNull('job_id')->orWhere('job_id', $employee->job_id))
+                ->whereNotIn('shift_date', Shift::query()->where('employee_id', $employee->id)->select('shift_date'))
+                ->orderBy('shift_date')->limit(20)->get()->map($row)->all(),
+        ];
     }
 
     /**

@@ -41,6 +41,7 @@ class Invoice extends Model
         return [
             'type' => InvoiceType::class,
             'kind' => InvoiceKind::class,
+            'intercompany' => 'boolean',
             'status' => InvoiceStatus::class,
             'issue_date' => 'date',
             'due_date' => 'date',

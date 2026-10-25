@@ -40,10 +40,10 @@ class ChangeRequestController extends Controller
 
     public function settings(Request $request, HrSettings $settings): RedirectResponse
     {
-        $data = $request->validate(['dual_control' => ['required', 'boolean']]);
+        $data = $request->validate(['dual_control' => ['sometimes', 'boolean'], 'attendance_selfie' => ['sometimes', 'boolean'], 'ramadan_hours' => ['sometimes', 'integer', 'min:0', 'max:12']]);
 
         foreach ($data as $key => $value) {
-            $settings->set($key, $value);
+            $settings->set($key, $key === 'ramadan_hours' ? (int) $value : (bool) $value);
         }
 
         $this->toast(__('hr.changes.settings_saved'));

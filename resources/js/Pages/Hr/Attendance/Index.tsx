@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
-import { Flag } from 'lucide-react';
+import { Camera, Flag } from 'lucide-react';
 import DataTable from '@/components/platform/DataTable';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
@@ -17,6 +17,7 @@ import { useFilters, type Filters } from '@/lib/useFilters';
 import type { Paginated } from '@/types/resources';
 
 interface Punch {
+  has_selfie?: boolean;
   id: number;
   employee_id: number;
   employee: string;
@@ -87,7 +88,12 @@ export default function AttendanceIndex({ punches, filters: initialFilters }: { 
               {punch.resolution_note && <span className="text-xs text-muted-foreground">· {punch.resolution_note}</span>}
             </span>
           ) : <span className="text-muted-foreground">—</span> },
-          { key: 'actions', label: '', className: 'text-end', render: (punch) => punch.can_resolve && <ResolveDialog punch={punch} /> },
+          { key: 'actions', label: '', className: 'text-end', render: (punch) => (
+            <span className="flex items-center justify-end gap-1">
+              {punch.has_selfie && <Button asChild size="icon-sm" variant="ghost" aria-label={t('hr.attendance.selfie')}><a href={url(`/hr/attendance/punches/${punch.id}/selfie`)} target="_blank" rel="noreferrer"><Camera /></a></Button>}
+              {punch.can_resolve && <ResolveDialog punch={punch} />}
+            </span>
+          ) },
         ]}
       />
     </SuiteLayout>

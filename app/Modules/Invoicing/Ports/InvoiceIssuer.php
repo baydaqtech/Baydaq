@@ -19,6 +19,15 @@ interface InvoiceIssuer
      */
     public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null): IssuedInvoice;
 
+    /**
+     * Draft an invoice from one company of the owner to another (a recharge). It stays a draft
+     * for finance to review and issue; the buyer company becomes a customer once. Returns the
+     * draft's id.
+     *
+     * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price: numeric-string|float|int, vat_rate?: numeric-string|float|int}>  $lines  net prices
+     */
+    public function draftIntercompany(int $sellerCompanyId, int $buyerCompanyId, array $lines, string $source, ?string $note = null): int;
+
     /** Whether the company has a unit able to issue right now (id of the first ready unit, or null). */
     public function readyUnitFor(int $companyId): ?int;
 

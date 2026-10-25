@@ -13,6 +13,7 @@ use App\Modules\Hr\Actions\Payroll\WpsFile;
 use App\Modules\Hr\Enums\HrFeature;
 use App\Modules\Hr\Enums\PayrollStatus;
 use App\Modules\Hr\Http\Controllers\Concerns\ScopesEmployees;
+use App\Modules\Hr\Models\BonusType;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\PayrollLine;
 use App\Modules\Hr\Models\PayrollRun;
@@ -49,6 +50,7 @@ class PayrollController extends Controller
             'runs' => $runs->values()->all(),
             'companies' => $companies->filter(fn (CompanyRef $company): bool => $this->reach(HrFeature::Payroll, FeatureAction::Create)->allowsWholeCompany($company->id))
                 ->map(fn (CompanyRef $company): array => ['value' => $company->id, 'label' => $company->name])->values()->all(),
+            'bonus_types' => BonusType::query()->where('is_active', true)->orderBy('sort_order')->get()->map(fn (BonusType $type): array => ['value' => $type->id, 'label' => $type->localized('name')])->all(),
         ], ['hr']);
     }
 

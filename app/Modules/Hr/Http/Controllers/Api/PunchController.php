@@ -10,6 +10,7 @@ use App\Modules\Hr\Http\Requests\Api\PunchRequest;
 use App\Modules\Hr\Http\Resources\Api\PunchResource;
 use App\Modules\Hr\Models\AttendanceDevice;
 use App\Modules\Hr\Models\AttendancePunch;
+use App\Modules\Hr\Support\HrSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -37,7 +38,11 @@ class PunchController extends Controller
             throw ValidationException::withMessages(['device_id' => __('hr.attendance.errors.other_device')]);
         }
 
-        $punch = $recordPunch->handle($employee, PunchType::from($request->validated('type')), $request->validated());
+        $punch = $recordPunch->handle($employee, PunchType::from($request->validated('type')), $request->safe()->except('selfie'));
+
+        if ($request->hasFile('selfie') && app(HrSettings::class)->get('attendance_selfie')) {
+            $punch->forceFill(['selfie_path' => $request->file('selfie')->store("clients/{$employee->client_id}/employees/{$employee->id}/selfies", config('baydaq.hr.disk'))])->save();
+        }
 
         return (new PunchResource($punch))->response()->setStatusCode(201);
     }

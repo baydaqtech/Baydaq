@@ -192,13 +192,14 @@ function ContractDialog({ employee, contract, allowanceTypes }: { employee: Empl
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
   const f = (field: string) => t(`hr.contracts.fields.${field}`);
-  const form = useForm<{ type: string; status: string; starts_on: string; ends_on: string; probation_days: number; basic_salary: string; notes: string; allowances: ContractAllowanceLine[] }>({
+  const form = useForm<{ type: string; status: string; starts_on: string; ends_on: string; probation_days: number; basic_salary: string; qiwa_authenticated: boolean; notes: string; allowances: ContractAllowanceLine[] }>({
     type: contract?.type ?? 'open_ended',
     status: contract?.status ?? 'active',
     starts_on: contract?.starts_on ?? new Date().toISOString().slice(0, 10),
     ends_on: contract?.ends_on ?? '',
     probation_days: contract?.probation_days ?? 90,
     basic_salary: contract?.basic_salary ?? '',
+    qiwa_authenticated: contract?.qiwa_authenticated ?? false,
     notes: contract?.notes ?? '',
     allowances: contract?.allowances.map((line) => ({ allowance_type_id: line.allowance_type_id, calculation: line.calculation, value: line.value })) ?? [],
   });
@@ -229,6 +230,7 @@ function ContractDialog({ employee, contract, allowanceTypes }: { employee: Empl
           <FormField label={f('ends_on')} error={errors.ends_on}><Input type="date" dir="ltr" value={data.ends_on} onChange={(event) => setData('ends_on', event.target.value)} /></FormField>
           <FormField label={f('probation_days')} error={errors.probation_days}><Input type="number" dir="ltr" value={data.probation_days} onChange={(event) => setData('probation_days', Number(event.target.value))} /></FormField>
           <FormField label={f('basic_salary')} error={errors.basic_salary}><Input type="number" step="0.01" dir="ltr" value={data.basic_salary} onChange={(event) => setData('basic_salary', event.target.value)} /></FormField>
+          <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.qiwa_authenticated} onCheckedChange={(state) => setData('qiwa_authenticated', state === true)} />{f('qiwa_authenticated')}</label>
           <div className="sm:col-span-2">
             <div className="mb-2 flex items-center justify-between"><span className="text-sm font-medium">{t('hr.contracts.allowances')}</span><Button type="button" size="xs" variant="outline" onClick={addAllowance}><Plus data-icon="inline-start" />{t('hr.contracts.add_allowance')}</Button></div>
             <div className="flex flex-col gap-2">

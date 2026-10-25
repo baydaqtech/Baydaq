@@ -28,6 +28,7 @@ class SaveContractRequest extends FormRequest
             'ends_on' => ['nullable', 'date', 'after:starts_on', Rule::requiredIf(fn () => $this->input('type') === ContractType::Fixed->value)],
             'probation_days' => ['required', 'integer', 'min:0', 'max:180'],
             'basic_salary' => ['required', 'numeric', 'min:0', 'max:9999999'],
+            'qiwa_authenticated' => ['boolean'],
             'notes' => ['nullable', 'string', 'max:5000'],
             'allowances' => ['present', 'array'],
             'allowances.*.allowance_type_id' => ['required', 'integer'],

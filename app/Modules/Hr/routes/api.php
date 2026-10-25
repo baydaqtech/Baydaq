@@ -6,6 +6,7 @@ use App\Modules\Hr\Http\Controllers\Api\LeaveController;
 use App\Modules\Hr\Http\Controllers\Api\LocationController;
 use App\Modules\Hr\Http\Controllers\Api\MeController;
 use App\Modules\Hr\Http\Controllers\Api\PunchController;
+use App\Modules\Hr\Http\Controllers\Api\ShiftController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,8 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::get('/advances', [AdvanceController::class, 'index'])->name('advances.index');
     Route::post('/advances/preview', [AdvanceController::class, 'preview'])->middleware('throttle:30,1')->name('advances.preview');
     Route::post('/advances', [AdvanceController::class, 'store'])->middleware('throttle:5,1')->name('advances.store');
+    Route::get('/shifts', [ShiftController::class, 'index'])->name('shifts.index');
+    Route::post('/shifts/{shift}/claim', [ShiftController::class, 'claim'])->middleware('throttle:10,1')->name('shifts.claim');
     Route::get('/attendance/locations', [LocationController::class, 'index'])->name('attendance.locations');
     Route::get('/attendance/punches', [PunchController::class, 'index'])->name('attendance.punches.index');
     Route::post('/attendance/punches', [PunchController::class, 'store'])->middleware('throttle:30,1')->name('attendance.punches.store');

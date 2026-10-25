@@ -3,6 +3,7 @@
 use App\Modules\Hr\Http\Controllers\AttendanceController;
 use App\Modules\Hr\Http\Controllers\CatalogController;
 use App\Modules\Hr\Http\Controllers\ChangeRequestController;
+use App\Modules\Hr\Http\Controllers\ComplianceController;
 use App\Modules\Hr\Http\Controllers\ContractController;
 use App\Modules\Hr\Http\Controllers\EmployeeController;
 use App\Modules\Hr\Http\Controllers\EmployeeDocumentController;
@@ -13,6 +14,7 @@ use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\PayController;
 use App\Modules\Hr\Http\Controllers\PayrollController;
 use App\Modules\Hr\Http\Controllers\SelfServiceController;
+use App\Modules\Hr\Http\Controllers\ShiftController;
 use Illuminate\Support\Facades\Route;
 
 // An employee's own page (with or without a role in the suite).
@@ -20,6 +22,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
     Route::get('/', [SelfServiceController::class, 'show'])->name('home');
     Route::post('/leave', [SelfServiceController::class, 'requestLeave'])->middleware('throttle:10,1')->name('leave.store');
     Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->name('advance.store');
+    Route::post('/shifts/{shift}/claim', [SelfServiceController::class, 'claimShift'])->middleware('throttle:10,1')->name('shifts.claim');
 });
 
 /*
@@ -67,6 +70,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         });
         Route::get('/catalog', [CatalogController::class, 'index'])->middleware('access:hr.catalog.view|hr.catalog.create|hr.catalog.update')->name('catalog.index');
 
+        Route::get('/attendance/punches/{punch}/selfie', [AttendanceController::class, 'selfie'])->middleware('access:hr.attendance.view')->name('attendance.selfie');
         Route::get('/attendance', [AttendanceController::class, 'index'])->middleware('access:hr.attendance.view')->name('attendance.index');
         Route::put('/attendance/punches/{punch}/resolve', [AttendanceController::class, 'resolve'])->middleware('access:hr.attendance.resolve_flags')->name('attendance.resolve');
         Route::delete('/employees/{employee}/device', [AttendanceController::class, 'resetDevice'])->middleware('access:hr.attendance.reset_device')->name('attendance.device.reset');
@@ -97,7 +101,22 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::post('/employees/{employee}/final-settlement', [PayrollController::class, 'settle'])->middleware('access:hr.payroll.view_eosb')->name('payroll.settle');
         Route::get('/reports/eosb', [PayrollController::class, 'liability'])->middleware('access:hr.payroll.view_eosb')->name('reports.eosb');
 
+        // Shifts, open shifts and holidays.
+        Route::post('/shifts', [ShiftController::class, 'store'])->middleware('access:hr.shifts.create')->name('shifts.store');
+        Route::put('/shifts/{shift}', [ShiftController::class, 'update'])->middleware('access:hr.shifts.update')->name('shifts.update');
+        Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])->middleware('access:hr.shifts.delete')->name('shifts.destroy');
+        Route::middleware('access:hr.shifts.update')->group(function (): void {
+            Route::post('/holidays', [ShiftController::class, 'storeHoliday'])->name('holidays.store');
+            Route::post('/holidays/load', [ShiftController::class, 'loadHolidays'])->name('holidays.load');
+            Route::delete('/holidays/{holiday}', [ShiftController::class, 'destroyHoliday'])->name('holidays.destroy');
+        });
+        Route::get('/shifts', [ShiftController::class, 'index'])->middleware('access:hr.shifts.view|hr.shifts.create')->name('shifts.index');
+        Route::post('/bonus-batch', [PayController::class, 'bonusBatch'])->middleware('access:hr.pay.create')->name('pay.bonus_batch');
+
         Route::get('/org-chart', OrgChartController::class)->middleware('access:hr.employees.view')->name('org_chart');
+        Route::get('/reports/nitaqat', [ComplianceController::class, 'nitaqat'])->middleware('access:hr.reports.view')->name('reports.nitaqat');
+        Route::put('/reports/nitaqat', [ComplianceController::class, 'saveTarget'])->middleware('access:hr.reports.view')->name('reports.nitaqat.target');
+        Route::match(['get', 'post'], '/reports/government', [ComplianceController::class, 'government'])->middleware('access:hr.employees.view_salaries')->name('reports.government');
         Route::get('/reports/headcount', HeadcountReportController::class)->middleware('access:hr.reports.view')->name('reports.headcount');
 
         Route::middleware('access:hr.employees.view|hr.employees.create|hr.employees.update')->group(function (): void {

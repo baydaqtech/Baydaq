@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * activating a new one ends the previous.
  */
 #[Table('hr__contracts')]
-#[Fillable(['type', 'starts_on', 'ends_on', 'probation_days', 'basic_salary', 'notes'])]
+#[Fillable(['type', 'starts_on', 'ends_on', 'probation_days', 'basic_salary', 'qiwa_authenticated', 'notes'])]
 class Contract extends Model
 {
     /** @use HasFactory<ContractFactory> */
@@ -38,6 +38,7 @@ class Contract extends Model
     protected function casts(): array
     {
         return [
+            'qiwa_authenticated' => 'boolean',
             'type' => ContractType::class,
             'status' => ContractStatus::class,
             'starts_on' => 'date',

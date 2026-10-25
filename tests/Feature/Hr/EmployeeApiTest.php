@@ -5,11 +5,16 @@ namespace Tests\Feature\Hr;
 use App\Models\User;
 use App\Modules\Hr\Actions\Employees\LinkEmployeeUser;
 use App\Modules\Hr\Models\AttendanceDevice;
+use App\Modules\Hr\Models\AttendancePunch;
 use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Support\HrSettings;
 use App\Modules\Platform\Actions\Suite\SaveWorkLocation;
+use App\Modules\Platform\Enums\ScopeLevel;
 use App\Modules\Platform\Models\WorkLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\BuildsSuite;
 use Tests\TestCase;
 
@@ -90,5 +95,25 @@ class EmployeeApiTest extends TestCase
             ->assertUnprocessable()->assertJsonValidationErrors('email');
 
         $this->getJson('/api/v1/me')->assertUnauthorized();
+    }
+
+    public function test_a_selfie_is_required_and_kept_privately_only_when_the_tenant_asks_for_it(): void
+    {
+        Storage::fake(config('baydaq.hr.disk'));
+        $token = $this->login()['token'];
+        $punch = ['type' => 'in', 'latitude' => 24.6950, 'longitude' => 46.6850, 'accuracy_m' => 12, 'device_id' => 'phone-1'];
+
+        $this->withToken($token)->postJson('/api/v1/attendance/punches', $punch)->assertCreated();
+
+        app(HrSettings::class)->set('attendance_selfie', true);
+        $this->withToken($token)->postJson('/api/v1/attendance/punches', [...$punch, 'type' => 'out'])->assertJsonValidationErrors('selfie');
+        $this->withToken($token)->post('/api/v1/attendance/punches', [...$punch, 'type' => 'out', 'selfie' => UploadedFile::fake()->image('me.jpg')], ['Accept' => 'application/json'])->assertCreated();
+
+        $saved = AttendancePunch::query()->whereNotNull('selfie_path')->sole();
+        Storage::disk(config('baydaq.hr.disk'))->assertExists($saved->selfie_path);
+
+        $this->actingAs($this->owner)->get($this->suiteUrl("hr/attendance/punches/{$saved->id}/selfie"))->assertOk();
+        $noAttendance = $this->memberWith(['hr.employees.view'], ScopeLevel::Client);
+        $this->actingAs($noAttendance)->get($this->suiteUrl("hr/attendance/punches/{$saved->id}/selfie"))->assertForbidden();
     }
 }

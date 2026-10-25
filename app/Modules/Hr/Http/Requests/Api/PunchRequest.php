@@ -3,6 +3,7 @@
 namespace App\Modules\Hr\Http\Requests\Api;
 
 use App\Modules\Hr\Enums\PunchType;
+use App\Modules\Hr\Support\HrSettings;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,6 +29,8 @@ class PunchRequest extends FormRequest
             'wifi_bssid' => ['nullable', 'string', 'max:40'],
             'device_id' => ['required', 'string', 'max:120'],
             'punched_at' => ['nullable', 'date'],
+            // Only when the tenant switched selfies on (off by default under PDPL).
+            'selfie' => [Rule::requiredIf(fn (): bool => (bool) app(HrSettings::class)->get('attendance_selfie')), 'nullable', 'image', 'max:2048'],
         ];
     }
 }

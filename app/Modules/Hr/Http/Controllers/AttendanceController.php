@@ -17,8 +17,10 @@ use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
 use App\Modules\Platform\Ports\OrgDirectory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
 {
@@ -57,6 +59,7 @@ class AttendanceController extends Controller
             'flag' => $punch->flag?->value,
             'resolution' => $punch->resolution?->value,
             'resolution_note' => $punch->resolution_note,
+            'has_selfie' => $punch->selfie_path !== null,
             'can_resolve' => $canResolve && $punch->flag !== null && $punch->resolution === null
                 && $this->access()->allowsBranch(HrFeature::Attendance->key('resolve_flags'), $punch->home_branch_id, $punch->employee->company_id ?? 0),
         ]));
@@ -89,5 +92,13 @@ class AttendanceController extends Controller
     public static function deviceFor(Employee $employee): ?AttendanceDevice
     {
         return AttendanceDevice::query()->firstWhere('employee_id', $employee->id);
+    }
+
+    /** The punch selfie, streamed from the private disk to whoever may see attendance there. */
+    public function selfie(AttendancePunch $punch): StreamedResponse
+    {
+        abort_unless($punch->selfie_path && $this->reach(HrFeature::Attendance, FeatureAction::View)->allowsBranch($punch->branch_id ?? $punch->home_branch_id, $punch->employee->company_id), 404);
+
+        return Storage::disk(config('baydaq.hr.disk'))->response($punch->selfie_path);
     }
 }

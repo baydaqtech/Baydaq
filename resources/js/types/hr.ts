@@ -62,6 +62,7 @@ export interface ContractAllowanceLine {
 }
 
 export interface ContractResource {
+  qiwa_authenticated?: boolean;
   id: number;
   type: string;
   status: string;
