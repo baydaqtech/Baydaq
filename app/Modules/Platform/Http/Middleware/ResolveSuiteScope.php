@@ -12,6 +12,7 @@ use App\Modules\Platform\Models\Company;
 use App\Modules\Platform\Models\Organization;
 use App\Modules\Platform\Models\ScopeShortcut;
 use App\Modules\Platform\Models\Subscription;
+use App\Modules\Platform\Ports\Intelligence;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use Closure;
 use Illuminate\Http\Request;
@@ -138,6 +139,7 @@ class ResolveSuiteScope
                 ])->all(),
             ])->all(),
             'shortcuts' => $this->shortcuts($organizations),
+            'ai' => app(Intelligence::class)->isEnabled(),
             'can' => $access->keys(),
             'is_owner' => $access->isOwner(),
             'modules' => Subscription::query()->whereIn('status', ['active', 'lapsed'])->pluck('module')->map(fn ($module) => $module->value)->values()->all(),

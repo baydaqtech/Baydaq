@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
-import { ArrowLeftRight, FileText, KeyRound, Paperclip, Pencil, Plus, Smartphone, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, FileText, KeyRound, Paperclip, Pencil, Plus, Smartphone, Sparkles, Trash2 } from 'lucide-react';
 import ConfirmAction from '@/components/platform/ConfirmAction';
 import DetailList from '@/components/platform/DetailList';
 import FormField from '@/components/platform/FormField';
@@ -21,7 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatDate, formatMoney, formatNumber } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
-import { useSuiteUrl } from '@/lib/suite';
+import { postJson } from '@/lib/http';
+import { useSuite, useSuiteUrl } from '@/lib/suite';
 import type { AuditEntry, BranchOption, CatalogItem, ContractAllowanceLine, ContractResource, EmployeeDocumentResource, EmployeeResource, MovementResource } from '@/types/hr';
 import type { Option } from '@/types/resources';
 
@@ -270,6 +271,29 @@ function DocumentDialog({ employee, document, types }: { employee: EmployeeResou
   });
   const { data, setData, errors } = form;
   const type = types.find((item) => item.id === Number(data.document_type_id));
+  const { ai } = useSuite();
+  const [scan, setScan] = useState<{ busy: boolean; error: string | null; done: boolean }>({ busy: false, error: null, done: false });
+
+  async function readWithAi() {
+    const body = new FormData();
+    body.append('document_type_id', String(data.document_type_id));
+    data.files.slice(0, 4).forEach((file) => body.append('files[]', file));
+    setScan({ busy: true, error: null, done: false });
+
+    try {
+      const read = await postJson<{ number: string | null; issued_on: string | null; expires_on: string | null; data: FieldValues }>(url(`/hr/employees/${employee.id}/documents/scan`), body);
+      setData((current) => ({
+        ...current,
+        number: read.number ?? current.number,
+        issued_on: read.issued_on ?? current.issued_on,
+        expires_on: read.expires_on ?? current.expires_on,
+        data: { ...current.data, ...Object.fromEntries(Object.entries(read.data).filter(([, value]) => value !== null)) },
+      }));
+      setScan({ busy: false, error: null, done: true });
+    } catch (error) {
+      setScan({ busy: false, error: (error as Error).message, done: false });
+    }
+  }
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -295,6 +319,14 @@ function DocumentDialog({ employee, document, types }: { employee: EmployeeResou
           <FormField label={t('hr.documents.add_files')} error={errors.files} className="sm:col-span-2">
             <Input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => setData('files', Array.from(event.target.files ?? []))} />
           </FormField>
+          {ai && data.files.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed p-2 text-sm sm:col-span-2">
+              <Button type="button" size="sm" variant="outline" onClick={readWithAi} disabled={scan.busy || data.document_type_id === ''}>
+                <Sparkles data-icon="inline-start" />{scan.busy ? t('hr.documents.ai_reading') : t('hr.documents.ai_read')}
+              </Button>
+              <span className={scan.error ? 'text-destructive' : 'text-muted-foreground'}>{scan.error ?? (scan.done ? t('hr.documents.ai_done') : t('hr.documents.ai_hint'))}</span>
+            </div>
+          )}
           <FormField label={f('notes')} error={errors.notes} className="sm:col-span-2"><Textarea rows={2} value={data.notes} onChange={(event) => setData('notes', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>

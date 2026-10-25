@@ -37,7 +37,7 @@ export default function CommandPalette() {
   const t = useT();
   const { dir } = useLocale();
   const { can } = useAccess();
-  const { tree, modules, shortcuts, scope } = useSuite();
+  const { tree, modules, shortcuts, scope, ai } = useSuite();
   const url = useSuiteUrl();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -86,7 +86,7 @@ export default function CommandPalette() {
     const matches = (...texts: (string | null | undefined)[]) => term === '' || texts.some((text) => text && normalize(text).includes(term));
 
     const pages: Item[] = NAV
-      .filter((item) => (!item.module || modules.includes(item.module)) && (!item.keys || can(...item.keys)))
+      .filter((item) => (!item.module || modules.includes(item.module)) && (!('ai' in item) || ai) && (!item.keys || can(...item.keys)))
       .map((item) => ({ key: `page:${item.path}`, group: 'pages', label: t(item.label), icon: item.icon, href: url(item.path) }))
       .filter((item) => matches(item.label));
 

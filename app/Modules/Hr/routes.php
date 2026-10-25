@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Hr\Http\Controllers\AssistantController;
 use App\Modules\Hr\Http\Controllers\AttendanceController;
 use App\Modules\Hr\Http\Controllers\CatalogController;
 use App\Modules\Hr\Http\Controllers\ChangeRequestController;
@@ -52,6 +53,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         });
 
         Route::middleware('access:hr.documents.create|hr.documents.update')->group(function (): void {
+            Route::post('/employees/{employee}/documents/scan', [EmployeeDocumentController::class, 'scan'])->middleware('throttle:20,1')->name('documents.scan');
             Route::post('/employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
             Route::post('/employees/{employee}/documents/{document}', [EmployeeDocumentController::class, 'update'])->name('documents.update');
             Route::delete('/employees/{employee}/documents/{document}/files/{file}', [EmployeeDocumentController::class, 'deleteFile'])->name('documents.files.destroy');
@@ -118,6 +120,8 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'
         Route::get('/reports/nitaqat', [ComplianceController::class, 'nitaqat'])->middleware('access:hr.reports.view')->name('reports.nitaqat');
         Route::put('/reports/nitaqat', [ComplianceController::class, 'saveTarget'])->middleware('access:hr.reports.view')->name('reports.nitaqat.target');
         Route::match(['get', 'post'], '/reports/government', [ComplianceController::class, 'government'])->middleware('access:hr.employees.view_salaries')->name('reports.government');
+        Route::post('/assistant', [AssistantController::class, 'ask'])->middleware(['access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view', 'throttle:20,1'])->name('assistant.ask');
+        Route::get('/assistant', [AssistantController::class, 'show'])->middleware('access:hr.employees.view|hr.documents.view|hr.leave.view|hr.attendance.view')->name('assistant');
         Route::get('/reports/headcount', HeadcountReportController::class)->middleware('access:hr.reports.view')->name('reports.headcount');
 
         Route::middleware('access:hr.employees.view|hr.employees.create|hr.employees.update')->group(function (): void {

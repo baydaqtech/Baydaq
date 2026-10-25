@@ -47,6 +47,13 @@ return [
         'empty' => 'لا توجد فروع في هذا العرض.',
     ],
 
+    'ai' => [
+        'disabled' => 'الذكاء الاصطناعي غير مفعّل لهذا الحساب.',
+        'failed' => 'لم تستجب خدمة الذكاء الاصطناعي. حاول بعد قليل.',
+        'declined' => 'لم يستطع الذكاء الاصطناعي المساعدة في هذا الطلب.',
+        'unreadable' => 'تعذّرت قراءة الوثيقة. جرّب صورة أوضح.',
+    ],
+
     'palette' => [
         'open' => 'بحث',
         'placeholder' => 'الصفحات، الشركات، الفروع، الموظفون، الأعضاء…',
@@ -74,7 +81,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'catalog' => 'إعدادات الموارد البشرية'],
+        'hr' => ['employees' => 'الموظفون', 'attendance' => 'الحضور', 'movements' => 'الحركات', 'documents' => 'الوثائق', 'shifts' => 'الورديات', 'leave' => 'الإجازات', 'payroll' => 'مسير الرواتب', 'reports' => 'التقارير', 'assistant' => 'المساعد', 'catalog' => 'إعدادات الموارد البشرية'],
         'invoicing' => ['invoices' => 'الفواتير', 'customers' => 'العملاء', 'einvoicing' => 'الفوترة الإلكترونية'],
         'pos' => ['sell' => 'البيع', 'orders' => 'الطلبات', 'kitchen' => 'المطبخ', 'catalog' => 'القائمة', 'registers' => 'أجهزة الكاشير'],
         'reservations' => ['calendar' => 'التقويم', 'bookings' => 'الحجوزات', 'catalog' => 'الخدمات'],

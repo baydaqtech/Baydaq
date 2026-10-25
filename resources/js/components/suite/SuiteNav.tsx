@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Crown, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { Crown, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ export const NAV = [
   { path: '/hr/shifts', label: 'suite.module_nav.hr.shifts', icon: CalendarClock, module: 'hr', keys: ['hr.shifts.view', 'hr.shifts.create'] },
   { path: '/hr/leave', label: 'suite.module_nav.hr.leave', icon: CalendarDays, module: 'hr', keys: ['hr.leave.view', 'hr.leave.approve'] },
   { path: '/hr/payroll', label: 'suite.module_nav.hr.payroll', icon: Banknote, module: 'hr', keys: ['hr.payroll.view'] },
+  { path: '/hr/assistant', label: 'suite.module_nav.hr.assistant', icon: Sparkles, module: 'hr', ai: true, keys: ['hr.employees.view', 'hr.documents.view', 'hr.leave.view', 'hr.attendance.view'] },
   { path: '/hr/reports/headcount', label: 'suite.module_nav.hr.reports', icon: BarChart3, module: 'hr', keys: ['hr.reports.view'] },
   { path: '/hr/catalog', label: 'suite.module_nav.hr.catalog', icon: Settings2, module: 'hr', keys: ['hr.catalog.view', 'hr.catalog.create', 'hr.catalog.update'] },
   { path: '/invoicing/invoices', label: 'suite.module_nav.invoicing.invoices', icon: FileText, module: 'invoicing', keys: ['invoicing.invoices.view', 'invoicing.invoices.create'] },
@@ -51,10 +52,10 @@ export const NAV = [
 export default function SuiteNav() {
   const t = useT();
   const { can } = useAccess();
-  const { modules } = useSuite();
+  const { modules, ai } = useSuite();
   const url = useSuiteUrl();
   const current = window.location.pathname.replace(/^\/suite\/[^/]+/, '') || '/';
-  const visible = NAV.filter((item) => (!item.module || modules.includes(item.module)) && (!item.keys || can(...item.keys)));
+  const visible = NAV.filter((item) => (!item.module || modules.includes(item.module)) && (!('ai' in item) || ai) && (!item.keys || can(...item.keys)));
   // The most specific matching tab wins, so /assets/audits lights "Stock-takes", not "Assets".
   const matches = (item: (typeof NAV)[number]) => (item.exact ? current === item.path : current === item.path || current.startsWith(`${item.path}/`));
 

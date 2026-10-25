@@ -41,6 +41,8 @@ export interface SuiteShortcut {
 export interface SuiteProp {
   scope: SuiteScopeProp;
   shortcuts: SuiteShortcut[];
+  /** Whether AI features (document capture, the HR assistant) are configured. */
+  ai: boolean;
   tree: SuiteOrganization[];
   can: string[];
   is_owner: boolean;

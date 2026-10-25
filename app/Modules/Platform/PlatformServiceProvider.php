@@ -4,6 +4,7 @@ namespace App\Modules\Platform;
 
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Adapters\AuditTrail;
+use App\Modules\Platform\Adapters\ClaudeIntelligence;
 use App\Modules\Platform\Adapters\CustomerSuiteSearch;
 use App\Modules\Platform\Adapters\HostedPayments;
 use App\Modules\Platform\Adapters\ResolvedAccess;
@@ -18,6 +19,7 @@ use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Ports\Audit;
 use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Ports\Entitlements;
+use App\Modules\Platform\Ports\Intelligence;
 use App\Modules\Platform\Ports\Messaging;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Ports\Payments;
@@ -41,6 +43,7 @@ class PlatformServiceProvider extends ServiceProvider
         $this->app->bind(Messaging::class, WhatsAppMessaging::class);
         $this->app->bind(Payments::class, HostedPayments::class);
         $this->app->bind(Customers::class, WalletCustomers::class);
+        $this->app->bind(Intelligence::class, fn (): Intelligence => new ClaudeIntelligence(config('baydaq.ai.api_key'), (string) config('baydaq.ai.model')));
         $this->app->tag([CustomerSuiteSearch::class], SuiteSearch::TAG);
     }
 

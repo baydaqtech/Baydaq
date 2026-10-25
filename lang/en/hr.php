@@ -269,6 +269,10 @@ return [
     ],
 
     'documents' => [
+        'ai_read' => 'Read with AI',
+        'ai_reading' => 'Reading…',
+        'ai_hint' => 'Fill the fields from the scan. Check them before saving.',
+        'ai_done' => 'Filled from the scan. Please check every field before saving.',
         'radar' => [
             'title' => 'Document radar',
             'hint' => 'Documents running out in the next 90 days and what renewing them should cost. A renewal task opens at the first alert and closes when a new expiry date is saved.',
@@ -610,4 +614,16 @@ return [
     ],
 
     'board' => ['attendance' => 'Attendance today', 'documents' => 'Documents expiring in 30 days'],
+
+    'assistant' => [
+        'title' => 'HR assistant',
+        'lede' => 'Ask about your people in Arabic or English. Answers only use what your role lets you see here.',
+        'placeholder' => 'e.g. Who in the Jeddah branches has an iqama expiring next month?',
+        'send' => 'Ask',
+        'thinking' => 'Looking it up…',
+        'ask_something' => 'Ask a question first.',
+        'examples' => ['Who is on leave today?', 'How many active employees per branch?', 'Which documents expire in the next 30 days?'],
+        'note' => 'AI can make mistakes. Check important answers in the records.',
+        'clear' => 'New conversation',
+    ],
 ];

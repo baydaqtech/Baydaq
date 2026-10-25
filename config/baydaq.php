@@ -145,4 +145,19 @@ return [
             'webhook_secret' => env('MOYASAR_WEBHOOK_SECRET'),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI (document capture, HR assistant)
+    |--------------------------------------------------------------------------
+    |
+    | Claude through the Anthropic API. Without ANTHROPIC_API_KEY the AI features
+    | stay hidden and everything else works as before.
+    |
+    */
+
+    'ai' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('BAYDAQ_AI_MODEL', 'claude-opus-5-5'),
+    ],
 ];

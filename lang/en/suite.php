@@ -47,6 +47,13 @@ return [
         'empty' => 'No branches in this view.',
     ],
 
+    'ai' => [
+        'disabled' => 'AI is not set up for this account.',
+        'failed' => 'The AI service did not answer. Try again in a moment.',
+        'declined' => 'The AI could not help with this request.',
+        'unreadable' => 'The AI could not read this document. Try a clearer photo.',
+    ],
+
     'palette' => [
         'open' => 'Search',
         'placeholder' => 'Pages, companies, branches, employees, members…',
@@ -74,7 +81,7 @@ return [
 
     // Module tab labels, kept here so the nav can render them on every suite page.
     'module_nav' => [
-        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'catalog' => 'HR settings'],
+        'hr' => ['employees' => 'Employees', 'attendance' => 'Attendance', 'movements' => 'Movements', 'documents' => 'Documents', 'shifts' => 'Shifts', 'leave' => 'Leave', 'payroll' => 'Payroll', 'reports' => 'Reports', 'assistant' => 'Assistant', 'catalog' => 'HR settings'],
         'invoicing' => ['invoices' => 'Invoices', 'customers' => 'Customers', 'einvoicing' => 'E-invoicing'],
         'pos' => ['sell' => 'Sell', 'orders' => 'Orders', 'kitchen' => 'Kitchen', 'catalog' => 'Catalog', 'registers' => 'Registers'],
         'reservations' => ['calendar' => 'Calendar', 'bookings' => 'Bookings', 'catalog' => 'Services'],
