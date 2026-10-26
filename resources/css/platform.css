@@ -1,0 +1,150 @@
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@source "../views/platform.blade.php";
+@source "../js/Pages/Auth";
+@source "../js/Pages/Admin";
+@source "../js/Pages/Portal";
+@source "../js/Pages/Suite";
+@source "../js/Pages/Hr";
+@source "../js/Pages/Invoicing";
+@source "../js/Pages/Pos";
+@source "../js/Pages/Reservations";
+@source "../js/Pages/Subscriptions";
+@source "../js/Pages/Assets";
+@source "../js/Pages/Finance";
+@source "../js/components/suite";
+@source "../js/components/ui";
+@source "../js/components/platform";
+@source "../js/components/hr";
+@source "../js/components/admin";
+@source "../js/components/assets";
+@source "../js/components/pos";
+@source "../js/layouts";
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Alexandria', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --color-walnut: #3B2414;
+    --color-brass: #C8902F;
+    --color-brass-hi: #D6A24E;
+    --color-ivory: #F6EBD6;
+    --color-umber: #6B5238;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    /* Baydaq brand (brand/README.md): walnut, brass, ivory, umber. */
+    --background: #F9F2E6;
+    --foreground: #2A1A0E;
+    --card: #FFFCF6;
+    --card-foreground: #2A1A0E;
+    --popover: #FFFCF6;
+    --popover-foreground: #2A1A0E;
+    --primary: #3B2414;
+    --primary-foreground: #F6EBD6;
+    --secondary: #F0E4CF;
+    --secondary-foreground: #3B2414;
+    --muted: #F1E7D7;
+    --muted-foreground: #6B5238;
+    --accent: #F3E3C3;
+    --accent-foreground: #3B2414;
+    --destructive: #B42318;
+    --border: #E6D7BF;
+    --input: #DCC9AA;
+    --ring: #C8902F;
+    --chart-1: #C8902F;
+    --chart-2: #3B2414;
+    --chart-3: #D6A24E;
+    --chart-4: #6B5238;
+    --chart-5: #9A6414;
+    --radius: 0.625rem;
+    --sidebar: #3B2414;
+    --sidebar-foreground: #F6EBD6;
+    --sidebar-primary: #C8902F;
+    --sidebar-primary-foreground: #2A1A0E;
+    --sidebar-accent: #4A2F1B;
+    --sidebar-accent-foreground: #F6EBD6;
+    --sidebar-border: #553A25;
+    --sidebar-ring: #D6A24E;
+}
+
+/* Dark mode: the same brand, walnut becomes the canvas. A client theme overrides primary/ring. */
+.dark {
+    --background: #1B120B;
+    --foreground: #F3E7D3;
+    --card: #241811;
+    --card-foreground: #F3E7D3;
+    --popover: #241811;
+    --popover-foreground: #F3E7D3;
+    --primary: #D6A24E;
+    --primary-foreground: #1B120B;
+    --secondary: #33231A;
+    --secondary-foreground: #F3E7D3;
+    --muted: #2E2017;
+    --muted-foreground: #C2AE92;
+    --accent: #3A291D;
+    --accent-foreground: #F3E7D3;
+    --destructive: #F0705F;
+    --border: #3D2C20;
+    --input: #4A3628;
+    --ring: #D6A24E;
+    --sidebar: #140D08;
+    --sidebar-foreground: #F3E7D3;
+    --sidebar-accent: #2A1C13;
+    --sidebar-border: #33231A;
+    color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}

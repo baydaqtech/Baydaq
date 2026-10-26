@@ -2,7 +2,8 @@
 // chess.js v1 renamed the predicates (in_checkmate -> isCheckmate, ...), so those calls are updated.
 import { Chess } from 'chess.js';
 
-export function initChessGame() {
+// `text` holds the translated status lines and piece names (lang/*/landing.php, "chess").
+export function initChessGame(text) {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var LOADER_MS = document.documentElement.classList.contains('loading') ? 1400 : 0;
   /* ---------- Playable board: you are White, Baydaq plays Black ---------- */
@@ -11,7 +12,6 @@ export function initChessGame() {
   var movesEl = document.getElementById('moves');
   var FILES = 'abcdefgh';
   var NAMES = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
-  var ARABIC = { p: 'بيدق', n: 'حصان', b: 'فيل', r: 'قلعة', q: 'وزير', k: 'ملك' };
 
   var cells = {};
   for (var rk = 8; rk >= 1; rk--) {
@@ -71,7 +71,7 @@ export function initChessGame() {
       el.classList.toggle('cap', !!t && !!p);
       el.classList.toggle('check', checkSq === sq);
       el.classList.toggle('can', mine && (!!t || (!!p && p.color === 'w')));
-      el.setAttribute('aria-label', sq + (p ? '، ' + (p.color === 'w' ? 'أبيض ' : 'أسود ') + ARABIC[p.type] : ''));
+      el.setAttribute('aria-label', sq + (p ? text.separator + (p.color === 'w' ? text.white : text.black) + text.pieces[p.type] : ''));
     });
     if (anim && !reduce) {
       var piece = cells[anim.to].querySelector('.pc');
@@ -104,16 +104,16 @@ export function initChessGame() {
 
   function updateStatus() {
     if (game.isCheckmate()) {
-      if (game.turn() === 'b') { frameEl.classList.add('won'); setStatus('كش مات! فزت بالمباراة. هل نبني مشروعك بنفس الدقّة؟', 'w'); }
-      else setStatus('كش مات. فاز بيدق هذه المرة، جرّب لعبة جديدة.', 'b');
+      if (game.turn() === 'b') { frameEl.classList.add('won'); setStatus(text.won, 'w'); }
+      else setStatus(text.lost, 'b');
     } else if (game.isDraw() || game.isStalemate() || game.isThreefoldRepetition()) {
-      setStatus('تعادل. لا غالب ولا مغلوب.', 'w');
+      setStatus(text.draw, 'w');
     } else if (busy) {
-      setStatus('بيدق يفكّر في حركته…', 'b', true);
+      setStatus(text.thinking, 'b', true);
     } else if (game.isCheck()) {
-      setStatus('كش! احمِ ملكك.', 'w');
+      setStatus(text.check, 'w');
     } else {
-      setStatus(note || (game.history().length ? 'دورك.' : 'جرّب! أنت تلعب بالأبيض: انقر قطعة ثم الخانة التي تريدها.'), 'w');
+      setStatus(note || (game.history().length ? text.your_turn : text.first_move), 'w');
     }
     note = '';
   }
@@ -205,7 +205,7 @@ export function initChessGame() {
     var hit = targets.filter(function (m) { return m.to === sq; })[0];
     if (selected && hit) {
       var m = play({ from: selected, to: sq, promotion: 'q' });
-      if (m && m.flags.indexOf('p') !== -1) note = 'ترقّى بيدقك إلى وزير! هكذا نعمل: خطوة بعد خطوة حتى القمة.';
+      if (m && m.flags.indexOf('p') !== -1) note = text.promoted;
       if (!game.isGameOver()) {
         busy = true;
         var n = note;

@@ -1,22 +1,27 @@
-export const STEPS = [
-  { n: '١', phase: 'الخطوة الأولى', title: 'نفهم احتياجك', desc: 'نجلس معك لنفهم فكرتك وأهدافك وميزانيتك.', get: 'تستلم: عرضاً واضحاً بالسعر والمدة', coord: 'e1' },
-  { n: '٢', phase: 'الخطوة الثانية', title: 'نصمّم الحل', desc: 'نرسم شكل الموقع أو التطبيق، وتوافق عليه قبل أن نبدأ البرمجة.', get: 'تستلم: تصميماً تجرّبه بنفسك', coord: 'f1' },
-  { n: '٣', phase: 'الخطوة الثالثة', title: 'نبني ونطلعك أولاً بأول', desc: 'نعمل على مراحل قصيرة، وتشاهد ما أنجزناه بعد كل مرحلة.', get: 'تستلم: نسخة تعمل بعد كل مرحلة', coord: 'g1' },
-  { n: '٤', phase: 'الخطوة الرابعة', title: 'نطلق ونبقى معك', desc: 'ننشر المشروع ونتابع عمله، ونقدّم الدعم والتحديثات بعد الإطلاق.', get: 'تستلم: مشروعاً يعمل ودعماً مستمراً', coord: 'h1' },
-];
+import { useCopy, useT } from '../lib/i18n';
+
+// The four steps sit on the first rank, e1 to h1.
+const COORDS = ['e1', 'f1', 'g1', 'h1'];
+
+export function useSteps() {
+  return useCopy('landing.steps').map((step, i) => ({ ...step, coord: COORDS[i] }));
+}
 
 export default function Process() {
+  const t = useT();
+  const steps = useSteps();
+
   return (
     <section className="block" id="process" aria-labelledby="process-title" style={{ paddingTop: 0 }}>
       <div className="wrap">
         <div className="sec-head">
-          <span className="eyebrow">كيف نعمل</span>
-          <h2 id="process-title">أربع خطوات<br />واضحة.</h2>
-          <p>تعرف في كل خطوة ماذا نفعل، وتستلم في نهايتها شيئاً تراه بعينك.</p>
+          <span className="eyebrow">{t('landing.process_head.eyebrow')}</span>
+          <h2 id="process-title">{t('landing.process_head.title')}</h2>
+          <p>{t('landing.process_head.lede')}</p>
         </div>
 
         <ol className="rank">
-          {STEPS.map((s) => (
+          {steps.map((s) => (
             <li className="sq" key={s.coord}>
               <div className="top"><span className="num">{s.n}</span><span className="phase">{s.phase}</span></div>
               <div>

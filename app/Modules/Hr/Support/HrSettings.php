@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Modules\Hr\Support;
+
+use App\Modules\Hr\Models\HrSetting;
+use App\Modules\Platform\Tenancy\CurrentTenant;
+
+/**
+ * The tenant's HR rules with their defaults. Unknown keys are refused so a typo can't create
+ * a rule nobody reads.
+ */
+class HrSettings
+{
+    /** Rule => default. */
+    public const DEFAULTS = [
+        'dual_control' => false,          // IBAN and salary changes wait for a second person (H13)
+        'ramadan_hours' => 6,             // longest shift in Ramadan (Labor Law Art. 98), 0 = no cap (H9)
+        'attendance_selfie' => false,     // ask for a selfie with each punch; off by default under PDPL (H8)
+        'whatsapp_notifications' => false, // WhatsApp employees about their leave, advances, pay, documents, shifts (H14)
+        'nitaqat_targets' => [],          // company id => Saudization % needed for the company's band (H4)
+        'break_minutes' => 30,            // default break; Labor Law Art. 101 asks for at least 30 minutes
+        'break_max_concurrent' => 0,      // per branch, how many may be on break at once; 0 = no limit
+        'break_self_start' => true,       // employees start their own break from the app; off = ask a manager
+        'loan_max_months' => 6,           // a loan up to this many months' wage
+        'loan_max_installments' => 36,    // repaid over at most this many months
+        'loan_max_installment_percent' => 10, // each installment at most this % of the wage (Labor Law Art. 92)
+        'work_hours_per_day' => 8,        // the hourly wage behind overtime pay
+        'overtime_extra_percent' => 50,   // overtime = hourly wage + this % of the basic hourly wage (Art. 107)
+        'overtime_max_hours_year' => 720, // yearly ceiling on approved overtime hours per employee
+        'onboarding_tasks' => ['documents', 'qiwa', 'gosi', 'bank', 'app', 'policies', 'team'], // tasks a new hire gets
+    ];
+
+    public function __construct(private CurrentTenant $tenant) {}
+
+    public function get(string $key): mixed
+    {
+        $this->known($key);
+
+        return HrSetting::query()->where('key', $key)->value('value') ?? self::DEFAULTS[$key];
+    }
+
+    public function set(string $key, mixed $value): void
+    {
+        $this->known($key);
+
+        $setting = HrSetting::query()->firstOrNew(['key' => $key]);
+        $setting->forceFill(['client_id' => $this->tenant->client()->id, 'value' => $value])->save();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function all(): array
+    {
+        $stored = HrSetting::query()->pluck('value', 'key')->all();
+
+        return array_merge(self::DEFAULTS, array_intersect_key($stored, self::DEFAULTS));
+    }
+
+    private function known(string $key): void
+    {
+        if (! array_key_exists($key, self::DEFAULTS)) {
+            throw new \InvalidArgumentException("Unknown HR setting [{$key}].");
+        }
+    }
+}

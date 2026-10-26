@@ -22,10 +22,16 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    // Amazon SES (SESv2) in Bahrain. Its own keys, so mail never shares the storage bucket's credentials.
+    // TenantName sends the platform's own mail under the "baydaq-platform" SES tenant; it is left out
+    // until SES_TENANT is set, because sending to a tenant that does not exist fails.
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'key' => env('SES_KEY', env('AWS_ACCESS_KEY_ID')),
+        'secret' => env('SES_SECRET', env('AWS_SECRET_ACCESS_KEY')),
+        'region' => env('SES_REGION', 'me-south-1'),
+        'options' => array_filter([
+            'TenantName' => env('SES_TENANT'),
+        ]),
     ],
 
     'slack' => [
