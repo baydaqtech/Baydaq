@@ -105,6 +105,9 @@ export interface CompanyResource {
   postal_code: string | null;
   timezone: string;
   loyalty_percent: string | null;
+  points_per_riyal: string | null;
+  point_value: string | null;
+  points_tiers: PointsTier[];
   client_scope: string;
   status: string;
   branches?: BranchResource[];
@@ -152,3 +155,6 @@ export interface MemberResource {
 
 /** FeatureRegistry::matrix(): group → features with their actions and extra abilities. */
 export type FeatureMatrix = Record<string, { feature: string; label_file: string; actions: string[]; abilities: string[] }[]>;
+
+/** A loyalty tier: from this many points ever earned, each riyal earns `multiplier` times the points. */
+export interface PointsTier { name_ar: string; name_en: string; from: number; multiplier: number }

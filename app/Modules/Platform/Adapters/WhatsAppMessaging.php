@@ -2,6 +2,7 @@
 
 namespace App\Modules\Platform\Adapters;
 
+use App\Modules\Platform\Data\PhoneNumber;
 use App\Modules\Platform\Data\SentMessage;
 use App\Modules\Platform\Models\Message;
 use App\Modules\Platform\Ports\Messaging;
@@ -47,17 +48,9 @@ class WhatsAppMessaging implements Messaging
         return new SentMessage($message->id, $message->status, $body);
     }
 
-    /** Saudi mobile numbers to international form: 05xxxxxxxx / 5xxxxxxxx / 9665xxxxxxxx → 9665xxxxxxxx. */
+    /** The number WhatsApp needs (see PhoneNumber); null when there is none. */
     public static function normalize(?string $phone): ?string
     {
-        $digits = preg_replace('/\D/', '', (string) $phone);
-
-        return match (true) {
-            $digits === '' => null,
-            str_starts_with($digits, '00') => substr($digits, 2),
-            str_starts_with($digits, '05') && strlen($digits) === 10 => '966'.substr($digits, 1),
-            str_starts_with($digits, '5') && strlen($digits) === 9 => '966'.$digits,
-            default => $digits,
-        };
+        return PhoneNumber::normalize($phone) ?: null;
     }
 }

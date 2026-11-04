@@ -19,9 +19,11 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Auth\AccountSetupController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Portal\ChangeRequestController as PortalChangeRequestController;
 use App\Http\Controllers\Portal\HomeController;
 use App\Http\Controllers\Portal\InvoicePaymentController;
@@ -31,6 +33,7 @@ use App\Http\Controllers\Portal\StatementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\ServiceCatalogController;
+use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +42,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', LandingController::class)->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/services', [ServiceCatalogController::class, 'index'])->name('services.index');
+Route::get('/work/{slug}', [WorkController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('work.show');
 Route::get('/request/{type}', [RequestController::class, 'create'])->name('requests.create');
 Route::post('/request/{type}', [RequestController::class, 'store'])
     ->middleware('throttle:5,1')
@@ -62,6 +66,14 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/password/change', [PasswordChangeController::class, 'edit'])->name('password.change');
     Route::put('/password/change', [PasswordChangeController::class, 'update'])->name('password.change.update');
+
+    // Two-step sign-in; the password is asked again (at most every few hours) before changes.
+    Route::get('/account/security', [TwoFactorController::class, 'show'])->middleware(['password.changed', 'password.confirm'])->name('account.security');
+
+    // The notification centre: mark read, and which alerts also come by email.
+    Route::post('/notifications/read', [NotificationController::class, 'read'])->middleware('throttle:60,1')->name('notifications.read');
+    Route::get('/account/notifications', [NotificationController::class, 'settings'])->middleware('password.changed')->name('account.notifications');
+    Route::put('/account/notifications', [NotificationController::class, 'update'])->middleware('password.changed')->name('account.notifications.update');
 });
 
 /*
@@ -69,7 +81,7 @@ Route::middleware('auth')->group(function () {
 */
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'password.changed', 'role:system_admin|admin'])
+    ->middleware(['auth', 'password.changed', 'two-factor.enabled', 'role:system_admin|admin'])
     ->group(function () {
         Route::get('/', DashboardController::class)->name('dashboard');
 
@@ -174,7 +186,7 @@ Route::prefix('admin')
 
 Route::prefix('app')
     ->name('portal.')
-    ->middleware(['auth', 'password.changed', 'role:client'])
+    ->middleware(['auth', 'password.changed', 'two-factor.enabled', 'role:client'])
     ->group(function () {
         Route::get('/', HomeController::class)->name('home');
         Route::get('/projects/{project}', [PortalProjectController::class, 'show'])->name('projects.show');

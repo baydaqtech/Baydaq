@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import FormField from '@/components/platform/FormField';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,7 +31,7 @@ export default function MyRemote({ data }: { data: RemoteData }) {
         {data.remote_today && <p className="rounded bg-emerald-50 p-2 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">{r('remote_today')}</p>}
         {data.work_mode !== 'remote' && (
           <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); form.post('/me/remote', { preserveScroll: true, onSuccess: () => form.reset() }); }}>
-            <FormField label={r('work_date')} error={form.errors.work_date}><Input type="date" dir="ltr" value={form.data.work_date} onChange={(event) => form.setData('work_date', event.target.value)} /></FormField>
+            <FormField label={r('work_date')} error={form.errors.work_date}><DatePicker value={form.data.work_date} onChange={(value) => form.setData('work_date', value)} /></FormField>
             <FormField label={r('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
             <Button type="submit" disabled={form.processing || form.data.work_date === ''}>{r('ask')}</Button>
           </form>

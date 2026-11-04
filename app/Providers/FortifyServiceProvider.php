@@ -14,6 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -24,6 +25,7 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+        $this->app->singleton(TwoFactorLoginResponse::class, LoginResponse::class);
 
         // Answer "no such email" exactly like "link sent", so the form can't be used to find accounts.
         $this->app->singleton(FailedPasswordResetLinkRequestResponse::class, PasswordResetLinkSentResponse::class);
@@ -42,12 +44,17 @@ class FortifyServiceProvider extends ServiceProvider
             'token' => $request->route('token'),
             'email' => $request->query('email'),
         ]));
+        Fortify::twoFactorChallengeView(fn (): Response => $this->authPage('Auth/TwoFactorChallenge'));
+        Fortify::confirmPasswordView(fn (): Response => $this->authPage('Auth/ConfirmPassword'));
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
+
+        // Codes are six digits: five tries a minute per sign-in attempt.
+        RateLimiter::for('two-factor', fn (Request $request) => Limit::perMinute(5)->by($request->session()->get('login.id').'|'.$request->ip()));
 
         // Fortify leaves the forgot-password form unthrottled; limit sends per visitor.
         RateLimiter::for('fortify-guest', function (Request $request) {

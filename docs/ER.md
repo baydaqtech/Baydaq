@@ -10,14 +10,14 @@
 
 ## Tables per module
 
-- Platform (kernel: tenants, structure, access, packages, customers): 23 tables
+- Platform (kernel: tenants, structure, access, packages, customers): 24 tables
 - HR: 60 tables
-- Point of sale: 12 tables
+- Point of sale: 14 tables
 - Invoicing (ZATCA): 5 tables
 - Reservations: 6 tables
 - Subscriptions (memberships): 8 tables
 - Assets and inventory: 18 tables
-- Finance (ledger, purchasing): 8 tables
+- Finance (ledger, purchasing): 9 tables
 - Core app (users, clients, portal, permissions): 25 tables
 
 ## Platform (kernel: tenants, structure, access, packages, customers)
@@ -142,6 +142,9 @@ erDiagram
         varchar postal_code
         varchar timezone
         decimal loyalty_percent
+        decimal points_per_riyal
+        decimal point_value
+        json points_tiers
         varchar client_scope
         varchar status
         timestamp created_at
@@ -169,6 +172,8 @@ erDiagram
         date birth_date
         varchar gender
         decimal wallet_balance
+        int points
+        int lifetime_points
         text notes
         timestamp created_at
         timestamp updated_at
@@ -216,6 +221,7 @@ erDiagram
         json limits
         tinyint is_public
         tinyint is_active
+        tinyint is_default
         smallint sort_order
         timestamp created_at
         timestamp updated_at
@@ -234,6 +240,21 @@ erDiagram
         varchar status
         varchar return_url
         timestamp paid_at
+        timestamp created_at
+        timestamp updated_at
+    }
+    platform_point_entries {
+        bigint id PK
+        bigint client_id FK
+        bigint customer_id FK
+        bigint company_id
+        int points
+        int balance_after
+        varchar kind
+        varchar source
+        varchar reference
+        varchar note
+        bigint user_id FK
         timestamp created_at
         timestamp updated_at
     }
@@ -335,8 +356,10 @@ erDiagram
     platform_companies ||--o{ platform_access_assignments : "company_id"
     platform_companies ||--o{ platform_branches : "client_id,company_id"
     platform_companies ||--o{ platform_brands : "client_id,company_id"
+    platform_companies ||..o{ platform_point_entries : "company_id"
     platform_companies ||..o{ platform_wallet_entries : "company_id"
     platform_customers ||--o{ platform_customer_registrations : "customer_id"
+    platform_customers ||--o{ platform_point_entries : "customer_id"
     platform_customers ||--o{ platform_wallet_entries : "customer_id"
     platform_organizations ||--o{ platform_access_assignments : "organization_id"
     platform_organizations ||--o{ platform_companies : "client_id,organization_id"
@@ -345,6 +368,7 @@ erDiagram
     users ||--o{ platform_access_assignments : "user_id"
     users ||--o{ platform_audit_events : "actor_id"
     users ||--o{ platform_customer_registrations : "registered_by"
+    users ||--o{ platform_point_entries : "user_id"
     users ||--o{ platform_privacy_requests : "handled_by"
     users ||--o{ platform_scope_shortcuts : "user_id"
     users ||--o{ platform_wallet_entries : "user_id"
@@ -1474,6 +1498,7 @@ erDiagram
         decimal discount
         decimal vat
         decimal total
+        decimal refunded
         bigint invoice_id
         varchar note
         timestamp paid_at
@@ -1518,6 +1543,32 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    pos_refund_lines {
+        bigint id PK
+        bigint refund_id FK
+        bigint order_line_id FK
+        decimal quantity
+        decimal net
+        decimal vat
+        decimal total
+    }
+    pos_refunds {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id FK
+        bigint branch_id FK
+        bigint order_id FK
+        bigint shift_id FK
+        varchar method
+        decimal subtotal
+        decimal vat
+        decimal total
+        varchar reason
+        bigint invoice_id
+        bigint created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
     pos_registers {
         bigint id PK
         bigint client_id FK
@@ -1554,8 +1605,10 @@ erDiagram
     platform_companies { }
     platform_brands { }
     platform_customers { }
+    users { }
     platform_branches ||--o{ pos_branch_products : "branch_id"
     platform_branches ||--o{ pos_orders : "company_id,branch_id"
+    platform_branches ||--o{ pos_refunds : "company_id,branch_id"
     platform_branches ||--o{ pos_registers : "company_id,branch_id"
     platform_brands ||--o{ pos_categories : "brand_id"
     platform_companies ||--o{ pos_categories : "client_id,company_id"
@@ -1568,14 +1621,19 @@ erDiagram
     pos_categories ||--o{ pos_products : "category_id"
     pos_modifier_groups ||--o{ pos_modifiers : "group_id"
     pos_modifier_groups ||--o{ pos_product_modifier_group : "group_id"
+    pos_order_lines ||--o{ pos_refund_lines : "order_line_id"
     pos_orders ||--o{ pos_order_lines : "order_id"
     pos_orders ||--o{ pos_payments : "order_id"
+    pos_orders ||--o{ pos_refunds : "order_id"
     pos_products ||--o{ pos_branch_products : "product_id"
     pos_products ||--o{ pos_order_lines : "product_id"
     pos_products ||--o{ pos_product_modifier_group : "product_id"
+    pos_refunds ||--o{ pos_refund_lines : "refund_id"
     pos_registers ||--o{ pos_orders : "register_id"
     pos_registers ||--o{ pos_shifts : "register_id"
     pos_shifts ||--o{ pos_orders : "shift_id"
+    pos_shifts ||--o{ pos_refunds : "shift_id"
+    users ||--o{ pos_refunds : "created_by"
 ```
 
 ## Invoicing (ZATCA)
@@ -1585,6 +1643,7 @@ erDiagram
     inv_customers {
         bigint id PK
         bigint client_id FK
+        bigint platform_customer_id
         bigint company_id
         varchar name_ar
         varchar name_en
@@ -1690,6 +1749,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    platform_customers { }
     platform_companies { }
     platform_branches { }
     users { }
@@ -1703,6 +1763,7 @@ erDiagram
     platform_companies ||--o{ inv_einvoice_units : "client_id,company_id"
     platform_companies ||--o{ inv_invoices : "client_id,company_id"
     platform_companies ||..o{ inv_customers : "company_id"
+    platform_customers ||..o{ inv_customers : "platform_customer_id"
     users ||--o{ inv_invoices : "issued_by"
 ```
 
@@ -2298,6 +2359,17 @@ erDiagram
         decimal net
         decimal vat
     }
+    finance_fiscal_closes {
+        bigint id PK
+        bigint client_id FK
+        bigint company_id FK
+        smallint year
+        bigint entry_id FK
+        decimal profit
+        bigint closed_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
     finance_journal_entries {
         bigint id PK
         bigint client_id FK
@@ -2360,6 +2432,7 @@ erDiagram
     finance_accounts ||--o{ finance_document_lines : "account_id"
     finance_accounts ||--o{ finance_journal_lines : "account_id"
     finance_bills ||--o{ finance_bill_payments : "bill_id"
+    finance_journal_entries ||--o{ finance_fiscal_closes : "entry_id"
     finance_journal_entries ||--o{ finance_journal_lines : "entry_id"
     finance_purchase_orders ||--o{ finance_bills : "purchase_order_id"
     finance_suppliers ||--o{ finance_bills : "supplier_id"
@@ -2367,11 +2440,13 @@ erDiagram
     platform_branches ||..o{ finance_bills : "branch_id"
     platform_branches ||..o{ finance_journal_entries : "branch_id"
     platform_branches ||..o{ finance_purchase_orders : "branch_id"
+    platform_companies ||--o{ finance_fiscal_closes : "client_id,company_id"
     platform_companies ||--o{ finance_journal_entries : "client_id,company_id"
     platform_companies ||..o{ finance_bills : "company_id"
     platform_companies ||..o{ finance_purchase_orders : "company_id"
     users ||--o{ finance_bill_payments : "created_by"
     users ||--o{ finance_bills : "approved_by"
+    users ||--o{ finance_fiscal_closes : "closed_by"
     users ||--o{ finance_journal_entries : "created_by"
     users ||--o{ finance_purchase_orders : "approved_by"
     users ||--o{ finance_purchase_orders : "created_by"
@@ -2668,8 +2743,12 @@ erDiagram
         varchar email
         timestamp email_verified_at
         varchar password
+        text two_factor_secret
+        text two_factor_recovery_codes
+        timestamp two_factor_confirmed_at
         tinyint must_change_password
         varchar locale
+        json notification_settings
         timestamp last_login_at
         varchar remember_token
         timestamp created_at

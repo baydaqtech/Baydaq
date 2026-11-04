@@ -51,6 +51,10 @@ export interface OrderLineResource {
   total: string;
   modifiers: { name: string; price: string }[];
   note: string | null;
+  /** What the customer paid for the line: its total less its share of the order discount. */
+  paid: string;
+  /** Quantity already refunded. */
+  returned: string;
 }
 
 export interface OrderResource {
@@ -69,6 +73,8 @@ export interface OrderResource {
   vat: string;
   total: string;
   invoice_id: number | null;
+  refunded: string;
+  has_customer: boolean;
   lines: OrderLineResource[];
   branch?: string | null;
   [key: string]: unknown;

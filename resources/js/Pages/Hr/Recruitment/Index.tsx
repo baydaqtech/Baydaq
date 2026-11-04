@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
+import FileField from '@/components/platform/FileField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,7 +63,7 @@ function OpeningDialog({ opening, branches, jobs }: { opening?: Opening; branche
           {!opening && <FormField label={r('branch')} error={form.errors.branch_id}><SelectInput value={form.data.branch_id} onChange={(value) => form.setData('branch_id', value)} options={branches} /></FormField>}
           <FormField label={r('job')} error={form.errors.job_id}><SelectInput value={form.data.job_id} onChange={(value) => form.setData('job_id', value)} options={jobs} emptyLabel="—" /></FormField>
           <FormField label={r('positions')} error={form.errors.positions}><Input type="number" min="1" dir="ltr" value={form.data.positions} onChange={(event) => form.setData('positions', event.target.value)} /></FormField>
-          <FormField label={r('closes_on')} error={form.errors.closes_on}><Input type="date" dir="ltr" value={form.data.closes_on} onChange={(event) => form.setData('closes_on', event.target.value)} /></FormField>
+          <FormField label={r('closes_on')} error={form.errors.closes_on}><DatePicker value={form.data.closes_on} onChange={(value) => form.setData('closes_on', value)} /></FormField>
           <FormField label={r('status')} error={form.errors.status}><SelectInput value={form.data.status} onChange={(value) => form.setData('status', value)} options={['draft', 'open', 'closed'].map((value) => ({ value, label: r(`statuses.${value}`) }))} /></FormField>
           <FormField label={r('description')} error={form.errors.description} className="sm:col-span-2"><Textarea rows={5} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} /></FormField>
         </form>
@@ -88,7 +90,7 @@ function AddCandidate({ opening }: { opening: Opening }) {
           <FormField label={r('phone')} error={form.errors.phone}><Input dir="ltr" value={form.data.phone} onChange={(event) => form.setData('phone', event.target.value)} /></FormField>
           <FormField label={r('email')} error={form.errors.email}><Input dir="ltr" type="email" value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} /></FormField>
           <FormField label={r('nationality')} error={form.errors.nationality}><Input dir="ltr" maxLength={2} value={form.data.nationality} onChange={(event) => form.setData('nationality', event.target.value.toUpperCase())} /></FormField>
-          <FormField label={r('cv')} error={form.errors.cv} className="sm:col-span-2"><Input type="file" accept=".pdf,.doc,.docx,image/*" onChange={(event) => form.setData('cv', event.target.files?.[0] ?? null)} /></FormField>
+          <FormField label={r('cv')} error={form.errors.cv} className="sm:col-span-2"><FileField accept=".pdf,.doc,.docx,image/*" files={form.data.cv ? [form.data.cv] : []} onChange={(files) => form.setData('cv', files[0] ?? null)} invalid={Boolean(form.errors.cv)} /></FormField>
         </form>
         <DialogFooter><Button type="submit" form="candidate-form" disabled={form.processing}>{r('save')}</Button></DialogFooter>
       </DialogContent>
@@ -111,7 +113,7 @@ function HireDialog({ candidate, opening, branches }: { candidate: Candidate; op
         <form id={`hire-${candidate.id}`} className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); form.post(url(`/hr/recruitment/candidates/${candidate.id}/hire`)); }}>
           <FormField label={r('employee_number')} error={form.errors.employee_number}><Input dir="ltr" value={form.data.employee_number} onChange={(event) => form.setData('employee_number', event.target.value)} /></FormField>
           <FormField label={r('branch')} error={form.errors.branch_id}><SelectInput value={form.data.branch_id} onChange={(value) => form.setData('branch_id', value)} options={branches.filter((branch) => branch.company_id === companyId)} /></FormField>
-          <FormField label={r('hired_on')} error={form.errors.hired_on}><Input type="date" dir="ltr" value={form.data.hired_on} onChange={(event) => form.setData('hired_on', event.target.value)} /></FormField>
+          <FormField label={r('hired_on')} error={form.errors.hired_on}><DatePicker value={form.data.hired_on} onChange={(value) => form.setData('hired_on', value)} /></FormField>
           <FormField label={r('basic_salary')} error={form.errors.basic_salary}><Input type="number" dir="ltr" value={form.data.basic_salary} onChange={(event) => form.setData('basic_salary', event.target.value)} /></FormField>
           <FormField label={r('probation_days')} error={form.errors.probation_days}><Input type="number" min="0" max="180" dir="ltr" value={form.data.probation_days} onChange={(event) => form.setData('probation_days', event.target.value)} /></FormField>
           <FormField label={r('national_id')} error={form.errors.national_id}><Input dir="ltr" value={form.data.national_id} onChange={(event) => form.setData('national_id', event.target.value)} /></FormField>

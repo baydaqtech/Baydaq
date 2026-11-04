@@ -76,4 +76,10 @@ final readonly class EffectivePlan
     {
         return self::from($plan->package, $plan->addons ?? [], $plan->overrides ?? []);
     }
+
+    /** A suspended or ended plan: no flagged features or app screens, and nothing more may be added. */
+    public static function none(): self
+    {
+        return new self([], [], [], array_fill_keys(FeatureCatalog::LIMITS, 0));
+    }
 }

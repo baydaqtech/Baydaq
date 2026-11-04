@@ -25,7 +25,12 @@ const STORY_3D = '(min-width: 901px) and (prefers-reduced-motion: no-preference)
 // The "technologies we use" logo strip under the hero is hidden for now; set to true to show it.
 const SHOW_TECH_STRIP = false;
 
-export default function Landing({ products, services }) {
+// The "products we build and run" and "ready services for your app" sections are hidden for now; set to true to
+// show them. Their full lists stay on /products and /services.
+const SHOW_PRODUCTS = false;
+const SHOW_PLATFORM_SERVICES = false;
+
+export default function Landing({ products, services, work }) {
   // Decided once, before the page scripts place board patches around these sections.
   const [story3d] = useState(() => window.matchMedia(STORY_3D).matches);
   const chessText = useCopy('landing.chess');
@@ -52,10 +57,10 @@ export default function Landing({ products, services }) {
           </>
         )}
         <CheckerRule />
-        <ProductsSection products={products} />
-        <PlatformSection services={services} />
-        <CheckerRule />
-        <Work />
+        {SHOW_PRODUCTS && <ProductsSection products={products} />}
+        {SHOW_PLATFORM_SERVICES && <PlatformSection services={services} />}
+        {(SHOW_PRODUCTS || SHOW_PLATFORM_SERVICES) && <CheckerRule />}
+        <Work projects={work} />
         {!ABOUT_IN_CONTACT && (
           <>
             <CheckerRule />

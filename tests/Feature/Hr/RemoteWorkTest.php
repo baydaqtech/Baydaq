@@ -4,9 +4,15 @@ namespace Tests\Feature\Hr;
 
 use App\Models\User;
 use App\Modules\Hr\Actions\Attendance\RecordPunch;
+use App\Modules\Hr\Actions\Remote\RemoteWork;
+use App\Modules\Hr\Actions\Shifts\SaveShift;
+use App\Modules\Hr\Enums\LeaveStatus;
 use App\Modules\Hr\Enums\PunchType;
 use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\LeaveRequest;
+use App\Modules\Hr\Models\LeaveType;
 use App\Modules\Hr\Models\RemoteRequest;
+use App\Modules\Hr\Models\Shift;
 use App\Modules\Platform\Actions\Suite\SaveWorkLocation;
 use App\Modules\Platform\Models\WorkLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,5 +84,30 @@ class RemoteWorkTest extends TestCase
 
         $this->actingAs($this->owner)->get($this->suiteUrl('hr/remote'))->assertInertia(fn (Assert $page) => $page
             ->component('Hr/Remote/Index')->where('employees.0.remote_today', true)->where('employees.0.clocked_in_remote', true));
+    }
+
+    public function test_a_leave_day_cannot_also_be_a_remote_day_or_a_shift(): void
+    {
+        $annual = (new LeaveType(['name_ar' => 'سنوية', 'name_en' => 'Annual', 'days_per_year' => '21']))->forceFill(['client_id' => $this->client->id]);
+        $annual->save();
+        (new LeaveRequest)->forceFill([
+            'client_id' => $this->client->id, 'employee_id' => $this->employee->id, 'leave_type_id' => $annual->id,
+            'starts_on' => '2026-11-10', 'ends_on' => '2026-11-12', 'days' => '3', 'status' => LeaveStatus::Pending->value,
+        ])->save();
+        $this->employee->forceFill(['work_mode' => 'hybrid'])->save();
+
+        foreach ([
+            'work_date' => fn () => app(RemoteWork::class)->request($this->employee->fresh(), '2026-11-11', null),
+            'employee_id' => fn () => app(SaveShift::class)->handle(new Shift, ['branch_id' => $this->branch('RUH')->id, 'shift_date' => '2026-11-12', 'starts_at' => '09:00', 'ends_at' => '17:00', 'employee_id' => $this->employee->id]),
+        ] as $field => $plan) {
+            try {
+                $plan();
+                $this->fail("Planned work on a leave day ({$field}).");
+            } catch (ValidationException $exception) {
+                $this->assertArrayHasKey($field, $exception->errors());
+            }
+        }
+
+        $this->assertNotNull(app(RemoteWork::class)->request($this->employee->fresh(), '2026-11-13', null)->id);
     }
 }

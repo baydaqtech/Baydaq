@@ -2,7 +2,7 @@ import DataTable from '@/components/platform/DataTable';
 import FilterBar from '@/components/platform/FilterBar';
 import PageHeader from '@/components/platform/PageHeader';
 import StatusBadge from '@/components/platform/StatusBadge';
-import { Input } from '@/components/ui/input';
+import DatePicker from '@/components/platform/DatePicker';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatMoney } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -22,8 +22,8 @@ export default function Bookings({ bookings, filters: initialFilters, statuses }
     <SuiteLayout title={t('suite.module_nav.reservations.bookings')}>
       <PageHeader title={t('suite.module_nav.reservations.bookings')} />
       <div className="flex flex-wrap items-start gap-2">
-        <Input type="date" dir="ltr" className="w-40" aria-label={f('from')} value={String(filters.from ?? '')} onChange={(event) => setFilter('from', event.target.value)} />
-        <Input type="date" dir="ltr" className="w-40" aria-label={f('to')} value={String(filters.to ?? '')} onChange={(event) => setFilter('to', event.target.value)} />
+        <DatePicker className="w-40" aria-label={f('from')} value={String(filters.from ?? '')} onChange={(value) => setFilter('from', value)} />
+        <DatePicker className="w-40" aria-label={f('to')} value={String(filters.to ?? '')} onChange={(value) => setFilter('to', value)} />
         <FilterBar filters={filters} setFilter={setFilter} selects={[{ key: 'status', label: f('status'), options: statuses }]} />
       </div>
       <DataTable<BookingResource>

@@ -5,6 +5,7 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import Paginator from '@/components/platform/Paginator';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,7 +83,7 @@ function EntryDialog({ accounts, branches }: { accounts: Account[]; branches: Op
         <form id="entry-form" className="flex flex-col gap-3" onSubmit={(event) => { event.preventDefault(); form.post(url('/finance/journal'), { preserveScroll: true, onSuccess: () => { form.reset(); setOpen(false); } }); }}>
           <div className="grid gap-3 sm:grid-cols-3">
             <FormField label={l('branch')} error={errors.branch_id}><SelectInput value={form.data.branch_id} onChange={(value) => form.setData('branch_id', value)} options={branches} /></FormField>
-            <FormField label={l('date')} error={errors.entry_date}><Input type="date" dir="ltr" value={form.data.entry_date} onChange={(event) => form.setData('entry_date', event.target.value)} /></FormField>
+            <FormField label={l('date')} error={errors.entry_date}><DatePicker value={form.data.entry_date} onChange={(value) => form.setData('entry_date', value)} /></FormField>
             <FormField label={l('memo')} error={errors.memo}><Input value={form.data.memo} onChange={(event) => form.setData('memo', event.target.value)} /></FormField>
           </div>
           {form.data.lines.map((line, index) => (

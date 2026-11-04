@@ -5,6 +5,7 @@ import ConfirmAction from '@/components/platform/ConfirmAction';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -42,7 +43,7 @@ function AdjustmentDialog({ kind, employeeId, types }: { kind: 'bonuses' | 'dedu
           <DialogHeader><DialogTitle>{t(kind === 'bonuses' ? 'hr.pay.new_bonus' : 'hr.pay.new_deduction')}</DialogTitle></DialogHeader>
           <FormField label={f('type')} error={form.errors[typeField]}><SelectInput value={form.data[typeField]} onChange={(value) => form.setData(typeField, Number(value))} options={types} /></FormField>
           <FormField label={f('amount')} error={form.errors.amount}><Input type="number" step="0.01" dir="ltr" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>
-          <FormField label={f('pay_month')} error={form.errors.pay_month}><Input type="date" dir="ltr" value={String(form.data.pay_month)} onChange={(event) => form.setData('pay_month', event.target.value)} /></FormField>
+          <FormField label={f('pay_month')} error={form.errors.pay_month}><DatePicker value={String(form.data.pay_month)} onChange={(value) => form.setData('pay_month', value)} /></FormField>
           <FormField label={f('reason')} error={form.errors.reason}><Input value={String(form.data.reason)} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>
@@ -69,7 +70,7 @@ function AdvanceDialog({ employeeId }: { employeeId: number }) {
           {features.includes('hr.loans') && <FormField label={t('hr.me.loan')} error={form.errors.kind}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={['advance', 'loan'].map((kind) => ({ value: kind, label: t(`hr.me.kinds.${kind}`) }))} /></FormField>}
           <FormField label={f('amount')} error={form.errors.amount}><Input type="number" step="0.01" dir="ltr" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>
           <FormField label={f('installments')} error={form.errors.installments}><Input type="number" min={1} max={120} dir="ltr" value={form.data.installments} onChange={(event) => form.setData('installments', Number(event.target.value))} /></FormField>
-          <FormField label={f('first_installment_month')} error={form.errors.first_installment_month}><Input type="date" dir="ltr" value={form.data.first_installment_month} onChange={(event) => form.setData('first_installment_month', event.target.value)} /></FormField>
+          <FormField label={f('first_installment_month')} error={form.errors.first_installment_month}><DatePicker value={form.data.first_installment_month} onChange={(value) => form.setData('first_installment_month', value)} /></FormField>
           <FormField label={f('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>

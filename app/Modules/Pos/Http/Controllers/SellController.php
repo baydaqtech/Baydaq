@@ -21,6 +21,7 @@ use App\Modules\Pos\Models\Category;
 use App\Modules\Pos\Models\Order;
 use App\Modules\Pos\Models\Product;
 use App\Modules\Pos\Models\Register;
+use Brick\Math\BigDecimal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -133,13 +134,25 @@ class SellController extends Controller
     /**
      * @return array<string, mixed>
      */
-    public static function orderArray(Order $order): array
+    /**
+     * @param  array<int, string>  $returned  order line id → quantity already refunded
+     * @return array<string, mixed>
+     */
+    public static function orderArray(Order $order, array $returned = []): array
     {
+        $discounts = $order->lineDiscounts();
+
         return [
             'id' => $order->id, 'number' => $order->number, 'channel' => $order->channel, 'type' => $order->type->value, 'status' => $order->status->value, 'kitchen_status' => $order->kitchen_status->value,
             'table_no' => $order->table_no, 'customer_name' => $order->customer_name, 'note' => $order->note, 'created_at' => $order->created_at->toIso8601String(),
             'subtotal' => (string) $order->subtotal, 'discount' => (string) $order->discount, 'vat' => (string) $order->vat, 'total' => (string) $order->total, 'invoice_id' => $order->invoice_id,
-            'lines' => $order->lines->map(fn ($line) => ['id' => $line->id, 'product_id' => $line->product_id, 'name' => $line->name, 'quantity' => (string) $line->quantity, 'unit_price' => (string) $line->unit_price, 'total' => (string) $line->total, 'modifiers' => $line->modifiers ?? [], 'note' => $line->note])->all(),
+            'refunded' => (string) $order->refunded, 'has_customer' => $order->platform_customer_id !== null,
+            'lines' => $order->lines->map(fn ($line) => [
+                'id' => $line->id, 'product_id' => $line->product_id, 'name' => $line->name, 'quantity' => (string) $line->quantity, 'unit_price' => (string) $line->unit_price,
+                'total' => (string) $line->total, 'modifiers' => $line->modifiers ?? [], 'note' => $line->note,
+                // What the customer paid for the line (its share of the discount off) and how much came back.
+                'paid' => (string) BigDecimal::of((string) $line->total)->minus($discounts[$line->id] ?? '0'), 'returned' => (string) ($returned[$line->id] ?? '0'),
+            ])->all(),
         ];
     }
 }

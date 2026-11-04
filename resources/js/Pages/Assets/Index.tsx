@@ -8,6 +8,7 @@ import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatCard from '@/components/platform/StatCard';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -44,7 +45,7 @@ export function AssetFields({ form, branches, categories, showCosts }: { form: R
       <FormField label={f('name_en')} error={form.errors.name_en}><Input dir="ltr" value={form.data.name_en} onChange={(event) => form.setData('name_en', event.target.value)} /></FormField>
       <FormField label={f('serial')} error={form.errors.serial}><Input dir="ltr" value={form.data.serial} onChange={(event) => form.setData('serial', event.target.value)} /></FormField>
       <FormField label={f('model')} error={form.errors.model}><Input dir="ltr" value={form.data.model} onChange={(event) => form.setData('model', event.target.value)} /></FormField>
-      <FormField label={f('purchase_date')} error={form.errors.purchase_date}><Input dir="ltr" type="date" value={form.data.purchase_date} onChange={(event) => form.setData('purchase_date', event.target.value)} /></FormField>
+      <FormField label={f('purchase_date')} error={form.errors.purchase_date}><DatePicker value={form.data.purchase_date} onChange={(value) => form.setData('purchase_date', value)} /></FormField>
       <FormField label={f('useful_life_months')} error={form.errors.useful_life_months}><Input dir="ltr" type="number" min={1} value={form.data.useful_life_months} onChange={(event) => form.setData('useful_life_months', event.target.value === '' ? '' : Number(event.target.value))} /></FormField>
       {showCosts && <FormField label={f('cost')} error={form.errors.cost}><Input dir="ltr" inputMode="decimal" value={form.data.cost} onChange={(event) => form.setData('cost', event.target.value)} /></FormField>}
       {showCosts && <FormField label={f('salvage_value')} error={form.errors.salvage_value}><Input dir="ltr" inputMode="decimal" value={form.data.salvage_value} onChange={(event) => form.setData('salvage_value', event.target.value)} /></FormField>}

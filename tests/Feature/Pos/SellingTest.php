@@ -191,4 +191,17 @@ class SellingTest extends TestCase
         $this->assertSame('34.50', (string) $shift->sales_total);
         $this->assertNull($this->register->fresh()->openShift()->first());
     }
+
+    public function test_orders_are_dated_and_numbered_by_the_local_business_day(): void
+    {
+        $this->travelTo('2026-11-01 20:30:00'); // 23:30 in Riyadh
+        $late = app(PlaceOrder::class)->handle(new Order, $this->headOffice->id, $this->register, null, [], [['product_id' => $this->cake->id, 'quantity' => 1]]);
+
+        $this->travelTo('2026-11-01 22:30:00'); // 01:30 the next day in Riyadh, still Nov 1 in UTC
+        $early = app(PlaceOrder::class)->handle(new Order, $this->headOffice->id, $this->register, null, [], [['product_id' => $this->cake->id, 'quantity' => 1]]);
+
+        $this->assertSame('2026-11-01', $late->order_date->toDateString());
+        $this->assertSame('2026-11-02', $early->order_date->toDateString());
+        $this->assertSame(1, $early->number);
+    }
 }

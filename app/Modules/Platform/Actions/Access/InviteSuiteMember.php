@@ -21,9 +21,9 @@ class InviteSuiteMember
      */
     public function handle(Client $client, array $details): User
     {
-        app(EnsureWithinLimit::class)->handle('users', User::query()->where('client_id', $client->id)->count(), 'email');
-
         $user = DB::transaction(function () use ($client, $details): User {
+            app(EnsureWithinLimit::class)->handle('users', User::query()->where('client_id', $client->id), 'email');
+
             $user = new User([...$details, 'password' => Str::password(32)]);
             $user->forceFill(['client_id' => $client->id, 'must_change_password' => true])->save();
 

@@ -1,9 +1,11 @@
-import { Link, router, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { Plus, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
+import ConfirmAction from '@/components/platform/ConfirmAction';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,7 +49,7 @@ function NewRequest({ kinds, subjects }: { kinds: string[]; subjects: string[] }
           <FormField label={p('subject')} error={form.errors.subject}><SelectInput value={form.data.subject} onChange={(value) => form.setData('subject', value)} options={subjects.map((value) => ({ value, label: p(`subjects.${value}`) }))} /></FormField>
           <FormField label={p('name')} error={form.errors.name}><Input value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} /></FormField>
           <FormField label={p('contact')} error={form.errors.contact}><Input dir="ltr" value={form.data.contact} onChange={(event) => form.setData('contact', event.target.value)} /></FormField>
-          <FormField label={p('received_on')} error={form.errors.received_on}><Input type="date" dir="ltr" value={form.data.received_on} onChange={(event) => form.setData('received_on', event.target.value)} /></FormField>
+          <FormField label={p('received_on')} error={form.errors.received_on}><DatePicker value={form.data.received_on} onChange={(value) => form.setData('received_on', value)} /></FormField>
           <FormField label={p('details')} error={form.errors.details} className="sm:col-span-2"><Textarea rows={3} value={form.data.details} onChange={(event) => form.setData('details', event.target.value)} /></FormField>
         </form>
         <DialogFooter><Button type="submit" form="privacy-request" disabled={form.processing}>{p('add')}</Button></DialogFooter>
@@ -62,11 +64,6 @@ export default function Privacy({ requests, counts, filters, kinds, subjects, ti
   const { locale } = useLocale();
   const url = useSuiteUrl();
   const p = (key: string) => t(`suite.privacy.${key}`);
-
-  const close = (request: PrivacyRequest, status: 'done' | 'refused') => {
-    const outcome = window.prompt(p('outcome')) ?? '';
-    router.put(url(`/privacy/${request.id}`), { status, outcome }, { preserveScroll: true });
-  };
 
   return (
     <SuiteLayout title={p('title')}>
@@ -104,7 +101,12 @@ export default function Privacy({ requests, counts, filters, kinds, subjects, ti
                 <div className="flex flex-wrap gap-2">
                   {request.customer_id && <Button size="sm" variant="ghost" asChild><Link href={url(`/customers/${request.customer_id}`)}>{t('suite.customers.title')}</Link></Button>}
                   {request.status === 'open'
-                    ? <><Button size="sm" onClick={() => close(request, 'done')}>{p('mark_done')}</Button><Button size="sm" variant="ghost" onClick={() => close(request, 'refused')}>{p('refuse')}</Button></>
+                    ? (
+                      <>
+                        <ConfirmAction href={url(`/privacy/${request.id}`)} method="put" size="sm" data={{ status: 'done' }} note={{ field: 'outcome', label: p('outcome'), required: true }} title={p('mark_done')}>{p('mark_done')}</ConfirmAction>
+                        <ConfirmAction href={url(`/privacy/${request.id}`)} method="put" size="sm" variant="ghost" data={{ status: 'refused' }} note={{ field: 'outcome', label: p('outcome'), required: true }} title={p('refuse')}>{p('refuse')}</ConfirmAction>
+                      </>
+                    )
                     : <Badge>{p(`statuses.${request.status}`)}</Badge>}
                 </div>
               </div>

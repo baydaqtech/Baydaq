@@ -4,6 +4,7 @@ namespace App\Modules\Platform\Adapters;
 
 use App\Models\User;
 use App\Modules\Platform\Actions\Access\InviteSuiteMember;
+use App\Modules\Platform\Notifications\SuiteAlert;
 use App\Modules\Platform\Ports\Accounts;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use Illuminate\Notifications\Notification;
@@ -32,6 +33,11 @@ class TenantAccounts implements Accounts
     public function notify(int $userId, Notification $notification): void
     {
         User::query()->where('client_id', $this->tenant->id())->find($userId)?->notify($notification);
+    }
+
+    public function alert(int $userId, string $kind, array $params = [], ?string $url = null): void
+    {
+        $this->notify($userId, new SuiteAlert($kind, $params, $url));
     }
 
     public function signOutEverywhere(int $userId): void

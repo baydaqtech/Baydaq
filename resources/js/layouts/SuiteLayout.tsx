@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import BrandMark from '@/components/platform/BrandMark';
 import UserMenu from '@/components/platform/UserMenu';
 import CommandPalette from '@/components/suite/CommandPalette';
+import NotificationBell from '@/components/suite/NotificationBell';
 import ScopeBar from '@/components/suite/ScopeBar';
 import SuiteNav from '@/components/suite/SuiteNav';
 import PlatformShell from '@/layouts/PlatformShell';
@@ -35,6 +36,7 @@ export default function SuiteLayout({ title, actions, children }: Props) {
             <div className="ms-auto flex items-center gap-2">
               <CommandPalette />
               {actions}
+              <NotificationBell />
               <UserMenu />
             </div>
           </div>

@@ -11,7 +11,7 @@ use App\Modules\Assets\Http\Controllers\Inventory\WarehouseController;
 use App\Modules\Assets\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:assets'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope', 'module:assets'])
     ->prefix('suite/{scope}/assets')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('assets.')
     ->group(function (): void {
         // Inventory: stock items, warehouses, transfers, handovers and incidents.

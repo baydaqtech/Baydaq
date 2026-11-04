@@ -6,6 +6,7 @@ import ConfirmAction from '@/components/platform/ConfirmAction';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -34,8 +35,8 @@ export function LeaveRequestDialog({ employeeId, types }: { employeeId: number; 
         <form onSubmit={(event) => { event.preventDefault(); form.post(url(`/hr/employees/${employeeId}/leave`), { preserveScroll: true, onSuccess: () => setOpen(false) }); }} className="flex flex-col gap-4">
           <DialogHeader><DialogTitle>{t('hr.leave.new')}</DialogTitle></DialogHeader>
           <FormField label={f('type')} error={form.errors.leave_type_id}><SelectInput value={form.data.leave_type_id} onChange={(value) => form.setData('leave_type_id', Number(value))} options={types} /></FormField>
-          <FormField label={f('starts_on')} error={form.errors.starts_on}><Input type="date" dir="ltr" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>
-          <FormField label={f('ends_on')} error={form.errors.ends_on ?? (form.errors as Record<string, string>).days}><Input type="date" dir="ltr" value={form.data.ends_on} onChange={(event) => form.setData('ends_on', event.target.value)} /></FormField>
+          <FormField label={f('starts_on')} error={form.errors.starts_on}><DatePicker value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>
+          <FormField label={f('ends_on')} error={form.errors.ends_on ?? (form.errors as Record<string, string>).days}><DatePicker value={form.data.ends_on} onChange={(value) => form.setData('ends_on', value)} /></FormField>
           <FormField label={f('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>
@@ -61,7 +62,7 @@ function AdjustBalanceDialog({ employeeId, balances }: { employeeId: number; bal
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('hr.leave.adjust.title')}</DialogTitle></DialogHeader>
           <FormField label={t('hr.leave.fields.type')} error={form.errors.leave_type_id}><SelectInput value={form.data.leave_type_id} onChange={(value) => form.setData('leave_type_id', Number(value))} options={balances.map((balance) => ({ value: balance.type_id, label: balance.type }))} /></FormField>
           <FormField label={f('days')} hint={f('days_hint')} error={form.errors.days}><Input dir="ltr" inputMode="decimal" value={form.data.days} onChange={(event) => form.setData('days', event.target.value)} /></FormField>
-          <FormField label={f('effective_on')} error={form.errors.effective_on}><Input dir="ltr" type="date" value={form.data.effective_on} onChange={(event) => form.setData('effective_on', event.target.value)} /></FormField>
+          <FormField label={f('effective_on')} error={form.errors.effective_on}><DatePicker value={form.data.effective_on} onChange={(value) => form.setData('effective_on', value)} /></FormField>
           <FormField label={f('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>

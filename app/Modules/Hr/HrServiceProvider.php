@@ -7,8 +7,10 @@ use App\Modules\Hr\Adapters\EmployeeStaffAvailability;
 use App\Modules\Hr\Adapters\EmployeeStaffDirectory;
 use App\Modules\Hr\Adapters\EmployeeStaffPresence;
 use App\Modules\Hr\Adapters\EmployeeSuiteSearch;
+use App\Modules\Hr\Adapters\HrApprovals;
 use App\Modules\Hr\Adapters\HrBoardSignals;
 use App\Modules\Hr\Adapters\HrCalendar;
+use App\Modules\Hr\Adapters\HrSetupSteps;
 use App\Modules\Hr\Console\AcceptOverdueResignations;
 use App\Modules\Hr\Console\ApplyMovements;
 use App\Modules\Hr\Console\NotifyExpiringDocuments;
@@ -21,8 +23,10 @@ use App\Modules\Hr\Ports\StaffAvailability;
 use App\Modules\Hr\Ports\StaffDirectory;
 use App\Modules\Hr\Ports\StaffPresence;
 use App\Modules\Platform\Access\FeatureRegistry;
+use App\Modules\Platform\Ports\ApprovalSource;
 use App\Modules\Platform\Ports\BoardSignals;
 use App\Modules\Platform\Ports\CalendarSource;
+use App\Modules\Platform\Ports\SetupSteps;
 use App\Modules\Platform\Ports\SuiteSearch;
 use Illuminate\Support\ServiceProvider;
 
@@ -41,8 +45,10 @@ class HrServiceProvider extends ServiceProvider
         $this->app->bind(PayrollAdjustments::class, EmployeePayrollAdjustments::class);
         $this->app->bind(StaffPresence::class, EmployeeStaffPresence::class);
         $this->app->tag([EmployeeSuiteSearch::class], SuiteSearch::TAG);
+        $this->app->tag([HrSetupSteps::class], SetupSteps::TAG);
         $this->app->tag([HrBoardSignals::class], BoardSignals::TAG);
         $this->app->tag([HrCalendar::class], CalendarSource::TAG);
+        $this->app->tag([HrApprovals::class], ApprovalSource::TAG);
     }
 
     public function boot(): void

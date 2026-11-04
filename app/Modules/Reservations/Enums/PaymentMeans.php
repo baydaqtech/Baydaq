@@ -17,6 +17,16 @@ enum PaymentMeans: string
     case Card = '48';
     case Transfer = '42';
 
+    /** Where the money lands in the books. */
+    public function ledgerAccount(): string
+    {
+        return match ($this) {
+            self::Cash => 'cash',
+            self::Card => 'card_clearing',
+            self::Transfer => 'bank',
+        };
+    }
+
     protected static function labelFile(): string
     {
         return 'reservations';

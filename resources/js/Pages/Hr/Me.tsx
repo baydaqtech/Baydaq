@@ -10,6 +10,7 @@ import MyRecord, { type RecordData } from '@/components/hr/MyRecord';
 import { MyInsuranceCard, MyTrainingCard, type MyInsurance, type MyTrainings } from '@/components/hr/MyBenefits';
 import { MyAnnouncements, MyMessages, MyUpcoming, MyRecognitionCard, MySurveys, type MyAnnouncement, type MyMessage, type MyRecognition } from '@/components/hr/MyEngagement';
 import MyOvertime, { type OvertimeData } from '@/components/hr/MyOvertime';
+import { MyLetters, MyPayslips, type MyLetter, type Payslip } from '@/components/hr/MyPaperwork';
 import type { SurveyItem } from '@/Pages/Hr/Surveys/Index';
 import type { CalendarEvent } from '@/Pages/Suite/Calendar';
 import MyRemote, { type RemoteData } from '@/components/hr/MyRemote';
@@ -22,6 +23,7 @@ import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
 import StatusMessage from '@/components/platform/StatusMessage';
 import UserMenu from '@/components/platform/UserMenu';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -53,11 +55,14 @@ interface Props {
   recognition: MyRecognition;
   messages: MyMessage[];
   upcoming: CalendarEvent[];
+  payslips: Payslip[];
+  letters: MyLetter[];
+  letter_kinds: MyLetter['kind'][];
   features: string[];
 }
 
 /** An employee's own page: who they are, how much leave is left (with the working), and asking for more. */
-export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, insurance, trainings, announcements, surveys, recognition, messages, upcoming, features }: Props) {
+export default function Me({ employee, balances, requests, types, advance, shifts, has_pin: hasPin, tasks, break_state: breakState, record, reviews, remote, expenses, overtime, insurance, trainings, announcements, surveys, recognition, messages, upcoming, payslips, letters, letter_kinds: letterKinds, features }: Props) {
   const t = useT();
   const { locale } = useLocale();
   const [asking, setAsking] = useState(false);
@@ -96,8 +101,8 @@ export default function Me({ employee, balances, requests, types, advance, shift
                 <form onSubmit={(event) => { event.preventDefault(); form.post('/me/leave', { preserveScroll: true, onSuccess: () => { setAsking(false); form.reset(); } }); }} className="grid gap-3 sm:grid-cols-2">
                   <FormField label={f('type')} error={form.errors.leave_type_id}><SelectInput value={form.data.leave_type_id} onChange={(value) => form.setData('leave_type_id', Number(value))} options={types} /></FormField>
                   <FormField label={f('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
-                  <FormField label={f('starts_on')} error={form.errors.starts_on}><Input type="date" dir="ltr" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>
-                  <FormField label={f('ends_on')} error={form.errors.ends_on ?? errors.days}><Input type="date" dir="ltr" value={form.data.ends_on} onChange={(event) => form.setData('ends_on', event.target.value)} /></FormField>
+                  <FormField label={f('starts_on')} error={form.errors.starts_on}><DatePicker value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>
+                  <FormField label={f('ends_on')} error={form.errors.ends_on ?? errors.days}><DatePicker value={form.data.ends_on} onChange={(value) => form.setData('ends_on', value)} /></FormField>
                   <div className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></div>
                 </form>
               </CardContent>
@@ -115,6 +120,9 @@ export default function Me({ employee, balances, requests, types, advance, shift
         {features.includes('hr.tasks') && <MyTasks tasks={tasks} />}
 
         {features.includes('hr.shifts') && <MyShifts data={shifts} />}
+
+        <MyPayslips payslips={payslips} />
+        {features.includes('hr.letters') && <MyLetters letters={letters} kinds={letterKinds} />}
 
         {features.includes('hr.advances') && <AdvanceCalculator data={advance} />}
         {features.includes('hr.advances') && features.includes('hr.loans') && <AdvanceCalculator data={advance.loan} kind="loan" />}

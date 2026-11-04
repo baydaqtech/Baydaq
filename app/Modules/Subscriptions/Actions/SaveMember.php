@@ -2,6 +2,7 @@
 
 namespace App\Modules\Subscriptions\Actions;
 
+use App\Modules\Platform\Data\PhoneNumber;
 use App\Modules\Platform\Ports\Customers;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use App\Modules\Subscriptions\Models\Member;
@@ -22,7 +23,7 @@ class SaveMember
     public function handle(Member $member, array $data, ?int $companyId = null): Member
     {
         $companyId ??= $member->company_id;
-        $phone = preg_replace('/\s+/', '', (string) ($data['phone'] ?? $member->phone));
+        $phone = PhoneNumber::normalize($data['phone'] ?? $member->phone);
 
         if (Member::query()->where('company_id', $companyId)->where('phone', $phone)->whereKeyNot($member->id ?? 0)->exists()) {
             throw ValidationException::withMessages(['phone' => __('subscriptions.errors.phone_taken')]);

@@ -7,6 +7,7 @@ use App\Modules\Platform\Events\PaymentSucceeded;
 use App\Modules\Platform\Models\Payment;
 use App\Modules\Platform\Ports\Payments;
 use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -82,7 +83,11 @@ class HostedPayments implements Payments
         });
     }
 
-    /** Ask Moyasar whether its invoice was paid (used when the payer comes back). */
+    /**
+     * Ask Moyasar whether its invoice was paid in full, in riyals (when the payer comes back and
+     * before a webhook is believed): the status, the currency and the amount in halalas must all
+     * match what we asked for.
+     */
     public static function confirmWithProvider(Payment $payment): bool
     {
         if ($payment->provider !== 'moyasar' || $payment->provider_id === null) {
@@ -91,8 +96,12 @@ class HostedPayments implements Payments
 
         $response = Http::withBasicAuth((string) config('baydaq.payments.moyasar.secret_key'), '')->acceptJson()->timeout(15)
             ->get(rtrim((string) config('baydaq.payments.moyasar.url'), '/').'/invoices/'.$payment->provider_id);
+        $halalas = BigDecimal::of((string) $payment->amount)->multipliedBy(100)->toScale(0, RoundingMode::HalfUp)->toInt();
 
-        return $response->successful() && $response->json('status') === 'paid';
+        return $response->successful()
+            && $response->json('status') === 'paid'
+            && strtoupper((string) $response->json('currency')) === 'SAR'
+            && (int) $response->json('amount') === $halalas;
     }
 
     private static function data(Payment $payment): PaymentLink

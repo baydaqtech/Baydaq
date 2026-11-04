@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Pencil, Plus, Tags } from 'lucide-react';
+import ColorPicker from '@/components/platform/ColorPicker';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
@@ -72,7 +73,7 @@ function BrandDialog({ brand, companies, branches }: { brand?: Brand; companies:
           <FormField label={t('suite.structure.fields.name_ar')} error={errors.name_ar}><Input value={data.name_ar} onChange={(event) => setData('name_ar', event.target.value)} /></FormField>
           <FormField label={t('suite.structure.fields.name_en')} error={errors.name_en}><Input dir="ltr" value={data.name_en} onChange={(event) => setData('name_en', event.target.value)} /></FormField>
           <FormField label={t('suite.structure.fields.slug')} error={errors.slug}><Input dir="ltr" value={data.slug} onChange={(event) => setData('slug', event.target.value)} /></FormField>
-          <FormField label={t('suite.structure.brand_fields.color')} error={errors.color}><Input type="color" value={data.color ?? '#c8a84b'} onChange={(event) => setData('color', event.target.value)} /></FormField>
+          <FormField label={t('suite.structure.brand_fields.color')} error={errors.color}><ColorPicker value={data.color} onChange={(value) => setData('color', value)} invalid={Boolean(errors.color)} /></FormField>
           <fieldset className="flex flex-col gap-2 sm:col-span-2">
             <legend className="mb-1 text-sm font-medium">{t('suite.structure.brand_fields.branches')}</legend>
             <div className="flex flex-wrap gap-3">

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 // A member's card (no login; the token in the link is the card).
 Route::middleware(['web'])->get('/card/{token}', [CardController::class, 'show'])->where('token', '[A-Za-z0-9]{32}')->name('member.card');
 
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:subscriptions'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope', 'module:subscriptions'])
     ->prefix('suite/{scope}/subscriptions')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('subscriptions.')
     ->group(function (): void {
         Route::middleware('access:subscriptions.plans.create|subscriptions.plans.update')->group(function (): void {

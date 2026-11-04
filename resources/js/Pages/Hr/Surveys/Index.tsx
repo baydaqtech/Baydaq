@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,7 +48,7 @@ function SurveyForm({ audiences, types, onDone }: { audiences: Option[]; types: 
       <div className="grid gap-3 sm:grid-cols-3">
         <FormField label={s('title_field')} error={form.errors.title}><Input value={form.data.title} onChange={(event) => form.setData('title', event.target.value)} /></FormField>
         <FormField label={t('hr.engagement.audience')} error={form.errors.audience}><SelectInput value={form.data.audience} onChange={(value) => form.setData('audience', value)} options={audiences} /></FormField>
-        <FormField label={s('closes_on')} error={form.errors.closes_on}><Input type="date" dir="ltr" value={form.data.closes_on} onChange={(event) => form.setData('closes_on', event.target.value)} /></FormField>
+        <FormField label={s('closes_on')} error={form.errors.closes_on}><DatePicker value={form.data.closes_on} onChange={(value) => form.setData('closes_on', value)} /></FormField>
         <FormField label={s('description')} error={form.errors.description} className="sm:col-span-3"><Textarea rows={2} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} /></FormField>
         <label className="flex items-center gap-2 text-sm"><Checkbox checked={form.data.anonymous} onCheckedChange={(state) => form.setData('anonymous', state === true)} />{s('anonymous')}</label>
       </div>

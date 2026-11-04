@@ -8,6 +8,7 @@ import PageHeader from '@/components/platform/PageHeader';
 import Repeater from '@/components/platform/Repeater';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -107,7 +108,7 @@ function ServiceDialog({ project, options, availableServices, existing }) {
               <SelectInput id="pricing_model" value={form.data.pricing_model} onChange={(value) => form.setData('pricing_model', value)} options={options.pricingModels} />
             </FormField>
             <FormField label={s('started_at')} htmlFor="started_at" error={form.errors.started_at}>
-              <Input id="started_at" type="date" value={form.data.started_at} onChange={(event) => form.setData('started_at', event.target.value)} />
+              <DatePicker id="started_at" value={form.data.started_at} onChange={(value) => form.setData('started_at', value)} />
             </FormField>
             {existing && (
               <FormField label={s('status')} htmlFor="ps-status" error={form.errors.status}>
@@ -144,7 +145,7 @@ function UsageDialog({ project, projectService }) {
             <Input id="usage-quantity" type="number" step="0.01" dir="ltr" value={form.data.quantity} onChange={(event) => form.setData('quantity', event.target.value)} />
           </FormField>
           <FormField label={s('date')} htmlFor="usage-date" error={form.errors.date}>
-            <Input id="usage-date" type="date" dir="ltr" value={form.data.date} onChange={(event) => form.setData('date', event.target.value)} />
+            <DatePicker id="usage-date" value={form.data.date} onChange={(value) => form.setData('date', value)} />
           </FormField>
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('admin.common.save')}</Button></DialogFooter>
         </form>
@@ -279,7 +280,7 @@ export default function ProjectShow({ project, tab, availableServices, options }
                   <Input value={item.title} onChange={(event) => update('title', event.target.value)} />
                 </FormField>
                 <FormField label={m('due_date')} error={error('due_date')}>
-                  <Input type="date" value={item.due_date ?? ''} onChange={(event) => update('due_date', event.target.value)} />
+                  <DatePicker value={item.due_date ?? ''} onChange={(value) => update('due_date', value)} />
                 </FormField>
                 <label className="mt-7 flex items-center gap-2 text-sm">
                   <Checkbox checked={!!item.done} onCheckedChange={(checked) => update('done', checked === true)} />
@@ -313,7 +314,7 @@ export default function ProjectShow({ project, tab, availableServices, options }
                   <SelectInput value={item.channel} onChange={(value) => update('channel', value)} options={options.releaseChannels} />
                 </FormField>
                 <FormField label={rl('released_at')} error={error('released_at')}>
-                  <Input type="date" value={item.released_at ?? ''} onChange={(event) => update('released_at', event.target.value)} />
+                  <DatePicker value={item.released_at ?? ''} onChange={(value) => update('released_at', value)} />
                 </FormField>
                 <FormField label={rl('url')} error={error('url')} className="sm:col-span-2">
                   <Input type="url" dir="ltr" value={item.url ?? ''} onChange={(event) => update('url', event.target.value)} />

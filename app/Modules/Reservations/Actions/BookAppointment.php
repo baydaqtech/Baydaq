@@ -33,10 +33,13 @@ class BookAppointment
      */
     public function handle(Service $service, int $branchId, string $startsAt, array $data, BookingChannel $channel, ?Authenticatable $actor = null): Booking
     {
-        $booking = DB::transaction(function () use ($service, $branchId, $startsAt, $data, $channel, $actor): Booking {
-            $clientId = $this->tenant->client()->id;
-            BranchSettings::forBranch($branchId, $clientId);
-            BranchSettings::query()->whereKey($branchId)->lockForUpdate()->first();
+        $clientId = $this->tenant->client()->id;
+        BranchSettings::forBranch($branchId, $clientId);
+
+        $booking = DB::transaction(function () use ($service, $branchId, $startsAt, $data, $channel, $actor, $clientId): Booking {
+            // The lock must be the transaction's first read: under REPEATABLE READ a plain read before
+            // it fixes an older snapshot, and a booking committed while we waited would stay invisible.
+            BranchSettings::query()->whereKey($branchId)->lockForUpdate()->firstOrFail();
 
             $timezone = $this->directory->company($service->company_id)?->timezone ?? 'Asia/Riyadh';
             $start = CarbonImmutable::parse($startsAt)->setTimezone($timezone);

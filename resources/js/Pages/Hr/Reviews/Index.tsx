@@ -5,6 +5,7 @@ import ScoreInput from '@/components/hr/ScoreInput';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,9 +51,9 @@ function LaunchDialog({ companies, defaults }: { companies: Option[]; defaults: 
         <DialogHeader><DialogTitle>{v('launch')}</DialogTitle></DialogHeader>
         <form id="launch-review" className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); form.post(url('/hr/reviews'), { onSuccess: () => setOpen(false) }); }}>
           <FormField label={v('name')} error={errors.name} className="sm:col-span-2"><Input value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} /></FormField>
-          <FormField label={v('period_start')} error={errors.period_start}><Input type="date" dir="ltr" value={form.data.period_start} onChange={(event) => form.setData('period_start', event.target.value)} /></FormField>
-          <FormField label={v('period_end')} error={errors.period_end}><Input type="date" dir="ltr" value={form.data.period_end} onChange={(event) => form.setData('period_end', event.target.value)} /></FormField>
-          <FormField label={v('due_on')} error={errors.due_on}><Input type="date" dir="ltr" value={form.data.due_on} onChange={(event) => form.setData('due_on', event.target.value)} /></FormField>
+          <FormField label={v('period_start')} error={errors.period_start}><DatePicker value={form.data.period_start} onChange={(value) => form.setData('period_start', value)} /></FormField>
+          <FormField label={v('period_end')} error={errors.period_end}><DatePicker value={form.data.period_end} onChange={(value) => form.setData('period_end', value)} /></FormField>
+          <FormField label={v('due_on')} error={errors.due_on}><DatePicker value={form.data.due_on} onChange={(value) => form.setData('due_on', value)} /></FormField>
           <FormField label={v('company')}><SelectInput value={form.data.company_id} onChange={(value) => form.setData('company_id', value)} options={companies} emptyLabel={v('all_companies')} /></FormField>
           <div className="sm:col-span-2">
             <div className="mb-1 text-sm font-medium">{v('criteria_title')}</div>

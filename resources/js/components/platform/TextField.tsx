@@ -1,10 +1,18 @@
+import type { ComponentProps, ReactNode } from 'react';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+
+interface Props extends Omit<ComponentProps<typeof Input>, 'name'> {
+  name: string;
+  label: ReactNode;
+  error?: string;
+  hint?: ReactNode;
+}
 
 /**
  * Label + input + hint + validation error, for forms posted with Inertia's <Form>.
  */
-export default function TextField({ name, label, error, hint, className, ...inputProps }) {
+export default function TextField({ name, label, error, hint, className, ...inputProps }: Props) {
   const id = inputProps.id ?? `field-${name}`;
 
   return (

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Modules\Platform\Models\Access\AccessAssignment;
+use App\Modules\Platform\Models\Access\AccessRole;
 use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -18,15 +19,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'locale'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
 class User extends Authenticatable implements HasLocalePreference
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * Defaults matching the database, so a freshly created model has them loaded.
@@ -36,6 +38,10 @@ class User extends Authenticatable implements HasLocalePreference
     protected $attributes = [
         'must_change_password' => false,
         'locale' => 'ar',
+        'two_factor_secret' => null,
+        'two_factor_recovery_codes' => null,
+        'two_factor_confirmed_at' => null,
+        'notification_settings' => null,
     ];
 
     /**
@@ -49,6 +55,8 @@ class User extends Authenticatable implements HasLocalePreference
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'must_change_password' => 'boolean',
+            'two_factor_confirmed_at' => 'datetime',
+            'notification_settings' => 'array',
             'password' => 'hashed',
         ];
     }
@@ -145,6 +153,37 @@ class User extends Authenticatable implements HasLocalePreference
     public function isSystemAdmin(): bool
     {
         return $this->hasRole(Role::SystemAdmin);
+    }
+
+    /** Holds the owner role of a client account (somewhere in its tree). */
+    public function isAccountOwner(): bool
+    {
+        return $this->client_id !== null && $this->accessAssignments()->whereHas('role', fn (Builder $query) => $query->where('key', AccessRole::OWNER_KEY))->exists();
+    }
+
+    /**
+     * Baydaq admins and account owners reach everything, so when the deployment asks for it
+     * (`baydaq.security.two_factor_required`) they must turn on two-step sign-in first.
+     */
+    public function mustUseTwoFactor(): bool
+    {
+        return config('baydaq.security.two_factor_required') && ($this->isAdmin() || $this->isAccountOwner());
+    }
+
+    /**
+     * Where an alert of this kind reaches the user: always the notification centre, and email
+     * unless they turned it off for this kind.
+     *
+     * @return list<string>
+     */
+    public function notificationChannels(string $kind): array
+    {
+        return ($this->notification_settings[$kind]['mail'] ?? true) ? ['database', 'mail'] : ['database'];
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
     }
 
     /**

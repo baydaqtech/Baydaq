@@ -4,6 +4,7 @@ import { useState } from 'react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,7 +59,7 @@ function RecordDialog({ employees, categories }: { employees: Option[]; categori
         >
           <FormField label={v('employee')} className="sm:col-span-2"><SelectInput value={form.data.employee_id} onChange={(value) => form.setData('employee_id', value)} options={employees} /></FormField>
           <FormField label={v('category')} error={form.errors.category}><SelectInput value={form.data.category} onChange={(value) => form.setData('category', value)} options={categories.map((value) => ({ value, label: v(`categories.${value}`) }))} /></FormField>
-          <FormField label={v('occurred_on')} error={form.errors.occurred_on}><Input type="date" dir="ltr" value={form.data.occurred_on} onChange={(event) => form.setData('occurred_on', event.target.value)} /></FormField>
+          <FormField label={v('occurred_on')} error={form.errors.occurred_on}><DatePicker value={form.data.occurred_on} onChange={(value) => form.setData('occurred_on', value)} /></FormField>
           <FormField label={v('minutes')} error={form.errors.minutes}><Input type="number" min="1" dir="ltr" value={form.data.minutes} onChange={(event) => form.setData('minutes', event.target.value)} /></FormField>
           <FormField label={v('description')} error={form.errors.description} className="sm:col-span-2"><Textarea rows={3} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} /></FormField>
         </form>
@@ -111,8 +112,8 @@ export default function ViolationsIndex(props: Props) {
     <SuiteLayout title={v('title')}>
       <PageHeader title={v('title')} description={v('lede')} actions={canRecord && employees.length > 0 ? <RecordDialog employees={employees} categories={categories} /> : null} />
       <div className="mb-4 flex flex-wrap items-end gap-2">
-        <FormField label={v('from')}><Input type="date" dir="ltr" value={String(filters.from ?? '')} onChange={(event) => setFilter('from', event.target.value)} /></FormField>
-        <FormField label={v('to')}><Input type="date" dir="ltr" value={String(filters.to ?? '')} onChange={(event) => setFilter('to', event.target.value)} /></FormField>
+        <FormField label={v('from')}><DatePicker value={String(filters.from ?? '')} onChange={(value) => setFilter('from', value)} /></FormField>
+        <FormField label={v('to')}><DatePicker value={String(filters.to ?? '')} onChange={(value) => setFilter('to', value)} /></FormField>
         <div className="w-48"><SelectInput value={String(filters.category ?? '')} onChange={(value) => setFilter('category', value)} emptyLabel={`${v('category')}: ${t('common.actions.all')}`} options={categories.map((value) => ({ value, label: v(`categories.${value}`) }))} /></div>
       </div>
       <div className="mb-4 grid gap-3 lg:grid-cols-2">

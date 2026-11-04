@@ -9,8 +9,10 @@ use App\Modules\Platform\Enums\SuiteFeature;
 use App\Modules\Platform\Http\Controllers\Concerns\AuthorizesSuite;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
 use App\Modules\Platform\Models\Branch;
+use App\Modules\Platform\Models\Company;
 use App\Modules\Platform\Models\Customer;
 use App\Modules\Platform\Models\CustomerRegistration;
+use App\Modules\Platform\Models\PointEntry;
 use App\Modules\Platform\Models\WalletEntry;
 use App\Modules\Platform\Ports\CustomerActivity;
 use App\Modules\Platform\Ports\Customers;
@@ -109,6 +111,62 @@ class CustomerController extends Controller
             ->values();
     }
 
+    /** Points into wallet credit, at the chosen company's point value (counter staff, like a top-up). */
+    public function redeemPoints(Request $request, Customer $customer, Customers $customers): RedirectResponse
+    {
+        $data = $request->validate(['points' => ['required', 'integer', 'min:1', 'max:10000000'], 'company_id' => ['required', 'integer']]);
+        abort_unless(in_array((int) $data['company_id'], array_column($this->walletCompanies(), 'value'), true), 403);
+
+        $credit = $customers->redeemPoints($customer->id, (int) $data['points'], (int) $data['company_id'], $request->user());
+        $this->toast(__('suite.customers.points_done', ['amount' => $credit]));
+
+        return back();
+    }
+
+    /**
+     * The customer's points: balance, lifetime, the tier at each company that runs points, and the
+     * latest movements.
+     *
+     * @return array{balance: int, lifetime: int, companies: list<array{value: int, label: string, tier: ?string, point_value: ?string}>, entries: list<array<string, mixed>>}|null
+     */
+    private function points(Customer $customer): ?array
+    {
+        $companies = Company::query()->whereIn('id', array_column($this->walletCompanies(), 'value'))->get()->filter(fn (Company $company): bool => $company->earnsPoints());
+
+        if ($companies->isEmpty() && $customer->points === 0) {
+            return null;
+        }
+
+        return [
+            'balance' => $customer->points,
+            'lifetime' => $customer->lifetime_points,
+            'companies' => $companies->map(function (Company $company) use ($customer): array {
+                $tier = $company->tierFor($customer->lifetime_points);
+
+                return [
+                    'value' => $company->id, 'label' => $company->localized('name'),
+                    'tier' => $tier ? $tier['name_'.(app()->getLocale() === 'en' ? 'en' : 'ar')] : null,
+                    'point_value' => $company->point_value !== null ? (string) $company->point_value : null,
+                ];
+            })->values()->all(),
+            'entries' => $customer->pointEntries()->limit(20)->get()->map(fn (PointEntry $entry): array => [
+                'id' => $entry->id, 'points' => $entry->points, 'kind' => $entry->kind, 'balance_after' => $entry->balance_after, 'created_at' => $entry->created_at->toIso8601String(),
+            ])->all(),
+        ];
+    }
+
+    /**
+     * Companies that may take a wallet top-up from this user (any branch of theirs in reach).
+     *
+     * @return list<array{value: int, label: string}>
+     */
+    private function walletCompanies(): array
+    {
+        return $this->branchesReached(SuiteFeature::Customers->key('create'), SuiteFeature::Customers->key('update'))
+            ->pluck('company')->unique('id')
+            ->map(fn (Company $company): array => ['value' => $company->id, 'label' => $company->localized('name')])->values()->all();
+    }
+
     public function show(Customer $customer): Response
     {
         $access = $this->access();
@@ -138,6 +196,8 @@ class CustomerController extends Controller
                 'source' => $entry->source, 'note' => $entry->note, 'created_at' => $entry->created_at->toIso8601String(),
             ])->all(),
             'activity' => $activity,
+            'companies' => $this->walletCompanies(),
+            'points' => $this->points($customer),
             'can_top_up' => $access->allows(SuiteFeature::Customers->key('create')),
             'can_update' => $access->allows(SuiteFeature::Customers->key('update')),
         ]);
@@ -159,12 +219,15 @@ class CustomerController extends Controller
 
     /**
      * A top-up (money received at the counter) or, with the update permission, a correction either way.
+     * Both name the company whose books take them; a top-up also says how the money came in.
      */
     public function wallet(Request $request, Customer $customer, Customers $customers): RedirectResponse
     {
         $data = $request->validate([
             'kind' => ['required', 'in:top_up,adjustment'],
             'amount' => ['required', 'numeric', 'not_in:0', 'min:-100000', 'max:100000'],
+            'company_id' => ['required', 'integer'],
+            'paid_with' => ['required_if:kind,top_up', 'nullable', 'in:cash,card,transfer'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -173,11 +236,13 @@ class CustomerController extends Controller
         }
 
         abort_unless($this->access()->allows(SuiteFeature::Customers->key($data['kind'] === 'top_up' ? 'create' : 'update')), 403);
+        abort_unless(in_array((int) $data['company_id'], array_column($this->walletCompanies(), 'value'), true), 403);
         $amount = (string) abs((float) $data['amount']);
+        $companyId = (int) $data['company_id'];
 
         (float) $data['amount'] > 0
-            ? $customers->credit($customer->id, $amount, $data['kind'], 'suite.manual', null, null, $data['note'] ?? null, $request->user())
-            : $customers->debit($customer->id, $amount, 'adjustment', 'suite.manual', null, null, $data['note'] ?? null, $request->user());
+            ? $customers->credit($customer->id, $amount, $data['kind'], 'suite.manual', null, $companyId, $data['note'] ?? null, $request->user(), $data['paid_with'] ?? null)
+            : $customers->debit($customer->id, $amount, 'adjustment', 'suite.manual', null, $companyId, $data['note'] ?? null, $request->user());
 
         $this->toast(__('suite.customers.wallet_saved'));
 

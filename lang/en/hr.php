@@ -663,7 +663,26 @@ return [
 
     'letter_kind' => ['salary' => 'Salary certificate', 'experience' => 'Experience certificate'],
 
+    'payslips' => [
+        'title' => 'My payslips',
+        'none' => 'No payslip yet. One appears here once a month\'s payroll is approved.',
+        'net' => 'Net pay',
+        'open_pdf' => 'Open the payslip (PDF)',
+        'pdf' => [
+            'title' => 'Payslip', 'cr' => 'CR', 'month' => 'Month', 'employee' => 'Employee', 'number' => 'Employee number', 'job' => 'Job title',
+            'branch' => 'Branch', 'days' => 'Working days', 'unpaid_days' => ':days unpaid', 'earnings' => 'Earnings', 'amount' => 'Amount (SAR)',
+            'gross' => 'Total earnings', 'deductions' => 'Deductions', 'taken' => 'Total deductions', 'net' => 'Net pay', 'currency' => 'SAR',
+            'paid_on' => 'Paid on :date.', 'approved' => 'Approved; payment follows.',
+        ],
+    ],
+
     'letters' => [
+        'mine' => 'My letters',
+        'ask' => 'Ask for a letter',
+        'get' => 'Get the letter',
+        'ready' => 'Letter :reference is ready. Open it to print or send.',
+        'to_whom' => 'To whom it may concern',
+        'pdf_open' => 'Open the letter (PDF)',
         'title' => 'Letters',
         'issue' => 'Issue a letter',
         'kind' => 'Letter',
@@ -1318,5 +1337,10 @@ return [
         'open' => 'Open my page',
         'saved' => 'Saved.',
         'sent' => 'Sent to :count people.',
+    ],
+
+    'schedule' => [
+        'on_leave' => 'On leave from :from to :to.',
+        'asked_leave' => 'Has asked for leave from :from to :to; decide the leave first.',
     ],
 ];

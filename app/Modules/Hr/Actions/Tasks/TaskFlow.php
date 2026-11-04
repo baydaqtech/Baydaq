@@ -60,17 +60,16 @@ class TaskFlow
      */
     public function move(Task $task, TaskStatus $to, ?Authenticatable $actor, ?UploadedFile $photo = null, ?array $checked = null, ?string $note = null): Task
     {
-        if (in_array($task->status, [TaskStatus::Done, TaskStatus::Cancelled], true) && $to !== TaskStatus::Todo) {
-            throw ValidationException::withMessages(['status' => __('hr.tasks.errors.closed')]);
-        }
-
         return DB::transaction(function () use ($task, $to, $actor, $photo, $checked, $note): Task {
-            if ($checked !== null) {
-                $task->checklist = array_map(fn (array $item, int $index): array => ['text' => $item['text'], 'done' => in_array($index, $checked, true)], $task->checklist ?? [], array_keys($task->checklist ?? []));
+            // The phone and the web board may move it at once: re-read it under a lock.
+            $task = Task::query()->lockForUpdate()->findOrFail($task->id);
+
+            if (in_array($task->status, [TaskStatus::Done, TaskStatus::Cancelled], true) && $to !== TaskStatus::Todo) {
+                throw ValidationException::withMessages(['status' => __('hr.tasks.errors.closed')]);
             }
 
-            if ($photo !== null) {
-                $task->photo_path = $photo->store("tasks/{$task->client_id}", 'hr');
+            if ($checked !== null) {
+                $task->checklist = array_map(fn (array $item, int $index): array => ['text' => $item['text'], 'done' => in_array($index, $checked, true)], $task->checklist ?? [], array_keys($task->checklist ?? []));
             }
 
             if ($to === TaskStatus::Done) {
@@ -78,9 +77,14 @@ class TaskFlow
                     throw ValidationException::withMessages(['checklist' => __('hr.tasks.errors.checklist')]);
                 }
 
-                if ($task->needs_photo && $task->photo_path === null) {
+                if ($task->needs_photo && $photo === null && $task->photo_path === null) {
                     throw ValidationException::withMessages(['photo' => __('hr.tasks.errors.photo')]);
                 }
+            }
+
+            // Stored only once the move is allowed, so a refused "done" leaves no stray file.
+            if ($photo !== null) {
+                $task->photo_path = $photo->store("tasks/{$task->client_id}", 'hr');
             }
 
             $task->forceFill([

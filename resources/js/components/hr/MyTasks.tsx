@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Camera, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import FileField from '@/components/platform/FileField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { formatDate } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -44,7 +44,7 @@ function TaskItem({ task }: { task: MyTask }) {
         </ul>
       )}
       {task.needs_photo && (
-        <label className="flex items-center gap-2 text-sm"><Camera className="size-4" /><Input type="file" accept="image/*" capture="environment" onChange={(event) => form.setData('photo', event.target.files?.[0] ?? null)} /></label>
+        <FileField accept="image/*" capture="environment" files={form.data.photo ? [form.data.photo] : []} onChange={(files) => form.setData('photo', files[0] ?? null)} invalid={Boolean(form.errors.photo)} />
       )}
       {Object.values(errors)[0] && <p className="text-sm text-destructive">{Object.values(errors)[0]}</p>}
       <div className="flex gap-2">

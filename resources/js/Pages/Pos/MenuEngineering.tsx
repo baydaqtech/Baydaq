@@ -4,8 +4,8 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatCard from '@/components/platform/StatCard';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatMoney, formatNumber, formatPercent } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -44,8 +44,8 @@ export default function MenuEngineering({ items, average_margin: averageMargin, 
     <SuiteLayout title={m('title')}>
       <PageHeader title={m('title')} description={m('hint')} />
       <div className="mb-4 grid gap-3 sm:grid-cols-4 sm:items-end">
-        <FormField label={m('from')}><Input type="date" dir="ltr" value={filters.from} onChange={(event) => go({ from: event.target.value })} /></FormField>
-        <FormField label={m('to')}><Input type="date" dir="ltr" value={filters.to} onChange={(event) => go({ to: event.target.value })} /></FormField>
+        <FormField label={m('from')}><DatePicker value={filters.from} onChange={(value) => go({ from: value })} /></FormField>
+        <FormField label={m('to')}><DatePicker value={filters.to} onChange={(value) => go({ to: value })} /></FormField>
         {brands.length > 0 && <FormField label={m('brand')}><SelectInput value={filters.brand ?? ''} onChange={(value) => go({ brand: value ? Number(value) : null })} options={brands} emptyLabel={t('pos.orders.all_brands')} /></FormField>}
       </div>
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

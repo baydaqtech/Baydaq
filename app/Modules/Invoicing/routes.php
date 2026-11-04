@@ -5,7 +5,7 @@ use App\Modules\Invoicing\Http\Controllers\InvoiceController;
 use App\Modules\Invoicing\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:invoicing'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope', 'module:invoicing'])
     ->prefix('suite/{scope}/invoicing')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('invoicing.')
     ->group(function (): void {
         Route::post('/customers', [CustomerController::class, 'store'])->middleware('access:invoicing.customers.create')->name('customers.store');

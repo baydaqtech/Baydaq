@@ -4,6 +4,7 @@ import { useState } from 'react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -81,10 +82,10 @@ function DocumentDialog({ kind, suppliers, branches, accounts }: { kind: 'order'
             <FormField label={p('supplier')} error={errors.supplier_id}><SelectInput value={form.data.supplier_id} onChange={(value) => form.setData('supplier_id', value)} options={suppliers.filter((supplier) => supplier.is_active).map((supplier) => ({ value: supplier.id, label: supplier.name }))} /></FormField>
             <FormField label={p('branch')} error={errors.branch_id}><SelectInput value={form.data.branch_id} onChange={(value) => form.setData('branch_id', value)} options={branches} /></FormField>
             {kind === 'order'
-              ? <FormField label={p('order_date')} error={errors.order_date}><Input type="date" dir="ltr" value={form.data.order_date} onChange={(event) => form.setData('order_date', event.target.value)} /></FormField>
-              : <FormField label={p('bill_date')} error={errors.bill_date}><Input type="date" dir="ltr" value={form.data.bill_date} onChange={(event) => form.setData('bill_date', event.target.value)} /></FormField>}
+              ? <FormField label={p('order_date')} error={errors.order_date}><DatePicker value={form.data.order_date} onChange={(value) => form.setData('order_date', value)} /></FormField>
+              : <FormField label={p('bill_date')} error={errors.bill_date}><DatePicker value={form.data.bill_date} onChange={(value) => form.setData('bill_date', value)} /></FormField>}
             {kind === 'order'
-              ? <FormField label={p('expected_on')}><Input type="date" dir="ltr" value={form.data.expected_on} onChange={(event) => form.setData('expected_on', event.target.value)} /></FormField>
+              ? <FormField label={p('expected_on')}><DatePicker value={form.data.expected_on} onChange={(value) => form.setData('expected_on', value)} /></FormField>
               : <FormField label={p('supplier_invoice_no')}><Input dir="ltr" value={form.data.supplier_invoice_no} onChange={(event) => form.setData('supplier_invoice_no', event.target.value)} /></FormField>}
           </div>
           {form.data.lines.map((line, index) => (
@@ -123,7 +124,7 @@ function PayDialog({ bill }: { bill: Bill }) {
         <DialogHeader><DialogTitle>{p('pay')} · {bill.supplier}</DialogTitle></DialogHeader>
         <form id={`pay-${bill.id}`} className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); form.post(url(`/finance/bills/${bill.id}/payments`), { preserveScroll: true, onSuccess: () => setOpen(false) }); }}>
           <FormField label={p('amount')} error={form.errors.amount}><Input type="number" step="0.01" dir="ltr" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>
-          <FormField label={p('paid_on')} error={form.errors.paid_on}><Input type="date" dir="ltr" value={form.data.paid_on} onChange={(event) => form.setData('paid_on', event.target.value)} /></FormField>
+          <FormField label={p('paid_on')} error={form.errors.paid_on}><DatePicker value={form.data.paid_on} onChange={(value) => form.setData('paid_on', value)} /></FormField>
           <FormField label={p('method')}><SelectInput value={form.data.method} onChange={(value) => form.setData('method', value)} options={['bank', 'cash'].map((value) => ({ value, label: p(`methods.${value}`) }))} /></FormField>
           <FormField label={p('reference')}><Input dir="ltr" value={form.data.reference} onChange={(event) => form.setData('reference', event.target.value)} /></FormField>
         </form>

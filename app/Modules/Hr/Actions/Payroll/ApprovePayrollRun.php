@@ -70,12 +70,13 @@ class ApprovePayrollRun
 
     /**
      * The month's payroll for the books: salaries and the employer's GOSI as expenses; net pay,
-     * GOSI (both shares) and other withholdings (penalties, staff meals, advances) as owed.
+     * GOSI (both shares) and other withholdings (penalties, staff meals) as owed; advance
+     * installments reduce what employees owe.
      */
     public static function posting(PayrollRun $run): LedgerPosting
     {
         $sum = fn (string $column): BigDecimal => BigDecimal::of((string) $run->lines()->sum($column));
-        [$net, $gosiEmployee, $gosiEmployer] = [$sum('net'), $sum('gosi_employee'), $sum('gosi_employer')];
+        [$net, $gosiEmployee, $gosiEmployer, $installments] = [$sum('net'), $sum('gosi_employee'), $sum('gosi_employer'), $sum('advance_installments')];
         $earned = $sum('gross')->minus($sum('unpaid_leave')); // unpaid leave was never earned
 
         return new LedgerPosting($run->company_id, null, $run->pay_month->copy()->endOfMonth()->toDateString(), 'hr.payroll', $run->id, 'Payroll '.$run->pay_month->format('Y-m'), [
@@ -83,7 +84,8 @@ class ApprovePayrollRun
             ['account' => 'gosi_expense', 'debit' => (string) $gosiEmployer->toScale(2)],
             ['account' => 'salaries_payable', 'credit' => (string) $net->toScale(2)],
             ['account' => 'gosi_payable', 'credit' => (string) $gosiEmployee->plus($gosiEmployer)->toScale(2)],
-            ['account' => 'payroll_withholdings', 'credit' => (string) $earned->minus($net)->minus($gosiEmployee)->toScale(2)],
+            ['account' => 'employee_receivable', 'credit' => (string) $installments->toScale(2)],
+            ['account' => 'payroll_withholdings', 'credit' => (string) $earned->minus($net)->minus($gosiEmployee)->minus($installments)->toScale(2)],
         ]);
     }
 

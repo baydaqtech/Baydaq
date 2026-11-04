@@ -7,6 +7,7 @@ import FilterBar from '@/components/platform/FilterBar';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -55,7 +56,7 @@ function RegisterDialog({ branches }: { branches: BranchOption[] }) {
           <FormField label={c('phone')} error={form.errors.phone}><Input dir="ltr" inputMode="tel" autoFocus value={form.data.phone} onChange={(event) => form.setData('phone', event.target.value)} /></FormField>
           <FormField label={c('name')} error={form.errors.name}><Input value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} /></FormField>
           <FormField label={c('email')} error={form.errors.email}><Input type="email" dir="ltr" value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} /></FormField>
-          <FormField label={c('birth_date')} error={form.errors.birth_date}><Input type="date" dir="ltr" value={form.data.birth_date} onChange={(event) => form.setData('birth_date', event.target.value)} /></FormField>
+          <FormField label={c('birth_date')} error={form.errors.birth_date}><DatePicker value={form.data.birth_date} onChange={(value) => form.setData('birth_date', value)} /></FormField>
           <FormField label={c('gender')} error={form.errors.gender}>
             <SelectInput value={form.data.gender} onChange={(value) => form.setData('gender', value)} emptyLabel="—" options={['male', 'female'].map((value) => ({ value, label: c(`genders.${value}`) }))} />
           </FormField>

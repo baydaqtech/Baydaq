@@ -23,14 +23,14 @@ use App\Modules\Hr\Models\DeductionType;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Tests\Concerns\AssertsLedger;
 use Tests\Concerns\BuildsSuite;
 use Tests\TestCase;
 
 class LeaveAndPayrollTest extends TestCase
 {
-    use BuildsSuite, RefreshDatabase;
+    use AssertsLedger, BuildsSuite, RefreshDatabase;
 
     private Employee $saudi;
 
@@ -185,15 +185,5 @@ class LeaveAndPayrollTest extends TestCase
         // Saudi hired 2024-01-01: 2.87 years → a third on resignation, half a month per year in full otherwise.
         $this->assertSame('0.333333', app(EndOfServiceBenefit::class)->handle($this->saudi, 'resignation')['fraction']);
         $this->assertEqualsWithDelta(10500 * 0.5 * 2.87, (float) app(EndOfServiceBenefit::class)->handle($this->saudi, 'contract_end')['award'], 60);
-    }
-
-    /** The posting landed in the ledger, once, and balances. */
-    private function assertPostedBalanced(string $source, int $sourceId): void
-    {
-        $entries = DB::table('finance__journal_entries')->where('source', $source)->where('source_id', $sourceId)->pluck('id');
-        $this->assertCount(1, $entries);
-        $lines = DB::table('finance__journal_lines')->whereIn('entry_id', $entries);
-        $this->assertEquals((clone $lines)->sum('debit'), (clone $lines)->sum('credit'));
-        $this->assertGreaterThan(0, (clone $lines)->sum('debit'));
     }
 }

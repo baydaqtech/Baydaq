@@ -413,11 +413,13 @@ return [
         'unlimited' => 'Unlimited',
         'inactive' => 'Inactive',
         'public' => 'Offered publicly',
+        'default' => 'Default',
+        'default_hint' => 'Accounts without a plan of their own get this package. Only one package is the default.',
         'none' => 'None yet.',
         'fields' => [
             'code' => 'Code', 'name_ar' => 'Name (Arabic)', 'name_en' => 'Name (English)', 'description_ar' => 'Description (Arabic)', 'description_en' => 'Description (English)',
             'price_monthly' => 'Monthly price (SAR)', 'price_yearly' => 'Yearly price (SAR)', 'trial_days' => 'Trial days',
-            'is_public' => 'Offer publicly', 'is_active' => 'Active',
+            'is_public' => 'Offer publicly', 'is_active' => 'Active', 'is_default' => 'Default package',
         ],
     ],
 

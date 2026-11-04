@@ -4,6 +4,7 @@ import { useState } from 'react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,8 +45,8 @@ function AddVisa({ employeeId, kinds }: { employeeId: number; kinds: string[] })
         <form id={`visa-${employeeId}`} className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); form.post(url(`/hr/employees/${employeeId}/visas`), { preserveScroll: true, onSuccess: () => { form.reset(); setOpen(false); } }); }}>
           <FormField label={m('kind')} error={form.errors.kind}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={kinds.map((value) => ({ value, label: m(`kinds.${value}`) }))} /></FormField>
           <FormField label={m('number')} error={form.errors.number}><Input dir="ltr" value={form.data.number} onChange={(event) => form.setData('number', event.target.value)} /></FormField>
-          <FormField label={m('issued_on')} error={form.errors.issued_on}><Input type="date" dir="ltr" value={form.data.issued_on} onChange={(event) => form.setData('issued_on', event.target.value)} /></FormField>
-          <FormField label={m('expires_on')} error={form.errors.expires_on}><Input type="date" dir="ltr" value={form.data.expires_on} onChange={(event) => form.setData('expires_on', event.target.value)} /></FormField>
+          <FormField label={m('issued_on')} error={form.errors.issued_on}><DatePicker value={form.data.issued_on} onChange={(value) => form.setData('issued_on', value)} /></FormField>
+          <FormField label={m('expires_on')} error={form.errors.expires_on}><DatePicker value={form.data.expires_on} onChange={(value) => form.setData('expires_on', value)} /></FormField>
           {form.data.kind !== 'final_exit' && <FormField label={m('duration_days')} error={form.errors.duration_days}><Input type="number" min="1" dir="ltr" value={form.data.duration_days} onChange={(event) => form.setData('duration_days', event.target.value)} /></FormField>}
           <FormField label={m('notes')} error={form.errors.notes} className="sm:col-span-2"><Input value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} /></FormField>
         </form>

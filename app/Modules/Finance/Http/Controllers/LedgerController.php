@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Finance\Enums\FinanceFeature;
 use App\Modules\Finance\Http\Controllers\Concerns\ScopesFinance;
 use App\Modules\Finance\Models\Account;
+use App\Modules\Finance\Models\FiscalClose;
 use App\Modules\Finance\Models\JournalEntry;
 use App\Modules\Finance\Models\JournalLine;
 use App\Modules\Finance\Support\ChartOfAccounts;
@@ -99,6 +100,10 @@ class LedgerController extends Controller
 
         if (! $debits->isEqualTo($credits) || $debits->isZero()) {
             throw ValidationException::withMessages(['lines' => __('finance.errors.unbalanced', ['debit' => (string) $debits, 'credit' => (string) $credits])]);
+        }
+
+        if (FiscalClose::covers($branch->companyId, $data['entry_date'])) {
+            throw ValidationException::withMessages(['entry_date' => __('finance.errors.year_closed')]);
         }
 
         DB::transaction(function () use ($data, $branch, $request): void {

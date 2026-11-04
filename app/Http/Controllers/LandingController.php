@@ -21,6 +21,7 @@ class LandingController extends Controller
         return $this->sitePage('Landing', [
             'products' => ProductResource::collection(Product::query()->listed()->get()),
             'services' => ServiceResource::collection(Service::query()->listed()->get()),
-        ]);
+            'work' => WorkController::tiles(),
+        ], ['work']);
     }
 }

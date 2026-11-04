@@ -12,7 +12,10 @@ use App\Modules\Hr\Models\Shift;
 use App\Modules\Hr\Models\WorkBreak;
 use App\Modules\Hr\Support\HrSettings;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -34,11 +37,11 @@ class BreakFlow
         $kind = $shift?->break_at !== null && $this->nearScheduled($employee, $shift) ? BreakKind::Scheduled : BreakKind::Requested;
         $selfStart = $kind === BreakKind::Scheduled || (bool) $this->settings->get('break_self_start');
 
-        return DB::transaction(function () use ($employee, $minutes, $note, $kind, $selfStart): WorkBreak {
+        return $this->oneAtATime($employee->branch_id, fn (): WorkBreak => DB::transaction(function () use ($employee, $minutes, $note, $kind, $selfStart): WorkBreak {
             $start = $selfStart && $this->hasRoom($employee->branch_id);
 
             return $this->create($employee, $kind, $start ? BreakStatus::OnBreak : BreakStatus::Requested, $minutes, $note, null);
-        });
+        }));
     }
 
     /** A manager gives an employee a break now ("you can go for your break"). */
@@ -51,33 +54,42 @@ class BreakFlow
 
     public function decide(WorkBreak $break, bool $approve, Authenticatable $actor): WorkBreak
     {
-        if ($break->status !== BreakStatus::Requested) {
-            throw ValidationException::withMessages(['status' => __('hr.breaks.errors.not_requested')]);
-        }
+        return $this->oneAtATime($break->branch_id, fn (): WorkBreak => DB::transaction(function () use ($break, $approve, $actor): WorkBreak {
+            $break = WorkBreak::query()->lockForUpdate()->findOrFail($break->id);
 
-        if ($approve && ! $this->hasRoom($break->branch_id)) {
-            throw ValidationException::withMessages(['status' => __('hr.breaks.errors.full')]);
-        }
+            if ($break->status !== BreakStatus::Requested) {
+                throw ValidationException::withMessages(['status' => __('hr.breaks.errors.not_requested')]);
+            }
 
-        $break->forceFill([
-            'status' => $approve ? BreakStatus::OnBreak : BreakStatus::Rejected,
-            'starts_at' => $approve ? now() : null,
-            'decided_by' => $actor->getAuthIdentifier(),
-        ])->save();
+            if ($approve && ! $this->hasRoom($break->branch_id)) {
+                throw ValidationException::withMessages(['status' => __('hr.breaks.errors.full')]);
+            }
 
-        return $break;
+            $break->forceFill([
+                'status' => $approve ? BreakStatus::OnBreak : BreakStatus::Rejected,
+                'starts_at' => $approve ? now() : null,
+                'decided_by' => $actor->getAuthIdentifier(),
+            ])->save();
+
+            return $break;
+        }));
     }
 
     /** Back from break (the employee, or a manager on their behalf). A pending request is withdrawn. */
     public function end(WorkBreak $break): WorkBreak
     {
-        match ($break->status) {
-            BreakStatus::OnBreak => $break->forceFill(['status' => BreakStatus::Ended, 'ends_at' => now()])->save(),
-            BreakStatus::Requested => $break->forceFill(['status' => BreakStatus::Cancelled])->save(),
-            default => throw ValidationException::withMessages(['status' => __('hr.breaks.errors.not_on_break')]),
-        };
+        return DB::transaction(function () use ($break): WorkBreak {
+            // The employee and a manager may both tap "back": only the first changes it.
+            $break = WorkBreak::query()->lockForUpdate()->findOrFail($break->id);
 
-        return $break;
+            match ($break->status) {
+                BreakStatus::OnBreak => $break->forceFill(['status' => BreakStatus::Ended, 'ends_at' => now()])->save(),
+                BreakStatus::Requested => $break->forceFill(['status' => BreakStatus::Cancelled])->save(),
+                default => throw ValidationException::withMessages(['status' => __('hr.breaks.errors.not_on_break')]),
+            };
+
+            return $break;
+        });
     }
 
     /**
@@ -158,7 +170,25 @@ class BreakFlow
     {
         $limit = (int) $this->settings->get('break_max_concurrent');
 
-        return $limit === 0 || WorkBreak::query()->where('branch_id', $branchId)->where('status', BreakStatus::OnBreak)->lockForUpdate()->count() < $limit;
+        return $limit === 0 || WorkBreak::query()->where('branch_id', $branchId)->where('status', BreakStatus::OnBreak)->sharedLock()->count() < $limit;
+    }
+
+    /**
+     * Breaks of one branch start one at a time, so two approvals (or two self-starts) can't both
+     * take the last place under the branch's limit.
+     *
+     * @template T
+     *
+     * @param  Closure(): T  $callback
+     * @return T
+     */
+    private function oneAtATime(int $branchId, Closure $callback): mixed
+    {
+        try {
+            return Cache::lock("hr:breaks:branch:{$branchId}", 10)->block(5, $callback);
+        } catch (LockTimeoutException) {
+            throw ValidationException::withMessages(['status' => __('common.busy')]);
+        }
     }
 
     private function minutes(?int $minutes): int

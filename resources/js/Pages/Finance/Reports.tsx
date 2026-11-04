@@ -1,8 +1,8 @@
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import FormField from '@/components/platform/FormField';
+import DatePicker from '@/components/platform/DatePicker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatMoney } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -36,8 +36,8 @@ export default function Reports({ trial_balance: trial, profit_and_loss: pl, vat
     <SuiteLayout title={r('title')}>
       <PageHeader title={r('title')} description={r('lede')} />
       <div className="mb-4 flex flex-wrap items-end gap-2">
-        <FormField label={r('from')}><Input type="date" dir="ltr" value={String(filters.from ?? '')} onChange={(event) => setFilter('from', event.target.value)} /></FormField>
-        <FormField label={r('to')}><Input type="date" dir="ltr" value={String(filters.to ?? '')} onChange={(event) => setFilter('to', event.target.value)} /></FormField>
+        <FormField label={r('from')}><DatePicker value={String(filters.from ?? '')} onChange={(value) => setFilter('from', value)} /></FormField>
+        <FormField label={r('to')}><DatePicker value={String(filters.to ?? '')} onChange={(value) => setFilter('to', value)} /></FormField>
         <FormField label={r('company')}><SelectInput className="w-48" value={String(filters.company_id ?? '')} onChange={(value) => setFilter('company_id', value)} options={companies} emptyLabel={r('all')} /></FormField>
         <FormField label={r('branch')}><SelectInput className="w-56" value={String(filters.branch_id ?? '')} onChange={(value) => setFilter('branch_id', value)} options={branches.filter((branch) => !filters.company_id || String(branch.company_id) === String(filters.company_id))} emptyLabel={r('all')} /></FormField>
       </div>

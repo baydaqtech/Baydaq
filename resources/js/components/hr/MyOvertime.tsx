@@ -1,5 +1,6 @@
 import { router, useForm } from '@inertiajs/react';
 import FormField from '@/components/platform/FormField';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +24,7 @@ export default function MyOvertime({ data }: { data: OvertimeData }) {
       <CardContent className="flex flex-col gap-3 text-sm">
         <p className="text-muted-foreground">{data.max_hours_year > 0 ? o('this_year', { hours: data.hours_this_year, max: String(data.max_hours_year) }) : o('this_year_no_cap', { hours: data.hours_this_year })}</p>
         <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); form.post('/me/overtime', { preserveScroll: true, onSuccess: () => form.reset() }); }}>
-          <FormField label={o('work_date')} error={form.errors.work_date}><Input type="date" dir="ltr" value={form.data.work_date} onChange={(event) => form.setData('work_date', event.target.value)} /></FormField>
+          <FormField label={o('work_date')} error={form.errors.work_date}><DatePicker value={form.data.work_date} onChange={(value) => form.setData('work_date', value)} /></FormField>
           <FormField label={o('hours')} error={form.errors.hours}><Input type="number" min="0.25" max="12" step="0.25" dir="ltr" className="w-24" value={form.data.hours} onChange={(event) => form.setData('hours', event.target.value)} /></FormField>
           <FormField label={o('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <Button type="submit" disabled={form.processing || form.data.work_date === '' || form.data.hours === ''}>{o('ask')}</Button>

@@ -17,4 +17,5 @@ return [
     'res_booking_confirmed' => 'مرحباً :name، تم تأكيد حجزك :number لخدمة :service يوم :date الساعة :time.',
     'res_booking_reminder' => 'تذكير: :name، حجزك :number لخدمة :service غداً :date الساعة :time.',
     'inv_payment_link' => 'مرحباً :name، فاتورة :number بمبلغ :amount ريال جاهزة. ادفع بأمان من هنا: :url',
+    'join_code' => 'رمزك لدى :company هو :code. صالح لمدة :minutes دقائق.',
 ];

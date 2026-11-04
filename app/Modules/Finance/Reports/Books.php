@@ -2,6 +2,7 @@
 
 namespace App\Modules\Finance\Reports;
 
+use App\Modules\Finance\Actions\CloseFiscalYear;
 use App\Modules\Finance\Models\Account;
 use App\Modules\Finance\Models\JournalLine;
 use App\Modules\Platform\Access\BranchSet;
@@ -18,13 +19,14 @@ class Books
     /**
      * @return Builder<JournalLine>
      */
-    private function lines(BranchSet $reach, ?string $from, string $to, ?int $companyId, ?int $branchId = null): Builder
+    private function lines(BranchSet $reach, ?string $from, string $to, ?int $companyId, ?int $branchId = null, bool $closings = true): Builder
     {
-        return JournalLine::query()->whereHas('entry', function ($query) use ($reach, $from, $to, $companyId, $branchId): void {
+        return JournalLine::query()->whereHas('entry', function ($query) use ($reach, $from, $to, $companyId, $branchId, $closings): void {
             $reach->apply($query);
             $query->when($from, fn ($query) => $query->whereDate('entry_date', '>=', $from))->whereDate('entry_date', '<=', $to)
                 ->when($companyId, fn ($query) => $query->where('company_id', $companyId))
-                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId));
+                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+                ->when(! $closings, fn ($query) => $query->where('source', '!=', CloseFiscalYear::SOURCE));
         });
     }
 
@@ -33,9 +35,9 @@ class Books
      *
      * @return list<array{account_id: int, code: string, name: string, type: string, debit: string, credit: string, balance: string}>
      */
-    public function trialBalance(BranchSet $reach, ?string $from, string $to, ?int $companyId, ?int $branchId = null): array
+    public function trialBalance(BranchSet $reach, ?string $from, string $to, ?int $companyId, ?int $branchId = null, bool $closings = true): array
     {
-        $totals = $this->lines($reach, $from, $to, $companyId, $branchId)->selectRaw('account_id, sum(debit) as debit, sum(credit) as credit')->groupBy('account_id')->get()->keyBy('account_id');
+        $totals = $this->lines($reach, $from, $to, $companyId, $branchId, $closings)->selectRaw('account_id, sum(debit) as debit, sum(credit) as credit')->groupBy('account_id')->get()->keyBy('account_id');
 
         return Account::query()->whereIn('id', $totals->keys())->orderBy('code')->get()->map(function (Account $account) use ($totals): array {
             $debit = BigDecimal::of((string) $totals[$account->id]->debit);
@@ -56,7 +58,8 @@ class Books
      */
     public function profitAndLoss(BranchSet $reach, string $from, string $to, ?int $companyId, ?int $branchId = null): array
     {
-        $rows = collect($this->trialBalance($reach, $from, $to, $companyId, $branchId));
+        // A closed year's closing entry zeroes its revenue and expenses; the year's result is still the result.
+        $rows = collect($this->trialBalance($reach, $from, $to, $companyId, $branchId, closings: false));
         $section = fn (string $type): Collection => $rows->where('type', $type)->map(fn (array $row): array => ['name' => $row['code'].' '.$row['name'], 'amount' => $row['balance']])->values();
         $sum = fn (Collection $items): BigDecimal => $items->reduce(fn (BigDecimal $total, array $row) => $total->plus($row['amount']), BigDecimal::zero());
         [$revenue, $expenses] = [$section('revenue'), $section('expense')];

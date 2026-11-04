@@ -9,7 +9,9 @@ use App\Modules\Hr\Enums\RepaymentMethod;
 use App\Modules\Hr\Models\Advance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\FinalSettlement;
+use App\Modules\Platform\Data\LedgerPosting;
 use App\Modules\Platform\Ports\Audit;
+use App\Modules\Platform\Ports\Ledger;
 use Brick\Math\BigDecimal;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Carbon;
@@ -24,7 +26,7 @@ use Illuminate\Validation\ValidationException;
  */
 class SettleFinalAccount
 {
-    public function __construct(private EndOfServiceBenefit $eosb, private RecordRepayment $recordRepayment, private Audit $audit) {}
+    public function __construct(private EndOfServiceBenefit $eosb, private RecordRepayment $recordRepayment, private Audit $audit, private Ledger $ledger) {}
 
     /**
      * @param  'termination'|'resignation'|'contract_end'|'retirement'  $reason
@@ -61,6 +63,13 @@ class SettleFinalAccount
         }
 
         return DB::transaction(function () use ($employee, $reason, $actor): FinalSettlement {
+            // Settled once: a second request waits on the employee and then finds the settlement.
+            Employee::query()->lockForUpdate()->findOrFail($employee->id);
+
+            if (FinalSettlement::query()->where('employee_id', $employee->id)->exists()) {
+                throw ValidationException::withMessages(['reason' => __('hr.payroll.errors.already_settled')]);
+            }
+
             $lastDay = $employee->terminated_on ?? today();
             $preview = $this->preview($employee, $reason, $lastDay);
             $budget = BigDecimal::of($preview['advances_recovered']);
@@ -87,6 +96,13 @@ class SettleFinalAccount
             ]);
             $settlement->save();
             $this->audit->record($employee, 'final_settlement', ['award' => $preview['eosb']['award'], 'recovered' => $preview['advances_recovered'], 'net' => $preview['net_payable']], $actor);
+
+            // The award is an expense; what the employee still owed is taken from it, the rest is owed to them.
+            $this->ledger->post(new LedgerPosting($employee->company_id, $employee->branch_id, $settlement->last_day->toDateString(), 'hr.final_settlement', $settlement->id, "Final settlement {$employee->employee_number}", [
+                ['account' => 'end_of_service', 'debit' => (string) $preview['eosb']['award']],
+                ['account' => 'employee_receivable', 'credit' => $preview['advances_recovered']],
+                ['account' => 'salaries_payable', 'credit' => $preview['net_payable']],
+            ]));
 
             return $settlement;
         });

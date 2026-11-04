@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -82,6 +83,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => fn (): ?array => $this->currentUser($request),
             ],
             'status' => fn (): ?string => $request->session()->get('status'),
+            'notifications' => fn (): ?array => $request->user() ? ['unread' => $request->user()->unreadNotifications()->count()] : null,
+            // The centre's list is loaded only when the bell is opened (a partial reload).
+            'notification_feed' => Inertia::optional(fn (): array => $request->user() ? NotificationController::feed($request->user()) : []),
         ];
     }
 

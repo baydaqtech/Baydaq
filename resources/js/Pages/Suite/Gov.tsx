@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { ExternalLink, Landmark, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import PageHeader from '@/components/platform/PageHeader';
+import Hint from '@/components/platform/Hint';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,7 +50,7 @@ export default function Gov({ companies, portals }: { companies: Company[]; port
                       <dt className="text-muted-foreground">{t(`suite.structure.fields.${field}`)}</dt>
                       <dd>
                         {company.numbers[field]
-                          ? <button type="button" dir="ltr" className="font-mono hover:underline" title={g('copy')} onClick={() => { void navigator.clipboard?.writeText(company.numbers[field] ?? ''); toast.success(g('copied')); }}>{company.numbers[field]}</button>
+                          ? <Hint label={g('copy')}><button type="button" dir="ltr" className="font-mono hover:underline" onClick={() => { void navigator.clipboard?.writeText(company.numbers[field] ?? ''); toast.success(g('copied')); }}>{company.numbers[field]}</button></Hint>
                           : <span className="text-xs text-muted-foreground">{g('missing')}</span>}
                       </dd>
                     </div>

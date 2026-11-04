@@ -18,7 +18,7 @@ class SaveBranch
     {
         return DB::transaction(function () use ($branch, $data): Branch {
             if (! $branch->exists) {
-                app(EnsureWithinLimit::class)->handle('branches', Branch::query()->count());
+                app(EnsureWithinLimit::class)->handle('branches', Branch::query());
             }
 
             $branch->fill($data)->save();

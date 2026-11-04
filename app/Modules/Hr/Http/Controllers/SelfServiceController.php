@@ -11,12 +11,14 @@ use App\Modules\Hr\Actions\Offboarding\SeparationFlow;
 use App\Modules\Hr\Actions\Overtime\OvertimeFlow;
 use App\Modules\Hr\Actions\Pay\AdvanceCalculator;
 use App\Modules\Hr\Actions\Pay\RequestAdvance;
+use App\Modules\Hr\Actions\Payroll\Payslips;
 use App\Modules\Hr\Actions\Remote\RemoteWork;
 use App\Modules\Hr\Actions\Reviews\ReviewFlow;
 use App\Modules\Hr\Actions\Shifts\ClaimOpenShift;
 use App\Modules\Hr\Actions\Tasks\TaskFlow;
 use App\Modules\Hr\Actions\Violations\RecordViolation;
 use App\Modules\Hr\Adapters\HrCalendar;
+use App\Modules\Hr\Enums\EmployeeStatus;
 use App\Modules\Hr\Enums\TaskStatus;
 use App\Modules\Hr\Http\Controllers\Api\BreakController as ApiBreakController;
 use App\Modules\Hr\Models\Advance;
@@ -24,6 +26,7 @@ use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\ExpenseClaim;
 use App\Modules\Hr\Models\InsuranceMember;
 use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Hr\Models\Letter;
 use App\Modules\Hr\Models\Overtime;
 use App\Modules\Hr\Models\RemoteRequest;
 use App\Modules\Hr\Models\Review;
@@ -55,9 +58,9 @@ class SelfServiceController extends Controller
 {
     use RendersSuitePages;
 
-    public function show(Request $request, LeaveBalance $balance, OrgDirectory $directory): Response
+    public function show(Request $request, LeaveBalance $balance, OrgDirectory $directory, Payslips $payslips): Response
     {
-        $employee = $this->employee($request);
+        $employee = $this->employee($request)->loadMissing('activeContract');
 
         return Inertia::render('Hr/Me', [
             'employee' => [
@@ -86,6 +89,9 @@ class SelfServiceController extends Controller
             'surveys' => SurveyController::openFor($employee),
             'recognition' => MyEngagementController::recognition($employee),
             'messages' => MessageController::inbox($employee),
+            'payslips' => $payslips->forEmployee($employee),
+            'letters' => Letter::query()->where('employee_id', $employee->id)->latest('issued_at')->limit(20)->get()->map(fn (Letter $letter): array => MyDocumentsController::letterArray($letter))->all(),
+            'letter_kinds' => array_values(array_filter(['salary', 'experience'], fn (string $kind): bool => $kind !== 'salary' || ($employee->activeContract !== null && $employee->status === EmployeeStatus::Active))),
             'upcoming' => array_map(fn ($event): array => (array) $event, HrCalendar::forEmployee($employee, CarbonImmutable::today('Asia/Riyadh'), CarbonImmutable::today('Asia/Riyadh')->addDays(30))),
             'features' => app(Entitlements::class)->features(),
             'theme' => app(Branding::class)->theme(),
@@ -201,7 +207,11 @@ class SelfServiceController extends Controller
     public static function validateAdvance(Request $request): array
     {
         // Loans are their own package feature on top of advances.
-        abort_if($request->input('kind') === 'loan' && ! app(Entitlements::class)->hasFeature('hr.loans'), 403, __('suite.plans.feature_off'));
+        if ($request->input('kind') === 'loan' && ! app(Entitlements::class)->hasFeature('hr.loans')) {
+            abort($request->expectsJson()
+                ? response()->json(['message' => __('suite.plans.feature_off'), 'code' => 'feature_disabled', 'feature' => 'hr.loans'], 403)
+                : 403, __('suite.plans.feature_off'));
+        }
 
         return $request->validate([
             'amount' => ['required', 'numeric', 'min:1'],

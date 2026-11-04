@@ -8,6 +8,7 @@ use App\Modules\Hr\Enums\MovementType;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\EmployeePlacement;
 use App\Modules\Hr\Models\Shift;
+use App\Modules\Hr\Support\ScheduleConflicts;
 use App\Modules\Platform\Ports\Audit;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,7 @@ use Illuminate\Validation\ValidationException;
  */
 class ClaimOpenShift
 {
-    public function __construct(private ScheduleMovement $scheduleMovement, private Audit $audit) {}
+    public function __construct(private ScheduleMovement $scheduleMovement, private Audit $audit, private ScheduleConflicts $conflicts) {}
 
     public function handle(Shift $shift, Employee $employee, ?Authenticatable $actor = null): Shift
     {
@@ -41,6 +42,8 @@ class ClaimOpenShift
             if (Shift::query()->where('employee_id', $employee->id)->whereDate('shift_date', $shift->shift_date)->exists()) {
                 throw ValidationException::withMessages(['shift' => __('hr.shifts.errors.taken_that_day')]);
             }
+
+            $this->conflicts->ensureFreeToWork($employee->id, $shift->shift_date->toDateString(), 'shift');
 
             $covered = $employee->branch_id === $shift->branch_id || EmployeePlacement::query()->where('employee_id', $employee->id)->where('branch_id', $shift->branch_id)->coveringDate($shift->shift_date)->exists();
             $movementId = null;

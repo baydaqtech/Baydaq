@@ -4,6 +4,7 @@ namespace App\Modules\Invoicing\Http\Requests;
 
 use App\Modules\Invoicing\Enums\InvoiceKind;
 use App\Modules\Invoicing\Enums\InvoiceType;
+use App\Modules\Platform\Data\Vat;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -37,7 +38,7 @@ class SaveInvoiceRequest extends FormRequest
             'lines.*.quantity' => ['required', 'numeric', 'gt:0'],
             'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
             'lines.*.discount' => ['nullable', 'numeric', 'min:0'],
-            'lines.*.vat_rate' => ['nullable', 'numeric', Rule::in(['0', '0.00', '5', '5.00', '15', '15.00'])],
+            'lines.*.vat_rate' => ['nullable', ...Vat::rateRules()],
         ];
     }
 }

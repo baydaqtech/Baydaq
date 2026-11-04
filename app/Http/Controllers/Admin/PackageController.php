@@ -10,6 +10,7 @@ use App\Modules\Platform\Models\Addon;
 use App\Modules\Platform\Models\Package;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Response;
 
@@ -27,6 +28,7 @@ class PackageController extends Controller
             'id' => $item->id, 'code' => $item->code, 'name' => $item->localized('name'), 'price_monthly' => $item->price_monthly,
             'modules' => $item->modules, 'features' => count($item->features ?? []), 'mobile' => count($item->mobile ?? []),
             'limits' => $item->limits, 'is_active' => $item->is_active, 'is_public' => $item instanceof Package ? $item->is_public : null,
+            'is_default' => $item instanceof Package && $item->is_default,
         ];
 
         return $this->adminPage('Admin/Packages/Index', [
@@ -47,8 +49,7 @@ class PackageController extends Controller
 
     public function store(Request $request, string $kind): RedirectResponse
     {
-        $model = $kind === 'addon' ? new Addon : new Package;
-        $model->fill($this->validated($request, $kind, null))->save();
+        $this->save($kind === 'addon' ? new Addon : new Package, $this->validated($request, $kind, null));
         $this->toast(__('admin.common.saved'));
 
         return to_route('admin.packages.index');
@@ -57,17 +58,33 @@ class PackageController extends Controller
     public function update(Request $request, string $kind, int $id): RedirectResponse
     {
         $model = ($kind === 'addon' ? Addon::query() : Package::query())->findOrFail($id);
-        $model->fill($this->validated($request, $kind, $model->id))->save();
+        $this->save($model, $this->validated($request, $kind, $model->id));
         $this->toast(__('admin.common.saved'));
 
         return to_route('admin.packages.index');
+    }
+
+    /**
+     * Only one package is the default: choosing a new one clears the old.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function save(Package|Addon $model, array $data): void
+    {
+        DB::transaction(function () use ($model, $data): void {
+            $model->fill($data)->save();
+
+            if ($model instanceof Package && $model->is_default) {
+                Package::query()->whereKeyNot($model->id)->where('is_default', true)->update(['is_default' => false]);
+            }
+        });
     }
 
     private function form(string $kind, Package|Addon|null $item): Response
     {
         return $this->adminPage('Admin/Packages/Form', [
             'kind' => $kind,
-            'item' => $item?->only(['id', 'code', 'name_ar', 'name_en', 'description_ar', 'description_en', 'price_monthly', 'price_yearly', 'trial_days', 'modules', 'features', 'mobile', 'limits', 'is_public', 'is_active', 'sort_order']),
+            'item' => $item?->only(['id', 'code', 'name_ar', 'name_en', 'description_ar', 'description_en', 'price_monthly', 'price_yearly', 'trial_days', 'modules', 'features', 'mobile', 'limits', 'is_public', 'is_active', 'is_default', 'sort_order']),
             'catalog' => [...FeatureCatalog::options(), 'modules' => Module::options()],
             'copy' => ['admin' => trans('admin'), 'suite' => ['catalog' => trans('suite.catalog'), 'module' => trans('suite.module')]],
         ]);
@@ -92,7 +109,7 @@ class PackageController extends Controller
             'features' => ['array'], 'features.*' => [Rule::in(FeatureCatalog::features())],
             'mobile' => ['array'], 'mobile.*' => [Rule::in(FeatureCatalog::MOBILE)],
             'limits' => ['array'], 'limits.*' => ['nullable', 'integer', 'min:0'],
-            'is_public' => ['boolean'], 'is_active' => ['boolean'], 'sort_order' => ['nullable', 'integer'],
+            'is_public' => ['boolean'], 'is_active' => ['boolean'], 'is_default' => ['boolean'], 'sort_order' => ['nullable', 'integer'],
         ]);
 
         $data['limits'] = array_intersect_key(array_map(fn ($value) => $value === null || $value === '' ? null : (int) $value, $data['limits'] ?? []), array_flip(FeatureCatalog::LIMITS));

@@ -1,10 +1,10 @@
 import { router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import FormField from '@/components/platform/FormField';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDate } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -78,7 +78,7 @@ export default function MyRecord({ data, canResign }: { data: RecordData; canRes
         {canResign && !open && (resigning ? (
           <form className="flex flex-col gap-3 rounded-lg border p-3" onSubmit={(event) => { event.preventDefault(); form.post('/me/resignation', { preserveScroll: true, onSuccess: () => setResigning(false) }); }}>
             <p className="text-sm text-muted-foreground">{s('resign_hint', { days: String(data.notice_days) })}</p>
-            <FormField label={s('last_day')} error={form.errors.last_day}><Input type="date" dir="ltr" value={form.data.last_day} onChange={(event) => form.setData('last_day', event.target.value)} /></FormField>
+            <FormField label={s('last_day')} error={form.errors.last_day}><DatePicker value={form.data.last_day} onChange={(value) => form.setData('last_day', value)} /></FormField>
             <FormField label={s('reason')} error={form.errors.reason ?? (form.errors as Record<string, string>).kind}><Textarea rows={3} value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
             <div className="flex gap-2">
               <Button type="submit" variant="destructive" disabled={form.processing}>{s('resign_confirm')}</Button>

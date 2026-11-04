@@ -8,6 +8,7 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -83,7 +84,7 @@ function AssignDialog({ assetId, staff }: { assetId: number; staff: Option[] }) 
         <form onSubmit={(event) => { event.preventDefault(); form.post(url(`/assets/assets/${assetId}/custody`), { preserveScroll: true, onSuccess: dialog.close }); }} className="grid gap-4 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('assets.custody.assign')}</DialogTitle></DialogHeader>
           <FormField className="sm:col-span-2" label={f('employee')} error={form.errors.employee_id}><SelectInput value={form.data.employee_id} onChange={(value) => form.setData('employee_id', Number(value))} options={staff} /></FormField>
-          <FormField label={f('assigned_on')} error={form.errors.assigned_on}><Input dir="ltr" type="date" value={form.data.assigned_on} onChange={(event) => form.setData('assigned_on', event.target.value)} /></FormField>
+          <FormField label={f('assigned_on')} error={form.errors.assigned_on}><DatePicker value={form.data.assigned_on} onChange={(value) => form.setData('assigned_on', value)} /></FormField>
           <FormField label={f('condition')}><Input value={form.data.condition} onChange={(event) => form.setData('condition', event.target.value)} /></FormField>
           <FormField className="sm:col-span-2" label={f('note')}><Input value={form.data.note} onChange={(event) => form.setData('note', event.target.value)} /></FormField>
           {(form.errors as Record<string, string>).asset && <p className="text-sm text-destructive sm:col-span-2">{(form.errors as Record<string, string>).asset}</p>}
@@ -108,7 +109,7 @@ function ReturnDialog({ custody }: { custody: CustodyRow }) {
       <DialogContent dir={dir}>
         <form onSubmit={(event) => { event.preventDefault(); form.put(url(`/assets/custody/${custody.id}/return`), { preserveScroll: true, onSuccess: dialog.close }); }} className="grid gap-4 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('assets.custody.return')} · {custody.employee}</DialogTitle></DialogHeader>
-          <FormField label={f('returned_on')} error={form.errors.returned_on}><Input dir="ltr" type="date" min={custody.assigned_on} value={form.data.returned_on} onChange={(event) => form.setData('returned_on', event.target.value)} /></FormField>
+          <FormField label={f('returned_on')} error={form.errors.returned_on}><DatePicker min={custody.assigned_on} value={form.data.returned_on} onChange={(value) => form.setData('returned_on', value)} /></FormField>
           <FormField label={f('condition')}><Input value={form.data.condition} onChange={(event) => form.setData('condition', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('assets.custody.return')}</Button></DialogFooter>
         </form>
@@ -132,7 +133,7 @@ function OpenJob({ assetId, kinds, staff }: { assetId: number; kinds: Option[]; 
         <form onSubmit={(event) => { event.preventDefault(); form.transform((data) => ({ ...data, vendor: data.vendor || null, reported_by_employee_id: data.reported_by_employee_id || null })); form.post(url(`/assets/assets/${assetId}/maintenance`), { preserveScroll: true, onSuccess: dialog.close }); }} className="grid gap-4 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('assets.maintenance.open')}</DialogTitle></DialogHeader>
           <FormField label={f('kind')}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={kinds} /></FormField>
-          <FormField label={f('opened_on')} error={form.errors.opened_on}><Input dir="ltr" type="date" value={form.data.opened_on} onChange={(event) => form.setData('opened_on', event.target.value)} /></FormField>
+          <FormField label={f('opened_on')} error={form.errors.opened_on}><DatePicker value={form.data.opened_on} onChange={(value) => form.setData('opened_on', value)} /></FormField>
           <FormField className="sm:col-span-2" label={f('description')} error={form.errors.description}><Input value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} /></FormField>
           <FormField label={f('vendor')}><Input value={form.data.vendor} onChange={(event) => form.setData('vendor', event.target.value)} /></FormField>
           <FormField label={f('reported_by')}><SelectInput value={form.data.reported_by_employee_id} onChange={(value) => form.setData('reported_by_employee_id', value === '' ? '' : Number(value))} options={staff} emptyLabel="—" /></FormField>
@@ -158,7 +159,7 @@ function CloseJob({ job, showCosts }: { job: JobRow; showCosts: boolean }) {
       <DialogContent dir={dir}>
         <form onSubmit={(event) => { event.preventDefault(); form.transform((data) => ({ ...data, cost: data.cost || null, resolution: data.resolution || null })); form.put(url(`/assets/maintenance/${job.id}/close`), { preserveScroll: true, onSuccess: dialog.close }); }} className="grid gap-4 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('assets.maintenance.close')}</DialogTitle></DialogHeader>
-          <FormField label={f('closed_on')} error={form.errors.closed_on}><Input dir="ltr" type="date" min={job.opened_on} value={form.data.closed_on} onChange={(event) => form.setData('closed_on', event.target.value)} /></FormField>
+          <FormField label={f('closed_on')} error={form.errors.closed_on}><DatePicker min={job.opened_on} value={form.data.closed_on} onChange={(value) => form.setData('closed_on', value)} /></FormField>
           {showCosts && <FormField label={f('cost')} error={form.errors.cost}><Input dir="ltr" inputMode="decimal" value={form.data.cost} onChange={(event) => form.setData('cost', event.target.value)} /></FormField>}
           <FormField className="sm:col-span-2" label={f('resolution')}><Input value={form.data.resolution} onChange={(event) => form.setData('resolution', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('assets.maintenance.close')}</Button></DialogFooter>
@@ -183,7 +184,7 @@ function DisposeDialog({ asset }: { asset: AssetDetail }) {
         <form onSubmit={(event) => { event.preventDefault(); form.transform((data) => ({ ...data, amount: data.amount || null })); form.post(url(`/assets/assets/${asset.id}/dispose`), { preserveScroll: true, onSuccess: dialog.close }); }} className="grid gap-4 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('assets.register.dispose')} · {asset.tag}</DialogTitle></DialogHeader>
           <FormField label={f('as')}><SelectInput value={form.data.as} onChange={(value) => form.setData('as', value)} options={[{ value: 'disposed', label: t('assets.asset_status.disposed') }, { value: 'lost', label: t('assets.asset_status.lost') }]} /></FormField>
-          <FormField label={f('on')} error={form.errors.on}><Input dir="ltr" type="date" value={form.data.on} onChange={(event) => form.setData('on', event.target.value)} /></FormField>
+          <FormField label={f('on')} error={form.errors.on}><DatePicker value={form.data.on} onChange={(value) => form.setData('on', value)} /></FormField>
           {asset.cost !== null && form.data.as === 'disposed' && <FormField label={f('amount')} error={form.errors.amount}><Input dir="ltr" inputMode="decimal" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>}
           <FormField label={f('reason')}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           {(form.errors as Record<string, string>).status && <p className="text-sm text-destructive sm:col-span-2">{(form.errors as Record<string, string>).status}</p>}

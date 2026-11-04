@@ -8,9 +8,11 @@ use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Pos\Enums\OrderStatus;
 use App\Modules\Pos\Enums\PaymentMethod;
+use App\Modules\Pos\Enums\RefundMethod;
 use App\Modules\Pos\Models\Cashier;
 use App\Modules\Pos\Models\Order;
 use App\Modules\Pos\Models\Payment;
+use App\Modules\Pos\Models\Refund;
 use App\Modules\Pos\Models\Register;
 use App\Modules\Pos\Models\Shift;
 use Brick\Math\BigDecimal;
@@ -53,7 +55,8 @@ class ManageShift
     }
 
     /**
-     * Close with the counted cash: expected = float + cash payments of the shift's paid orders.
+     * Close with the counted cash: expected = float + cash payments of the shift's paid orders −
+     * cash handed back for refunds from this till.
      * For a cashier who is an HR employee, a shortage goes to HR as a deduction request (P2,
      * capped by the Labor Law there) and their commission on the shift's sales as a bonus (P3).
      */
@@ -68,9 +71,10 @@ class ManageShift
                 throw ValidationException::withMessages(['shift' => __('pos.errors.shift_closed')]);
             }
 
-            $orders = Order::query()->where('shift_id', $shift->id)->where('status', OrderStatus::Paid);
+            $orders = Order::query()->where('shift_id', $shift->id)->whereIn('status', [OrderStatus::Paid, OrderStatus::Refunded]);
             $cash = Payment::query()->whereIn('order_id', (clone $orders)->select('id'))->where('method', PaymentMethod::Cash)->sum('amount');
-            $expected = BigDecimal::of((string) $shift->opening_cash)->plus((string) $cash);
+            $cashRefunds = Refund::query()->where('shift_id', $shift->id)->where('method', RefundMethod::Cash)->sum('total');
+            $expected = BigDecimal::of((string) $shift->opening_cash)->plus((string) $cash)->minus((string) $cashRefunds);
 
             $shift->forceFill([
                 'closed_at' => now(),
@@ -78,7 +82,7 @@ class ManageShift
                 'counted_cash' => $countedCash,
                 'difference' => (string) BigDecimal::of($countedCash)->minus($expected)->toScale(2),
                 'orders_count' => (clone $orders)->count(),
-                'sales_total' => (string) (clone $orders)->sum('total'),
+                'sales_total' => (string) BigDecimal::of((string) (clone $orders)->sum('total'))->minus((string) (clone $orders)->sum('refunded'))->toScale(2),
             ])->save();
 
             $cashier = $shift->cashier;

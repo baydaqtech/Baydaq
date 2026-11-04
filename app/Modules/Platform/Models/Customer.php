@@ -2,6 +2,7 @@
 
 namespace App\Modules\Platform\Models;
 
+use App\Modules\Platform\Data\PhoneNumber;
 use App\Modules\Platform\Models\Concerns\BelongsToClient;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -23,7 +24,7 @@ class Customer extends Model
      */
     protected function casts(): array
     {
-        return ['wallet_balance' => 'decimal:2', 'birth_date' => 'date', 'erased_at' => 'datetime'];
+        return ['wallet_balance' => 'decimal:2', 'points' => 'integer', 'lifetime_points' => 'integer', 'birth_date' => 'date', 'erased_at' => 'datetime'];
     }
 
     /**
@@ -35,6 +36,14 @@ class Customer extends Model
     }
 
     /**
+     * @return HasMany<PointEntry, $this>
+     */
+    public function pointEntries(): HasMany
+    {
+        return $this->hasMany(PointEntry::class)->latest('id');
+    }
+
+    /**
      * @return HasMany<CustomerRegistration, $this>
      */
     public function registrations(): HasMany
@@ -42,18 +51,9 @@ class Customer extends Model
         return $this->hasMany(CustomerRegistration::class);
     }
 
-    /**
-     * Saudi numbers in one form, 9665XXXXXXXX, so 05…, +9665… and 9665… are the same person.
-     */
+    /** Phones in one form (see PhoneNumber), so the same person is found however it was typed. */
     public static function normalizePhone(string $phone): string
     {
-        $digits = preg_replace('/\D+/', '', $phone) ?? '';
-
-        return match (true) {
-            str_starts_with($digits, '00') => substr($digits, 2),
-            str_starts_with($digits, '05') && strlen($digits) === 10 => '966'.substr($digits, 1),
-            str_starts_with($digits, '5') && strlen($digits) === 9 => '966'.$digits,
-            default => $digits,
-        };
+        return PhoneNumber::normalize($phone);
     }
 }

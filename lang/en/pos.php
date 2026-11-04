@@ -3,7 +3,7 @@
 return [
     'title' => 'Point of sale',
     'features' => ['catalog' => 'Catalog (products, categories, modifiers)', 'registers' => 'Registers, cashiers and shifts', 'orders' => 'Orders and kitchen'],
-    'abilities' => ['sell' => 'Sell at the register', 'void' => 'Void open orders', 'kitchen' => 'Kitchen display', 'discount' => 'Give discounts', 'open_shift' => 'Open shifts', 'close_shift' => 'Close shifts'],
+    'abilities' => ['sell' => 'Sell at the register', 'void' => 'Void open orders', 'refund' => 'Refund paid orders', 'kitchen' => 'Kitchen display', 'discount' => 'Give discounts', 'open_shift' => 'Open shifts', 'close_shift' => 'Close shifts'],
 
     'catalog' => [
         'cost_hint' => 'What one portion costs you; used by menu engineering.',
@@ -116,6 +116,22 @@ return [
         ],
         'empty' => 'No sales in this period.',
     ],
+    'refunds' => [
+        'action' => 'Refund',
+        'title' => 'Refund order #:number',
+        'lede' => 'Choose what comes back. Each item is refunded at what the customer paid for it, discount included.',
+        'quantity' => 'Back',
+        'of' => 'of :quantity',
+        'method' => 'Money goes back',
+        'reason' => 'Reason',
+        'reason_hint' => 'Printed on the credit note.',
+        'total' => 'Refund total',
+        'submit' => 'Refund :amount',
+        'done' => 'Refunded :amount SAR.',
+        'refunded' => ':amount refunded',
+        'default_reason' => 'Returned at the counter',
+    ],
+
     'orders' => [
         'all_brands' => 'All brands',
         'title' => 'Orders',
@@ -152,6 +168,10 @@ return [
 
     'errors' => [
         'wallet_needs_customer' => 'Add the customer\'s phone to pay from their wallet.',
+        'refund_not_paid' => 'Only a paid order can be refunded.',
+        'refund_too_many' => 'Only :left of :item can still come back.',
+        'refund_nothing' => 'Choose what comes back.',
+        'refund_needs_shift' => 'Cash comes from an open till: open a shift on this order\'s register first, or refund to the card or wallet.',
         'not_checked_in' => 'Check in at this branch on the attendance app before opening the drawer.',
         'staff_needed' => 'Choose an active employee of this company for the staff meal.',
         'bad_pin' => 'Wrong PIN.',
@@ -167,7 +187,8 @@ return [
     ],
 
     'order_type' => ['dine_in' => 'Dine in', 'takeaway' => 'Takeaway', 'delivery' => 'Delivery'],
-    'order_status' => ['open' => 'Open', 'paid' => 'Paid', 'void' => 'Void'],
+    'order_status' => ['open' => 'Open', 'paid' => 'Paid', 'void' => 'Void', 'refunded' => 'Refunded'],
+    'refund_method' => ['cash' => 'Cash from the till', 'card' => 'Back to the card', 'wallet' => 'Into the customer\'s wallet'],
     'kitchen_status' => ['new' => 'New', 'preparing' => 'Preparing', 'ready' => 'Ready', 'served' => 'Served'],
     'payment_method' => ['cash' => 'Cash', 'mada' => 'mada', 'card' => 'Card', 'stc_pay' => 'STC Pay', 'transfer' => 'Transfer', 'staff_account' => 'Staff meal (payroll)', 'wallet' => 'Customer wallet'],
 

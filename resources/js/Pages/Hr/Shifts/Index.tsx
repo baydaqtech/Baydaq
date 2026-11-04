@@ -5,6 +5,8 @@ import ConfirmAction from '@/components/platform/ConfirmAction';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
+import TimeField from '@/components/platform/TimeField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,13 +75,13 @@ function ShiftDialog({ shift, date, branches, employees, jobs }: { shift?: Shift
         <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{shift ? t('hr.shifts.edit') : t('hr.shifts.new')}</DialogTitle><DialogDescription>{t('hr.shifts.open_hint')}</DialogDescription></DialogHeader>
           <FormField label={f('branch')} error={form.errors.branch_id}><SelectInput value={form.data.branch_id} onChange={(value) => form.setData('branch_id', value)} options={branches} /></FormField>
-          <FormField label={f('date')} error={form.errors.shift_date}><Input type="date" dir="ltr" value={form.data.shift_date} onChange={(event) => form.setData('shift_date', event.target.value)} /></FormField>
-          <FormField label={f('starts_at')} error={form.errors.starts_at}><Input type="time" dir="ltr" value={form.data.starts_at} onChange={(event) => form.setData('starts_at', event.target.value)} /></FormField>
-          <FormField label={f('ends_at')} error={form.errors.ends_at}><Input type="time" dir="ltr" value={form.data.ends_at} onChange={(event) => form.setData('ends_at', event.target.value)} /></FormField>
+          <FormField label={f('date')} error={form.errors.shift_date}><DatePicker value={form.data.shift_date} onChange={(value) => form.setData('shift_date', value)} /></FormField>
+          <FormField label={f('starts_at')} error={form.errors.starts_at}><TimeField value={form.data.starts_at} onChange={(value) => form.setData('starts_at', value)} /></FormField>
+          <FormField label={f('ends_at')} error={form.errors.ends_at}><TimeField value={form.data.ends_at} onChange={(value) => form.setData('ends_at', value)} /></FormField>
           <FormField label={f('employee')} error={form.errors.employee_id}><SelectInput value={form.data.employee_id} onChange={(value) => form.setData('employee_id', value)} options={employees} emptyLabel={t('hr.shifts.nobody')} /></FormField>
           {form.data.employee_id === '' && <FormField label={t('hr.shifts.only_job')} error={form.errors.job_id}><SelectInput value={form.data.job_id} onChange={(value) => form.setData('job_id', value)} options={jobs} emptyLabel={t('hr.shifts.any_job')} /></FormField>}
           {!shift && <FormField label={t('hr.shifts.repeat_days')} error={form.errors.repeat_days}><Input type="number" min="1" max="14" dir="ltr" value={form.data.repeat_days} onChange={(event) => form.setData('repeat_days', event.target.value)} /></FormField>}
-          <FormField label={t('hr.breaks.shift_break_at')} hint={t('hr.breaks.shift_break_hint')} error={form.errors.break_at}><Input type="time" dir="ltr" value={form.data.break_at} onChange={(event) => form.setData('break_at', event.target.value)} /></FormField>
+          <FormField label={t('hr.breaks.shift_break_at')} hint={t('hr.breaks.shift_break_hint')} error={form.errors.break_at}><TimeField value={form.data.break_at} onChange={(value) => form.setData('break_at', value)} /></FormField>
           <FormField label={t('hr.breaks.minutes')} error={form.errors.break_minutes}><Input type="number" min="5" max="120" dir="ltr" value={form.data.break_minutes} disabled={!form.data.break_at} onChange={(event) => form.setData('break_minutes', event.target.value)} /></FormField>
           <FormField label={f('notes')} error={form.errors.notes} className="sm:col-span-2"><Input value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} /></FormField>
           <label className="flex items-center gap-2 text-sm sm:col-span-2"><Checkbox checked={form.data.allow_holiday} onCheckedChange={(state) => form.setData('allow_holiday', state === true)} />{t('hr.shifts.allow_holiday')}</label>
@@ -121,8 +123,8 @@ function HolidaysCard({ holidays, saudiYears, ramadanHours }: { holidays: Holida
             <FormField label={f('name_ar')} error={form.errors.name_ar}><Input dir="rtl" value={form.data.name_ar} onChange={(event) => form.setData('name_ar', event.target.value)} /></FormField>
             <FormField label={f('name_en')} error={form.errors.name_en}><Input dir="ltr" value={form.data.name_en} onChange={(event) => form.setData('name_en', event.target.value)} /></FormField>
             <FormField label={f('kind')}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={[{ value: 'public', label: t('hr.shifts.kind.public') }, { value: 'ramadan', label: t('hr.shifts.kind.ramadan') }]} /></FormField>
-            <FormField label={f('starts_on')} error={form.errors.starts_on}><Input type="date" dir="ltr" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>
-            <FormField label={f('ends_on')} error={form.errors.ends_on}><Input type="date" dir="ltr" value={form.data.ends_on} onChange={(event) => form.setData('ends_on', event.target.value)} /></FormField>
+            <FormField label={f('starts_on')} error={form.errors.starts_on}><DatePicker value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>
+            <FormField label={f('ends_on')} error={form.errors.ends_on}><DatePicker value={form.data.ends_on} onChange={(value) => form.setData('ends_on', value)} /></FormField>
             <div className="flex items-end"><Button type="submit" size="sm" disabled={form.processing}>{t('common.actions.add_row')}</Button></div>
           </form>
         )}

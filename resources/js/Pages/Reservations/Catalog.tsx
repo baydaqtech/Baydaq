@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import ColorPicker from '@/components/platform/ColorPicker';
 import DataTable from '@/components/platform/DataTable';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import SwitchField from '@/components/platform/SwitchField';
+import TimeField from '@/components/platform/TimeField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -94,7 +96,7 @@ function ServiceDialog({ service, companies, resources, staff, branches }: { ser
           <FormField label={f('price')} error={form.errors.price}><Input dir="ltr" inputMode="decimal" value={form.data.price} onChange={(event) => form.setData('price', event.target.value)} /></FormField>
           <FormField label={f('vat_rate')} error={form.errors.vat_rate}><SelectInput value={form.data.vat_rate} onChange={(value) => form.setData('vat_rate', value)} options={[{ value: '15', label: '15%' }, { value: '5', label: '5%' }, { value: '0', label: '0%' }]} /></FormField>
           <FormField label={f('deposit')} error={form.errors.deposit}><Input dir="ltr" inputMode="decimal" value={form.data.deposit} onChange={(event) => form.setData('deposit', event.target.value)} /></FormField>
-          <FormField label={f('color')}><Input type="color" value={form.data.color} onChange={(event) => form.setData('color', event.target.value)} /></FormField>
+          <FormField label={f('color')}><ColorPicker value={form.data.color} onChange={(value) => form.setData('color', value)} /></FormField>
           <div className="flex flex-wrap gap-4 sm:col-span-2">
             <SwitchField id="service-active" label={f('is_active')} checked={form.data.is_active} onChange={(value: boolean) => form.setData('is_active', value)} />
             <SwitchField id="service-online" label={f('is_online')} checked={form.data.is_online} onChange={(value: boolean) => form.setData('is_online', value)} />
@@ -103,8 +105,8 @@ function ServiceDialog({ service, companies, resources, staff, branches }: { ser
           </div>
           {form.data.is_stay && (
             <>
-              <FormField label={f('check_in_time')} hint={t('reservations.catalog.stay_hint')} error={form.errors.check_in_time}><Input type="time" dir="ltr" value={form.data.check_in_time} onChange={(event) => form.setData('check_in_time', event.target.value)} /></FormField>
-              <FormField label={f('check_out_time')} error={form.errors.check_out_time}><Input type="time" dir="ltr" value={form.data.check_out_time} onChange={(event) => form.setData('check_out_time', event.target.value)} /></FormField>
+              <FormField label={f('check_in_time')} hint={t('reservations.catalog.stay_hint')} error={form.errors.check_in_time}><TimeField value={form.data.check_in_time} onChange={(value) => form.setData('check_in_time', value)} /></FormField>
+              <FormField label={f('check_out_time')} error={form.errors.check_out_time}><TimeField value={form.data.check_out_time} onChange={(value) => form.setData('check_out_time', value)} /></FormField>
             </>
           )}
           <fieldset className="flex flex-col gap-2 sm:col-span-2">
@@ -194,9 +196,9 @@ function SettingsCard({ settings }: { settings: Settings }) {
                   {periods.length === 0 && <span className="text-muted-foreground">{t('reservations.catalog.closed')}</span>}
                   {periods.map(([opens, closes], index) => (
                     <span key={index} className="flex items-center gap-1" dir="ltr">
-                      <Input type="time" className="w-28" value={opens} onChange={(event) => setPeriods(day, periods.map((period, i) => (i === index ? [event.target.value, period[1]] : period)))} />
+                      <TimeField className="w-28" value={opens} onChange={(value) => setPeriods(day, periods.map((period, i) => (i === index ? [value, period[1]] : period)))} />
                       –
-                      <Input type="time" className="w-28" value={closes} onChange={(event) => setPeriods(day, periods.map((period, i) => (i === index ? [period[0], event.target.value] : period)))} />
+                      <TimeField className="w-28" value={closes} onChange={(value) => setPeriods(day, periods.map((period, i) => (i === index ? [period[0], value] : period)))} />
                       <Button type="button" size="icon-xs" variant="ghost" onClick={() => setPeriods(day, periods.filter((_, i) => i !== index))} aria-label={t('common.actions.delete')}><Trash2 /></Button>
                     </span>
                   ))}

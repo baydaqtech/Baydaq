@@ -7,22 +7,27 @@ import { Button } from '@/components/ui/button';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatNumber } from '@/lib/format';
-import { useAccess, useSuiteUrl } from '@/lib/suite';
+import { useSuiteUrl } from '@/lib/suite';
 import type { AccessRoleResource } from '@/types/suite';
 
 type Row = AccessRoleResource & Record<string, unknown>;
 
-export default function RolesIndex({ roles }: { roles: AccessRoleResource[] }) {
+interface Props {
+  roles: AccessRoleResource[];
+  /** Roles apply account-wide, so only account-wide access admins create or change them. */
+  manage: { create: boolean; update: boolean };
+}
+
+export default function RolesIndex({ roles, manage }: Props) {
   const t = useT();
   const { locale } = useLocale();
-  const { can } = useAccess();
   const url = useSuiteUrl();
 
   return (
     <SuiteLayout title={t('suite.access.roles')}>
       <PageHeader
         title={t('suite.access.roles')}
-        actions={can('suite.access.create') && (
+        actions={manage.create && (
           <Button asChild size="sm"><Link href={url('/access/roles/create')}><Plus data-icon="inline-start" />{t('suite.access.new_role')}</Link></Button>
         )}
       />
@@ -41,7 +46,7 @@ export default function RolesIndex({ roles }: { roles: AccessRoleResource[] }) {
           ) },
           { key: 'holders', label: t('suite.access.members'), render: (role) => t('suite.access.holders', { count: formatNumber(role.assignments_count ?? 0, locale) }) },
           { key: 'actions', label: '', className: 'text-end', render: (role) => (
-            can('suite.access.update') && !role.is_locked && (
+            manage.update && !role.is_locked && (
               <Button asChild size="icon-sm" variant="ghost" aria-label={t('common.actions.edit')}><Link href={url(`/access/roles/${role.id}/edit`)}><Pencil /></Link></Button>
             )
           ) },

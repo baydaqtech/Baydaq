@@ -3,6 +3,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { CalendarCheck, Clock } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import LocaleSwitcher from '@/components/platform/LocaleSwitcher';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -86,7 +87,7 @@ export default function Book({ token, place, services, window: range, slots }: P
             {service && (
               <>
                 <FormField label={t('reservations.book.date')}>
-                  <Input type="date" dir="ltr" min={range.from} max={range.to} value={form.data.date} onChange={(event) => event.target.value && load({ date: event.target.value })} />
+                  <DatePicker min={range.from} max={range.to} value={form.data.date} onChange={(value) => value && load({ date: value })} />
                 </FormField>
                 <FormField label={t('reservations.book.time')} error={form.errors.starts_at}>
                   {slots && slots.length > 0 ? (

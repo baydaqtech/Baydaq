@@ -61,11 +61,11 @@ class MembershipTest extends TestCase
     public function test_members_get_a_number_and_card_and_unique_phones(): void
     {
         $this->assertSame('M-00001', $this->member->number);
-        $this->assertSame('0501112222', $this->member->phone);
+        $this->assertSame('966501112222', $this->member->phone); // the same rule as customers
         $this->assertSame(32, strlen($this->member->card_token));
 
         $this->expectException(ValidationException::class);
-        app(SaveMember::class)->handle(new Member, ['name' => 'Other', 'phone' => '0501112222'], $this->company->id);
+        app(SaveMember::class)->handle(new Member, ['name' => 'Other', 'phone' => '+966 50 111 2222'], $this->company->id);
     }
 
     public function test_a_membership_runs_a_calendar_period_and_renewals_follow_on(): void

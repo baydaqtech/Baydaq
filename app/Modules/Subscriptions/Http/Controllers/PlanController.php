@@ -5,6 +5,7 @@ namespace App\Modules\Subscriptions\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Platform\Data\BranchRef;
 use App\Modules\Platform\Data\CompanyRef;
+use App\Modules\Platform\Data\Vat;
 use App\Modules\Platform\Enums\FeatureAction;
 use App\Modules\Platform\Http\Controllers\Concerns\ReachesBranches;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
@@ -59,7 +60,7 @@ class PlanController extends Controller
             'company_id' => [$plan->exists ? 'sometimes' : 'required', 'integer'],
             'name_ar' => ['required', 'string', 'max:255'], 'name_en' => ['required', 'string', 'max:255'], 'description_ar' => ['nullable', 'string'], 'description_en' => ['nullable', 'string'],
             'period_unit' => ['required', Rule::enum(PeriodUnit::class)], 'period_count' => ['required', 'integer', 'min:1', 'max:60'],
-            'price' => ['required', 'numeric', 'min:0'], 'vat_rate' => ['required', Rule::in(['0', '5', '15'])], 'sessions' => ['nullable', 'integer', 'min:1', 'max:1000'],
+            'price' => ['required', 'numeric', 'min:0'], 'vat_rate' => ['required', ...Vat::rateRules()], 'sessions' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'freeze_days' => ['required', 'integer', 'min:0', 'max:365'], 'gender' => ['required', Rule::enum(PlanGender::class)], 'is_corporate' => ['boolean'], 'family_size' => ['nullable', 'integer', 'min:1', 'max:10'], 'is_active' => ['boolean'], 'sort_order' => ['nullable', 'integer'],
             'branch_ids' => ['nullable', 'array'], 'branch_ids.*' => ['integer'],
         ]);

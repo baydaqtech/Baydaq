@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Middleware\EnsurePasswordIsChanged;
+use App\Http\Middleware\EnsureTwoFactorIsEnabled;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetApiLocale;
 use App\Http\Middleware\SetLocale;
 use App\Modules\Platform\Http\Middleware\EnsureModuleIsActive;
 use App\Modules\Platform\Http\Middleware\EnsureSuiteAccess;
@@ -34,12 +36,14 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             SecurityHeaders::class,
         ]);
+        $middleware->api(append: [SetApiLocale::class]);
 
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'password.changed' => EnsurePasswordIsChanged::class,
+            'two-factor.enabled' => EnsureTwoFactorIsEnabled::class,
             'suite.scope' => ResolveSuiteScope::class,
             'api.tenant' => ResolveApiTenant::class,
             'module' => EnsureModuleIsActive::class,

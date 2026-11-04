@@ -2,6 +2,8 @@
 
 namespace App\Modules\Pos\Actions;
 
+use App\Modules\Platform\Data\Vat;
+use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use App\Modules\Pos\Enums\OrderStatus;
 use App\Modules\Pos\Models\Modifier;
@@ -16,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 
 class PlaceOrder
 {
-    public function __construct(private CurrentTenant $tenant) {}
+    public function __construct(private CurrentTenant $tenant, private OrgDirectory $directory) {}
 
     /**
      * Create (or replace the lines of) an open order. Prices come from the product at the branch
@@ -41,9 +43,16 @@ class PlaceOrder
         $modifiers = Modifier::query()->whereIn('id', $modifierIds)->get()->keyBy('id');
 
         return DB::transaction(function () use ($order, $branchId, $register, $shift, $data, $lines, $products, $modifiers, $companyId): Order {
-            $companyId ??= $products->first()?->company_id;
+            // Editing while another till pays (or voids) the order: whoever locks second sees it closed.
+            if ($order->exists && Order::query()->lockForUpdate()->whereKey($order->id)->value('status') !== OrderStatus::Open) {
+                throw ValidationException::withMessages(['status' => __('pos.errors.not_open')]);
+            }
+
+            $companyId ??= $products->first()?->company_id ?? $this->directory->branch($branchId)?->companyId
+                ?? throw ValidationException::withMessages(['lines' => __('pos.errors.unknown_product')]);
 
             if (! $order->exists) {
+                $today = $this->directory->today($companyId);
                 $order->forceFill([
                     'client_id' => $this->tenant->client()->id,
                     'company_id' => $companyId,
@@ -51,8 +60,8 @@ class PlaceOrder
                     'register_id' => $register?->id,
                     'shift_id' => $shift?->id,
                     'cashier_id' => $shift?->cashier_id,
-                    'order_date' => today()->toDateString(),
-                    'number' => (Order::query()->where('branch_id', $branchId)->whereDate('order_date', today())->lockForUpdate()->max('number') ?? 0) + 1,
+                    'order_date' => $today,
+                    'number' => (Order::query()->where('branch_id', $branchId)->whereDate('order_date', $today)->lockForUpdate()->max('number') ?? 0) + 1,
                     'channel' => $data['channel'] ?? 'pos',
                 ]);
             }
@@ -126,6 +135,6 @@ class PlaceOrder
     /** The VAT-exclusive part of a VAT-inclusive amount, to the halala. */
     private static function netOf(BigDecimal $gross, BigDecimal $rate): BigDecimal
     {
-        return $gross->dividedBy(BigDecimal::one()->plus($rate->dividedBy(100, 6, RoundingMode::HalfUp)), 2, RoundingMode::HalfUp);
+        return Vat::splitInclusive($gross, $rate)['net'];
     }
 }

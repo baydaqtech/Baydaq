@@ -116,4 +116,19 @@ class EmployeeApiTest extends TestCase
         $noAttendance = $this->memberWith(['hr.employees.view'], ScopeLevel::Client);
         $this->actingAs($noAttendance)->get($this->suiteUrl("hr/attendance/punches/{$saved->id}/selfie"))->assertForbidden();
     }
+
+    public function test_the_app_gets_answers_in_the_phones_language_and_the_features_it_checks(): void
+    {
+        $token = $this->login()['token'];
+
+        $english = $this->withToken($token)->withHeader('Accept-Language', 'en-US,en;q=0.9')->postJson('/api/v1/leave', [])->assertUnprocessable()->json('errors.leave_type_id.0');
+        $arabic = $this->withToken($token)->withHeader('Accept-Language', 'ar-SA')->postJson('/api/v1/leave', [])->assertUnprocessable()->json('errors.leave_type_id.0');
+        $this->assertNotSame($english, $arabic);
+        $this->assertMatchesRegularExpression('/[A-Za-z]/', $english);
+
+        $features = $this->withToken($token)->getJson('/api/v1/me')->assertOk()->json('features');
+        $this->assertContains('mobile.leave', $features);
+        $this->assertContains('hr.tasks', $features);
+        $this->withToken($token)->getJson('/api/v1/record')->assertOk();
+    }
 }

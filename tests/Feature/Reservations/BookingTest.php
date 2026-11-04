@@ -172,7 +172,7 @@ class BookingTest extends TestCase
         } catch (ValidationException) {
         }
 
-        $booking = app(ChangeBookingStatus::class)->depositReceived($booking);
+        $booking = app(ChangeBookingStatus::class)->depositReceived($booking, PaymentMeans::Card);
         $this->assertSame(BookingStatus::Confirmed, $booking->status);
         $booking = app(ChangeBookingStatus::class)->handle($booking, BookingStatus::CheckedIn);
 

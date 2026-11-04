@@ -19,6 +19,7 @@ use App\Modules\Hr\Http\Controllers\LeaveController;
 use App\Modules\Hr\Http\Controllers\LetterController;
 use App\Modules\Hr\Http\Controllers\MessageController;
 use App\Modules\Hr\Http\Controllers\MovementController;
+use App\Modules\Hr\Http\Controllers\MyDocumentsController;
 use App\Modules\Hr\Http\Controllers\MyEngagementController;
 use App\Modules\Hr\Http\Controllers\OrgChartController;
 use App\Modules\Hr\Http\Controllers\OvertimeController;
@@ -40,6 +41,12 @@ use Illuminate\Support\Facades\Route;
 // The public check behind the QR code printed on a salary or experience letter (H12).
 Route::middleware(['web', 'throttle:30,1'])->get('/verify/letters/{token}', [LetterController::class, 'verify'])->where('token', '[A-Za-z0-9]{40}')->name('hr.letters.verify');
 
+// Payslip and letter PDFs opened from the app: short signed links, no session.
+Route::middleware(['web', 'signed', 'throttle:30,1'])->prefix('hr/files')->name('hr.files.')->group(function (): void {
+    Route::get('/payslips/{line}', [MyDocumentsController::class, 'signedPayslip'])->whereNumber('line')->name('payslip');
+    Route::get('/letters/{letter}', [MyDocumentsController::class, 'signedLetter'])->whereNumber('letter')->name('letter');
+});
+
 // An opening's public careers page (hiring).
 Route::middleware(['web', 'throttle:20,1'])->where(['token' => '[A-Za-z0-9]{32}'])->group(function (): void {
     Route::get('/careers/{token}', [CareersController::class, 'show'])->name('hr.careers.show');
@@ -47,8 +54,11 @@ Route::middleware(['web', 'throttle:20,1'])->where(['token' => '[A-Za-z0-9]{32}'
 });
 
 // An employee's own page (with or without a role in the suite).
-Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'api.tenant'])->prefix('me')->name('me.')->group(function (): void {
     Route::get('/', [SelfServiceController::class, 'show'])->name('home');
+    Route::get('/payslips/{line}/pdf', [MyDocumentsController::class, 'payslip'])->whereNumber('line')->name('payslips.pdf');
+    Route::post('/letters', [MyDocumentsController::class, 'requestLetter'])->middleware(['throttle:5,1', 'feature:hr.letters'])->name('letters.store');
+    Route::get('/letters/{letter}/pdf', [MyDocumentsController::class, 'letter'])->middleware('feature:hr.letters')->name('letters.pdf');
     Route::post('/leave', [SelfServiceController::class, 'requestLeave'])->middleware('throttle:10,1')->name('leave.store');
     Route::post('/advance', [SelfServiceController::class, 'requestAdvance'])->middleware('throttle:5,1')->middleware('feature:hr.advances')->name('advance.store');
     Route::post('/shifts/{shift}/claim', [SelfServiceController::class, 'claimShift'])->middleware('throttle:10,1')->middleware('feature:hr.shifts')->name('shifts.claim');
@@ -75,7 +85,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'api.tenant'])->prefix('me
 | HR pages live under /suite/{scope}/hr and need an active HR subscription. Change routes come
 | before view routes; the controllers check each record against the user's reach.
 */
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:hr'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope', 'module:hr'])
     ->prefix('suite/{scope}/hr')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('hr.')
     ->group(function (): void {
         Route::middleware('access:hr.employees.create')->group(function (): void {

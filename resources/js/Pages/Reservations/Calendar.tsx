@@ -6,6 +6,7 @@ import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
 import StatusMessage from '@/components/platform/StatusMessage';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -101,6 +102,8 @@ function BookingDialog({ booking, paymentMeans, onClose }: { booking: BookingRes
   const { can } = useAccess();
   const [reason, setReason] = useState('');
   const [means, setMeans] = useState(String(paymentMeans[0]?.value ?? '10'));
+  const checkoutable = ['confirmed', 'checked_in'].includes(booking.status) && can('reservations.bookings.checkout');
+  const depositDue = Number(booking.deposit) > 0 && !booking.deposit_paid && can('reservations.bookings.update');
   const f = (field: string) => t(`reservations.calendar.fields.${field}`);
   const options = { preserveScroll: true, onSuccess: onClose };
 
@@ -122,12 +125,12 @@ function BookingDialog({ booking, paymentMeans, onClose }: { booking: BookingRes
         {booking.next.includes('cancelled') && can('reservations.bookings.cancel') && (
           <FormField label={t('reservations.calendar.reason')}><Input value={reason} onChange={(event) => setReason(event.target.value)} /></FormField>
         )}
-        {['confirmed', 'checked_in'].includes(booking.status) && can('reservations.bookings.checkout') && (
+        {(checkoutable || depositDue) && (
           <FormField label={f('payment_means')}><SelectInput value={means} onChange={setMeans} options={paymentMeans} /></FormField>
         )}
         <DialogFooter className="flex-wrap gap-2">
-          {Number(booking.deposit) > 0 && !booking.deposit_paid && can('reservations.bookings.update') && (
-            <Button variant="outline" onClick={() => router.put(url(`/reservations/bookings/${booking.id}/deposit`), {}, options)}>{t('reservations.calendar.deposit_received')}</Button>
+          {depositDue && (
+            <Button variant="outline" onClick={() => router.put(url(`/reservations/bookings/${booking.id}/deposit`), { means }, options)}>{t('reservations.calendar.deposit_received')}</Button>
           )}
           {booking.next.filter((status) => status !== 'cancelled' && !(status === 'confirmed' && Number(booking.deposit) > 0 && !booking.deposit_paid)).map((status) => can('reservations.bookings.update') && (
             <Button key={status} variant="outline" onClick={() => router.put(url(`/reservations/bookings/${booking.id}/status`), { status }, options)}>{t(`reservations.calendar.actions.${status}`)}</Button>
@@ -135,7 +138,7 @@ function BookingDialog({ booking, paymentMeans, onClose }: { booking: BookingRes
           {booking.next.includes('cancelled') && can('reservations.bookings.cancel') && (
             <Button variant="destructive" onClick={() => router.put(url(`/reservations/bookings/${booking.id}/status`), { status: 'cancelled', reason }, options)}>{t('reservations.calendar.actions.cancelled')}</Button>
           )}
-          {['confirmed', 'checked_in'].includes(booking.status) && can('reservations.bookings.checkout') && (
+          {checkoutable && (
             <Button onClick={() => router.post(url(`/reservations/bookings/${booking.id}/checkout`), { payment_means: means }, options)}>{t('reservations.calendar.checkout')}</Button>
           )}
         </DialogFooter>
@@ -166,7 +169,7 @@ export default function Calendar({ branches, branch_id: branchId, date, resource
         <div className="flex flex-wrap items-center gap-2">
           {branches.length > 1 && <SelectInput className="w-48" value={branchId} onChange={(value) => visit({ branch: Number(value) })} options={branches} />}
           <Button size="icon-sm" variant="outline" onClick={() => visit({ date: shiftDate(date, -1) })} aria-label="-1"><ChevronRight className="ltr:rotate-180" /></Button>
-          <Input type="date" dir="ltr" className="w-40" value={date} onChange={(event) => event.target.value && visit({ date: event.target.value })} />
+          <DatePicker className="w-40" value={date} onChange={(value) => value && visit({ date: value })} />
           <Button size="icon-sm" variant="outline" onClick={() => visit({ date: shiftDate(date, 1) })} aria-label="+1"><ChevronLeft className="ltr:rotate-180" /></Button>
           <span className="text-sm text-muted-foreground">{new Date(`${date}T12:00:00Z`).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}</span>
         </div>

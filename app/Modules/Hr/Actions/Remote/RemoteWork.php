@@ -4,6 +4,7 @@ namespace App\Modules\Hr\Actions\Remote;
 
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\RemoteRequest;
+use App\Modules\Hr\Support\ScheduleConflicts;
 use App\Modules\Platform\Ports\Entitlements;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -18,7 +19,7 @@ class RemoteWork
 {
     public const MODES = ['onsite', 'remote', 'hybrid'];
 
-    public function __construct(private Entitlements $entitlements) {}
+    public function __construct(private Entitlements $entitlements, private ScheduleConflicts $conflicts) {}
 
     public function isRemoteDay(Employee $employee, string $date): bool
     {
@@ -51,6 +52,8 @@ class RemoteWork
         if ($employee->work_mode === 'remote' || CarbonImmutable::parse($date)->lt(today())) {
             throw ValidationException::withMessages(['work_date' => __('hr.remote.errors.date')]);
         }
+
+        $this->conflicts->ensureFreeToWork($employee->id, $date, 'work_date');
 
         $request = RemoteRequest::query()->where('employee_id', $employee->id)->whereDate('work_date', $date)->first()
             ?? (new RemoteRequest)->forceFill(['employee_id' => $employee->id, 'work_date' => $date]);

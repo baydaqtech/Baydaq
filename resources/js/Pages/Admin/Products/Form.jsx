@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import FormActions from '@/components/platform/FormActions';
 import FormField from '@/components/platform/FormField';
 import SwitchField from '@/components/platform/SwitchField';
+import FileField from '@/components/platform/FileField';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -55,7 +56,7 @@ export default function ProductForm({ product }) {
               <SwitchField id="is_active" label={f('is_active')} checked={data.is_active} onChange={(value) => setData('is_active', value)} />
             </div>
             <FormField label={f('logo')} htmlFor="logo" error={errors.logo} hint={t('admin.projects.fields.logo_hint')}>
-              <Input id="logo" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setData('logo', event.target.files[0] ?? null)} />
+              <FileField id="logo" accept="image/png,image/jpeg,image/webp" files={data.logo ? [data.logo] : []} onChange={(files) => setData('logo', files[0] ?? null)} />
             </FormField>
             {product?.logo_url && <img src={product.logo_url} alt="" className="size-16 rounded-md border object-contain" />}
             <FormField label={f('description_ar')} htmlFor="description_ar" error={errors.description_ar} className="sm:col-span-2">

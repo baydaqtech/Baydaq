@@ -5,6 +5,7 @@ import ConfirmAction from '@/components/platform/ConfirmAction';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,8 +48,8 @@ function PolicyForm({ companies, onDone }: { companies: Option[]; onDone: () => 
         <FormField label={i('company')} error={form.errors.company_id}><SelectInput value={String(form.data.company_id)} onChange={(value) => form.setData('company_id', Number(value))} options={companies} /></FormField>
         <FormField label={i('insurer')} error={form.errors.insurer}><Input value={form.data.insurer} onChange={(event) => form.setData('insurer', event.target.value)} /></FormField>
         <FormField label={i('policy_number')} error={form.errors.policy_number}><Input dir="ltr" value={form.data.policy_number} onChange={(event) => form.setData('policy_number', event.target.value)} /></FormField>
-        <FormField label={i('starts_on')} error={form.errors.starts_on}><Input type="date" dir="ltr" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>
-        <FormField label={i('ends_on')} error={form.errors.ends_on}><Input type="date" dir="ltr" value={form.data.ends_on} onChange={(event) => form.setData('ends_on', event.target.value)} /></FormField>
+        <FormField label={i('starts_on')} error={form.errors.starts_on}><DatePicker value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>
+        <FormField label={i('ends_on')} error={form.errors.ends_on}><DatePicker value={form.data.ends_on} onChange={(value) => form.setData('ends_on', value)} /></FormField>
         <FormField label={i('notes')} error={form.errors.notes}><Input value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} /></FormField>
         <div className="sm:col-span-3"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></div>
       </form>
@@ -74,7 +75,7 @@ function MemberForm({ policy, employees, relations }: { policy: Policy; employee
       {form.data.relation !== 'self' && <FormField label={i('name')} error={form.errors.name}><Input value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} /></FormField>}
       <FormField label={i('class')} error={form.errors.class}><Input dir="ltr" value={form.data.class} onChange={(event) => form.setData('class', event.target.value)} /></FormField>
       <FormField label={i('card_number')} error={form.errors.card_number}><Input dir="ltr" value={form.data.card_number} onChange={(event) => form.setData('card_number', event.target.value)} /></FormField>
-      <FormField label={i('starts_on')} error={form.errors.starts_on}><Input type="date" dir="ltr" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>
+      <FormField label={i('starts_on')} error={form.errors.starts_on}><DatePicker value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>
       <FormField label={i('premium')} error={form.errors.premium}><Input type="number" min="0" step="0.01" dir="ltr" value={form.data.premium} onChange={(event) => form.setData('premium', event.target.value)} /></FormField>
       <div className="sm:col-span-4"><Button type="submit" size="sm" disabled={form.processing}><Plus data-icon="inline-start" />{i('add_member')}</Button></div>
     </form>

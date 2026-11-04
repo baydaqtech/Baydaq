@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PageHeader from '@/components/platform/PageHeader';
+import Hint from '@/components/platform/Hint';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import SuiteLayout from '@/layouts/SuiteLayout';
@@ -100,7 +101,7 @@ export default function Calendar({ month, from, to, today, events, categories }:
                   <div className={cn('mb-1 inline-flex size-6 items-center justify-center rounded-full', day === today && 'bg-primary text-primary-foreground')}>{Number(day.slice(8))}</div>
                   <div className="flex flex-col gap-0.5">
                     {items.slice(0, 4).map((event) => {
-                      const body = <span className={cn('block truncate rounded px-1 py-0.5', TONES[event.tone])} title={event.title}>{event.title}</span>;
+                      const body = <Hint label={event.title}><span className={cn('block truncate rounded px-1 py-0.5', TONES[event.tone])}>{event.title}</span></Hint>;
 
                       return event.url ? <Link key={event.key} href={url(event.url)}>{body}</Link> : <span key={event.key}>{body}</span>;
                     })}

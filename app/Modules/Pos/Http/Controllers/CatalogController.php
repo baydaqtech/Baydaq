@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Platform\Data\BranchRef;
 use App\Modules\Platform\Data\BrandRef;
 use App\Modules\Platform\Data\CompanyRef;
+use App\Modules\Platform\Data\Vat;
 use App\Modules\Platform\Enums\FeatureAction;
 use App\Modules\Platform\Http\Controllers\Concerns\ReachesBranches;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
@@ -18,7 +19,6 @@ use App\Modules\Pos\Models\ModifierGroup;
 use App\Modules\Pos\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Response;
 
 class CatalogController extends Controller
@@ -113,7 +113,7 @@ class CatalogController extends Controller
         $data = $request->validate([
             'company_id' => ['required', 'integer'], 'category_id' => ['nullable', 'integer'], 'sku' => ['nullable', 'string', 'max:40'],
             'name_ar' => ['required', 'string', 'max:255'], 'name_en' => ['required', 'string', 'max:255'], 'description_ar' => ['nullable', 'string'], 'description_en' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'], 'cost' => ['nullable', 'numeric', 'min:0'], 'vat_rate' => ['required', Rule::in(['0', '0.00', '5', '5.00', '15', '15.00'])],
+            'price' => ['required', 'numeric', 'min:0'], 'cost' => ['nullable', 'numeric', 'min:0'], 'vat_rate' => ['required', ...Vat::rateRules()],
             'calories' => ['nullable', 'integer', 'min:0', 'max:9999'], 'high_salt' => ['boolean'], 'salt_g' => ['nullable', 'numeric', 'min:0', 'max:999'], 'caffeine_mg' => ['nullable', 'integer', 'min:0', 'max:2000'], 'allergens' => ['nullable', 'array'], 'allergens.*' => ['string', 'max:40'],
             'is_active' => ['boolean'], 'sold_by_weight' => ['boolean'], 'sort_order' => ['nullable', 'integer'],
             'modifier_group_ids' => ['nullable', 'array'], 'modifier_group_ids.*' => ['integer'],

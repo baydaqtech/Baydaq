@@ -2,6 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +41,7 @@ export default function OvertimeIndex({ items, employees, status, statuses, rule
           <CardContent>
             <form className="grid gap-3 sm:grid-cols-5" onSubmit={(event) => { event.preventDefault(); form.post(url('/hr/overtime'), { preserveScroll: true, onSuccess: () => form.reset('work_date', 'hours', 'reason') }); }}>
               <FormField label={o('employee')} error={form.errors.employee_id} className="sm:col-span-2"><SelectInput value={String(form.data.employee_id)} onChange={(value) => form.setData('employee_id', Number(value))} options={employees} /></FormField>
-              <FormField label={o('work_date')} error={form.errors.work_date}><Input type="date" dir="ltr" value={form.data.work_date} onChange={(event) => form.setData('work_date', event.target.value)} /></FormField>
+              <FormField label={o('work_date')} error={form.errors.work_date}><DatePicker value={form.data.work_date} onChange={(value) => form.setData('work_date', value)} /></FormField>
               <FormField label={o('hours')} error={form.errors.hours}><Input type="number" min="0.25" max="12" step="0.25" dir="ltr" value={form.data.hours} onChange={(event) => form.setData('hours', event.target.value)} /></FormField>
               <FormField label={o('reason')} error={form.errors.reason}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
               <div className="sm:col-span-5"><Button type="submit" disabled={form.processing}>{o('record')}</Button></div>

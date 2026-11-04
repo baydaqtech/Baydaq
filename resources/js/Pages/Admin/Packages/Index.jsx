@@ -24,6 +24,7 @@ export default function PackagesIndex({ packages, addons }) {
       <span className="flex gap-1">
         {!row.is_active && <Badge variant="outline">{p('inactive')}</Badge>}
         {kind === 'package' && row.is_public && <Badge variant="secondary">{p('public')}</Badge>}
+        {kind === 'package' && row.is_default && <Badge>{p('default')}</Badge>}
       </span>
     ) },
   ];

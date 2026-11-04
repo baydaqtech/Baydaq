@@ -2,6 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import FileField from '@/components/platform/FileField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,7 @@ export default function GovernmentCheck({ result, sources }: { result: Result | 
       <Card className="mb-4"><CardContent>
         <form onSubmit={(event) => { event.preventDefault(); form.post(url('/hr/reports/government'), { forceFormData: true }); }} className="grid gap-3 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
           <FormField label={c('source')}><SelectInput value={form.data.source} onChange={(value) => form.setData('source', value)} options={sources.map((source) => ({ value: source, label: c(`sources.${source}`) }))} /></FormField>
-          <FormField label={c('file')} error={form.errors.file}><Input type="file" accept=".csv,text/csv" onChange={(event) => form.setData('file', event.target.files?.[0] ?? null)} /></FormField>
+          <FormField label={c('file')} error={form.errors.file}><FileField accept=".csv,text/csv" files={form.data.file ? [form.data.file] : []} onChange={(files) => form.setData('file', files[0] ?? null)} invalid={Boolean(form.errors.file)} /></FormField>
           <Button type="submit" disabled={form.processing || !form.data.file}>{c('check')}</Button>
         </form>
       </CardContent></Card>

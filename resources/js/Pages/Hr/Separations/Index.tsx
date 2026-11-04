@@ -4,12 +4,12 @@ import { useState } from 'react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatDate } from '@/lib/format';
@@ -52,8 +52,8 @@ function NewSeparation({ employees, kinds }: { employees: Option[]; kinds: strin
         >
           <FormField label={t('hr.violations.employee')} className="sm:col-span-2"><SelectInput value={form.data.employee_id} onChange={(value) => form.setData('employee_id', value)} options={employees} /></FormField>
           <FormField label={s('kind')} error={form.errors.kind}><SelectInput value={form.data.kind} onChange={(value) => form.setData('kind', value)} options={kinds.map((value) => ({ value, label: s(`kinds.${value}`) }))} /></FormField>
-          <FormField label={s('submitted_on')} error={form.errors.submitted_on}><Input type="date" dir="ltr" value={form.data.submitted_on} onChange={(event) => form.setData('submitted_on', event.target.value)} /></FormField>
-          <FormField label={s('last_day')} error={form.errors.last_day}><Input type="date" dir="ltr" value={form.data.last_day} onChange={(event) => form.setData('last_day', event.target.value)} /></FormField>
+          <FormField label={s('submitted_on')} error={form.errors.submitted_on}><DatePicker value={form.data.submitted_on} onChange={(value) => form.setData('submitted_on', value)} /></FormField>
+          <FormField label={s('last_day')} error={form.errors.last_day}><DatePicker value={form.data.last_day} onChange={(value) => form.setData('last_day', value)} /></FormField>
           <FormField label={s('reason')} error={form.errors.reason} className="sm:col-span-2"><Textarea rows={3} value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
         </form>
         <DialogFooter><Button type="submit" form="new-separation" disabled={form.processing || form.data.employee_id === ''}>{s('new')}</Button></DialogFooter>
@@ -112,7 +112,7 @@ function SeparationCard({ separation, maxDeferDays }: { separation: Separation; 
             {waiting && <Button size="sm" onClick={() => act('accept')}>{s('accept')}</Button>}
             {separation.status === 'submitted' && separation.kind === 'resignation' && (
               <span className="flex items-end gap-1">
-                <FormField label={s('defer_to', { max: formatDate(maxDefer, locale) })}><Input type="date" dir="ltr" max={maxDefer} value={deferTo} onChange={(event) => setDeferTo(event.target.value)} /></FormField>
+                <FormField label={s('defer_to', { max: formatDate(maxDefer, locale) })}><DatePicker max={maxDefer} value={deferTo} onChange={(value) => setDeferTo(value)} /></FormField>
                 <Button size="sm" variant="outline" disabled={deferTo === ''} onClick={() => act('defer', { last_day: deferTo })}>{s('defer')}</Button>
               </span>
             )}

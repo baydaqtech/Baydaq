@@ -6,13 +6,14 @@ use App\Modules\Platform\Access\EffectivePlan;
 use App\Modules\Platform\Access\FeatureCatalog;
 use App\Modules\Platform\Enums\Module;
 use App\Modules\Platform\Models\ClientPlan;
+use App\Modules\Platform\Models\Package;
 use App\Modules\Platform\Models\Subscription;
 use App\Modules\Platform\Ports\Entitlements;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 
 /**
  * Modules come from the per-module subscriptions (which applying a plan writes); limits and
- * feature flags come from the client's plan. Without a plan, nothing extra is limited.
+ * feature flags come from the client's plan, or the default package when it has none.
  */
 class SubscriptionEntitlements implements Entitlements
 {
@@ -67,11 +68,32 @@ class SubscriptionEntitlements implements Entitlements
         }
 
         if (! array_key_exists($clientId, $this->plans)) {
-            $plan = ClientPlan::query()->with('package')->first();
-            $this->plans[$clientId] = $plan ? EffectivePlan::forPlan($plan) : false;
+            $this->plans[$clientId] = $this->resolve();
         }
 
         return $this->plans[$clientId] ?: null;
+    }
+
+    /**
+     * The client's own plan while it is usable, nothing once it is suspended or ended, and the
+     * default package for an account without a plan. With no default package, production gives
+     * such an account nothing; elsewhere it gets everything (demos and tests).
+     */
+    private function resolve(): EffectivePlan|false
+    {
+        $plan = ClientPlan::query()->with('package')->first();
+
+        if ($plan !== null) {
+            return $plan->isUsable() ? EffectivePlan::forPlan($plan) : EffectivePlan::none();
+        }
+
+        $default = Package::query()->where('is_default', true)->where('is_active', true)->first();
+
+        if ($default !== null) {
+            return EffectivePlan::from($default, [], []);
+        }
+
+        return app()->isProduction() ? EffectivePlan::none() : false;
     }
 
     private function current(Module $module): ?Subscription

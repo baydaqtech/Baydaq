@@ -16,7 +16,11 @@ use Illuminate\View\View;
  */
 class PaymentController extends Controller
 {
-    /** Moyasar calls this on payment events; the shared secret proves it is them. */
+    /**
+     * Moyasar calls this on payment events; the shared secret proves it is them. The payload is
+     * only a hint: the invoice is fetched back from Moyasar and must be paid in full before
+     * anything is marked paid.
+     */
     public function webhook(Request $request, string $provider): JsonResponse
     {
         abort_unless($provider === 'moyasar' && config('baydaq.payments.driver') === 'moyasar', 404);
@@ -26,7 +30,7 @@ class PaymentController extends Controller
         $invoiceId = $request->input('data.invoice_id') ?? $request->input('data.id');
         $payment = Payment::query()->where('provider', 'moyasar')->where('provider_id', $invoiceId)->first();
 
-        if ($payment && $request->input('type') === 'payment_paid' && $request->input('data.status') === 'paid') {
+        if ($payment && $payment->status === 'pending' && $request->input('type') === 'payment_paid' && HostedPayments::confirmWithProvider($payment)) {
             HostedPayments::markPaid($payment);
         }
 

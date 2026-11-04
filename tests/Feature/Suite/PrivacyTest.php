@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Suite;
 
+use App\Modules\Invoicing\Actions\SaveCustomer;
+use App\Modules\Invoicing\Models\Customer as Buyer;
 use App\Modules\Platform\Enums\ScopeLevel;
 use App\Modules\Platform\Models\Customer;
 use App\Modules\Platform\Models\PrivacyRequest;
@@ -75,5 +77,20 @@ class PrivacyTest extends TestCase
         $order = Order::query()->sole();
         $this->assertNull($order->customer_phone);
         $this->assertSame($customer->id, $order->platform_customer_id);
+    }
+
+    public function test_an_invoice_buyer_is_the_shared_customer_and_erasure_reaches_them(): void
+    {
+        $buyer = app(SaveCustomer::class)->handle((new Buyer)->forceFill(['client_id' => $this->client->id]), ['name_ar' => 'نورة', 'name_en' => 'Noura', 'phone' => '+966 50 123 4567', 'email' => 'noura@example.test']);
+        $customer = Customer::query()->sole();
+        $this->assertSame($customer->id, $buyer->platform_customer_id);
+
+        $data = json_decode($this->actingAs($this->owner)->get($this->suiteUrl("customers/{$customer->id}/export"))->assertOk()->streamedContent(), true);
+        $this->assertSame('noura@example.test', $data['invoice_buyers'][0]['email']);
+
+        $this->actingAs($this->owner)->post($this->suiteUrl("customers/{$customer->id}/erase"), ['confirm' => true])->assertSessionHasNoErrors();
+        $buyer->refresh();
+        $this->assertNull($buyer->phone);
+        $this->assertSame('—', $buyer->name_en);
     }
 }

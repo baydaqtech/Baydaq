@@ -6,9 +6,11 @@ use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Ports\BoardSignals;
 use App\Modules\Platform\Ports\CustomerActivity;
 use App\Modules\Platform\Ports\CustomerData;
+use App\Modules\Platform\Ports\SetupSteps;
 use App\Modules\Pos\Adapters\PosBoardSignals;
 use App\Modules\Pos\Adapters\PosCustomerActivity;
 use App\Modules\Pos\Adapters\PosCustomerData;
+use App\Modules\Pos\Adapters\PosSetupSteps;
 use App\Modules\Pos\Enums\PosFeature;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,7 @@ class PosServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->tag([PosBoardSignals::class], BoardSignals::TAG);
+        $this->app->tag([PosSetupSteps::class], SetupSteps::TAG);
         $this->app->tag([PosCustomerActivity::class], CustomerActivity::TAG);
         $this->app->tag([PosCustomerData::class], CustomerData::TAG);
     }

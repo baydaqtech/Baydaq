@@ -4,6 +4,7 @@ import { Paperclip, Plus } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import FileField from '@/components/platform/FileField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,7 +38,7 @@ function PublishForm({ audiences, kinds, onDone }: { audiences: Option[]; kinds:
         <FormField label={t('hr.engagement.audience')} error={form.errors.audience}><SelectInput value={form.data.audience} onChange={(value) => form.setData('audience', value)} options={audiences} /></FormField>
         <FormField label={a('title_field')} error={form.errors.title}><Input value={form.data.title} onChange={(event) => form.setData('title', event.target.value)} /></FormField>
         <FormField label={a('body')} error={form.errors.body} className="sm:col-span-3"><Textarea rows={6} value={form.data.body} onChange={(event) => form.setData('body', event.target.value)} /></FormField>
-        <FormField label={a('file')} error={form.errors.file}><Input type="file" accept=".pdf,.doc,.docx,image/*" onChange={(event) => form.setData('file', event.target.files?.[0] ?? null)} /></FormField>
+        <FormField label={a('file')} error={form.errors.file}><FileField accept=".pdf,.doc,.docx,image/*" files={form.data.file ? [form.data.file] : []} onChange={(files) => form.setData('file', files[0] ?? null)} invalid={Boolean(form.errors.file)} /></FormField>
         <label className="flex items-center gap-2 text-sm sm:col-span-2"><Checkbox checked={form.data.requires_ack} onCheckedChange={(state) => form.setData('requires_ack', state === true)} />{a('requires_ack')}</label>
         <div className="sm:col-span-3"><Button type="submit" disabled={form.processing}>{a('new')}</Button></div>
       </form>

@@ -25,9 +25,9 @@ class PosBoardSignals implements BoardSignals
             return [];
         }
 
-        $sales = Order::query()->whereIn('branch_id', $allowed)->where('status', OrderStatus::Paid)
+        $sales = Order::query()->whereIn('branch_id', $allowed)->whereIn('status', [OrderStatus::Paid, OrderStatus::Refunded])
             ->whereDate('order_date', CarbonImmutable::now('Asia/Riyadh')->toDateString())
-            ->selectRaw('branch_id, sum(total) as total, count(*) as orders')->groupBy('branch_id')->get()->keyBy('branch_id');
+            ->selectRaw('branch_id, sum(total - refunded) as total, count(*) as orders')->groupBy('branch_id')->get()->keyBy('branch_id');
 
         $signals = [];
 

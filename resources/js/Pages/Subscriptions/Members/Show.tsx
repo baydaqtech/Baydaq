@@ -10,6 +10,7 @@ import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
 import StatusMessage from '@/components/platform/StatusMessage';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,7 +54,7 @@ function SellDialog({ memberId, plans, paymentMeans, renew }: { memberId: number
         <form onSubmit={submit} className="flex flex-col gap-4">
           <DialogHeader><DialogTitle>{renew ? t('subscriptions.members.renew') : t('subscriptions.members.sell')}</DialogTitle>{renew && <DialogDescription>{renew.plan} · <span dir="ltr">{renew.ends_on}</span></DialogDescription>}</DialogHeader>
           <FormField label={f('plan')} error={form.errors.plan_id}><SelectInput value={form.data.plan_id} onChange={(value) => form.setData('plan_id', Number(value))} options={plans} /></FormField>
-          {!renew && <FormField label={f('starts_on')} error={form.errors.starts_on}><Input dir="ltr" type="date" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>}
+          {!renew && <FormField label={f('starts_on')} error={form.errors.starts_on}><DatePicker value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>}
           {renew && form.errors.starts_on && <p className="text-sm text-destructive">{form.errors.starts_on}</p>}
           <FormField label={f('payment_means')}><SelectInput value={form.data.payment_means} onChange={(value) => form.setData('payment_means', value)} options={paymentMeans} /></FormField>
           <FormField label={f('bnpl_provider')} hint={t('subscriptions.members.bnpl_hint')}><SelectInput value={form.data.bnpl_provider} onChange={(value) => form.setData('bnpl_provider', value)} options={[{ value: 'tamara', label: 'Tamara' }, { value: 'tabby', label: 'Tabby' }]} emptyLabel="—" /></FormField>
@@ -109,8 +110,8 @@ function FreezeDialog({ membership, today }: { membership: MembershipRow; today:
       <DialogContent dir={dir}>
         <form onSubmit={(event) => { event.preventDefault(); form.post(url(`/subscriptions/memberships/${membership.id}/freeze`), { preserveScroll: true, onSuccess: () => setOpen(false) }); }} className="grid gap-4 sm:grid-cols-2">
           <DialogHeader className="sm:col-span-2"><DialogTitle>{t('subscriptions.members.freeze')}</DialogTitle><DialogDescription>{t('subscriptions.members.freeze_left', { count: membership.freeze_days_left })}</DialogDescription></DialogHeader>
-          <FormField label={f('from')} error={form.errors.starts_on}><Input dir="ltr" type="date" min={today} value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} /></FormField>
-          <FormField label={f('to')} error={form.errors.ends_on}><Input dir="ltr" type="date" min={form.data.starts_on} value={form.data.ends_on} onChange={(event) => form.setData('ends_on', event.target.value)} /></FormField>
+          <FormField label={f('from')} error={form.errors.starts_on}><DatePicker min={today} value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} /></FormField>
+          <FormField label={f('to')} error={form.errors.ends_on}><DatePicker min={form.data.starts_on} value={form.data.ends_on} onChange={(value) => form.setData('ends_on', value)} /></FormField>
           <FormField className="sm:col-span-2" label={f('reason')}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('subscriptions.members.freeze')}</Button></DialogFooter>
         </form>

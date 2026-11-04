@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react';
-import { Camera, Plus, ScanLine, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, ScanLine, Trash2 } from 'lucide-react';
+import Autocomplete from '@/components/platform/Autocomplete';
+import FileField from '@/components/platform/FileField';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
 import { Button } from '@/components/ui/button';
@@ -45,11 +47,10 @@ export function LinesEditor({ lines, onChange, catalog, assets, stock, holder, e
   const onHand = stock[holder] ?? {};
   const heldAssets = assets.filter((asset) => asset.holder === holder);
 
-  function add(event?: React.FormEvent) {
-    event?.preventDefault();
-    const match = findByCode(code, catalog, heldAssets);
+  function add(typed: string = code) {
+    const match = findByCode(typed, catalog, heldAssets);
     if (!match) {
-      setNotFound(code);
+      setNotFound(typed);
       return;
     }
     setNotFound(null);
@@ -74,17 +75,13 @@ export function LinesEditor({ lines, onChange, catalog, assets, stock, holder, e
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
-        <div className="relative flex-1">
-          <ScanLine className="pointer-events-none absolute start-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            dir="ltr" className="ps-8" placeholder={t('assets.inventory.scan')} aria-label={t('assets.inventory.scan')} value={code} list="inventory-catalog"
-            onChange={(event) => setCode(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { add(event); } }}
-          />
-          <datalist id="inventory-catalog">
-            {catalog.map((variant) => <option key={variant.id} value={variant.label} />)}
-            {heldAssets.map((asset) => <option key={`a${asset.id}`} value={asset.tag}>{asset.label}</option>)}
-          </datalist>
-        </div>
+        <Autocomplete
+          className="flex-1" icon={<ScanLine />} placeholder={t('assets.inventory.scan')} value={code} onChange={setCode} onSubmit={(chosen) => add(chosen)}
+          suggestions={[
+            ...catalog.map((variant) => ({ value: variant.barcode ?? variant.sku ?? variant.label, label: variant.label, hint: variant.barcode ?? variant.sku })),
+            ...heldAssets.map((asset) => ({ value: asset.tag, label: asset.label, hint: asset.serial })),
+          ]}
+        />
         <Button type="button" variant="outline" onClick={() => add()} disabled={!code}><Plus data-icon="inline-start" />{t('assets.inventory.add_line')}</Button>
       </div>
       {notFound && <p className="text-sm text-destructive">{t('assets.inventory.scan_unknown', { code: notFound })}</p>}
@@ -177,20 +174,10 @@ export function CountsEditor({ lines, counts, explanations, onCounts, onExplanat
 /** Photos from the camera or the gallery (several at once). */
 export function PhotoInput({ files, onChange, error }: { files: File[]; onChange: (files: File[]) => void; error?: string }) {
   const t = useT();
-  const input = useRef<HTMLInputElement>(null);
 
   return (
     <FormField label={t('assets.handovers.photos')} error={error}>
-      <div className="flex flex-wrap items-center gap-2">
-        <input ref={input} type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={(event) => { onChange([...files, ...Array.from(event.target.files ?? [])].slice(0, 10)); event.target.value = ''; }} />
-        <Button type="button" variant="outline" size="sm" onClick={() => input.current?.click()}><Camera data-icon="inline-start" />{t('assets.handovers.photos')}</Button>
-        {files.map((file, index) => (
-          <span key={index} className="relative">
-            <img src={URL.createObjectURL(file)} alt="" className="size-14 rounded-md object-cover" />
-            <button type="button" className="absolute -end-1 -top-1 rounded-full bg-background p-0.5 shadow" onClick={() => onChange(files.filter((_, i) => i !== index))} aria-label={t('common.actions.delete')}><Trash2 className="size-3" /></button>
-          </span>
-        ))}
-      </div>
+      <FileField multiple accept="image/*" capture="environment" files={files} onChange={onChange} invalid={Boolean(error)} />
     </FormField>
   );
 }

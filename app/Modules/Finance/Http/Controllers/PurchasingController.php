@@ -13,6 +13,7 @@ use App\Modules\Finance\Models\PurchaseOrder;
 use App\Modules\Finance\Models\Supplier;
 use App\Modules\Finance\Support\ChartOfAccounts;
 use App\Modules\Platform\Data\BranchRef;
+use App\Modules\Platform\Data\Vat;
 use App\Modules\Platform\Enums\FeatureAction;
 use App\Modules\Platform\Http\Controllers\Concerns\RendersSuitePages;
 use App\Modules\Platform\Ports\OrgDirectory;
@@ -159,7 +160,7 @@ class PurchasingController extends Controller
             'lines.*.description' => ['required', 'string', 'max:255'],
             'lines.*.quantity' => ['required', 'numeric', 'min:0.001'],
             'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
-            'lines.*.vat_rate' => ['required', 'numeric', 'in:0,5,15'],
+            'lines.*.vat_rate' => ['required', ...Vat::rateRules()],
             'lines.*.account_id' => ['nullable', 'integer', Rule::exists(Account::class, 'id')->where('client_id', $clientId)],
             ...$extra,
         ]);

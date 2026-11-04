@@ -65,7 +65,10 @@ class MessagingAndPaymentsTest extends TestCase
     public function test_moyasar_links_and_signed_webhooks(): void
     {
         config(['baydaq.payments.driver' => 'moyasar', 'baydaq.payments.moyasar.secret_key' => 'sk_test', 'baydaq.payments.moyasar.webhook_secret' => 'whsec']);
-        Http::fake(['api.moyasar.com/v1/invoices' => Http::response(['id' => 'inv_123', 'url' => 'https://checkout.moyasar.com/invoices/inv_123'])]);
+        Http::fake([
+            'api.moyasar.com/v1/invoices' => Http::response(['id' => 'inv_123', 'url' => 'https://checkout.moyasar.com/invoices/inv_123']),
+            'api.moyasar.com/v1/invoices/inv_123' => Http::response(['id' => 'inv_123', 'status' => 'paid', 'amount' => 5750, 'currency' => 'SAR']),
+        ]);
         Event::fake([PaymentSucceeded::class]);
 
         $link = app(Payments::class)->link('test.thing:2', '57.50', 'Booking deposit');

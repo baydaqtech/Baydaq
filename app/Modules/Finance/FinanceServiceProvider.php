@@ -3,11 +3,16 @@
 namespace App\Modules\Finance;
 
 use App\Modules\Finance\Adapters\BillsCalendar;
+use App\Modules\Finance\Adapters\FinanceSetupSteps;
 use App\Modules\Finance\Adapters\GeneralLedger;
+use App\Modules\Finance\Adapters\PurchasingApprovals;
+use App\Modules\Finance\Console\NotifyBillsDue;
 use App\Modules\Finance\Enums\FinanceFeature;
 use App\Modules\Platform\Access\FeatureRegistry;
+use App\Modules\Platform\Ports\ApprovalSource;
 use App\Modules\Platform\Ports\CalendarSource;
 use App\Modules\Platform\Ports\Ledger;
+use App\Modules\Platform\Ports\SetupSteps;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -21,6 +26,8 @@ class FinanceServiceProvider extends ServiceProvider
     {
         $this->app->bind(Ledger::class, GeneralLedger::class);
         $this->app->tag([BillsCalendar::class], CalendarSource::TAG);
+        $this->app->tag([FinanceSetupSteps::class], SetupSteps::TAG);
+        $this->app->tag([PurchasingApprovals::class], ApprovalSource::TAG);
     }
 
     public function boot(): void
@@ -28,5 +35,9 @@ class FinanceServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
         $this->app->make(FeatureRegistry::class)->register(FinanceFeature::class);
         $this->loadRoutesFrom(__DIR__.'/routes.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([NotifyBillsDue::class]);
+        }
     }
 }

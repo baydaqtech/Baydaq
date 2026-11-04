@@ -11,6 +11,7 @@ Keep it current: every change that adds, removes or changes a feature updates th
 | `docs/SECURITY.md` | Security checklist (what is checked, what is open), race conditions and data-integrity rules |
 | `docs/AUDIT.md` | Conflicts and overlaps between subsystems, with status |
 | `docs/ROADMAP.md` | What was built (change log), what is planned, ideas per subsystem, MVP priorities |
+| `docs/FUTURE_WORK.md` | The owner's own list: mobile app parity, keys and accounts to provide |
 
 ---
 
@@ -35,7 +36,7 @@ Baydaq staff use an **admin** area to manage clients, packages, add-ons and plan
 |---|---|
 | Backend | Laravel 13, PHP 8.4, MySQL 8.4 |
 | Frontend | Inertia v3 + React 19 (TSX), Tailwind 4, shadcn/ui |
-| Auth | Fortify (web), Sanctum tokens (mobile API `/api/v1`), Spatie permissions (Baydaq staff only) |
+| Auth | Fortify (web, two-step sign-in at `/account/security`), Sanctum tokens for the mobile API `/api/v1` (90 days, renewed by the app), Spatie permissions (Baydaq staff only) |
 | Tests | PHPUnit 12 (feature tests against MySQL `testing`), `tests/Architecture/ModuleBoundariesTest` |
 | PDF / QR | mPDF, chillerlan/php-qrcode |
 | AI | Anthropic PHP SDK (`config('baydaq.ai.model')`), optional per package (`suite.ai`) |
@@ -102,6 +103,13 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 - Granting and revoking are both guarded: you can only give or take away what you yourself reach; only an owner
   removes an owner; the last owner can't be removed.
 
+### 3.3.1 Sign-in security
+
+- Everyone can turn on **two-step sign-in** (authenticator app + recovery codes) from the user menu → *Sign-in security*.
+  With `TWO_FACTOR_REQUIRED` (default on in production) Baydaq admins and account owners must turn it on before any
+  other page.
+- App tokens last `API_TOKEN_DAYS` (90) and are renewed by the app (`POST /api/v1/auth/refresh`).
+
 ### 3.4 Packages, feature flags and limits
 
 - `Platform/Access/FeatureCatalog.php` lists **limits** (organizations, companies, branches, employees, users,
@@ -109,7 +117,8 @@ Important ports (in `app/Modules/Platform/Ports` unless noted):
 - Admin builds **packages** and **add-ons**; a **client plan** = package + add-ons + overrides
   (`EffectivePlan`). Applying a plan syncs the per-module `platform__subscriptions` rows.
 - Routes use `feature:key` middleware; the frontend hides items whose feature is off (`SuiteNav`, `/me`).
-- An account **without a plan** gets every feature and no limits (useful for demos; see AUDIT for the risk).
+- An account **without a plan** gets the admin's **default package**; with none set, nothing in production and everything
+  elsewhere (demos, tests). A **suspended or ended** plan turns flagged features and app screens off and allows nothing new.
 
 | Feature key | Turns on |
 |---|---|
@@ -154,13 +163,28 @@ These are deliberately single, shared across modules — never add a second one:
   client scope), branches (codes, cities, head office), brands, work locations (geofence + Wi-Fi).
 - Access: roles, members, invitations, assignments at any node; audit log.
 - Home, ⌘K search across modules, saved/recent views, board (2D) of branch health.
+- **Getting started** (`/start`): the owner's setup steps from every module through the tagged `SetupSteps` port
+  (company details, branches, check-in locations, employees with contracts, staff in the app, managers, opening
+  balances, menu and register, brand), read from the account as it is; Home shows the progress until all are done.
+- **Approvals inbox** (`/approvals`): everything waiting on the user from every module through the tagged
+  `ApprovalSource` port (leave, advances, loans, bonuses, deductions, overtime, expense claims, remote days, breaks,
+  second approvals, resignations, purchase orders, supplier bills), oldest first, decided in place through each
+  module's own route; never the user's own requests.
+- **Notification centre**: the bell in the suite header (unread count, latest alerts, mark read) and
+  `/account/notifications` (email on or off per kind). Morning alerts: requests waiting (`suite:notify-approvals`),
+  supplier bills due (`finance:notify-bills-due`), the VAT return a week and a day before (`suite:notify-vat`),
+  documents expiring (`hr:notify-expiring-documents`). Modules send alerts through `Accounts::alert()`.
 - **Calendar** (`/calendar`): month view of every module's dates through `CalendarSource` (HR: holidays, leave,
   remote days, birthdays, work anniversaries, contract and probation endings, document expiries, trainings, insurance
   renewals, surveys closing; Platform: GOSI and VAT deadlines; Finance: bills due), filtered by the user's reach.
   Nothing is stored twice.
-- Customers: one per phone, wallet (top-up, adjust, spend, loyalty), activity across modules, **client
-  registration** by staff, at POS checkout, from bookings, or **self sign-up via a branch QR code** (`/join/{token}`)
-  with marketing consent.
+- Customers: one per phone (one rule, `PhoneNumber`), wallet (top-up with company and how it was paid, adjust,
+  spend, loyalty credit), **loyalty points** (each company sets points per riyal, a point's value and tiers with
+  multipliers; one balance per customer; earned on sales, taken back with refunds, redeemed as wallet credit),
+  activity across modules, **client registration** by staff, at POS checkout, from bookings, or **self sign-up via a
+  branch QR code** (`/join/{token}`); marketing consent there needs a code sent by WhatsApp to that phone.
+- Sign-in security: two-step sign-in for everyone (`/account/security`), required for admins and owners in
+  production.
 - Theme: per-account colours/logo/name/roundness/mode; applied to suite, `/me` and the mobile API.
 - Government hub (`/gov`): official numbers per company and links to Qiwa, GOSI, Mudad, Muqeem, Absher, HRSD,
   ZATCA, Fatoora, MC, Business Center, Balady, National Address.
@@ -205,13 +229,22 @@ These are deliberately single, shared across modules — never add a second one:
   contract ending. `hr:send-messages` runs daily at 08:00 Riyadh; a unique (template, employee, occurrence) key sends
   each occasion once.
 - AI HR assistant (read-only tools over the user's reach).
+- **Payslips** (`/me`, app): the employee's line of every approved or paid payroll run, with the breakdown and an A4
+  PDF; **letters** on request (salary or experience certificate, issued at once from the HR record with its QR
+  check; HR can revoke). The app opens PDFs through ten-minute signed links.
+- Leave days can't also be remote days, assigned shifts or claimed open shifts (`ScheduleConflicts`).
 - Employee self-service `/me` and mobile API `/api/v1` (leave, advances, loans, overtime, insurance, training, announcements, surveys, recognition, messages, calendar, tasks, breaks, shifts, punches,
-  expenses, remote, reviews, resignation, violations).
+  expenses, remote, reviews, resignation, violations, payslips, letters). The API answers in the phone's language
+  (`Accept-Language`); `/me` lists the app screens and the web features they need.
 
 ### Point of sale
 - Catalog with modifiers and branch prices, registers, cashiers (linked to HR staff), shifts with cash counts
   (shortage → HR deduction, commission → HR bonus), orders and payments (cash, mada, card, STC Pay, transfer,
   staff account, wallet), kitchen screen, QR menus, simplified ZATCA receipts, reports.
+- **Refunds** of paid orders, line by line (each at what was paid for it, discount included; never more than was
+  sold): cash from the open till (counted at shift close), back to the card, or into the customer's wallet; the
+  loyalty earned shrinks by the same share; the books reverse the sale; a credit note follows the tax invoice.
+- Order dates and numbers follow the company's own day (`OrgDirectory::today`).
 
 ### Invoicing
 - Standard and simplified invoices, credit/debit notes, ZATCA onboarding of units (CSID), clearance/reporting,
@@ -233,13 +266,34 @@ These are deliberately single, shared across modules — never add a second one:
 - Chart of accounts (created on first use), journal (automatic + manual, must balance), trial balance, profit and
   loss by company/branch, VAT return; suppliers, purchase orders (draft → approved → received → billed), bills
   (expense accounts, input VAT), payments.
+- **Opening balances and year-end** (`/finance/periods`): one opening entry per company (the difference goes to
+  opening balance equity; saving again replaces it), and closing a finished year (revenue and expenses to zero,
+  profit to retained earnings; no manual entry may be dated in a closed year; the P&L still shows that year's result).
 - What posts to the ledger automatically: POS sales (per payment method, output VAT), invoices (not POS receipts),
-  invoice payments by link, booking and membership receipts paid at the counter, payroll approval and payment,
-  expense claims and paybacks, supplier bills and payments.
+  invoice payments by link, booking and membership receipts paid at the counter (bookings without Invoicing post their
+  own sale), booking deposits (held as customer deposits until checkout), customer wallet top-ups, loyalty credit and
+  corrections, payroll approval and payment (advance installments reduce what employees owe), advance and loan payouts
+  and repayments, final settlements, expense claims and paybacks, supplier bills and payments (equipment and stock to
+  their asset accounts), and the buyer side of invoices between group companies.
 
 ### Admin (Baydaq staff)
 - Clients, client plans, packages and add-ons, module subscriptions, projects, Baydaq invoices, requests, services,
   products, team, settings.
+
+### Public site
+- Landing, products, services, service request and contact forms, in Arabic and English. The landing's "products we
+  build and run" and "ready services for your app" sections are hidden for now (`SHOW_PRODUCTS`,
+  `SHOW_PLATFORM_SERVICES` in `Pages/Landing.jsx`); `/products` and `/services` still list them.
+- **Our work**: the landing shows "Our projects" and the project logos, without boxes (OpsMaster, Nuzul, Nuzul Umrah,
+  Healthy Meals, PC Home). A project with its own website opens it (OpsMaster → opsmaster.tech, PC Home →
+  pchome-dev-k0sgqb.laravel.cloud); the others open their case-study page at `/work/{slug}`: a hero with the logo,
+  tagline, numbers and the product in a browser and a phone; the story beside an architecture card; the screens on a
+  dark board (large web viewer with thumbnails, phones in a row); what is inside as numbered cards; previous and next
+  projects in a loop. Each project's accent colour is set in `app.css` (`.project-{slug}`).
+  Projects, their order, website links and screenshot files are in `config/work.php`; screenshots live in
+  `public/images/work/{slug}` (not `public/work/{slug}`, which would shadow the route); the copy and captions are in
+  `lang/{ar,en}/work.php`, one caption per screenshot. Logos are drawn in `components/WorkLogo.jsx` (OpsMaster's is
+  `public/images/work/opsmaster/logo.svg`).
 
 ## 5. Running locally
 
@@ -288,4 +342,9 @@ Older demo logins (`DemoSeeder`): `client@baydaq.test`, `manager@baydaq.test`, `
   status; see `docs/SECURITY.md` §3.
 - Every new feature: package key in `FeatureCatalog` (+ `suite.catalog.*` labels), permission keys in the module's
   `*Feature` enum (+ labels), Arabic and English copy, feature test, docs update.
+- **Baydaq UI kit**: no browser pop-ups (`alert`, `confirm`, `prompt`), native date/time/colour/file inputs, `datalist`
+  or `title` tooltips. Use `components/platform`: `DatePicker`, `MonthPicker`, `TimeField`, `DateTimePicker` (with
+  Hijri), `SelectInput` (searchable from 11 options) / `Combobox`, `Autocomplete`, `ColorPicker`, `FileField`,
+  `CodeField` (one-time codes), `ConfirmAction` (with an optional note), `Hint`, and shadcn/ui primitives
+  (`components/ui`, incl. `popover`, `switch`). Every page works in Arabic (RTL) and English.
 - Pint (`vendor/bin/pint --dirty`), `npx tsc --noEmit`, full test suite before pushing.

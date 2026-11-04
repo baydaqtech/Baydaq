@@ -2,6 +2,8 @@ import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
+import FileField from '@/components/platform/FileField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,14 +32,14 @@ export default function MyExpenses({ data }: { data: ExpensesData }) {
       <CardContent className="flex flex-col gap-3 text-sm">
         {claiming && (
           <form className="grid gap-3 rounded-lg border p-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); form.post('/me/expenses', { forceFormData: true, preserveScroll: true, onSuccess: () => { form.reset(); setClaiming(false); } }); }}>
-            <FormField label={e('spent_on')} error={form.errors.spent_on}><Input type="date" dir="ltr" value={form.data.spent_on} onChange={(event) => form.setData('spent_on', event.target.value)} /></FormField>
+            <FormField label={e('spent_on')} error={form.errors.spent_on}><DatePicker value={form.data.spent_on} onChange={(value) => form.setData('spent_on', value)} /></FormField>
             <FormField label={e('category')} error={form.errors.category}><SelectInput value={form.data.category} onChange={(value) => form.setData('category', value)} options={data.categories.map((value) => ({ value, label: e(`categories.${value}`) }))} /></FormField>
             <FormField label={e('amount')} error={form.errors.amount}><Input type="number" step="0.01" dir="ltr" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>
             <FormField label={e('vat')} error={form.errors.vat}><Input type="number" step="0.01" dir="ltr" value={form.data.vat} onChange={(event) => form.setData('vat', event.target.value)} /></FormField>
             <FormField label={e('merchant')} error={form.errors.merchant}><Input value={form.data.merchant} onChange={(event) => form.setData('merchant', event.target.value)} /></FormField>
             <FormField label={e('merchant_vat_number')} error={form.errors.merchant_vat_number}><Input dir="ltr" value={form.data.merchant_vat_number} onChange={(event) => form.setData('merchant_vat_number', event.target.value)} /></FormField>
             <FormField label={e('description')} error={form.errors.description}><Input value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} /></FormField>
-            <FormField label={e('receipt')} error={form.errors.receipt}><Input type="file" accept="image/*,.pdf" capture="environment" onChange={(event) => form.setData('receipt', event.target.files?.[0] ?? null)} /></FormField>
+            <FormField label={e('receipt')} error={form.errors.receipt}><FileField accept="image/*,.pdf" capture="environment" files={form.data.receipt ? [form.data.receipt] : []} onChange={(files) => form.setData('receipt', files[0] ?? null)} invalid={Boolean(form.errors.receipt)} /></FormField>
             <div className="flex gap-2 sm:col-span-2">
               <Button type="submit" disabled={form.processing || form.data.receipt === null}>{e('claim')}</Button>
               <Button type="button" variant="ghost" onClick={() => setClaiming(false)}>{t('hr.separations.cancel')}</Button>

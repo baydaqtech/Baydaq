@@ -2,6 +2,7 @@
 
 namespace App\Modules\Invoicing;
 
+use App\Modules\Invoicing\Adapters\BuyerCustomerData;
 use App\Modules\Invoicing\Adapters\ZatcaInvoiceIssuer;
 use App\Modules\Invoicing\Enums\InvoicingFeature;
 use App\Modules\Invoicing\Listeners\MarkInvoicePaid;
@@ -9,6 +10,7 @@ use App\Modules\Invoicing\Ports\InvoiceIssuer;
 use App\Modules\Invoicing\Zatca\ZatcaClient;
 use App\Modules\Platform\Access\FeatureRegistry;
 use App\Modules\Platform\Events\PaymentSucceeded;
+use App\Modules\Platform\Ports\CustomerData;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +24,7 @@ class InvoicingServiceProvider extends ServiceProvider
     {
         $this->app->singleton(ZatcaClient::class);
         $this->app->bind(InvoiceIssuer::class, ZatcaInvoiceIssuer::class);
+        $this->app->tag([BuyerCustomerData::class], CustomerData::TAG);
     }
 
     public function boot(): void

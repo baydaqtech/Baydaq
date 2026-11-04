@@ -35,7 +35,7 @@ class Order extends Model
         return [
             'type' => OrderType::class, 'status' => OrderStatus::class, 'kitchen_status' => KitchenStatus::class,
             'order_date' => 'date', 'paid_at' => 'datetime',
-            'subtotal' => 'decimal:2', 'discount' => 'decimal:2', 'vat' => 'decimal:2', 'total' => 'decimal:2',
+            'subtotal' => 'decimal:2', 'discount' => 'decimal:2', 'vat' => 'decimal:2', 'total' => 'decimal:2', 'refunded' => 'decimal:2',
         ];
     }
 
@@ -45,6 +45,14 @@ class Order extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(OrderLine::class);
+    }
+
+    /**
+     * @return HasMany<Refund, $this>
+     */
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class);
     }
 
     /**

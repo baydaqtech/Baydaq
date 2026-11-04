@@ -2,6 +2,7 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { BadgeCheck } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import LocaleSwitcher from '@/components/platform/LocaleSwitcher';
+import FileField from '@/components/platform/FileField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -52,7 +53,7 @@ export default function Careers({ token, opening, theme }: Props) {
                 <FormField label={c('phone')} error={form.errors.phone}><Input dir="ltr" inputMode="tel" autoComplete="tel" value={form.data.phone} onChange={(event) => form.setData('phone', event.target.value)} /></FormField>
                 <FormField label={c('email')} error={form.errors.email}><Input type="email" dir="ltr" autoComplete="email" value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} /></FormField>
                 <FormField label={c('nationality')} error={form.errors.nationality}><Input dir="ltr" maxLength={2} value={form.data.nationality} onChange={(event) => form.setData('nationality', event.target.value.toUpperCase())} /></FormField>
-                <FormField label={c('cv')} error={form.errors.cv}><Input type="file" accept=".pdf,.doc,.docx,image/*" onChange={(event) => form.setData('cv', event.target.files?.[0] ?? null)} /></FormField>
+                <FormField label={c('cv')} error={form.errors.cv}><FileField accept=".pdf,.doc,.docx,image/*" files={form.data.cv ? [form.data.cv] : []} onChange={(files) => form.setData('cv', files[0] ?? null)} invalid={Boolean(form.errors.cv)} /></FormField>
                 <label className="flex items-start gap-2 text-sm">
                   <Checkbox className="mt-0.5" checked={form.data.consent} onCheckedChange={(checked) => form.setData('consent', checked === true)} />
                   <span>{c('consent')}{form.errors.consent && <span className="block text-destructive">{form.errors.consent}</span>}</span>

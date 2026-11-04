@@ -6,6 +6,7 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -70,7 +71,7 @@ export default function AttendanceIndex({ punches, filters: initialFilters }: { 
     <SuiteLayout title={t('hr.attendance.title')}>
       <PageHeader title={t('hr.attendance.title')} />
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Input type="date" dir="ltr" className="w-44" value={String(filters.date ?? '')} onChange={(event) => setFilter('date', event.target.value)} />
+        <DatePicker className="w-44" value={String(filters.date ?? '')} onChange={(value) => setFilter('date', value)} />
         <label className="flex items-center gap-2 text-sm"><Checkbox checked={Boolean(filters.flagged)} onCheckedChange={(state) => setFilter('flagged', state === true ? 1 : null)} />{t('hr.attendance.flagged')}</label>
       </div>
       <DataTable<Punch>

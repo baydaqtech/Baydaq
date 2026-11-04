@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * A package Baydaq sells: modules, features, employee-app screens and limits. Not tenant data.
+ * The default package is what an account without a plan of its own gets.
  */
 #[Table('platform__packages')]
-#[Fillable(['code', 'name_ar', 'name_en', 'description_ar', 'description_en', 'price_monthly', 'price_yearly', 'trial_days', 'modules', 'features', 'mobile', 'limits', 'is_public', 'is_active', 'sort_order'])]
+#[Fillable(['code', 'name_ar', 'name_en', 'description_ar', 'description_en', 'price_monthly', 'price_yearly', 'trial_days', 'modules', 'features', 'mobile', 'limits', 'is_public', 'is_active', 'is_default', 'sort_order'])]
 class Package extends Model
 {
     use HasBilingualFields;
@@ -24,7 +25,7 @@ class Package extends Model
         return [
             'modules' => 'array', 'features' => 'array', 'mobile' => 'array', 'limits' => 'array',
             'price_monthly' => 'decimal:2', 'price_yearly' => 'decimal:2', 'trial_days' => 'integer',
-            'is_public' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer',
+            'is_public' => 'boolean', 'is_active' => 'boolean', 'is_default' => 'boolean', 'sort_order' => 'integer',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 Add a line to the change log for every merged change, and move items from "Planned" to the log when done.
 Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon after launch, **P2** = later.
+The owner's own list (mobile app parity, keys and accounts) is in `docs/FUTURE_WORK.md`.
 
 ## 1. Change log
 
@@ -24,34 +25,35 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 | 2026-10-25 | **H3** Policies and circulars with acknowledgement, staff surveys (anonymous, eNPS), recognition wall with rewards through payroll. |
 | 2026-10-25 | **H4** Message builder: templates with placeholders, weekly/monthly/event triggers, inbox + email + WhatsApp, sent once per occasion. |
 | 2026-10-25 | **H5** One calendar of all events through the tagged `CalendarSource` port (HR dates, government deadlines, supplier bills due), "coming up" on `/me`, calendar in the app API. |
+| 2026-10-26 | Baydaq UI kit: date, month, time and date-time pickers with Hijri, searchable selects, autocomplete, colour picker, file drop zone, tooltips, notes in confirm dialogs; no browser pop-ups or native pickers left. |
+| 2026-10-26 | **P0 fixes**: booking lock first (R12); ZATCA called outside DB transactions and after the sale commits (R2); two-step sign-in (required for admins and owners in production); app tokens expire after 90 days with renewal; secure session cookie by default; suspended plans turn features off and accounts without a plan get the default package (F4); roles created and changed only with account-wide access. |
+| 2026-10-26 | **P1 locks**: seats on hire (R13), payroll rebuild (R14), repayments (R15), break limit (R16), plan limits (R17), booking checkout (R18), void/edit vs pay (R19), each with a regression test. |
+| 2026-10-26 | **Ledger coverage**: wallet top-ups, loyalty and corrections; booking deposits and checkouts without Invoicing; advance and loan payouts, repayments and payroll installments; final settlements; the buyer side of group invoices; new accounts for stock, fixed assets, customer deposits, loyalty and end-of-service. |
+| 2026-10-26 | Business dates in the company timezone (`OrgDirectory::today`): POS order dates and numbers, POS screens, new postings. |
+| 2026-10-26 | One phone rule (`PhoneNumber`) and one VAT helper (`Vat`) for every module; invoicing buyers linked to the shared customer and covered by privacy export/erase. |
+| 2026-10-26 | Leave days can't also be remote days, assigned shifts or claimed open shifts (`ScheduleConflicts`). |
+| 2026-10-26 | Moyasar webhooks re-checked with Moyasar (status, currency, full amount); marketing consent at the QR sign-up confirmed with a WhatsApp code. |
+| 2026-10-26 | **MVP features**: getting-started page for owners (setup steps from every module); approvals inbox across modules; notification centre (bell, email settings per kind, morning alerts for approvals, bills due, VAT return); payslips and self-service letters on `/me` and in the app; POS refunds (line by line, cash/card/wallet, loyalty and ledger reversed, credit note); finance opening balances and year-end close; loyalty points with tiers, redeemed as wallet credit. |
+| 2026-10-26 | Employee app: screens for every `/api/v1` area (tasks, advances and loans, overtime, expenses, shifts, breaks, remote, messages, announcements, surveys, recognition, calendar, insurance, training, reviews, record, payslips, letters), grouped under five tabs and hidden by package; token renewal. API answers in the phone's language; `/me` lists the web features screens need; task moves and break ends locked. |
+| 2026-11-03 | Public site: "Our projects" is a row of project logos (OpsMaster and PC Home open their own sites; Nuzul, Nuzul Umrah and Healthy Meals open case-study pages at `/work/{slug}`: hero with the product in a browser and a phone, story and architecture, screens on a dark board with a viewer, numbered features, projects in a loop; Arabic and English). The landing's products and platform services sections are hidden for now. |
 | 2026-10-25 | Direction: Baydaq is a general HR and company system. Branches can be any business (café, gym, shop, office); no more industry-specific features — POS, reservations and memberships stay as optional add-ons. |
 
 ## 2. Planned — fixes from the review (do these first)
 
 | Pri | Item | Ref |
 |---|---|---|
-| P0 | Booking double-booking lock | SECURITY R12 |
-| P0 | ZATCA call outside the DB transaction (commit chain first) | SECURITY R2 |
-| P0 | Sanctum token expiry; 2FA for admins and owners; secure cookie in prod | SECURITY 1.2, 1.3 |
-| P0 | Suspended plan turns features off; no-plan accounts get a default package | AUDIT F4 |
-| P0 | Role editing needs account-wide access | SECURITY 1.4 |
-| P1 | Remaining locks: payroll rebuild, advances/repayments, breaks limit, booking checkout, void vs pay, seats on hire | SECURITY R13–R19 |
-| P1 | Ledger gaps: wallet top-ups/loyalty, deposits, POS refunds, advance payouts, asset purchases | AUDIT B6 |
-| P1 | Company timezone for business dates (POS) | AUDIT B7 |
-| P1 | One phone/VAT helper; invoicing buyers linked to the shared customer | AUDIT D1, D2, B8 |
-| P1 | HR calendar conflicts (leave / remote / shift) | AUDIT B2 |
-| P1 | Webhook amount re-check with Moyasar; OTP before recording marketing consent | SECURITY 1.5, 1.6 |
+| P2 | Count+1 numbering (POs, members, assets, letters) → locked per-company counter | SECURITY R21 |
+| P2 | Company timezone for business dates in HR (attendance days, leave, payroll dates) | AUDIT B7 |
 | P2 | Plan as the single source of module subscriptions | AUDIT D3 |
+| P1 | Branches and geofences on a map in the getting-started steps (needs the `leaflet` / `react-leaflet` packages: approval) | — |
+| P1 | Notification centre by WhatsApp (staff logins have no phone yet; employees get WhatsApp through HR) | — |
+| P1 | Points: earn per visit and redeem for a free item (today: per riyal, redeemed as wallet credit) | — |
 | P2 | Expiring items in one radar (documents + visas); exit checklist as tasks | AUDIT D5, D6 |
-| P2 | Mobile flags without endpoints (payslips, letters) | AUDIT F3 |
 
 ## 3. Ideas — the main system (Platform)
 
 | Pri | Idea |
 |---|---|
-| P0 | **Self-service onboarding wizard** for a new owner: company data (CR, VAT), branches on a map, first employees, choose package — first value in 15 minutes. |
-| P0 | **Notifications centre** (in-app + WhatsApp + email) with per-user preferences: approvals waiting, documents expiring, bills due, VAT deadline. |
-| P0 | **Approvals inbox**: one page for everything waiting on me (leave, advances, expenses, bills, POs, remote days, resignations). |
 | P1 | **Owner mobile dashboard**: today's sales by branch, staff present/late, cash position, VAT due, bills due. |
 | P1 | **Data import** (Excel templates) for employees, products, customers, suppliers, opening balances. |
 | P1 | **Usage-based billing** in admin: invoice clients from their plan and limits automatically. |
@@ -65,9 +67,6 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 ### HR
 | Pri | Idea |
 |---|---|
-| P0 | Payslip screen in the app (`mobile.payslips`) and letter requests (`mobile.letters`). |
-| P0 | Approvals inbox across HR (leave, advances, loans, overtime, expenses, remote days, resignations). |
-| P1 | Leave/remote/shift conflict check on the calendar (AUDIT B2). |
 | P1 | End-of-service provision posted monthly to the ledger. |
 | P1 | Message builder: more occasions (probation ending, document expiring) and WhatsApp template approval flow. |
 | P1 | Calendar export (iCal feed per user) and company events (meetings, inventory days) added by hand. |
@@ -77,16 +76,13 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 ### Point of sale (optional add-on)
 | Pri | Idea |
 |---|---|
-| P0 | Refunds and returns (credit note + reverse cash/wallet/loyalty + ledger). |
 | P1 | Offline mode for the register (queue and sync). |
 | P1 | Stock deduction per sale from Assets inventory. |
 
 ### Customers and loyalty
 | Pri | Idea |
 |---|---|
-| P0 | **Points and rewards**: earn per riyal or visit, tiers, redeem as wallet credit or free item (the owner's next request). |
 | P1 | Campaigns by WhatsApp/SMS to consenting clients (birthday, win-back after 30 days). |
-| P1 | OTP verification for self sign-up. |
 | P2 | Referral codes; gift cards. |
 
 ### Invoicing
@@ -113,7 +109,6 @@ Priorities: **P0** = needed before the first paying client (MVP), **P1** = soon 
 ### Finance
 | Pri | Idea |
 |---|---|
-| P0 | Opening balances and fiscal year close. |
 | P1 | Bank reconciliation (statement import, match card settlements and payments). |
 | P1 | Budgets per branch with alerts. |
 | P1 | Zakat estimate and ZATCA VAT return export. |

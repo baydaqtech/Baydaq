@@ -6,6 +6,7 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -36,7 +37,7 @@ function BonusBatchDialog({ bonusTypes, companies }: { bonusTypes: Option[]; com
           <FormField label={t('hr.payroll.fields.company')}><SelectInput value={form.data.company_id} onChange={(value) => form.setData('company_id', value)} options={companies} emptyLabel={t('common.actions.all')} /></FormField>
           <FormField label={t('hr.catalog.fields.calculation')}><SelectInput value={form.data.calculation} onChange={(value) => form.setData('calculation', value)} options={[{ value: 'fixed', label: t('hr.allowance_calculation.fixed') }, { value: 'percent_of_basic', label: t('hr.allowance_calculation.percent_of_basic') }]} /></FormField>
           <FormField label={t('hr.pay.fields.amount')} error={form.errors.value}><Input type="number" step="0.01" min="0" dir="ltr" value={form.data.value} onChange={(event) => form.setData('value', event.target.value)} /></FormField>
-          <FormField label={t('hr.pay.fields.pay_month')} error={form.errors.pay_month}><Input type="date" dir="ltr" value={form.data.pay_month} onChange={(event) => form.setData('pay_month', event.target.value)} /></FormField>
+          <FormField label={t('hr.pay.fields.pay_month')} error={form.errors.pay_month}><DatePicker value={form.data.pay_month} onChange={(value) => form.setData('pay_month', value)} /></FormField>
           <FormField label={t('hr.pay.fields.reason')}><Input value={form.data.reason} onChange={(event) => form.setData('reason', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>
@@ -60,7 +61,7 @@ export default function PayrollIndex({ runs, companies, bonus_types: bonusTypes 
         <Card className="mb-4"><CardContent>
           <form onSubmit={(event) => { event.preventDefault(); form.post(url('/hr/payroll')); }} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <FormField label={f('company')} error={form.errors.company_id}><SelectInput value={form.data.company_id} onChange={(value) => form.setData('company_id', Number(value))} options={companies} /></FormField>
-            <FormField label={f('pay_month')} error={form.errors.pay_month}><Input type="date" dir="ltr" value={form.data.pay_month} onChange={(event) => form.setData('pay_month', event.target.value)} /></FormField>
+            <FormField label={f('pay_month')} error={form.errors.pay_month}><DatePicker value={form.data.pay_month} onChange={(value) => form.setData('pay_month', value)} /></FormField>
             <Button type="submit" disabled={form.processing}><Play data-icon="inline-start" />{t('hr.payroll.build')}</Button>
           </form>
         </CardContent></Card>

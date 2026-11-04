@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Finance\Http\Controllers\LedgerController;
+use App\Modules\Finance\Http\Controllers\PeriodController;
 use App\Modules\Finance\Http\Controllers\PurchasingController;
 use App\Modules\Finance\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 | finance.accounting (ledger, reports) and finance.purchasing (suppliers, orders, bills)
 | rather than a module subscription.
 */
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope'])
     ->prefix('suite/{scope}/finance')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('finance.')
     ->group(function (): void {
         Route::middleware('feature:finance.accounting')->group(function (): void {
@@ -19,6 +20,9 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope'])
             Route::post('/journal', [LedgerController::class, 'storeEntry'])->middleware('access:finance.ledger.create')->name('journal.store');
             Route::get('/ledger', [LedgerController::class, 'index'])->middleware('access:finance.ledger.view')->name('ledger');
             Route::get('/reports', ReportController::class)->middleware('access:finance.reports.view')->name('reports');
+            Route::put('/opening', [PeriodController::class, 'saveOpening'])->middleware('access:finance.ledger.update')->name('opening.update');
+            Route::post('/closes', [PeriodController::class, 'close'])->middleware('access:finance.ledger.update')->name('closes.store');
+            Route::get('/periods', [PeriodController::class, 'index'])->middleware('access:finance.ledger.update')->name('periods');
         });
 
         Route::middleware('feature:finance.purchasing')->group(function (): void {

@@ -19,7 +19,7 @@ class SaveOrganization
     {
         return DB::transaction(function () use ($organization, $data): Organization {
             if (! $organization->exists) {
-                app(EnsureWithinLimit::class)->handle('organizations', Organization::query()->count());
+                app(EnsureWithinLimit::class)->handle('organizations', Organization::query());
             }
 
             $organization->fill([

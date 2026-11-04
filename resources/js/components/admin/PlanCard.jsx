@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/react';
 import { Package, Plus, X } from 'lucide-react';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,8 +60,8 @@ function PlanDialog({ client, plan }) {
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label={t('admin.plans.package')} error={errors.package_id}><SelectInput value={data.package_id} onChange={(value) => setData('package_id', value)} options={plan.packages} /></FormField>
             <FormField label={t('admin.plans.status')} error={errors.status}><SelectInput value={data.status} onChange={(value) => setData('status', value)} options={['trial', 'active', 'suspended'].map((value) => ({ value, label: t(`admin.plans.statuses.${value}`) }))} /></FormField>
-            <FormField label={t('admin.plans.starts_on')} error={errors.starts_on}><Input type="date" dir="ltr" value={data.starts_on} onChange={(event) => setData('starts_on', event.target.value)} /></FormField>
-            <FormField label={t('admin.plans.ends_on')} error={errors.ends_on}><Input type="date" dir="ltr" value={data.ends_on} onChange={(event) => setData('ends_on', event.target.value)} /></FormField>
+            <FormField label={t('admin.plans.starts_on')} error={errors.starts_on}><DatePicker value={data.starts_on} onChange={(value) => setData('starts_on', value)} /></FormField>
+            <FormField label={t('admin.plans.ends_on')} error={errors.ends_on}><DatePicker value={data.ends_on} onChange={(value) => setData('ends_on', value)} /></FormField>
             <FormField label={t('admin.plans.billing_cycle')}><SelectInput value={data.billing_cycle} onChange={(value) => setData('billing_cycle', value)} options={['monthly', 'yearly'].map((value) => ({ value, label: t(`admin.plans.cycles.${value}`) }))} /></FormField>
           </div>
           <div className="flex flex-col gap-2">

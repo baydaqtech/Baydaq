@@ -8,6 +8,7 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -111,8 +112,8 @@ function SubscriptionDialog({ client, subscription, modules, statuses }) {
           {field('status', <SelectInput id="sub-status" value={form.data.status} onChange={(value) => form.setData('status', value)} options={statuses} />)}
           {field('quantity', <Input id="sub-quantity" type="number" min="1" dir="ltr" value={form.data.quantity} onChange={(event) => form.setData('quantity', event.target.value)} />)}
           {field('unit_price', <Input id="sub-unit_price" type="number" step="0.01" min="0" dir="ltr" value={form.data.unit_price} onChange={(event) => form.setData('unit_price', event.target.value)} />)}
-          {field('starts_on', <Input id="sub-starts_on" type="date" dir="ltr" value={form.data.starts_on} onChange={(event) => form.setData('starts_on', event.target.value)} />)}
-          {field('ends_on', <Input id="sub-ends_on" type="date" dir="ltr" value={form.data.ends_on} onChange={(event) => form.setData('ends_on', event.target.value)} />)}
+          {field('starts_on', <DatePicker id="sub-starts_on" value={form.data.starts_on} onChange={(value) => form.setData('starts_on', value)} />)}
+          {field('ends_on', <DatePicker id="sub-ends_on" value={form.data.ends_on} onChange={(value) => form.setData('ends_on', value)} />)}
           <FormField label={f('notes')} htmlFor="sub-notes" error={form.errors.notes} className="sm:col-span-2">
             <Textarea id="sub-notes" rows={2} value={form.data.notes} onChange={(event) => form.setData('notes', event.target.value)} />
           </FormField>

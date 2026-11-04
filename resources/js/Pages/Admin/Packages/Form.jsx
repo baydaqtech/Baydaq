@@ -37,7 +37,7 @@ export default function PackageForm({ kind, item, catalog }) {
     price_monthly: item?.price_monthly ?? '0', price_yearly: item?.price_yearly ?? '0', trial_days: String(item?.trial_days ?? 0),
     modules: item?.modules ?? [], features: item?.features ?? [], mobile: item?.mobile ?? [],
     limits: Object.fromEntries(catalog.limits.map((limit) => [limit.value, item?.limits?.[limit.value] ?? ''])),
-    is_public: item?.is_public ?? false, is_active: item?.is_active ?? true, sort_order: String(item?.sort_order ?? 0),
+    is_public: item?.is_public ?? false, is_active: item?.is_active ?? true, is_default: item?.is_default ?? false, sort_order: String(item?.sort_order ?? 0),
   });
   const { data, setData, errors, processing } = form;
 
@@ -70,6 +70,10 @@ export default function PackageForm({ kind, item, catalog }) {
                 <FormField label={p('fields.description_ar')} error={errors.description_ar}><Textarea rows={2} dir="rtl" value={data.description_ar} onChange={(event) => setData('description_ar', event.target.value)} /></FormField>
                 <FormField label={p('fields.description_en')} error={errors.description_en}><Textarea rows={2} dir="ltr" value={data.description_en} onChange={(event) => setData('description_en', event.target.value)} /></FormField>
                 <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.is_public} onCheckedChange={(state) => setData('is_public', state === true)} />{p('fields.is_public')}</label>
+                <label className="flex items-start gap-2 text-sm">
+                  <Checkbox className="mt-0.5" checked={data.is_default} onCheckedChange={(state) => setData('is_default', state === true)} />
+                  <span>{p('fields.is_default')}<span className="block text-xs text-muted-foreground">{p('default_hint')}</span></span>
+                </label>
               </>
             )}
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.is_active} onCheckedChange={(state) => setData('is_active', state === true)} />{p('fields.is_active')}</label>

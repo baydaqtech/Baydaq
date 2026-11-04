@@ -36,7 +36,7 @@ enum PosFeature: string implements Feature
     public function abilities(): array
     {
         return match ($this) {
-            self::Orders => ['sell', 'void', 'kitchen', 'discount'],
+            self::Orders => ['sell', 'void', 'refund', 'kitchen', 'discount'],
             self::Registers => ['open_shift', 'close_shift'],
             default => [],
         };

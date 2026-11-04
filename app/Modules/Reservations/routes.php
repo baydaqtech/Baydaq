@@ -12,7 +12,7 @@ Route::middleware(['web'])->group(function (): void {
     Route::post('/book/{token}', [PublicBookingController::class, 'store'])->where('token', '[A-Za-z0-9]{32}')->middleware('throttle:10,1')->name('book.store');
 });
 
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:reservations'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope', 'module:reservations'])
     ->prefix('suite/{scope}/reservations')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('reservations.')
     ->group(function (): void {
         Route::middleware('access:reservations.catalog.create|reservations.catalog.update')->group(function (): void {

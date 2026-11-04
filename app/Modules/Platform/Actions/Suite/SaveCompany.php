@@ -23,7 +23,7 @@ class SaveCompany
     {
         return DB::transaction(function () use ($company, $data): Company {
             if (! $company->exists) {
-                app(EnsureWithinLimit::class)->handle('companies', Company::query()->count());
+                app(EnsureWithinLimit::class)->handle('companies', Company::query());
             }
 
             $company->fill([

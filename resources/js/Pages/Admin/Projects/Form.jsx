@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import FormActions from '@/components/platform/FormActions';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
+import FileField from '@/components/platform/FileField';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -77,7 +78,7 @@ export default function ProjectForm({ project, clientId, options }) {
             {input('repo_url', { type: 'url', dir: 'ltr' })}
             {input('app_url', { type: 'url', dir: 'ltr' })}
             <FormField label={f('logo')} htmlFor="logo" error={errors.logo} hint={f('logo_hint')}>
-              <Input id="logo" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setData('logo', event.target.files[0] ?? null)} />
+              <FileField id="logo" accept="image/png,image/jpeg,image/webp" files={data.logo ? [data.logo] : []} onChange={(files) => setData('logo', files[0] ?? null)} />
             </FormField>
             {project?.logo_url && <img src={project.logo_url} alt="" className="size-16 rounded-md border object-contain" />}
             <FormField label={f('description_ar')} htmlFor="description_ar" error={errors.description_ar} className="sm:col-span-2">

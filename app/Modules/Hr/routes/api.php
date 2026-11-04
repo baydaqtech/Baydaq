@@ -3,6 +3,7 @@
 use App\Modules\Hr\Http\Controllers\Api\AdvanceController;
 use App\Modules\Hr\Http\Controllers\Api\AuthController;
 use App\Modules\Hr\Http\Controllers\Api\BreakController;
+use App\Modules\Hr\Http\Controllers\Api\DocumentController;
 use App\Modules\Hr\Http\Controllers\Api\EngagementController;
 use App\Modules\Hr\Http\Controllers\Api\LeaveController;
 use App\Modules\Hr\Http\Controllers\Api\LocationController;
@@ -15,12 +16,14 @@ use App\Modules\Hr\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
-| Employee app. Sign in with email + password + device id; the token is tied to that device.
+| Employee app. Sign in with email + password + device id; the token is tied to that device and
+| lasts `baydaq.security.api_token_days` (the app renews it through auth/refresh).
 */
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('auth.login');
 
 Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::post('/auth/refresh', [AuthController::class, 'refresh'])->middleware('throttle:10,1')->name('auth.refresh');
     Route::get('/me', MeController::class)->name('me');
     Route::get('/leave', [LeaveController::class, 'index'])->middleware('feature:mobile.leave')->name('leave.index');
     Route::post('/leave', [LeaveController::class, 'store'])->middleware('throttle:10,1')->middleware('feature:mobile.leave')->name('leave.store');
@@ -58,7 +61,10 @@ Route::middleware(['auth:sanctum', 'api.tenant'])->group(function (): void {
     Route::post('/remote/requests', [RecordController::class, 'requestRemote'])->middleware(['throttle:10,1', 'feature:mobile.remote', 'feature:hr.remote'])->name('remote.requests.store');
     Route::get('/reviews', [RecordController::class, 'reviews'])->middleware(['feature:mobile.reviews', 'feature:hr.performance'])->name('reviews.index');
     Route::post('/reviews/{review}', [RecordController::class, 'selfReview'])->middleware(['throttle:10,1', 'feature:mobile.reviews', 'feature:hr.performance'])->name('reviews.self');
-    Route::get('/record', [RecordController::class, 'show'])->middleware('feature:mobile.resignation')->name('record.show');
+    Route::get('/record', [RecordController::class, 'show'])->name('record.show');
+    Route::get('/payslips', [DocumentController::class, 'payslips'])->middleware('feature:mobile.payslips')->name('payslips.index');
+    Route::get('/letters', [DocumentController::class, 'letters'])->middleware(['feature:mobile.letters', 'feature:hr.letters'])->name('letters.index');
+    Route::post('/letters', [DocumentController::class, 'requestLetter'])->middleware(['throttle:5,1', 'feature:mobile.letters', 'feature:hr.letters'])->name('letters.store');
     Route::post('/resignation', [RecordController::class, 'resign'])->middleware(['throttle:5,1', 'feature:mobile.resignation', 'feature:hr.offboarding'])->name('resignation.store');
     Route::post('/resignation/{separation}/withdraw', [RecordController::class, 'withdraw'])->middleware(['throttle:5,1', 'feature:mobile.resignation'])->name('resignation.withdraw');
     Route::post('/violations/{violation}/response', [RecordController::class, 'respond'])->middleware(['throttle:10,1', 'feature:hr.violations'])->name('violations.respond');

@@ -90,7 +90,7 @@ class PackagesTest extends TestCase
         app(LinkEmployeeUser::class)->handle($employee, 'sara@example.test');
         Sanctum::actingAs(User::query()->where('email', 'sara@example.test')->sole());
 
-        $this->getJson('/api/v1/me')->assertOk()->assertJsonPath('features', ['mobile.attendance', 'mobile.tasks']);
+        $this->getJson('/api/v1/me')->assertOk()->assertJsonPath('features', ['mobile.attendance', 'mobile.tasks', 'hr.tasks']); // app screens, and the web features they need
         $this->getJson('/api/v1/tasks')->assertOk();
         $this->getJson('/api/v1/breaks')->assertForbidden()->assertJsonPath('code', 'feature_disabled')->assertJsonPath('feature', 'mobile.breaks');
         $this->getJson('/api/v1/leave')->assertForbidden();
@@ -125,5 +125,15 @@ class PackagesTest extends TestCase
 
         $viewer = User::factory()->admin(Permission::ClientsView)->create();
         $this->actingAs($viewer)->get('/admin/packages')->assertForbidden();
+    }
+
+    public function test_one_package_is_the_default_for_accounts_without_a_plan(): void
+    {
+        $first = $this->createPackage(['is_default' => true]);
+        $second = $this->createPackage(['code' => 'growth', 'is_default' => true]);
+
+        $this->assertFalse($first->fresh()->is_default);
+        $this->assertTrue($second->fresh()->is_default);
+        $this->actingAs($this->admin)->get('/admin/packages')->assertInertia(fn (Assert $page) => $page->where('packages.1.is_default', true)->where('packages.0.is_default', false));
     }
 }

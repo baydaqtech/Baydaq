@@ -26,8 +26,9 @@ class MeController extends Controller
         $company = $directory->company($employee->company_id);
 
         return response()->json([
-            // The app shows only the screens in the client's package (feature flags).
-            'features' => $entitlements->mobileFeatures(),
+            // The app shows only the screens in the client's package: its app screens and the
+            // web features some screens also need (hr.tasks, hr.loans…).
+            'features' => array_values(array_unique([...$entitlements->mobileFeatures(), ...$entitlements->features()])),
             'theme' => app(Branding::class)->theme(),
             'employee' => [
                 'id' => $employee->id,

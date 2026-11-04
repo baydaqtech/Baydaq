@@ -20,20 +20,49 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Table('platform__companies')]
 #[Fillable([
     'organization_id', 'slug', 'name_ar', 'name_en', 'cr_number', 'vat_number', 'unified_number',
-    'gosi_number', 'qiwa_id', 'street', 'building_number', 'district', 'city', 'postal_code', 'timezone', 'loyalty_percent', 'client_scope', 'status',
+    'gosi_number', 'qiwa_id', 'street', 'building_number', 'district', 'city', 'postal_code', 'timezone', 'loyalty_percent', 'points_per_riyal', 'point_value', 'points_tiers', 'client_scope', 'status',
 ])]
 class Company extends Model
 {
     /** @use HasFactory<CompanyFactory> */
     use BelongsToClient, HasBilingualFields, HasFactory;
 
+    public const DEFAULT_TIMEZONE = 'Asia/Riyadh';
+
     /**
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'timezone' => 'Asia/Riyadh',
+        'timezone' => self::DEFAULT_TIMEZONE,
         'status' => 'active',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['points_per_riyal' => 'decimal:2', 'point_value' => 'decimal:4', 'points_tiers' => 'array'];
+    }
+
+    public function earnsPoints(): bool
+    {
+        return $this->points_per_riyal !== null && (float) $this->points_per_riyal > 0;
+    }
+
+    /**
+     * The tier a customer stands in at this company, by the points they ever earned (the highest
+     * tier they reached), or null below the first.
+     *
+     * @return array{name_ar: string, name_en: string, from: int, multiplier: float}|null
+     */
+    public function tierFor(int $lifetimePoints): ?array
+    {
+        return collect($this->points_tiers ?? [])
+            ->filter(fn (array $tier): bool => $lifetimePoints >= (int) $tier['from'])
+            ->sortByDesc(fn (array $tier): int => (int) $tier['from'])
+            ->first();
+    }
 
     /**
      * @return BelongsTo<Organization, $this>

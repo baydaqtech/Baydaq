@@ -37,6 +37,14 @@ class AdminAccessTest extends TestCase
     }
 
     /**
+     * @return array<string, array{string}>
+     */
+    public static function areaPaths(): array
+    {
+        return array_map(fn (array $area): array => [$area[0]], self::areas());
+    }
+
+    /**
      * Areas with separate view and manage permissions.
      *
      * @return array<string, array{string, Permission, Permission}>
@@ -57,7 +65,7 @@ class AdminAccessTest extends TestCase
         $this->actingAs(User::factory()->admin($permission)->create())->get($path)->assertOk();
     }
 
-    #[DataProvider('areas')]
+    #[DataProvider('areaPaths')]
     public function test_the_system_admin_opens_every_area(string $path): void
     {
         $this->actingAs(User::factory()->systemAdmin()->create())->get($path)->assertOk();

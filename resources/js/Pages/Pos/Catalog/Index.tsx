@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import ColorPicker from '@/components/platform/ColorPicker';
 import DataTable from '@/components/platform/DataTable';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
@@ -85,7 +86,7 @@ function CategoryDialog({ category, companies, brands }: { category?: Category; 
           <FormField label={f('company')} error={form.errors.company_id}><SelectInput value={form.data.company_id} onChange={(value) => form.setData((data) => ({ ...data, company_id: Number(value), brand_id: '' }))} options={companies} /></FormField>
           <FormField label={f('brand')} error={form.errors.brand_id}><SelectInput value={form.data.brand_id} onChange={(value) => form.setData('brand_id', value === '' ? '' : Number(value))} options={brands.filter((brand) => brand.company_id === Number(form.data.company_id))} emptyLabel="—" /></FormField>
           <NameFields form={form} />
-          <FormField label={f('color')} error={form.errors.color}><Input type="color" value={form.data.color || '#c8a84b'} onChange={(event) => form.setData('color', event.target.value)} /></FormField>
+          <FormField label={f('color')} error={form.errors.color}><ColorPicker value={form.data.color} onChange={(value) => form.setData('color', value)} invalid={Boolean(form.errors.color)} /></FormField>
           <div className="flex items-end"><SwitchField id="category-active" label={f('is_active')} checked={form.data.is_active} onChange={(value: boolean) => form.setData('is_active', value)} /></div>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>

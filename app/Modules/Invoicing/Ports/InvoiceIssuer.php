@@ -11,14 +11,26 @@ use App\Modules\Invoicing\Data\IssuedInvoice;
 interface InvoiceIssuer
 {
     /**
-     * Issue a simplified (B2C) invoice through the company's unit. Returns the invoice even when
-     * ZATCA rejected it (status "rejected") so the caller can keep the sale and retry later.
+     * Issue a simplified (B2C) invoice through the company's unit. Inside a transaction the
+     * invoice is drafted now and sent to ZATCA once the caller commits, so the returned status
+     * is "draft"; outside one it is sent at once. A rejection never undoes the caller's sale:
+     * the invoice is kept (status "rejected") to be fixed and issued again.
      *
      * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price_incl_vat: numeric-string|float|int, vat_rate?: numeric-string|float|int, discount_incl_vat?: numeric-string|float|int}>  $lines
      * @param  '1'|'10'|'30'|'42'|'48'  $paymentMeans
      * @param  ?string  $source  the module that raised it (e.g. pos.order), whose own books record the sale
      */
     public function issueSimplified(int $companyId, int $unitId, array $lines, string $paymentMeans, ?string $note = null, ?string $source = null): IssuedInvoice;
+
+    /**
+     * A credit note against an issued invoice (a return at the counter), for the lines given at
+     * their VAT-inclusive prices. Sent to ZATCA once the caller commits, like issueSimplified.
+     * Null when the original was never accepted by ZATCA, so nothing can be credited against it.
+     *
+     * @param  list<array{description: string, quantity: numeric-string|float|int, unit_price_incl_vat: numeric-string|float|int, vat_rate?: numeric-string|float|int}>  $lines
+     * @param  '1'|'10'|'30'|'42'|'48'  $paymentMeans
+     */
+    public function creditNote(int $invoiceId, array $lines, string $paymentMeans, string $reason, string $source): ?int;
 
     /**
      * Draft an invoice from one company of the owner to another (a recharge). It stays a draft

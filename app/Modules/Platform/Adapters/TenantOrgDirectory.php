@@ -11,9 +11,13 @@ use App\Modules\Platform\Models\Brand;
 use App\Modules\Platform\Models\Company;
 use App\Modules\Platform\Models\WorkLocation;
 use App\Modules\Platform\Ports\OrgDirectory;
+use Carbon\CarbonImmutable;
 
 class TenantOrgDirectory implements OrgDirectory
 {
+    /** @var array<int, string> company id → timezone, for this request */
+    private array $timezones = [];
+
     public function companies(): array
     {
         return Company::query()->orderBy('name_en')->get()->map(fn (Company $company): CompanyRef => $this->companyRef($company))->all();
@@ -74,5 +78,12 @@ class TenantOrgDirectory implements OrgDirectory
     private function branchRef(Branch $branch): BranchRef
     {
         return new BranchRef($branch->id, $branch->company_id, $branch->code, $branch->localized('name'), $branch->name_ar, $branch->name_en, $branch->is_head_office, $branch->status === 'active');
+    }
+
+    public function today(int $companyId): string
+    {
+        $this->timezones[$companyId] ??= Company::query()->whereKey($companyId)->value('timezone') ?? Company::DEFAULT_TIMEZONE;
+
+        return CarbonImmutable::now($this->timezones[$companyId])->toDateString();
     }
 }

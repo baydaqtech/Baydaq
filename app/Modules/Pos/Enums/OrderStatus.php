@@ -13,6 +13,7 @@ enum OrderStatus: string
     case Open = 'open';
     case Paid = 'paid';
     case Void = 'void';
+    case Refunded = 'refunded'; // every line came back
 
     protected static function labelFile(): string
     {

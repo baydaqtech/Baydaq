@@ -6,6 +6,7 @@ import FilterBar from '@/components/platform/FilterBar';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DateTimePicker from '@/components/platform/DateTimePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -66,7 +67,7 @@ function TaskForm({ task, branches, employees, priorities, onDone }: { task?: Ta
       <FormField label={f('assignee')} error={form.errors.assignee_id}><SelectInput value={form.data.assignee_id} onChange={(value) => form.setData('assignee_id', value)} options={employees} emptyLabel={t('hr.tasks.unassigned')} /></FormField>
       {form.data.assignee_id === '' && <FormField label={f('branch')} error={form.errors.branch_id}><SelectInput value={form.data.branch_id} onChange={(value) => form.setData('branch_id', value)} options={branches} /></FormField>}
       <FormField label={f('priority')} error={form.errors.priority}><SelectInput value={form.data.priority} onChange={(value) => form.setData('priority', value)} options={priorities} /></FormField>
-      <FormField label={f('due_at')} error={form.errors.due_at}><Input type="datetime-local" dir="ltr" value={form.data.due_at} onChange={(event) => form.setData('due_at', event.target.value)} /></FormField>
+      <FormField label={f('due_at')} error={form.errors.due_at}><DateTimePicker value={form.data.due_at} onChange={(value) => form.setData('due_at', value)} /></FormField>
       <div className="flex flex-col gap-2 sm:col-span-2">
         <span className="text-sm font-medium">{f('checklist')}</span>
         {form.data.checklist.map((item, index) => (

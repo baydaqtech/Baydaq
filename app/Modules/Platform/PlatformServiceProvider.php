@@ -11,6 +11,7 @@ use App\Modules\Platform\Adapters\GovernmentCalendar;
 use App\Modules\Platform\Adapters\HostedPayments;
 use App\Modules\Platform\Adapters\MpdfRenderer;
 use App\Modules\Platform\Adapters\NullLedger;
+use App\Modules\Platform\Adapters\PlatformSetupSteps;
 use App\Modules\Platform\Adapters\ResolvedAccess;
 use App\Modules\Platform\Adapters\SubscriptionEntitlements;
 use App\Modules\Platform\Adapters\TenantAccounts;
@@ -18,6 +19,8 @@ use App\Modules\Platform\Adapters\TenantOrgDirectory;
 use App\Modules\Platform\Adapters\ThemeBranding;
 use App\Modules\Platform\Adapters\WalletCustomers;
 use App\Modules\Platform\Adapters\WhatsAppMessaging;
+use App\Modules\Platform\Console\NotifyApprovalsWaiting;
+use App\Modules\Platform\Console\NotifyVatDeadline;
 use App\Modules\Platform\Enums\SuiteFeature;
 use App\Modules\Platform\Ports\Access;
 use App\Modules\Platform\Ports\Accounts;
@@ -33,6 +36,7 @@ use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Ports\Payments;
 use App\Modules\Platform\Ports\PdfRenderer;
 use App\Modules\Platform\Ports\QrCodes;
+use App\Modules\Platform\Ports\SetupSteps;
 use App\Modules\Platform\Ports\SuiteSearch;
 use Illuminate\Support\ServiceProvider;
 
@@ -59,6 +63,7 @@ class PlatformServiceProvider extends ServiceProvider
         $this->app->bindIf(Ledger::class, NullLedger::class);
         $this->app->bind(Intelligence::class, fn (): Intelligence => new ClaudeIntelligence(config('baydaq.ai.api_key'), (string) config('baydaq.ai.model')));
         $this->app->tag([CustomerSuiteSearch::class], SuiteSearch::TAG);
+        $this->app->tag([PlatformSetupSteps::class], SetupSteps::TAG);
         $this->app->tag([GovernmentCalendar::class], CalendarSource::TAG);
     }
 
@@ -67,6 +72,10 @@ class PlatformServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
         $this->app->make(FeatureRegistry::class)->register(SuiteFeature::class);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([NotifyApprovalsWaiting::class, NotifyVatDeadline::class]);
+        }
 
         if (file_exists(__DIR__.'/routes.php')) {
             $this->loadRoutesFrom(__DIR__.'/routes.php');

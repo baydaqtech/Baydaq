@@ -27,6 +27,7 @@ Inertia/React, Arabic and English. The full handbook is imported below.
 | `docs/SECURITY.md` | Security checklist, race conditions, deployment settings |
 | `docs/AUDIT.md` | Conflicts and overlaps between subsystems |
 | `docs/ROADMAP.md` | Change log, planned fixes, ideas per subsystem, MVP scope |
+| `docs/FUTURE_WORK.md` | The owner's own list: mobile app parity, keys and accounts to provide |
 
 ## Rules that bite
 
@@ -43,5 +44,10 @@ Inertia/React, Arabic and English. The full handbook is imported below.
 - MySQL index names are limited to 64 characters: name long composite indexes explicitly.
 - Every feature: package key in `FeatureCatalog` (+ `suite.catalog.*` labels in ar/en), permission keys in the
   module's `*Feature` enum (+ labels), Arabic and English copy, a feature test.
+- UI: no browser pop-ups (`alert`/`confirm`/`prompt`), native date/time/colour/file inputs or `title` tooltips. Use
+  the Baydaq kit in `components/platform` (`DatePicker`, `MonthPicker`, `TimeField`, `DateTimePicker`, `SelectInput`,
+  `Combobox`, `Autocomplete`, `ColorPicker`, `FileField`, `CodeField`, `ConfirmAction`, `Hint`) and `components/ui`.
+- Tests need more memory than the host PHP gives: run them in Sail (`docker compose exec -T laravel.test php artisan
+  test --compact`).
 - Before pushing: `vendor/bin/pint --dirty --format agent`, `npx tsc --noEmit`, `php artisan test --compact`,
   `npm run build`.

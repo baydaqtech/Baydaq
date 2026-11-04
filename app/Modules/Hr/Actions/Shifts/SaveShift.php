@@ -7,6 +7,7 @@ use App\Modules\Hr\Models\Holiday;
 use App\Modules\Hr\Models\Shift;
 use App\Modules\Hr\Support\EmployeeMessenger;
 use App\Modules\Hr\Support\HrSettings;
+use App\Modules\Hr\Support\ScheduleConflicts;
 use App\Modules\Platform\Ports\OrgDirectory;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use Illuminate\Support\Carbon;
@@ -56,6 +57,8 @@ class SaveShift
             if (Shift::query()->where('employee_id', $employee->id)->whereDate('shift_date', $date)->whereKeyNot($shift->id ?? 0)->exists()) {
                 throw ValidationException::withMessages(['employee_id' => __('hr.shifts.errors.taken_that_day')]);
             }
+
+            app(ScheduleConflicts::class)->ensureFreeToWork($employee->id, $date->toDateString(), 'employee_id');
         }
 
         $shift->forceFill([

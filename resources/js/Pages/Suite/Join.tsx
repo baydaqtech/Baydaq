@@ -1,10 +1,13 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Form, Head, router, useForm, usePage } from '@inertiajs/react';
 import { BadgeCheck } from 'lucide-react';
+import CodeField from '@/components/platform/CodeField';
 import FormField from '@/components/platform/FormField';
 import LocaleSwitcher from '@/components/platform/LocaleSwitcher';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import PlatformShell from '@/layouts/PlatformShell';
@@ -12,12 +15,40 @@ import { useT } from '@/lib/i18n';
 
 interface Props {
   token: string;
+  /** The masked phone a consent code was sent to, while it waits to be entered. */
+  verifying: string | null;
   branch: { name: string; company: string };
   theme: { app_name: string | null; logo_url: string | null } | null;
 }
 
+/** The WhatsApp code that proves the offers go to the phone's owner; skipping registers without offers. */
+function VerifyStep({ token, phone }: { token: string; phone: string }) {
+  const t = useT();
+  const j = (field: string, replace?: Record<string, string>) => t(`suite.join.${field}`, replace);
+  const { errors } = usePage<{ errors: Record<string, string> }>().props;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <p className="font-semibold">{j('verify_title')}</p>
+        <p className="text-sm text-muted-foreground">{j('verify_hint', { phone })}</p>
+      </div>
+      <Form action={`/join/${token}/verify`} method="post" resetOnError className="flex flex-col gap-3">
+        {({ processing }) => (
+          <>
+            <CodeField name="code" autoFocus invalid={Boolean(errors.code)} aria-label={j('verify_title')} />
+            {errors.code && <FieldError className="text-center">{errors.code}</FieldError>}
+            <Button type="submit" disabled={processing}>{j('verify')}</Button>
+          </>
+        )}
+      </Form>
+      <Button type="button" variant="link" size="sm" onClick={() => router.post(`/join/${token}/verify`, { skip: true }, { preserveScroll: true })}>{j('skip')}</Button>
+    </div>
+  );
+}
+
 /** What a branch's sign-up QR code opens: a client registers with their phone, no account needed. */
-export default function Join({ token, branch, theme }: Props) {
+export default function Join({ token, verifying, branch, theme }: Props) {
   const t = useT();
   const j = (field: string, replace?: Record<string, string>) => t(`suite.join.${field}`, replace);
   const joined = (usePage().flash as { joined?: boolean }).joined === true;
@@ -43,13 +74,15 @@ export default function Join({ token, branch, theme }: Props) {
                 <p className="text-lg font-semibold">{j('done')}</p>
                 <p className="text-sm text-muted-foreground">{j('done_hint')}</p>
               </div>
+            ) : verifying ? (
+              <VerifyStep token={token} phone={verifying} />
             ) : (
               <form className="flex flex-col gap-3" onSubmit={(event) => { event.preventDefault(); form.post(`/join/${token}`, { preserveScroll: true }); }}>
                 <FormField label={j('phone')} error={form.errors.phone}><Input dir="ltr" inputMode="tel" autoComplete="tel" value={form.data.phone} onChange={(event) => form.setData('phone', event.target.value)} /></FormField>
                 <FormField label={j('name')} error={form.errors.name}><Input autoComplete="name" value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} /></FormField>
                 <FormField label={j('email')} error={form.errors.email}><Input type="email" dir="ltr" autoComplete="email" value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} /></FormField>
                 <div className="grid grid-cols-2 gap-3">
-                  <FormField label={j('birth_date')} error={form.errors.birth_date}><Input type="date" dir="ltr" value={form.data.birth_date} onChange={(event) => form.setData('birth_date', event.target.value)} /></FormField>
+                  <FormField label={j('birth_date')} error={form.errors.birth_date}><DatePicker value={form.data.birth_date} onChange={(value) => form.setData('birth_date', value)} /></FormField>
                   <FormField label={j('gender')} error={form.errors.gender}>
                     <SelectInput value={form.data.gender} onChange={(value) => form.setData('gender', value)} emptyLabel="—" options={['male', 'female'].map((value) => ({ value, label: t(`suite.customers.genders.${value}`) }))} />
                   </FormField>

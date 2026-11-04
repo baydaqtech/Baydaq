@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/react';
 import FormField from '@/components/platform/FormField';
 import StatusBadge from '@/components/platform/StatusBadge';
 import StatusMessage from '@/components/platform/StatusMessage';
+import MonthPicker from '@/components/platform/MonthPicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -69,7 +70,7 @@ export default function AdvanceCalculator({ data, kind = 'advance' }: { data: Ad
           <form onSubmit={(event) => { event.preventDefault(); form.transform((payload) => ({ ...payload, first_installment_month: `${payload.first_installment_month}-01` })); form.post('/me/advance', { preserveScroll: true, onSuccess: () => { setOpen(false); form.reset(); } }); }} className="grid gap-3 sm:grid-cols-3">
             <FormField label={t('hr.pay.fields.amount')} error={installmentTooBig ? t('hr.me.loan_too_much', { installment: money(data.max_installment ?? 0) }) : tooMuch ? t('hr.me.advance_too_much') : form.errors.amount}><Input type="number" min="1" step="0.01" dir="ltr" value={form.data.amount} onChange={(event) => form.setData('amount', event.target.value)} /></FormField>
             <FormField label={t('hr.me.installments')} error={form.errors.installments}><Input type="number" min="1" max={data.max_installments} dir="ltr" value={form.data.installments} onChange={(event) => form.setData('installments', event.target.value)} /></FormField>
-            <FormField label={t('hr.me.first_month')} error={form.errors.first_installment_month}><Input type="month" dir="ltr" value={form.data.first_installment_month} onChange={(event) => form.setData('first_installment_month', event.target.value)} /></FormField>
+            <FormField label={t('hr.me.first_month')} error={form.errors.first_installment_month}><MonthPicker value={form.data.first_installment_month} onChange={(value) => form.setData('first_installment_month', value)} /></FormField>
             {amount > 0 && !tooMuch && <p className="rounded-md bg-muted px-3 py-2 sm:col-span-3">{t('hr.me.advance_plan', { count: String(count), amount: money(plan.each), share: plan.share, month: form.data.first_installment_month })}</p>}
             <div className="sm:col-span-3"><Button type="submit" disabled={form.processing || tooMuch || amount <= 0}>{t(loan ? 'hr.me.loan_new' : 'hr.me.advance_new')}</Button></div>
           </form>

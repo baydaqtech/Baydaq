@@ -7,6 +7,7 @@ import DetailList from '@/components/platform/DetailList';
 import InvoiceTable from '@/components/platform/InvoiceTable';
 import StatCard from '@/components/platform/StatCard';
 import StatusBadge from '@/components/platform/StatusBadge';
+import Hint from '@/components/platform/Hint';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +26,9 @@ function UsageBars({ history }) {
   return (
     <div className="flex h-10 items-end gap-1" aria-hidden>
       {history.map((month) => (
-        <div key={month.month} className="flex-1 rounded-sm bg-brass/70" style={{ height: `${Math.max(6, (Number(month.quantity) / max) * 100)}%` }} title={`${month.month}: ${month.quantity}`} />
+        <Hint key={month.month} label={`${month.month}: ${month.quantity}`}>
+          <div className="flex-1 rounded-sm bg-brass/70" style={{ height: `${Math.max(6, (Number(month.quantity) / max) * 100)}%` }} />
+        </Hint>
       ))}
     </div>
   );

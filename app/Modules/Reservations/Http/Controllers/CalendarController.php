@@ -95,7 +95,8 @@ class CalendarController extends Controller
     public function deposit(Request $request, Booking $booking, ChangeBookingStatus $change): RedirectResponse
     {
         abort_unless($this->access()->allowsBranch(ReservationsFeature::Bookings->key(FeatureAction::Update), $booking->branch_id, $booking->company_id), 403);
-        $change->depositReceived($booking, $request->user());
+        $means = PaymentMeans::from($request->validate(['means' => ['required', Rule::enum(PaymentMeans::class)]])['means']);
+        $change->depositReceived($booking, $means, $request->user());
         $this->toast(__('reservations.calendar.updated'));
 
         return back();

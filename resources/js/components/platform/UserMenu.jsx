@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ChevronDown, Languages, LogOut, Monitor, Moon, Sun } from 'lucide-react';
+import { Bell, ChevronDown, Languages, LogOut, Monitor, Moon, ShieldCheck, Sun } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +17,7 @@ function initials(name) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('');
 }
 
-/** Avatar menu: who is signed in, the language switch, and sign out. */
+/** Avatar menu: who is signed in, the language and colour mode, sign-in security, notifications, and sign out. */
 export default function UserMenu() {
   const t = useT();
   const { locale, dir, localeUrls } = useLocale();
@@ -51,10 +51,22 @@ export default function UserMenu() {
         </DropdownMenuItem>
         <div className="flex items-center justify-between gap-1 px-2 py-1.5">
           {[['light', Sun], ['dark', Moon], ['system', Monitor]].map(([value, Icon]) => (
-            <Button key={value} type="button" size="icon-sm" variant={mode === value ? 'secondary' : 'ghost'} aria-label={t(`common.mode.${value}`)} title={t(`common.mode.${value}`)} onClick={() => setMode(value)}><Icon /></Button>
+            <Button key={value} type="button" size="icon-sm" variant={mode === value ? 'secondary' : 'ghost'} aria-label={t(`common.mode.${value}`)} onClick={() => setMode(value)}><Icon /></Button>
           ))}
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/account/security">
+            <ShieldCheck />
+            {t('common.nav.security')}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/account/notifications">
+            <Bell />
+            {t('common.notifications.settings')}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/logout" method="post" as="button" className="w-full">
             <LogOut />

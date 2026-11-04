@@ -24,8 +24,11 @@ class EnsureSeatAvailable
             throw ValidationException::withMessages(['status' => __('suite.modules.inactive')]);
         }
 
+        // A locking read: the caller's transaction may have taken its snapshot before the lock,
+        // and a plain count would miss an activation committed in between.
         $used = Employee::query()->whereIn('status', EmployeeStatus::seated())
             ->when($ignoring, fn ($query) => $query->whereKeyNot($ignoring->id))
+            ->sharedLock()
             ->count();
 
         if ($used >= $seats) {

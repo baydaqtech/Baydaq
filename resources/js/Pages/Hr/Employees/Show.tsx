@@ -7,6 +7,8 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
+import FileField from '@/components/platform/FileField';
 import DynamicFields, { type FieldValues } from '@/components/hr/DynamicFields';
 import LeaveTab, { type LeaveData } from '@/components/hr/LeaveTab';
 import PayTab, { type PayData } from '@/components/hr/PayTab';
@@ -120,7 +122,7 @@ function StatusDialog({ employee, statuses }: { employee: EmployeeResource; stat
           </FormField>
           {form.data.status === 'terminated' && (
             <FormField label={t('hr.employees.fields.terminated_on')} htmlFor="terminated_on" error={form.errors.terminated_on}>
-              <Input id="terminated_on" type="date" dir="ltr" value={form.data.terminated_on} onChange={(event) => form.setData('terminated_on', event.target.value)} />
+              <DatePicker id="terminated_on" value={form.data.terminated_on} onChange={(value) => form.setData('terminated_on', value)} />
             </FormField>
           )}
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
@@ -282,8 +284,8 @@ function ContractDialog({ employee, contract, allowanceTypes }: { employee: Empl
           <DialogHeader className="sm:col-span-2"><DialogTitle>{contract ? t('hr.contracts.edit') : t('hr.contracts.new')}</DialogTitle></DialogHeader>
           <FormField label={f('type')} error={errors.type}><SelectInput value={data.type} onChange={(value) => setData('type', value)} options={[{ value: 'open_ended', label: t('hr.contract_type.open_ended') }, { value: 'fixed', label: t('hr.contract_type.fixed') }]} /></FormField>
           <FormField label={f('status')} error={errors.status}><SelectInput value={data.status} onChange={(value) => setData('status', value)} options={['draft', 'active', 'ended'].map((status) => ({ value: status, label: t(`hr.contract_status.${status}`) }))} /></FormField>
-          <FormField label={f('starts_on')} error={errors.starts_on}><Input type="date" dir="ltr" value={data.starts_on} onChange={(event) => setData('starts_on', event.target.value)} /></FormField>
-          <FormField label={f('ends_on')} error={errors.ends_on}><Input type="date" dir="ltr" value={data.ends_on} onChange={(event) => setData('ends_on', event.target.value)} /></FormField>
+          <FormField label={f('starts_on')} error={errors.starts_on}><DatePicker value={data.starts_on} onChange={(value) => setData('starts_on', value)} /></FormField>
+          <FormField label={f('ends_on')} error={errors.ends_on}><DatePicker value={data.ends_on} onChange={(value) => setData('ends_on', value)} /></FormField>
           <FormField label={f('probation_days')} error={errors.probation_days}><Input type="number" dir="ltr" value={data.probation_days} onChange={(event) => setData('probation_days', Number(event.target.value))} /></FormField>
           <FormField label={f('basic_salary')} error={errors.basic_salary}><Input type="number" step="0.01" dir="ltr" value={data.basic_salary} onChange={(event) => setData('basic_salary', event.target.value)} /></FormField>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={data.qiwa_authenticated} onCheckedChange={(state) => setData('qiwa_authenticated', state === true)} />{f('qiwa_authenticated')}</label>
@@ -368,11 +370,11 @@ function DocumentDialog({ employee, document, types }: { employee: EmployeeResou
             <SelectInput value={data.document_type_id} onChange={(value) => setData((current) => ({ ...current, document_type_id: Number(value), data: {} }))} options={types.map((item) => ({ value: item.id, label: item.name }))} />
           </FormField>
           {type?.has_number !== false && <FormField label={f('number')} error={errors.number}><Input dir="ltr" value={data.number} onChange={(event) => setData('number', event.target.value)} /></FormField>}
-          <FormField label={f('issued_on')} error={errors.issued_on}><Input type="date" dir="ltr" value={data.issued_on} onChange={(event) => setData('issued_on', event.target.value)} /></FormField>
-          {type?.has_expiry !== false && <FormField label={f('expires_on')} error={errors.expires_on}><Input type="date" dir="ltr" value={data.expires_on} onChange={(event) => setData('expires_on', event.target.value)} /></FormField>}
+          <FormField label={f('issued_on')} error={errors.issued_on}><DatePicker value={data.issued_on} onChange={(value) => setData('issued_on', value)} /></FormField>
+          {type?.has_expiry !== false && <FormField label={f('expires_on')} error={errors.expires_on}><DatePicker value={data.expires_on} onChange={(value) => setData('expires_on', value)} /></FormField>}
           <DynamicFields fields={type?.fields ?? []} value={data.data} onChange={(next) => setData('data', next)} errors={errors as Record<string, string>} />
           <FormField label={t('hr.documents.add_files')} error={errors.files} className="sm:col-span-2">
-            <Input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => setData('files', Array.from(event.target.files ?? []))} />
+            <FileField multiple accept=".pdf,.jpg,.jpeg,.png,.webp" files={data.files} onChange={(files) => setData('files', files)} />
           </FormField>
           {ai && data.files.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed p-2 text-sm sm:col-span-2">
@@ -410,8 +412,8 @@ function MovementDialog({ employee, branches }: { employee: EmployeeResource; br
             <SelectInput value={data.type} onChange={(value) => setData((current) => ({ ...current, type: value, to_branch_id: '' }))} options={[{ value: 'transfer', label: t('hr.movement_type.transfer') }, { value: 'secondment', label: t('hr.movement_type.secondment') }]} />
           </FormField>
           <FormField label={f('to_branch')} error={errors.to_branch_id} className="sm:col-span-2"><SelectInput value={data.to_branch_id} onChange={(value) => setData('to_branch_id', Number(value))} options={targets} /></FormField>
-          <FormField label={f('starts_on')} error={errors.starts_on}><Input type="date" dir="ltr" value={data.starts_on} onChange={(event) => setData('starts_on', event.target.value)} /></FormField>
-          {data.type === 'secondment' && <FormField label={f('ends_on')} error={errors.ends_on}><Input type="date" dir="ltr" value={data.ends_on} onChange={(event) => setData('ends_on', event.target.value)} /></FormField>}
+          <FormField label={f('starts_on')} error={errors.starts_on}><DatePicker value={data.starts_on} onChange={(value) => setData('starts_on', value)} /></FormField>
+          {data.type === 'secondment' && <FormField label={f('ends_on')} error={errors.ends_on}><DatePicker value={data.ends_on} onChange={(value) => setData('ends_on', value)} /></FormField>}
           <FormField label={f('reason')} error={errors.reason} className="sm:col-span-2"><Input value={data.reason} onChange={(event) => setData('reason', event.target.value)} /></FormField>
           <DialogFooter className="sm:col-span-2"><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>

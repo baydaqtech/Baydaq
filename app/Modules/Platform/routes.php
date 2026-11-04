@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Platform\Http\Controllers\AccessRoleController;
+use App\Modules\Platform\Http\Controllers\ApprovalsController;
 use App\Modules\Platform\Http\Controllers\BoardController;
 use App\Modules\Platform\Http\Controllers\BranchController;
 use App\Modules\Platform\Http\Controllers\BrandController;
@@ -16,6 +17,7 @@ use App\Modules\Platform\Http\Controllers\PaymentController;
 use App\Modules\Platform\Http\Controllers\PrivacyController;
 use App\Modules\Platform\Http\Controllers\ScopeShortcutController;
 use App\Modules\Platform\Http\Controllers\SearchController;
+use App\Modules\Platform\Http\Controllers\StartController;
 use App\Modules\Platform\Http\Controllers\StructureController;
 use App\Modules\Platform\Http\Controllers\SuiteEntryController;
 use App\Modules\Platform\Http\Controllers\ThemeController;
@@ -32,17 +34,21 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web', 'throttle:30,1'])->where(['token' => '[A-Za-z0-9]{32}'])->group(function (): void {
     Route::get('/join/{token}', [JoinController::class, 'show'])->name('platform.join.show');
     Route::post('/join/{token}', [JoinController::class, 'store'])->name('platform.join.store');
+    Route::post('/join/{token}/verify', [JoinController::class, 'verify'])->middleware('throttle:10,1')->name('platform.join.verify');
 });
 
-Route::middleware(['web', 'auth', 'password.changed'])->prefix('suite')->name('suite.')->group(function (): void {
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled'])->prefix('suite')->name('suite.')->group(function (): void {
     Route::get('/', SuiteEntryController::class)->name('entry');
 
     Route::prefix('{scope}')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->middleware('suite.scope')->group(function (): void {
         Route::get('/', HomeController::class)->name('home');
         Route::get('/calendar', CalendarController::class)->middleware('feature:suite.calendar')->name('calendar');
+        Route::get('/approvals', ApprovalsController::class)->name('approvals');
+        Route::get('/start', StartController::class)->middleware('access:suite.structure.update')->name('start');
         Route::get('/board', BoardController::class)->middleware('access:suite.structure.view|suite.structure.update')->middleware('feature:suite.board')->name('board');
         // Customers and their wallet (X2).
         Route::post('/customers/{customer}/wallet', [CustomerController::class, 'wallet'])->middleware('access:suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.wallet');
+        Route::post('/customers/{customer}/points', [CustomerController::class, 'redeemPoints'])->middleware(['access:suite.customers.create|suite.customers.update', 'feature:suite.customers', 'throttle:30,1'])->name('customers.points');
         Route::put('/customers/{customer}', [CustomerController::class, 'update'])->middleware('access:suite.customers.update')->middleware('feature:suite.customers')->name('customers.update');
         Route::get('/customers/{customer}', [CustomerController::class, 'show'])->middleware('access:suite.customers.view|suite.customers.create|suite.customers.update')->middleware('feature:suite.customers')->name('customers.show');
         Route::post('/customers', [CustomerController::class, 'store'])->middleware('access:suite.customers.create')->middleware('feature:suite.customers')->name('customers.store');

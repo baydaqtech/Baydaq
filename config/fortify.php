@@ -116,6 +116,7 @@ return [
 
     'limiters' => [
         'login' => 'login',
+        'two-factor' => 'two-factor',
     ],
 
     /*
@@ -145,6 +146,9 @@ return [
     'features' => [
         // Accounts are created by an admin (no registration); users can only reset a forgotten password.
         Features::resetPasswords(),
+        // Two-step sign-in with an authenticator app: proven with a first code before it counts,
+        // and the password is asked again before it is turned on or off.
+        Features::twoFactorAuthentication(['confirm' => true, 'confirmPassword' => true]),
     ],
 
 ];

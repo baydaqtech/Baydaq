@@ -4,6 +4,7 @@ namespace App\Modules\Subscriptions\Actions;
 
 use App\Modules\Hr\Data\EmployeeSummary;
 use App\Modules\Hr\Ports\StaffDirectory;
+use App\Modules\Platform\Data\PhoneNumber;
 use App\Modules\Subscriptions\Enums\MembershipStatus;
 use App\Modules\Subscriptions\Enums\PaymentMeans;
 use App\Modules\Subscriptions\Enums\PlanGender;
@@ -63,7 +64,7 @@ class CorporateMemberships
         }
 
         $member = Member::query()->where('company_id', $plan->company_id)->where('employee_id', $employee->id)->first()
-            ?? Member::query()->where('company_id', $plan->company_id)->where('phone', preg_replace('/\s+/', '', $employee->phone))->first();
+            ?? Member::query()->where('company_id', $plan->company_id)->where('phone', PhoneNumber::normalize($employee->phone))->first();
 
         try {
             $member = $this->saveMember->handle($member ?? new Member, ['name' => $employee->name, 'phone' => $employee->phone, 'gender' => $employee->gender, 'is_active' => true], $plan->company_id);

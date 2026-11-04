@@ -78,6 +78,7 @@ return [
         'note_needs_invoice' => 'A credit or debit note must reference an issued invoice of the same company.',
         'lines_required' => 'Add at least one line.',
         'unit_not_ready' => 'Choose a unit that belongs to the company and holds a certificate.',
+        'unit_busy' => 'This unit is sending another invoice to ZATCA. Try again in a moment.',
         'company_vat' => 'Add the company’s VAT number and national address first (Structure → company).',
         'csid_failed' => 'ZATCA refused the request: :message',
     ],

@@ -22,6 +22,14 @@ interface Accounts
     /** Send a notification to a login of the tenant. */
     public function notify(int $userId, Notification $notification): void;
 
+    /**
+     * An alert for the user's notification centre (and email unless they turned that kind off):
+     * text from notifications.{kind} in their language, $url a suite path to open.
+     *
+     * @param  array<string, string|int>  $params
+     */
+    public function alert(int $userId, string $kind, array $params = [], ?string $url = null): void;
+
     /** Sign a login out of every app (revoke its API tokens), e.g. when the person leaves. */
     public function signOutEverywhere(int $userId): void;
 }

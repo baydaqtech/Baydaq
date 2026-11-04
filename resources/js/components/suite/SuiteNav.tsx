@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Briefcase, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Timer, HeartPulse, Megaphone, MessageSquareText, Award, Mail, CalendarRange, GraduationCap, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
+import { BookOpen, Briefcase, CalendarCheck, Inbox, Coffee, PieChart, ReceiptText, ShoppingCart, House, Gavel, Star, Landmark, Palette, Crown, ListTodo, Sparkles, ArrowLeftRight, BarChart3, Banknote, CalendarClock, CalendarDays, ChefHat, ClipboardList, ConciergeBell, Boxes, CreditCard, DoorOpen, Handshake, Package, ScanLine, ShieldAlert, Timer, HeartPulse, Megaphone, MessageSquareText, Award, Mail, CalendarRange, GraduationCap, Truck, UserRound, Warehouse, Contact, Cpu, FileText, Fingerprint, Home, IdCard, MapPin, Monitor, Network, Receipt, Settings2, ShieldCheck, ShoppingBag, Tags, Users } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { useAccess, useSuite, useSuiteUrl } from '@/lib/suite';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 export const NAV = [
   { path: '/', label: 'suite.nav.home', icon: Home, exact: true },
   { path: '/calendar', feature: 'suite.calendar', label: 'suite.nav.calendar', icon: CalendarRange, exact: true },
+  { path: '/approvals', label: 'suite.nav.approvals', icon: Inbox, exact: true, keys: ['hr.leave.approve', 'hr.pay.approve', 'hr.overtime.approve', 'hr.expenses.approve', 'hr.remote.approve', 'hr.breaks.approve', 'hr.employees.approve_changes', 'hr.offboarding.approve', 'finance.purchasing.approve', 'finance.payables.approve'] },
   { path: '/board', feature: 'suite.board', label: 'suite.nav.board', icon: Crown, exact: true, keys: ['suite.structure.view', 'suite.structure.update'] },
   { path: '/settings/theme', label: 'suite.nav.theme', icon: Palette, exact: true, feature: 'suite.theme', keys: ['suite.structure.update'] },
   { path: '/gov', feature: 'suite.gov', label: 'suite.nav.gov', icon: Landmark, exact: true, keys: ['suite.structure.view', 'suite.structure.update', 'hr.employees.view', 'hr.payroll.view', 'invoicing.invoices.view'] },
@@ -51,6 +52,7 @@ export const NAV = [
   { path: '/invoicing/units', label: 'suite.module_nav.invoicing.einvoicing', icon: Cpu, module: 'invoicing', keys: ['invoicing.einvoicing.view', 'invoicing.einvoicing.onboard'] },
   { path: '/finance/ledger', feature: 'finance.accounting', label: 'suite.module_nav.finance.ledger', icon: BookOpen, keys: ['finance.ledger.view'] },
   { path: '/finance/reports', feature: 'finance.accounting', label: 'suite.module_nav.finance.reports', icon: PieChart, keys: ['finance.reports.view'] },
+  { path: '/finance/periods', feature: 'finance.accounting', label: 'suite.module_nav.finance.periods', icon: CalendarCheck, keys: ['finance.ledger.update'] },
   { path: '/finance/purchasing', feature: 'finance.purchasing', label: 'suite.module_nav.finance.purchasing', icon: ShoppingCart, keys: ['finance.purchasing.view', 'finance.payables.view'] },
   { path: '/pos/registers', label: 'suite.module_nav.pos.registers', icon: Monitor, module: 'pos', keys: ['pos.registers.view', 'pos.registers.create', 'pos.registers.open_shift', 'pos.orders.sell'] },
   { path: '/pos/orders', label: 'suite.module_nav.pos.orders', icon: Receipt, module: 'pos', keys: ['pos.orders.view', 'pos.orders.sell'] },

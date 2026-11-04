@@ -3,6 +3,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import FormActions from '@/components/platform/FormActions';
 import FormField from '@/components/platform/FormField';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -76,9 +77,9 @@ export default function InvoiceForm({ invoice, companies, customers, issued, typ
                 <FormField label={f('reason')} error={errors.reason}><Input value={data.reason} onChange={(event) => setData('reason', event.target.value)} /></FormField>
               </>
             )}
-            <FormField label={f('issue_date')} error={errors.issue_date}><Input type="date" dir="ltr" value={data.issue_date} onChange={(event) => setData('issue_date', event.target.value)} /></FormField>
-            <FormField label={f('due_date')} error={errors.due_date}><Input type="date" dir="ltr" value={data.due_date} onChange={(event) => setData('due_date', event.target.value)} /></FormField>
-            <FormField label={f('supply_date')} error={errors.supply_date}><Input type="date" dir="ltr" value={data.supply_date} onChange={(event) => setData('supply_date', event.target.value)} /></FormField>
+            <FormField label={f('issue_date')} error={errors.issue_date}><DatePicker value={data.issue_date} onChange={(value) => setData('issue_date', value)} /></FormField>
+            <FormField label={f('due_date')} error={errors.due_date}><DatePicker value={data.due_date} onChange={(value) => setData('due_date', value)} /></FormField>
+            <FormField label={f('supply_date')} error={errors.supply_date}><DatePicker value={data.supply_date} onChange={(value) => setData('supply_date', value)} /></FormField>
             <FormField label={f('payment_means')} error={errors.payment_means}><SelectInput value={data.payment_means} onChange={(value) => setData('payment_means', value)} options={paymentMeans} /></FormField>
             <FormField label={f('note')} error={errors.note} className="sm:col-span-2"><Input value={data.note} onChange={(event) => setData('note', event.target.value)} /></FormField>
           </CardContent>

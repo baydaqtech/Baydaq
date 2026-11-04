@@ -42,6 +42,11 @@ class BuildPayrollRun
         }
 
         return DB::transaction(function () use ($companyId, $payMonth, $run): PayrollRun {
+            // Approval locks the run too: re-read it under the lock so an approved run is never rebuilt.
+            if ($run !== null && PayrollRun::query()->lockForUpdate()->whereKey($run->id)->value('status') !== PayrollStatus::Draft) {
+                throw ValidationException::withMessages(['pay_month' => __('hr.payroll.errors.already_approved')]);
+            }
+
             $run ??= (new PayrollRun)->forceFill(['client_id' => $this->tenant->client()->id, 'company_id' => $companyId, 'pay_month' => $payMonth->toDateString(), 'status' => PayrollStatus::Draft->value]);
             $run->save();
             $run->lines()->delete();

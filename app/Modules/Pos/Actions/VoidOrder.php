@@ -6,6 +6,7 @@ use App\Modules\Platform\Ports\Audit;
 use App\Modules\Pos\Enums\OrderStatus;
 use App\Modules\Pos\Models\Order;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class VoidOrder
@@ -18,13 +19,18 @@ class VoidOrder
      */
     public function handle(Order $order, ?string $reason, Authenticatable $actor): Order
     {
-        if ($order->status !== OrderStatus::Open) {
-            throw ValidationException::withMessages(['status' => __('pos.errors.void_paid')]);
-        }
+        return DB::transaction(function () use ($order, $reason, $actor): Order {
+            // Voiding while another till pays it: only one of the two gets past the lock.
+            $order = Order::query()->lockForUpdate()->findOrFail($order->id);
 
-        $order->forceFill(['status' => OrderStatus::Void->value, 'note' => $reason ?? $order->note])->save();
-        $this->audit->record($order, 'voided', ['reason' => $reason], $actor);
+            if ($order->status !== OrderStatus::Open) {
+                throw ValidationException::withMessages(['status' => __('pos.errors.void_paid')]);
+            }
 
-        return $order;
+            $order->forceFill(['status' => OrderStatus::Void->value, 'note' => $reason ?? $order->note])->save();
+            $this->audit->record($order, 'voided', ['reason' => $reason], $actor);
+
+            return $order;
+        });
     }
 }

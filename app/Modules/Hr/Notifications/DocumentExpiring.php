@@ -19,7 +19,7 @@ class DocumentExpiring extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return method_exists($notifiable, 'notificationChannels') ? $notifiable->notificationChannels('hr.document_expiring') : ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -40,6 +40,7 @@ class DocumentExpiring extends Notification implements ShouldQueue
     {
         return [
             'kind' => 'hr.document_expiring',
+            'url' => '/hr/documents/radar',
             'document_id' => $this->document->id,
             'employee_id' => $this->document->employee_id,
             'days_left' => $this->daysLeft,

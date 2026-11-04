@@ -22,6 +22,7 @@ use App\Modules\Pos\Models\Register;
 use App\Modules\Pos\Models\Shift;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Response;
 
@@ -61,8 +62,10 @@ class RegisterController extends Controller
         $data = $request->validate(['branch_id' => ['required', 'integer'], 'name' => ['required', 'string', 'max:60'], 'einvoice_unit_id' => ['nullable', 'integer'], 'asset_id' => ['nullable', 'integer'], 'require_check_in' => ['boolean'], 'is_active' => ['boolean']]);
         $branch = $this->branchesFor(PosFeature::Registers, FeatureAction::Create)->first(fn (BranchRef $branch): bool => $branch->id === (int) $data['branch_id']) ?? abort(403);
 
-        app(EnsureWithinLimit::class)->handle('registers', Register::query()->count(), 'name');
-        (new Register(collect($data)->except('branch_id')->all()))->forceFill(['client_id' => $tenant->client()->id, 'company_id' => $branch->companyId, 'branch_id' => $branch->id, 'menu_token' => Str::random(32)])->save();
+        DB::transaction(function () use ($data, $branch, $tenant): void {
+            app(EnsureWithinLimit::class)->handle('registers', Register::query(), 'name');
+            (new Register(collect($data)->except('branch_id')->all()))->forceFill(['client_id' => $tenant->client()->id, 'company_id' => $branch->companyId, 'branch_id' => $branch->id, 'menu_token' => Str::random(32)])->save();
+        });
         $this->toast(__('pos.registers.saved'));
 
         return back();

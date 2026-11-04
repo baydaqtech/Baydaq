@@ -6,6 +6,7 @@ import FilterBar from '@/components/platform/FilterBar';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,7 @@ export function MemberFields({ form, companies }: { form: ReturnType<typeof useF
       <FormField label={f('phone')} error={form.errors.phone}><Input dir="ltr" type="tel" value={form.data.phone} onChange={(event) => form.setData('phone', event.target.value)} /></FormField>
       <FormField label={f('email')} error={form.errors.email}><Input dir="ltr" type="email" value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} /></FormField>
       <FormField label={f('gender')} error={form.errors.gender}><SelectInput value={form.data.gender} onChange={(value) => form.setData('gender', value)} options={genders} emptyLabel="—" /></FormField>
-      <FormField label={f('birth_date')} error={form.errors.birth_date}><Input dir="ltr" type="date" value={form.data.birth_date} onChange={(event) => form.setData('birth_date', event.target.value)} /></FormField>
+      <FormField label={f('birth_date')} error={form.errors.birth_date}><DatePicker value={form.data.birth_date} onChange={(value) => form.setData('birth_date', value)} /></FormField>
       <FormField label={f('note')}><Input value={form.data.note} onChange={(event) => form.setData('note', event.target.value)} /></FormField>
     </>
   );

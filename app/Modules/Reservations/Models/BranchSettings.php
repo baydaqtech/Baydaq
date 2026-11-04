@@ -6,6 +6,7 @@ use App\Modules\Platform\Models\Concerns\BelongsToClient;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Str;
 
 /**
@@ -42,8 +43,19 @@ class BranchSettings extends Model
     /** The branch's settings, created with the defaults (closed to online booking) on first use. */
     public static function forBranch(int $branchId, int $clientId): self
     {
-        return self::query()->find($branchId) ?? tap((new self(['hours' => self::defaultHours()]))->forceFill([
-            'branch_id' => $branchId, 'client_id' => $clientId, 'booking_token' => Str::random(32),
-        ]))->save();
+        $settings = self::query()->find($branchId);
+
+        if ($settings !== null) {
+            return $settings;
+        }
+
+        try {
+            return tap((new self(['hours' => self::defaultHours()]))->forceFill([
+                'branch_id' => $branchId, 'client_id' => $clientId, 'booking_token' => Str::random(32),
+            ]))->save();
+        } catch (UniqueConstraintViolationException) {
+            // Two first bookings at a new branch: the other request created the row.
+            return self::query()->findOrFail($branchId);
+        }
     }
 }

@@ -62,7 +62,7 @@ class CustomerWalletTest extends TestCase
         $customer = Customer::query()->sole();
         $this->assertSame('2.00', (string) $customer->wallet_balance); // 5% of 40
 
-        $this->actingAs($this->owner)->post($this->suiteUrl("customers/{$customer->id}/wallet"), ['kind' => 'top_up', 'amount' => '50'])->assertSessionHasNoErrors();
+        $this->actingAs($this->owner)->post($this->suiteUrl("customers/{$customer->id}/wallet"), ['kind' => 'top_up', 'amount' => '50', 'company_id' => $this->company->id, 'paid_with' => 'cash'])->assertSessionHasNoErrors();
         $order = app(PayOrder::class)->handle($this->order('+966501234567'), [['method' => 'wallet', 'amount' => '30.00'], ['method' => 'cash', 'amount' => '10.00']]);
 
         $this->assertSame(OrderStatus::Paid, $order->status);
@@ -104,7 +104,7 @@ class CustomerWalletTest extends TestCase
 
         $viewer = $this->memberWith(['suite.customers.view'], ScopeLevel::Client);
         $this->actingAs($viewer)->get($this->suiteUrl("customers/{$customer->id}"))->assertOk()->assertInertia(fn (Assert $page) => $page->has('activity', 0)->where('can_top_up', false));
-        $this->actingAs($viewer)->post($this->suiteUrl("customers/{$customer->id}/wallet"), ['kind' => 'top_up', 'amount' => '10'])->assertForbidden();
+        $this->actingAs($viewer)->post($this->suiteUrl("customers/{$customer->id}/wallet"), ['kind' => 'top_up', 'amount' => '10', 'company_id' => $this->company->id, 'paid_with' => 'cash'])->assertForbidden();
         $this->actingAs($this->memberWith(['pos.orders.view'], ScopeLevel::Client))->get($this->suiteUrl('customers'))->assertForbidden();
 
         $this->actingAs($this->owner)->getJson($this->suiteUrl('search?q=0501234567'))->assertJsonPath('hits.0.type', 'customer');

@@ -41,6 +41,13 @@ class SaveCompanyRequest extends FormRequest
             'postal_code' => ['nullable', 'digits:5'],
             'timezone' => ['required', 'timezone:all'],
             'loyalty_percent' => ['nullable', 'numeric', 'min:0', 'max:50'],
+            'points_per_riyal' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'point_value' => ['nullable', 'numeric', 'min:0', 'max:10'],
+            'points_tiers' => ['nullable', 'array', 'max:5'],
+            'points_tiers.*.name_ar' => ['required', 'string', 'max:40'],
+            'points_tiers.*.name_en' => ['required', 'string', 'max:40'],
+            'points_tiers.*.from' => ['required', 'integer', 'min:1'],
+            'points_tiers.*.multiplier' => ['required', 'numeric', 'min:1', 'max:5'],
             'client_scope' => ['nullable', 'in:organization,company,branch'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ];

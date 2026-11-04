@@ -161,25 +161,9 @@ return [
     ],
 
     'work' => [
-        'eyebrow' => 'Our work',
-        'title' => 'A product we built and run ourselves.',
-        'lede' => 'We build our clients\' projects with the same care.',
-        'story' => [
-            ['n' => '1', 'title' => 'The problem', 'text' => 'Restaurants with several branches run on WhatsApp and paper: the owner cannot tell whether a branch was cleaned, how much stock is left, or whether today made a profit.'],
-            ['n' => '2', 'title' => 'What we built', 'text' => 'One cloud system for daily branch tasks, stock and purchasing, recipes and their cost, and revenue and break-even.'],
-            ['n' => '3', 'title' => 'What changed', 'text' => 'Every branch on one screen: staff hand in their tasks from their phones with photos, and the owner sees the numbers day by day.'],
-        ],
-        'screens' => [
-            ['name' => 'Revenue', 'alt' => 'Daily revenue screen: revenue this month, revenue by day, and the split by payment method'],
-            ['name' => 'Menu engineering', 'alt' => 'Menu engineering screen: dishes ranked by demand and profit, with the cost of each dish'],
-            ['name' => 'Purchasing', 'alt' => 'Purchase orders screen: each order and its stage, from purchasing approval to receipt and payment'],
-        ],
-        'phone_alt' => 'The “My tasks” screen on a phone: the employee\'s tasks for today and how many are done',
-        'try' => 'Try the system',
-        'visit' => 'Visit the website',
-        'show_screen' => 'Show the :name screen',
-        'play' => 'Play',
-        'pause' => 'Pause',
+        'title' => 'Our projects',
+        'open_project' => ':name: see the project',
+        'visit_site' => ':name: visit its website (opens in a new tab)',
     ],
 
     'about' => [

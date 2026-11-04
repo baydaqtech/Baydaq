@@ -18,4 +18,5 @@ return [
     'res_booking_confirmed' => 'Hello :name, your booking :number for :service on :date at :time is confirmed.',
     'res_booking_reminder' => 'Reminder: :name, your booking :number for :service is tomorrow, :date at :time.',
     'inv_payment_link' => 'Hello :name, invoice :number for :amount SAR is ready. Pay securely here: :url',
+    'join_code' => 'Your code for :company is :code. It works for :minutes minutes.',
 ];

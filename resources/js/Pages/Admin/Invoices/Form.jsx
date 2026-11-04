@@ -3,6 +3,7 @@ import FormActions from '@/components/platform/FormActions';
 import FormField from '@/components/platform/FormField';
 import Repeater from '@/components/platform/Repeater';
 import SelectInput from '@/components/platform/SelectInput';
+import DatePicker from '@/components/platform/DatePicker';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -54,10 +55,10 @@ export default function InvoiceForm({ invoice, defaults, options }) {
               <SelectInput id="project_id" value={data.project_id} onChange={(value) => setData('project_id', value)} options={projects} emptyLabel={f('no_project')} />
             </FormField>
             <FormField label={f('issue_date')} htmlFor="issue_date" error={errors.issue_date}>
-              <Input id="issue_date" type="date" value={data.issue_date} onChange={(event) => setData('issue_date', event.target.value)} />
+              <DatePicker id="issue_date" value={data.issue_date} onChange={(value) => setData('issue_date', value)} />
             </FormField>
             <FormField label={f('due_date')} htmlFor="due_date" error={errors.due_date}>
-              <Input id="due_date" type="date" value={data.due_date} onChange={(event) => setData('due_date', event.target.value)} />
+              <DatePicker id="due_date" value={data.due_date} onChange={(value) => setData('due_date', value)} />
             </FormField>
           </CardContent>
         </Card>

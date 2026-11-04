@@ -13,7 +13,7 @@ Route::middleware(['web'])->group(function (): void {
     Route::post('/menu/{token}/order', [MenuController::class, 'order'])->where('token', '[A-Za-z0-9]{32}')->middleware('throttle:20,1')->name('menu.order');
 });
 
-Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:pos'])
+Route::middleware(['web', 'auth', 'password.changed', 'two-factor.enabled', 'suite.scope', 'module:pos'])
     ->prefix('suite/{scope}/pos')->where(['scope' => 'all|[oc]-[a-z0-9-]+'])->name('pos.')
     ->group(function (): void {
         Route::middleware('access:pos.catalog.create|pos.catalog.update')->group(function (): void {
@@ -43,6 +43,7 @@ Route::middleware(['web', 'auth', 'password.changed', 'suite.scope', 'module:pos
         });
         Route::post('/sell/{register}/orders/{order}/void', [SellController::class, 'void'])->middleware('access:pos.orders.void')->name('sell.orders.void');
         Route::put('/orders/{order}/kitchen', [SellController::class, 'kitchen'])->middleware('access:pos.orders.kitchen')->name('orders.kitchen');
+        Route::post('/orders/{order}/refunds', [OrderController::class, 'refund'])->middleware(['access:pos.orders.refund', 'throttle:20,1'])->name('orders.refunds.store');
         Route::get('/kitchen', [OrderController::class, 'kitchen'])->middleware('access:pos.orders.kitchen')->name('kitchen');
         Route::get('/reports/menu-engineering', [OrderController::class, 'menuEngineering'])->middleware('access:pos.orders.view')->name('reports.menu_engineering');
         Route::get('/orders', [OrderController::class, 'index'])->middleware('access:pos.orders.view|pos.orders.sell')->name('orders.index');

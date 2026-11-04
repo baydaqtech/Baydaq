@@ -7,11 +7,11 @@ import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import StatCard from '@/components/platform/StatCard';
 import StatusBadge from '@/components/platform/StatusBadge';
+import DatePicker from '@/components/platform/DatePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import SuiteLayout from '@/layouts/SuiteLayout';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -39,7 +39,7 @@ function PaidDialog({ run }: { run: RunRow }) {
       <DialogContent dir={dir}>
         <form onSubmit={(event) => { event.preventDefault(); form.put(url(`/hr/payroll/${run.id}/paid`), { preserveScroll: true, onSuccess: () => setOpen(false) }); }} className="flex flex-col gap-4">
           <DialogHeader><DialogTitle>{t('hr.payroll.mark_paid')}</DialogTitle></DialogHeader>
-          <FormField label={t('hr.payroll.fields.paid_on')} error={form.errors.paid_on}><Input type="date" dir="ltr" value={form.data.paid_on} onChange={(event) => form.setData('paid_on', event.target.value)} /></FormField>
+          <FormField label={t('hr.payroll.fields.paid_on')} error={form.errors.paid_on}><DatePicker value={form.data.paid_on} onChange={(value) => form.setData('paid_on', value)} /></FormField>
           <DialogFooter><Button type="submit" disabled={form.processing}>{t('common.actions.save')}</Button></DialogFooter>
         </form>
       </DialogContent>

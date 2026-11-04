@@ -138,6 +138,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Sign-in security
+    |--------------------------------------------------------------------------
+    |
+    | Two-step sign-in (an authenticator app) is open to everyone. When
+    | required, Baydaq admins and account owners must turn it on before they
+    | continue; on by default in production. Mobile app tokens last
+    | `api_token_days` and the app renews them before they run out.
+    |
+    */
+
+    'security' => [
+        'two_factor_required' => (bool) env('TWO_FACTOR_REQUIRED', env('APP_ENV') === 'production'),
+        'api_token_days' => (int) env('API_TOKEN_DAYS', 90),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Assets and inventory
     |--------------------------------------------------------------------------
     |

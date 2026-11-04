@@ -31,4 +31,10 @@ interface OrgDirectory
 
     /** @return list<BrandRef> active brands, optionally of one company */
     public function brands(?int $companyId = null): array;
+
+    /**
+     * Today's date (Y-m-d) where the company is. The app clock is UTC; a business day (order
+     * numbers, sales dates, postings) starts at local midnight, not three hours later.
+     */
+    public function today(int $companyId): string;
 }
