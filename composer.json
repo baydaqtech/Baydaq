@@ -7,9 +7,17 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "anthropic-ai/sdk": "^1.3",
+        "aws/aws-sdk-php": "^3.400",
+        "chillerlan/php-qrcode": "^6.0",
         "inertiajs/inertia-laravel": "^3.3",
+        "laravel/fortify": "^1.41",
         "laravel/framework": "^13.17",
-        "laravel/tinker": "^3.0"
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "mpdf/mpdf": "^8.3",
+        "spatie/laravel-permission": "^8.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
