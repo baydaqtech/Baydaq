@@ -314,7 +314,9 @@ php artisan docs:er                 # after any migration
 ## 6. Test accounts
 
 All passwords: **`Baydaq@2026`** (seeded by `Database\Seeders\TestAccountSeeder`; run on its own with
-`php artisan db:seed --class=TestAccountSeeder`).
+`php artisan db:seed --class=TestAccountSeeder`, plus `--force` on a server). It uses no factories, so it also runs on a
+server installed without development packages (no Faker). On a production server the account only gets features
+from a client plan or the default package. `DemoSeeder` still uses factories and is for local machines only.
 
 **Al Noor Group** — organization *Al Noor Holding*:
 

@@ -58,12 +58,14 @@ use App\Modules\Reservations\Models\Booking;
 use App\Modules\Reservations\Models\Resource;
 use App\Modules\Reservations\Models\Service;
 use Database\Seeders\TestAccountSeeder;
+use Faker\Generator as FakerGenerator;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -254,6 +256,23 @@ class HardeningTest extends TestCase
         $this->assertSame(2, Company::query()->count());
         $this->assertSame(5, Branch::query()->count());
         $this->assertSame(5, Employee::query()->whereNotNull('user_id')->count());
+    }
+
+    public function test_the_test_account_seeder_runs_on_a_server_without_faker(): void
+    {
+        // A production install (composer install --no-dev) has no Faker, so factories can't run there.
+        $noFaker = fn () => throw new RuntimeException('Faker is not installed on this server.');
+        $this->app->bind(FakerGenerator::class, $noFaker);
+        $this->app->bind(FakerGenerator::class.':'.config('app.faker_locale'), $noFaker);
+
+        $this->seed(TestAccountSeeder::class);
+
+        $owner = User::query()->where('email', TestAccountSeeder::OWNER)->sole();
+        $this->assertTrue($owner->hasRole('client'));
+        $this->assertTrue(Hash::check(TestAccountSeeder::PASSWORD, $owner->password));
+        $this->asTenant($owner->client);
+        $this->assertSame(5, Employee::query()->whereNotNull('user_id')->count());
+        $this->assertTrue(Subscription::query()->where('ends_on', '>', today())->exists());
     }
 
     public function test_a_booking_locks_the_branch_before_it_reads_the_free_slots(): void
