@@ -17,7 +17,7 @@ return [
         'title_1' => 'Every move',
         'title_2' => 'counts.',
         'lede' => 'We design and build websites, apps and AI solutions for companies and individuals, and we stay with you after launch. A clear plan, careful execution, and results you can see in your business.',
-        'cta_partnership' => 'Request a partnership',
+        'cta_partnership' => 'Start your project',
         'cta_service' => 'Request a service',
         'have_account' => 'Have a Baydaq Platform account?',
         'login' => 'Sign in',
@@ -69,11 +69,11 @@ return [
                 'text' => 'You own the idea and we build it: a website, an app or a system, for an agreed price and timeline. The product stays yours.',
             ],
             [
-                'title' => 'Technical partner for equity',
+                'title' => 'We build for equity',
                 'text' => 'For a promising idea, we become its tech team: we build, run and grow it in return for a share, instead of full payment up front.',
             ],
             [
-                'title' => 'Your tech arm',
+                'title' => 'A tech team for your company',
                 'text' => 'A technical team for your company without hiring one: we handle development, hosting and support, and give you Baydaq Platform services.',
             ],
         ],
@@ -153,7 +153,7 @@ return [
         'title' => 'From your request to your platform account.',
         'lede' => 'Four simple steps, then you follow your project, services and invoices from your account.',
         'steps' => [
-            ['title' => 'Send a request', 'text' => 'Choose a partnership or a service request, and tell us briefly what you need.'],
+            ['title' => 'Send a request', 'text' => 'Choose a project or a service request, and tell us briefly what you need.'],
             ['title' => 'We review it', 'text' => 'Our team reviews your request and gets in touch to agree the details.'],
             ['title' => 'We create your account', 'text' => 'Once approved, we create your Baydaq Platform account and email you an activation link.'],
             ['title' => 'Follow your project', 'text' => 'Sign in to follow your projects, services and invoices in one place.'],
@@ -193,7 +193,7 @@ return [
         'whatsapp_button' => 'Start the chat on WhatsApp',
         'whatsapp_greeting' => 'Hello, I would like to talk about a project.',
         'or_request' => 'Prefer to write? Send us a request:',
-        'request_partnership' => 'Partnership request',
+        'request_partnership' => 'Project request',
         'request_service' => 'Service request',
         'form' => [
             'name' => 'Name',

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * The public "request a partnership" / "request a service" forms.
+ * The public "start your project" / "request a service" forms.
  */
 class StoreClientRequest extends FormRequest
 {
@@ -27,7 +27,7 @@ class StoreClientRequest extends FormRequest
      */
     public function rules(): array
     {
-        $wantsServices = $this->route('type') === RequestType::Service;
+        $wantsServices = $this->route('requestType') === RequestType::Service;
 
         return [
             'name' => ['required', 'string', 'max:120'],

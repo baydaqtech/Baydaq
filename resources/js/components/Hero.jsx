@@ -17,7 +17,7 @@ export default function Hero() {
           </h1>
           <p className="lede">{t('landing.hero.lede')}</p>
           <div className="actions">
-            <a className="btn btn-gold" href="/request/partnership">{t('landing.hero.cta_partnership')} <span className="arr" aria-hidden="true">←</span></a>
+            <a className="btn btn-gold" href="/request/project">{t('landing.hero.cta_partnership')} <span className="arr" aria-hidden="true">←</span></a>
             <a className="btn btn-line" href="/request/service">{t('landing.hero.cta_service')}</a>
           </div>
           <p className="hero-login">

@@ -16,7 +16,7 @@ use Illuminate\Validation\Rule;
 use Inertia\Response;
 
 /**
- * Partnership and service requests from the public forms.
+ * Project and service requests from the public forms.
  */
 class RequestController extends Controller
 {

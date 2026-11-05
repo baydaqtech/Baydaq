@@ -37,7 +37,7 @@
 - `docker compose exec laravel.test php artisan test`: تشغيل الاختبارات.
 - `docker compose exec laravel.test php artisan queue:work`: إرسال الرسائل (الدعوات، تنبيهات الطلبات، إعادة تعيين كلمة المرور). محلياً تُكتب في `storage/logs/laravel.log`.
 - قاعدة البيانات MySQL (خدمة `mysql` في `compose.yaml`)، والاختبارات على قاعدة `testing` في الخدمة نفسها.
-- طلبات الشراكة والخدمة من الموقع تُحفظ في جدول `requests` وتظهر في لوحة الإدارة.
+- طلبات المشاريع والخدمات من الموقع تُحفظ في جدول `requests` وتظهر في لوحة الإدارة.
 
 ## هيكل المشروع
 

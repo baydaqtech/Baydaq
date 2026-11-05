@@ -2,16 +2,16 @@
 
 return [
     'partnership' => [
-        'title' => 'Request a partnership',
-        'lede' => 'Tell us about your idea or company and what you are looking for in a partner. We will review your request and get in touch.',
-        'message' => 'Tell us about the idea and what you want from the partnership',
+        'title' => 'Start your project',
+        'lede' => 'Tell us about your idea or company and what you need. We will review your request and get in touch.',
+        'message' => 'Tell us about the idea and what you need',
         'switch' => 'Need a specific service? Send a service request',
     ],
     'service' => [
         'title' => 'Request a service',
         'lede' => 'Pick the services you need and tell us about your project. We will review your request and get in touch.',
         'message' => 'Tell us about your project and what you need',
-        'switch' => 'Looking for a technical partner? Send a partnership request',
+        'switch' => 'Have a project idea? Send a project request',
     ],
     'fields' => [
         'name' => 'Name',

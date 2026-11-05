@@ -82,8 +82,12 @@ class PublicSiteTest extends TestCase
                 ->where('services', [['key' => 'sms', 'name' => 'SMS']])
                 ->has('copy.requests'));
 
-        $this->get('/request/partnership')
-            ->assertInertia(fn (Assert $page) => $page->where('type', 'partnership')->where('services', []));
+        $this->get('/request/project')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('type', 'partnership')
+                ->where('action', '/request/project')
+                ->where('switchTo', '/request/service')
+                ->where('services', []));
     }
 
     public function test_unknown_request_types_are_not_found(): void

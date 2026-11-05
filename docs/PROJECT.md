@@ -283,7 +283,12 @@ These are deliberately single, shared across modules — never add a second one:
 ### Public site
 - Landing, products, services, service request and contact forms, in Arabic and English. The landing's "products we
   build and run" and "ready services for your app" sections are hidden for now (`SHOW_PRODUCTS`,
-  `SHOW_PLATFORM_SERVICES` in `Pages/Landing.jsx`); `/products` and `/services` still list them.
+  `SHOW_PLATFORM_SERVICES` in `Pages/Landing.jsx`); `/products` and `/services` still list them. The "what we do"
+  section ("three ways to work with us") is hidden too (`SHOW_DEALS`).
+- Request forms: "Start your project" at `/request/project` and "Request a service" at `/request/service`
+  (`RequestType::slug()`; a project is stored with the `partnership` type, and the old `/request/partnership`
+  redirects permanently). The public site doesn't offer partnership or a "tech arm"; projects where Baydaq
+  holds a share are still recorded as the `partnership` relationship in admin.
 - **Our work**: the landing shows "Our projects" and the project logos, without boxes (OpsMaster, Nuzul, Nuzul Umrah,
   Healthy Meals, PC Home). A project with its own website opens it (OpsMaster → opsmaster.tech, PC Home →
   pchome-dev-k0sgqb.laravel.cloud); the others open their case-study page at `/work/{slug}`: a hero with the logo,

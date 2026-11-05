@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RequestType;
 use App\Http\Controllers\Admin\ChangeRequestController as AdminChangeRequestController;
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
 use App\Http\Controllers\Admin\ClientPlanController;
@@ -43,8 +44,11 @@ Route::get('/', LandingController::class)->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/services', [ServiceCatalogController::class, 'index'])->name('services.index');
 Route::get('/work/{slug}', [WorkController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('work.show');
-Route::get('/request/{type}', [RequestController::class, 'create'])->name('requests.create');
-Route::post('/request/{type}', [RequestController::class, 'store'])
+// The forms live at /request/project and /request/service; the old partnership address still leads to the first.
+Route::permanentRedirect('/request/partnership', '/request/project');
+Route::bind('requestType', fn (string $slug): RequestType => RequestType::fromSlug($slug) ?? abort(404));
+Route::get('/request/{requestType}', [RequestController::class, 'create'])->name('requests.create');
+Route::post('/request/{requestType}', [RequestController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('requests.store');
 

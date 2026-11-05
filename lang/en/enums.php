@@ -41,7 +41,7 @@ return [
         'void' => 'Void',
     ],
     'request_type' => [
-        'partnership' => 'Partnership',
+        'partnership' => 'Project',
         'service' => 'Service',
     ],
     'request_status' => [

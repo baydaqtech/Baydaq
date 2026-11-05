@@ -24,11 +24,16 @@ class RequestFormTest extends TestCase
         Notification::fake();
     }
 
-    public function test_a_partnership_request_is_saved(): void
+    public function test_the_old_partnership_address_leads_to_the_project_form(): void
     {
-        $this->from('/request/partnership')
-            ->post('/request/partnership', $this->form())
-            ->assertRedirect('/request/partnership')
+        $this->get('/request/partnership')->assertStatus(301)->assertRedirect('/request/project');
+    }
+
+    public function test_a_project_request_is_saved_with_the_partnership_type(): void
+    {
+        $this->from('/request/project')
+            ->post('/request/project', $this->form())
+            ->assertRedirect('/request/project')
             ->assertSessionHasNoErrors()
             ->assertSessionHas('status', trans('requests.sent'));
 
@@ -69,14 +74,14 @@ class RequestFormTest extends TestCase
     {
         Service::factory()->create(['key' => 'email']);
 
-        $this->post('/request/partnership', $this->form(['services' => ['email']]))->assertSessionHasNoErrors();
+        $this->post('/request/project', $this->form(['services' => ['email']]))->assertSessionHasNoErrors();
 
         $this->assertNull(ClientRequest::sole()->services);
     }
 
     public function test_invalid_details_are_rejected_in_arabic(): void
     {
-        $this->post('/request/partnership', $this->form(['email' => 'not-an-email', 'message' => 'short']))
+        $this->post('/request/project', $this->form(['email' => 'not-an-email', 'message' => 'short']))
             ->assertSessionHasErrors([
                 'email' => 'يجب أن يكون البريد الإلكتروني بريداً إلكترونياً صحيحاً.',
                 'message' => 'يجب أن يكون طول الرسالة 10 أحرف على الأقل.',
@@ -92,7 +97,7 @@ class RequestFormTest extends TestCase
         $otherAdmin = User::factory()->admin(Permission::InvoicesView)->create();
         $client = User::factory()->client()->create();
 
-        $this->post('/request/partnership', $this->form());
+        $this->post('/request/project', $this->form());
 
         Notification::assertSentTo([$owner, $handler], NewRequestReceived::class);
         Notification::assertNotSentTo([$otherAdmin, $client], NewRequestReceived::class);
@@ -102,7 +107,7 @@ class RequestFormTest extends TestCase
     {
         User::factory()->systemAdmin()->create();
 
-        $this->post('/request/partnership', $this->form(['website' => 'http://spam.example']))
+        $this->post('/request/project', $this->form(['website' => 'http://spam.example']))
             ->assertSessionHasNoErrors()
             ->assertSessionHas('status', trans('requests.sent'));
 
@@ -113,10 +118,10 @@ class RequestFormTest extends TestCase
     public function test_the_forms_are_rate_limited(): void
     {
         foreach (range(1, 5) as $attempt) {
-            $this->post('/request/partnership', $this->form(['email' => "sara{$attempt}@example.com"]));
+            $this->post('/request/project', $this->form(['email' => "sara{$attempt}@example.com"]));
         }
 
-        $this->post('/request/partnership', $this->form())->assertTooManyRequests();
+        $this->post('/request/project', $this->form())->assertTooManyRequests();
         $this->assertDatabaseCount('requests', 5);
     }
 

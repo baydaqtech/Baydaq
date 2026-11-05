@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A partnership or service request sent from the public forms.
+ * A project or service request sent from the public forms (a project is stored with the `partnership` type).
  * Status, handler and resulting client are set by the admin actions.
  */
 #[Table('requests')]

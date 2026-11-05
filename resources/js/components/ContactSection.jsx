@@ -68,7 +68,7 @@ export default function ContactSection() {
             <div className="contact-requests">
               <p>{t('landing.contact.or_request')}</p>
               <div>
-                <a className="btn btn-line btn-sm" href="/request/partnership">{t('landing.contact.request_partnership')}</a>
+                <a className="btn btn-line btn-sm" href="/request/project">{t('landing.contact.request_partnership')}</a>
                 <a className="btn btn-line btn-sm" href="/request/service">{t('landing.contact.request_service')}</a>
               </div>
             </div>
