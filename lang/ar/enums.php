@@ -41,7 +41,7 @@ return [
         'void' => 'ملغاة',
     ],
     'request_type' => [
-        'partnership' => 'شراكة',
+        'partnership' => 'مشروع',
         'service' => 'خدمة',
     ],
     'request_status' => [

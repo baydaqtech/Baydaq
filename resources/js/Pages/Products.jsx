@@ -17,7 +17,7 @@ export default function Products({ products }) {
         </div>
         <div className="page-cta-btns">
           <a className="btn btn-gold" href="/request/service">{t('landing.hero.cta_service')}</a>
-          <a className="btn btn-line" href="/request/partnership">{t('landing.hero.cta_partnership')}</a>
+          <a className="btn btn-line" href="/request/project">{t('landing.hero.cta_partnership')}</a>
         </div>
       </div>
     </SitePage>

@@ -2,16 +2,15 @@ import { Form, usePage } from '@inertiajs/react';
 import SitePage from '../components/SitePage';
 import { useT } from '../lib/i18n';
 
-/** The public "request a partnership" / "request a service" form. */
-export default function RequestForm({ type, services }) {
+/** The public "start your project" / "request a service" form. */
+export default function RequestForm({ type, action, switchTo, services }) {
   const t = useT();
   const { status } = usePage().props;
-  const other = type === 'service' ? 'partnership' : 'service';
 
   return (
     <SitePage title={t(`requests.${type}.title`)} lede={t(`requests.${type}.lede`)}>
       <div className="request-card">
-        <Form action={`/request/${type}`} method="post" options={{ preserveScroll: true }} resetOnSuccess className="request-form">
+        <Form action={action} method="post" options={{ preserveScroll: true }} resetOnSuccess className="request-form">
           {({ errors, processing }) => (
             <>
               <div className="field">
@@ -74,7 +73,7 @@ export default function RequestForm({ type, services }) {
             </>
           )}
         </Form>
-        <a className="request-switch" href={`/request/${other}`}>{t(`requests.${type}.switch`)}</a>
+        <a className="request-switch" href={switchTo}>{t(`requests.${type}.switch`)}</a>
       </div>
     </SitePage>
   );

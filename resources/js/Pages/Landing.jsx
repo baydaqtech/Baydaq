@@ -25,6 +25,9 @@ const STORY_3D = '(min-width: 901px) and (prefers-reduced-motion: no-preference)
 // The "technologies we use" logo strip under the hero is hidden for now; set to true to show it.
 const SHOW_TECH_STRIP = false;
 
+// The "what we do" section ("three ways to work with us") is hidden for now; set to true to show it.
+const SHOW_DEALS = false;
+
 // The "products we build and run" and "ready services for your app" sections are hidden for now; set to true to
 // show them. Their full lists stay on /products and /services.
 const SHOW_PRODUCTS = false;
@@ -47,8 +50,12 @@ export default function Landing({ products, services, work }) {
       <main id="top">
         <Hero />
         {SHOW_TECH_STRIP && <TechStrip />}
-        <Deals />
-        <CheckerRule />
+        {SHOW_DEALS && (
+          <>
+            <Deals />
+            <CheckerRule />
+          </>
+        )}
         {story3d ? <BoardStory /> : (
           <>
             <Services />

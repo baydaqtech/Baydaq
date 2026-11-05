@@ -9,7 +9,7 @@ return [
         'remember' => 'Remember me',
         'submit' => 'Sign in',
         'forgot' => 'Forgot your password?',
-        'no_signup' => 'Accounts are created by the Baydaq team. To get one, send a partnership or service request.',
+        'no_signup' => 'Accounts are created by the Baydaq team. To get one, send a project or service request.',
     ],
 
     'forgot' => [

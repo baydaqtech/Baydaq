@@ -15,13 +15,17 @@ class RequestController extends Controller
     use RendersSitePages;
 
     /**
-     * The partnership or service request form.
+     * The project or service request form, with where it sends to and the address of the other form.
      */
-    public function create(RequestType $type): Response
+    public function create(RequestType $requestType): Response
     {
+        $other = $requestType === RequestType::Service ? RequestType::Partnership : RequestType::Service;
+
         return $this->sitePage('RequestForm', [
-            'type' => $type->value,
-            'services' => $type === RequestType::Service
+            'type' => $requestType->value,
+            'action' => "/request/{$requestType->slug()}",
+            'switchTo' => "/request/{$other->slug()}",
+            'services' => $requestType === RequestType::Service
                 ? Service::query()->listed()->get()->map(fn (Service $service): array => [
                     'key' => $service->key,
                     'name' => $service->localized('name'),
@@ -30,11 +34,11 @@ class RequestController extends Controller
         ], ['requests']);
     }
 
-    public function store(StoreClientRequest $request, RequestType $type, SubmitRequest $submitRequest): RedirectResponse
+    public function store(StoreClientRequest $request, RequestType $requestType, SubmitRequest $submitRequest): RedirectResponse
     {
         // Bots get the same thank-you; nothing is saved or sent.
         if (! $request->isSpam()) {
-            $submitRequest->handle($type, [
+            $submitRequest->handle($requestType, [
                 ...$request->safe()->except('website'),
                 'locale' => app()->getLocale(),
                 'ip' => $request->ip(),
