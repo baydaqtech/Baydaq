@@ -57,6 +57,16 @@ class Client extends Model
     }
 
     /**
+     * HTML documents the team uploaded for the client (SRS, prototypes…).
+     *
+     * @return HasMany<ClientDocument, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ClientDocument::class);
+    }
+
+    /**
      * @return HasMany<Invoice, $this>
      */
     public function invoices(): HasMany

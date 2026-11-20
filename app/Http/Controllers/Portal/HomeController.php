@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Actions\Clients\ClientDocumentList;
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Portal\InvoiceResource;
 use App\Http\Resources\Portal\ProjectResource;
+use App\Models\ClientDocument;
 use App\Models\Invoice;
 use App\Models\Project;
 use App\Modules\Platform\Models\Access\AccessAssignment;
@@ -16,7 +18,8 @@ use Inertia\Response;
 class HomeController extends Controller
 {
     /**
-     * The client portal home: the client's projects and their latest invoices.
+     * The client portal home: the client's projects, the documents the team shared (newest first,
+     * numbered in upload order) and the latest invoices.
      */
     public function __invoke(Request $request): Response
     {
@@ -29,6 +32,7 @@ class HomeController extends Controller
             'projects' => ProjectResource::collection(
                 Project::query()->where('client_id', $clientId)->withCount('projectServices')->latest()->get(),
             ),
+            'documents' => ClientDocumentList::for($clientId, fn (ClientDocument $document): string => route('portal.documents.show', $document, false)),
             'invoices' => InvoiceResource::collection((clone $invoices)->with('project')->latest('issue_date')->limit(5)->get()),
             'billing' => [
                 'due' => (string) (clone $invoices)->outstanding()->sum('total'),

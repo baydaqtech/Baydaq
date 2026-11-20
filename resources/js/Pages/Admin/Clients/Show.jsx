@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
-import { Briefcase, FilePlus2, Pencil, Plus, Send, UserPlus } from 'lucide-react';
+import { Briefcase, FilePlus2, FileText, MessageSquare, Pencil, Plus, Send, Upload, UserPlus } from 'lucide-react';
 import ConfirmAction from '@/components/platform/ConfirmAction';
 import DataTable from '@/components/platform/DataTable';
 import DetailList from '@/components/platform/DetailList';
+import FileField from '@/components/platform/FileField';
 import FormField from '@/components/platform/FormField';
 import PageHeader from '@/components/platform/PageHeader';
 import SelectInput from '@/components/platform/SelectInput';
@@ -14,11 +15,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import PlanCard from '@/components/admin/PlanCard';
 import AdminLayout from '@/layouts/AdminLayout';
 import { useCan } from '@/lib/auth';
-import { formatDate, formatMoney } from '@/lib/format';
+import { formatDate, formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 
 function InviteDialog({ client }) {
@@ -66,6 +68,101 @@ function InviteDialog({ client }) {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ShareDocumentDialog({ client, maxMb }) {
+  const t = useT();
+  const { dir, locale } = useLocale();
+  const [open, setOpen] = useState(false);
+  const [files, setFiles] = useState([]);
+  const form = useForm({ title: '', note: '', file: null });
+  const f = (field) => t(`admin.clients.documents.fields.${field}`);
+
+  function pick(picked) {
+    setFiles(picked);
+    form.setData((data) => ({
+      ...data,
+      file: picked[0] ?? null,
+      // Suggest a title from the file name until one is typed.
+      title: data.title || (picked[0]?.name ?? '').replace(/\.html?$/i, '').replace(/[-_]+/g, ' '),
+    }));
+  }
+
+  function submit(event) {
+    event.preventDefault();
+    form.post(`/admin/clients/${client.id}/documents`, {
+      preserveScroll: true,
+      onSuccess: () => { setOpen(false); form.reset(); setFiles([]); },
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline"><Upload data-icon="inline-start" />{t('admin.clients.documents.upload')}</Button>
+      </DialogTrigger>
+      <DialogContent dir={dir}>
+        <form onSubmit={submit} className="flex flex-col gap-4">
+          <DialogHeader>
+            <DialogTitle>{t('admin.clients.documents.upload_title')}</DialogTitle>
+            <DialogDescription>{t('admin.clients.documents.upload_text', { size: formatNumber(maxMb, locale) })}</DialogDescription>
+          </DialogHeader>
+          <FormField label={f('file')} htmlFor="doc-file" error={form.errors.file}>
+            <FileField id="doc-file" files={files} onChange={pick} accept=".html,.htm,text/html" invalid={!!form.errors.file} />
+          </FormField>
+          <FormField label={f('title')} htmlFor="doc-title" error={form.errors.title}>
+            <Input id="doc-title" value={form.data.title} maxLength={160} onChange={(event) => form.setData('title', event.target.value)} />
+          </FormField>
+          <FormField label={f('note')} htmlFor="doc-note" error={form.errors.note}>
+            <Textarea id="doc-note" rows={2} maxLength={500} value={form.data.note} onChange={(event) => form.setData('note', event.target.value)} />
+          </FormField>
+          {form.progress && <Progress value={form.progress.percentage} className="h-1.5" />}
+          <DialogFooter>
+            <Button type="submit" disabled={form.processing || !form.data.file}><Send data-icon="inline-start" />{t('admin.clients.documents.send')}</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DocumentsCard({ client, documents, maxMb, canManage }) {
+  const t = useT();
+  const { locale } = useLocale();
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-2">
+        <div className="min-w-0">
+          <CardTitle className="flex items-center gap-2"><FileText className="size-4 text-brass" />{t('admin.clients.documents.title')}</CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">{t('admin.clients.documents.lede')}</p>
+        </div>
+        {canManage && <ShareDocumentDialog client={client} maxMb={maxMb} />}
+      </CardHeader>
+      <CardContent>
+        {documents.length === 0
+          ? <p className="text-sm text-muted-foreground">{t('admin.clients.documents.none')}</p>
+          : (
+            <ul className="divide-y">
+              {documents.map((doc) => (
+                <li key={doc.id}>
+                  <Link href={doc.url} className="flex items-center gap-3 py-3 text-sm hover:text-foreground">
+                    <Badge variant="outline" className="shrink-0">{t('portal.documents.number', { number: formatNumber(doc.number, locale) })}</Badge>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{doc.title}</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        {formatDateTime(doc.uploaded_at, locale)}{doc.uploaded_by && ` · ${t('portal.documents.by', { name: doc.uploaded_by })}`}
+                      </span>
+                    </span>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground"><MessageSquare className="size-3.5" />{formatNumber(doc.comments_count, locale)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -180,7 +277,7 @@ function SuiteCard({ client, subscriptions, suite, canManage }) {
   );
 }
 
-export default function ClientShow({ client, users, projects, invoices, subscriptions, suite, plan }) {
+export default function ClientShow({ client, users, projects, invoices, documents, document_max_mb: documentMaxMb, subscriptions, suite, plan }) {
   const t = useT();
   const can = useCan();
   const { locale } = useLocale();
@@ -246,6 +343,10 @@ export default function ClientShow({ client, users, projects, invoices, subscrip
             </ul>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-6">
+        <DocumentsCard client={client} documents={documents} maxMb={documentMaxMb} canManage={can('clients.manage')} />
       </div>
 
       <div className="mt-6">

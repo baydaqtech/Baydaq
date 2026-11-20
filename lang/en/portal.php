@@ -12,6 +12,35 @@ return [
         'business_text' => 'HR and the rest of your business modules: companies, branches, people and access.',
     ],
 
+    'documents' => [
+        'title' => 'Documents',
+        'lede' => 'Requirements, prototypes and reports the Baydaq team shared with you, numbered in the order they were shared.',
+        'number' => 'No. :number',
+        'by' => 'by :name',
+        'open' => 'Open',
+        'back' => 'My projects',
+        'full_screen' => 'Open in a new tab',
+        'frame_title' => 'Document: :title',
+        'comments' => 'Comments',
+        'no_comments' => 'No comments yet. Tell us what you think of this document; the Baydaq team will see it.',
+        'write' => 'Your comment',
+        'placeholder' => 'Write a comment…',
+        'send' => 'Send',
+        'comment_sent' => 'Comment sent.',
+        'team' => 'Baydaq team',
+        'mail' => [
+            'shared' => [
+                'subject' => 'New document from Baydaq: :title',
+                'intro' => 'The Baydaq team shared “:title” with you. Open it to read it and leave your comments.',
+            ],
+            'commented' => [
+                'subject' => 'New comment on “:title”',
+                'intro' => ':name commented on “:title”:',
+            ],
+            'action' => 'Open the document',
+        ],
+    ],
+
     'billing' => [
         'title' => 'Invoices',
         'due' => 'Due',

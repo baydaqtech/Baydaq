@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Security;
 
+use App\Models\Client;
+use App\Models\ClientDocument;
 use App\Models\User;
 use App\Modules\Finance\Actions\PurchasingFlow;
 use App\Modules\Finance\Models\Bill;
@@ -273,6 +275,23 @@ class HardeningTest extends TestCase
         $this->asTenant($owner->client);
         $this->assertSame(5, Employee::query()->whereNotNull('user_id')->count());
         $this->assertTrue(Subscription::query()->where('ends_on', '>', today())->exists());
+    }
+
+    public function test_a_shared_client_document_opens_only_for_that_clients_accounts_and_runs_sandboxed(): void
+    {
+        $client = Client::factory()->create();
+        $document = ClientDocument::factory()->for($client)->create(['content' => '<script>fetch("/app/statement")</script>']);
+        $account = User::factory()->client($client)->create();
+        $otherClient = User::factory()->client()->create();
+        $suiteLogin = User::factory()->create(['client_id' => $client->id]);
+
+        $this->actingAs($otherClient)->get("/app/documents/{$document->id}/view")->assertForbidden();
+        $this->actingAs($suiteLogin)->get("/app/documents/{$document->id}/view")->assertForbidden();
+
+        // Uploaded HTML runs as an unknown origin: its scripts can't use the viewer's Baydaq sign-in.
+        $policy = $this->actingAs($account)->get("/app/documents/{$document->id}/view")->assertOk()->headers->get('Content-Security-Policy');
+        $this->assertStringStartsWith('sandbox ', $policy);
+        $this->assertStringNotContainsString('allow-same-origin', $policy);
     }
 
     public function test_a_booking_locks_the_branch_before_it_reads_the_free_slots(): void

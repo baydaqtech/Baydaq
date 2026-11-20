@@ -279,6 +279,14 @@ These are deliberately single, shared across modules — never add a second one:
 ### Admin (Baydaq staff)
 - Clients, client plans, packages and add-ons, module subscriptions, projects, Baydaq invoices, requests, services,
   products, team, settings.
+- **Client documents**: on a client's page the team shares a standalone `.html` file (SRS, prototype, report; up to
+  20 MB, UTF-8) with a title and an optional note, and the client's accounts get an email. The page is kept in the
+  database (`client_documents.content`), so it survives deploys without file storage. In the portal (`/app`) the
+  client sees the documents newest first, numbered in upload order with date and time, opens each as a page at
+  `/app/documents/{id}` (in a frame, or on its own at `/view`) and comments; the team replies from
+  `/admin/clients/{client}/documents/{id}` and the other side is emailed each time. Pages run sandboxed: their
+  scripts work but can't use the viewer's Baydaq sign-in, and browser storage is an in-memory stand-in so prototypes
+  that save state still run.
 
 ### Public site
 - Landing, products, services, service request and contact forms, in Arabic and English. The landing's "products we

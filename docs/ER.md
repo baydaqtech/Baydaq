@@ -18,7 +18,7 @@
 - Subscriptions (memberships): 8 tables
 - Assets and inventory: 18 tables
 - Finance (ledger, purchasing): 9 tables
-- Core app (users, clients, portal, permissions): 25 tables
+- Core app (users, clients, portal, permissions): 27 tables
 
 ## Platform (kernel: tenants, structure, access, packages, customers)
 
@@ -2473,6 +2473,27 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    client_document_comments {
+        bigint id PK
+        bigint client_document_id FK
+        bigint user_id FK
+        tinyint by_team
+        text body
+        timestamp created_at
+        timestamp updated_at
+    }
+    client_documents {
+        bigint id PK
+        bigint client_id FK
+        varchar title
+        varchar note
+        varchar file_name
+        int size
+        longtext content
+        bigint uploaded_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
     clients {
         bigint id PK
         varchar name_ar
@@ -2754,6 +2775,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+    client_documents ||--o{ client_document_comments : "client_document_id"
     invoices ||--o{ change_requests : "invoice_id"
     invoices ||--o{ invoice_items : "invoice_id"
     permissions ||--o{ model_has_permissions : "permission_id"
@@ -2771,5 +2793,7 @@ erDiagram
     services ||--o{ project_services : "service_id"
     users ||--o{ change_requests : "decided_by"
     users ||--o{ change_requests : "user_id"
+    users ||--o{ client_document_comments : "user_id"
+    users ||--o{ client_documents : "uploaded_by"
     users ||--o{ requests : "handled_by"
 ```

@@ -3,6 +3,7 @@
 use App\Enums\RequestType;
 use App\Http\Controllers\Admin\ChangeRequestController as AdminChangeRequestController;
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
+use App\Http\Controllers\Admin\ClientDocumentController;
 use App\Http\Controllers\Admin\ClientPlanController;
 use App\Http\Controllers\Admin\ClientSubscriptionController;
 use App\Http\Controllers\Admin\ClientSuiteController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Portal\ChangeRequestController as PortalChangeRequestController;
+use App\Http\Controllers\Portal\DocumentController as PortalDocumentController;
 use App\Http\Controllers\Portal\HomeController;
 use App\Http\Controllers\Portal\InvoicePaymentController;
 use App\Http\Controllers\Portal\ProjectController as PortalProjectController;
@@ -101,10 +103,19 @@ Route::prefix('admin')
             Route::post('/clients/{client}/subscriptions', [ClientSubscriptionController::class, 'store'])->name('clients.subscriptions.store');
             Route::put('/clients/{client}/subscriptions/{subscription}', [ClientSubscriptionController::class, 'update'])->name('clients.subscriptions.update');
             Route::post('/clients/{client}/subscriptions/{subscription}/invoice', [ClientSubscriptionController::class, 'invoice'])->name('clients.subscriptions.invoice');
+            Route::post('/clients/{client}/documents', [ClientDocumentController::class, 'store'])->name('clients.documents.store');
+            Route::scopeBindings()->group(function () {
+                Route::post('/clients/{client}/documents/{document}/comments', [ClientDocumentController::class, 'comment'])->name('clients.documents.comments.store');
+                Route::delete('/clients/{client}/documents/{document}', [ClientDocumentController::class, 'destroy'])->name('clients.documents.destroy');
+            });
         });
         Route::middleware('permission:clients.view|clients.manage')->group(function () {
             Route::get('/clients', [AdminClientController::class, 'index'])->name('clients.index');
             Route::get('/clients/{client}', [AdminClientController::class, 'show'])->name('clients.show');
+            Route::scopeBindings()->group(function () {
+                Route::get('/clients/{client}/documents/{document}', [ClientDocumentController::class, 'show'])->name('clients.documents.show');
+                Route::get('/clients/{client}/documents/{document}/view', [ClientDocumentController::class, 'view'])->name('clients.documents.view');
+            });
         });
 
         Route::middleware('permission:projects.manage')->group(function () {
@@ -198,6 +209,9 @@ Route::prefix('app')
         Route::post('/projects/{project}/changes/{changeRequest}/decide', [PortalChangeRequestController::class, 'decide'])->name('projects.changes.decide');
         Route::post('/projects/{project}/changes/{changeRequest}/withdraw', [PortalChangeRequestController::class, 'withdraw'])->name('projects.changes.withdraw');
         Route::put('/projects/{project}/services/{projectService}/cap', SpendCapController::class)->name('projects.services.cap');
+        Route::get('/documents/{document}', [PortalDocumentController::class, 'show'])->name('documents.show');
+        Route::get('/documents/{document}/view', [PortalDocumentController::class, 'view'])->name('documents.view');
+        Route::post('/documents/{document}/comments', [PortalDocumentController::class, 'comment'])->middleware('throttle:20,1')->name('documents.comments.store');
         Route::get('/statement', StatementController::class)->name('statement');
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
         Route::post('/invoices/{invoice}/pay', InvoicePaymentController::class)->middleware('throttle:10,1')->name('invoices.pay');
