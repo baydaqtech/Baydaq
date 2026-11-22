@@ -35,6 +35,8 @@ The owner's own list (mobile app parity, keys and accounts) is in `docs/FUTURE_W
 | 2026-10-26 | Moyasar webhooks re-checked with Moyasar (status, currency, full amount); marketing consent at the QR sign-up confirmed with a WhatsApp code. |
 | 2026-10-26 | **MVP features**: getting-started page for owners (setup steps from every module); approvals inbox across modules; notification centre (bell, email settings per kind, morning alerts for approvals, bills due, VAT return); payslips and self-service letters on `/me` and in the app; POS refunds (line by line, cash/card/wallet, loyalty and ledger reversed, credit note); finance opening balances and year-end close; loyalty points with tiers, redeemed as wallet credit. |
 | 2026-10-26 | Employee app: screens for every `/api/v1` area (tasks, advances and loans, overtime, expenses, shifts, breaks, remote, messages, announcements, surveys, recognition, calendar, insurance, training, reviews, record, payslips, letters), grouped under five tabs and hidden by package; token renewal. API answers in the phone's language; `/me` lists the web features screens need; task moves and break ends locked. |
+| 2026-11-20 | Client documents: the team uploads standalone HTML pages (SRS, prototypes, reports) to a client; the client sees them in the portal newest first, numbered in upload order with date and time, opens each as a sandboxed page and comments; the team replies; each side is emailed. |
+| 2026-11-05 | `TestAccountSeeder` no longer uses factories, so it runs on a server installed without development packages (it failed with `Call to undefined function fake()`); its subscriptions now run for a year from the day it is seeded. |
 | 2026-11-05 | Public site: the landing's "what we do" section ("three ways to work with us") is hidden for now (`SHOW_DEALS` in `Pages/Landing.jsx`). The site no longer says "partnership" or "tech arm": the partnership request is now "Start your project" / "Project request" at `/request/project` (the old `/request/partnership` redirects there; Arabic and English; the stored request type keeps its `partnership` value). |
 | 2026-11-03 | Public site: "Our projects" is a row of project logos (OpsMaster and PC Home open their own sites; Nuzul, Nuzul Umrah and Healthy Meals open case-study pages at `/work/{slug}`: hero with the product in a browser and a phone, story and architecture, screens on a dark board with a viewer, numbered features, projects in a loop; Arabic and English). The landing's products and platform services sections are hidden for now. |
 | 2026-10-25 | Direction: Baydaq is a general HR and company system. Branches can be any business (café, gym, shop, office); no more industry-specific features — POS, reservations and memberships stay as optional add-ons. |
@@ -133,10 +135,10 @@ The owner's own list (mobile app parity, keys and accounts) is in `docs/FUTURE_W
 
 For the first paying clients (any company with 5–200 staff and one or more branches, whatever the branch does):
 
-1. Platform: onboarding wizard, approvals inbox, notifications, packages (done), theming (done).
-2. HR: employees, attendance, leave, shifts, payroll with GOSI/WPS, offboarding, letters, mobile app (done), payslips (to build).
+1. Platform: getting started, approvals inbox, notifications, packages, theming (done).
+2. HR: employees, attendance, leave, shifts, payroll with GOSI/WPS, offboarding, letters, mobile app, payslips (done).
 3. HR engagement: policies, surveys, recognition, message builder, calendar (done).
-4. Optional add-ons: POS + customers + loyalty, refunds (to build).
+4. Optional add-ons: POS + customers + loyalty, refunds (done).
 5. Invoicing with ZATCA (done).
-6. Finance: ledger, VAT return, expenses, bills (done); opening balances (to build).
+6. Finance: ledger, VAT return, expenses, bills, opening balances (done).
 7. All P0 fixes in section 2.

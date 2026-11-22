@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Clients\ClientDocumentList;
 use App\Enums\ClientStatus;
 use App\Http\Controllers\Concerns\RendersAdminPages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SaveClientRequest;
+use App\Http\Requests\Admin\ShareClientDocumentRequest;
 use App\Http\Resources\Admin\ClientResource;
 use App\Http\Resources\Admin\InvoiceResource;
 use App\Http\Resources\Admin\ProjectResource;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\Client;
+use App\Models\ClientDocument;
 use App\Models\User;
 use App\Modules\Platform\Access\EffectivePlan;
 use App\Modules\Platform\Access\FeatureCatalog;
@@ -79,11 +82,13 @@ class ClientController extends Controller
         ]);
 
         return $this->adminPage('Admin/Clients/Show', [
-            'copy' => ['admin' => trans('admin'), 'suite' => ['module' => trans('suite.module'), 'billing_unit' => trans('suite.billing_unit'), 'subscription_status' => trans('suite.subscription_status'), 'catalog' => trans('suite.catalog')]],
+            'copy' => ['admin' => trans('admin'), 'portal' => ['documents' => trans('portal.documents')], 'suite' => ['module' => trans('suite.module'), 'billing_unit' => trans('suite.billing_unit'), 'subscription_status' => trans('suite.subscription_status'), 'catalog' => trans('suite.catalog')]],
             'client' => new ClientResource($client),
             'users' => UserResource::collection($client->users),
             'projects' => ProjectResource::collection($client->projects),
             'invoices' => InvoiceResource::collection($client->invoices),
+            'documents' => ClientDocumentList::for($client->id, fn (ClientDocument $document): string => route('admin.clients.documents.show', [$client, $document], false)),
+            'document_max_mb' => ShareClientDocumentRequest::MAX_KB / 1024,
             'subscriptions' => Subscription::forClient($client)->orderByDesc('starts_on')->get()->map(fn (Subscription $subscription): array => [
                 'id' => $subscription->id,
                 'module' => $subscription->module->value,

@@ -15,6 +15,7 @@ Re-run this review after any large feature, and update the tables.
 | SQL injection | ✅ | All raw fragments (`selectRaw`, `orderByRaw`, `whereRaw`) are fixed strings or bound values; no `DB::statement`/`unprepared`; no user-chosen `orderBy` column. |
 | XSS (React) | ✅ | Only `dangerouslySetInnerHTML` is a constant (`TechStrip.jsx`). React escapes everything else. |
 | XSS (Blade/PDF) | ✅ | Every `{!! !!}` goes through `e()` first (invoice and letter PDFs). |
+| Uploaded HTML (client documents) | ✅ | The team's standalone pages are served only to that client's accounts and the team (`ClientDocumentPolicy`; admin routes bind a document within its client). They run under `Content-Security-Policy: sandbox …` without `allow-same-origin` and in a sandboxed frame, so their scripts can't read Baydaq cookies or act with the viewer's sign-in, whoever uploaded them (test `a_shared_client_document_opens_only_for_that_clients_accounts_and_runs_sandboxed`). Not indexed (`X-Robots-Tag`). |
 | Mass assignment | ✅ | Models declare `#[Fillable]`; requests are validated; no `$request->all()`. |
 | Command injection, unsafe deserialization, `eval` | ✅ | None in `app/`. |
 | SSRF | ✅ | Outbound HTTP only to configured hosts (ZATCA, Moyasar, WhatsApp, Anthropic). |

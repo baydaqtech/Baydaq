@@ -18,6 +18,7 @@ Last review: 2026-10-25.
 | D7 | Asset maintenance `vendor` text and asset `cost` not linked to Finance suppliers/bills; PO "received" not linked to stock receipts | ⚠️ | Link assets/inventory receiving to Finance purchasing. |
 | D8 | Legacy core tables `invoices`, `services`, `products` (Baydaq's own billing) overlap module invoices | ✅ by design | They are Baydaq-to-client billing, not tenant data. Keep separate, but name clearly. |
 | D9 | Wallet vs loyalty | ✅ | Loyalty credits the same wallet. Note: the wallet is account-wide while loyalty % is per company. |
+| D10 | Project files (`project_files`: links per project, typed in admin) vs client documents (`client_documents`: uploaded HTML pages per client, with comments) | ✅ by design | Different things: a file is a link to somewhere else; a document is a page Baydaq hosts and the client comments on. If documents later need to belong to a project, add a nullable `project_id` to `client_documents` rather than a second store. |
 
 ## 2. Behavioural conflicts
 

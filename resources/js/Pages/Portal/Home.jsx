@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowUpRight, Briefcase, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, Briefcase, FileText, MessageSquare, Wallet } from 'lucide-react';
 import BrandMark from '@/components/platform/BrandMark';
 import InvoiceTable from '@/components/platform/InvoiceTable';
 import StatCard from '@/components/platform/StatCard';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import PortalLayout from '@/layouts/PortalLayout';
-import { formatMoney, formatNumber, formatPercent } from '@/lib/format';
+import { formatDateTime, formatMoney, formatNumber, formatPercent } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 
 function ProjectCard({ project }) {
@@ -43,7 +43,47 @@ function ProjectCard({ project }) {
   );
 }
 
-export default function Home({ projects, invoices, billing, suite_url: suiteUrl }) {
+/** Documents the team shared, newest first and numbered in the order they were shared; each opens as a page. */
+function Documents({ documents }) {
+  const t = useT();
+  const { locale } = useLocale();
+
+  return (
+    <section aria-labelledby="documents-title" className="mt-10">
+      <h2 id="documents-title" className="text-lg font-semibold">{t('portal.documents.title')}</h2>
+      <p className="mb-3 text-sm text-muted-foreground">{t('portal.documents.lede')}</p>
+      <Card className="py-0">
+        <ul className="divide-y">
+          {documents.map((doc) => (
+            <li key={doc.id}>
+              <Link href={doc.url} className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/60">
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg border bg-secondary text-walnut"><FileText className="size-4" /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <Badge variant="outline" className="shrink-0">{t('portal.documents.number', { number: formatNumber(doc.number, locale) })}</Badge>
+                    <span className="truncate font-medium">{doc.title}</span>
+                  </span>
+                  <span className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
+                    <time dateTime={doc.uploaded_at}>{formatDateTime(doc.uploaded_at, locale)}</time>
+                    {doc.comments_count > 0 && (
+                      <span className="inline-flex items-center gap-1"><MessageSquare className="size-3.5" />{formatNumber(doc.comments_count, locale)}</span>
+                    )}
+                  </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground group-hover:text-foreground">
+                  {t('portal.documents.open')}
+                  <ArrowUpRight className="size-4 rtl:-scale-x-100" />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </section>
+  );
+}
+
+export default function Home({ projects, documents, invoices, billing, suite_url: suiteUrl }) {
   const t = useT();
   const { locale } = useLocale();
   const { user } = usePage().props.auth;
@@ -80,6 +120,8 @@ export default function Home({ projects, invoices, billing, suite_url: suiteUrl 
             </div>
           )}
       </section>
+
+      {documents.length > 0 && <Documents documents={documents} />}
 
       <section aria-labelledby="billing-title" className="mt-10">
         <h2 id="billing-title" className="mb-3 text-lg font-semibold">{t('portal.billing.title')}</h2>

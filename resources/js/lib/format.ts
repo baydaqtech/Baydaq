@@ -25,6 +25,15 @@ export function formatDate(value: string | Date | null | undefined, locale: stri
   return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: 'medium' }).format(new Date(value));
 }
 
+/** Date and time, e.g. "20 Nov 2026, 14:05" / "٢٠ نوفمبر ٢٠٢٦، ٢:٠٥ م". */
+export function formatDateTime(value: string | Date | null | undefined, locale: string): string {
+  if (!value) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+}
+
 /** 60 → "60%" / "٦٠٪". */
 export function formatPercent(value: Numeric, locale: string): string {
   return new Intl.NumberFormat(numberLocale(locale), { style: 'percent', maximumFractionDigits: 2 }).format(Number(value) / 100);

@@ -2,11 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ClientStatus;
+use App\Enums\Role;
 use App\Models\Client;
 use App\Models\User;
 use App\Modules\Hr\Actions\Contracts\SaveContract;
 use App\Modules\Hr\Actions\Employees\LinkEmployeeUser;
 use App\Modules\Hr\Actions\Employees\SaveEmployee;
+use App\Modules\Hr\Enums\AllowanceCalculation;
 use App\Modules\Hr\Models\AllowanceType;
 use App\Modules\Hr\Models\Contract;
 use App\Modules\Hr\Models\DeductionType;
@@ -23,6 +26,7 @@ use App\Modules\Platform\Models\Subscription;
 use App\Modules\Platform\Models\WorkLocation;
 use App\Modules\Platform\Tenancy\CurrentTenant;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role as RoleModel;
 
 /**
  * A clean test account to try the suite by hand: one owner, one organization, two companies with
@@ -31,6 +35,7 @@ use Illuminate\Database\Seeder;
  *   php artisan db:seed --class=TestAccountSeeder
  *
  * Every login uses the password below. Safe to run again (it does nothing the second time).
+ * It uses no factories, so it also runs on a server installed without development packages (Faker).
  */
 class TestAccountSeeder extends Seeder
 {
@@ -44,10 +49,14 @@ class TestAccountSeeder extends Seeder
             return;
         }
 
-        $client = Client::factory()->create(['name_ar' => 'مجموعة النور', 'name_en' => 'Al Noor Group']);
-        $owner = User::factory()->client($client)->create([
-            'name' => 'Faisal Alnoor', 'email' => self::OWNER, 'password' => bcrypt(self::PASSWORD), 'must_change_password' => false,
+        $client = Client::query()->create([
+            'name_ar' => 'مجموعة النور', 'name_en' => 'Al Noor Group', 'contact_name' => 'Faisal Alnoor',
+            'contact_email' => self::OWNER, 'contact_phone' => '0500000000', 'status' => ClientStatus::Active,
         ]);
+        $owner = new User(['name' => 'Faisal Alnoor', 'email' => self::OWNER, 'password' => self::PASSWORD]);
+        $owner->forceFill(['client_id' => $client->id, 'email_verified_at' => now(), 'must_change_password' => false])->save();
+        RoleModel::findOrCreate(Role::Client->value);
+        $owner->assignRole(Role::Client);
         app(ProvisionSuite::class)->handle($client, [$owner]);
 
         app(CurrentTenant::class)->run($client, function () use ($client): void {
@@ -69,7 +78,10 @@ class TestAccountSeeder extends Seeder
             $jeddah = $this->branch($client, $trading, 'JED', 'جدة', 'Jeddah', 'جدة', 'Jeddah');
 
             foreach (Module::cases() as $module) {
-                Subscription::factory()->module($module)->create(['client_id' => $client->id, 'quantity' => $module === Module::Hr ? 50 : 5]);
+                (new Subscription([
+                    'module' => $module, 'billing_unit' => $module->billingUnit(), 'quantity' => $module === Module::Hr ? 50 : 5, 'unit_price' => '150.00',
+                    'starts_on' => now()->toDateString(), 'ends_on' => now()->addYear()->toDateString(),
+                ]))->forceFill(['client_id' => $client->id])->save();
             }
 
             $this->locations($client, $cafes, $olaya, $nakheel, $jeddah);
@@ -80,9 +92,12 @@ class TestAccountSeeder extends Seeder
 
     private function branch(Client $client, Company $company, string $code, string $ar, string $en, string $cityAr, string $cityEn): Branch
     {
-        return Branch::factory()->for($company)->create([
-            'client_id' => $client->id, 'code' => $code, 'name_ar' => "فرع {$ar}", 'name_en' => "{$en} Branch", 'city_ar' => $cityAr, 'city_en' => $cityEn,
+        $branch = new Branch([
+            'company_id' => $company->id, 'code' => $code, 'name_ar' => "فرع {$ar}", 'name_en' => "{$en} Branch", 'city_ar' => $cityAr, 'city_en' => $cityEn,
         ]);
+        $branch->forceFill(['client_id' => $client->id])->save();
+
+        return $branch;
     }
 
     private function locations(Client $client, Company $cafes, Branch $olaya, Branch $nakheel, Branch $jeddah): void
@@ -103,7 +118,9 @@ class TestAccountSeeder extends Seeder
         $owned(new LeaveType(['name_ar' => 'بدون راتب', 'name_en' => 'Unpaid', 'days_per_year' => '0', 'is_paid' => false, 'needs_balance' => false]));
         $owned(new DeductionType(['name_ar' => 'تأخير', 'name_en' => 'Lateness']));
         $owned(new DeductionType(['name_ar' => 'جزاء', 'name_en' => 'Penalty']));
-        AllowanceType::factory()->create(['client_id' => $client->id]); // housing, 25% of basic
+        $owned(new AllowanceType([
+            'name_ar' => 'بدل سكن', 'name_en' => 'Housing', 'calculation' => AllowanceCalculation::PercentOfBasic, 'default_value' => '25.00', 'counts_for_gosi' => true,
+        ]));
     }
 
     private function employees(Client $client, Company $cafes, Company $trading, Branch $olaya, Branch $nakheel, Branch $jeddah): void
